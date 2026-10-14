@@ -13,6 +13,13 @@ const APP_URL = (process.env.APP_URL || 'https://stars-production-0668.up.railwa
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: process.env.DATABASE_URL && !/localhost|127\.0\.0\.1/.test(process.env.DATABASE_URL) ? { rejectUnauthorized: false } : false });
 let bot = null;
 let dbReady = false;
+const STAR_PRODUCTS = {
+  boost_50: { title: 'Усиление x2', description: 'Удвоение награды за клик', stars: 50, multiplier: 2 },
+  boost_100: { title: 'Усиление x3', description: 'Утроение награды за клик', stars: 100, multiplier: 3 },
+  boost_200: { title: 'Усиление x5', description: 'Увеличение награды за клик в 5 раз', stars: 200, multiplier: 5 },
+  boost_350: { title: 'Усиление x7', description: 'Увеличение награды за клик в 7 раз', stars: 350, multiplier: 7 },
+  boost_500: { title: 'Усиление x10', description: 'Увеличение награды за клик в 10 раз', stars: 500, multiplier: 10 }
+};
 
 async function initDb() {
   await pool.query(`
@@ -23,6 +30,7 @@ async function initDb() {
       avatar TEXT NOT NULL DEFAULT '⭐',
       balance NUMERIC(24,8) NOT NULL DEFAULT 0,
       total NUMERIC(24,8) NOT NULL DEFAULT 0,
+      click_multiplier NUMERIC(8,2) NOT NULL DEFAULT 1,
       referred_by BIGINT REFERENCES players(telegram_id),
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
@@ -33,6 +41,17 @@ async function initDb() {
       to_id BIGINT NOT NULL REFERENCES players(telegram_id),
       amount NUMERIC(24,8) NOT NULL CHECK (amount > 0),
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+    ALTER TABLE players ADD COLUMN IF NOT EXISTS click_multiplier NUMERIC(8,2) NOT NULL DEFAULT 1;
+    CREATE TABLE IF NOT EXISTS star_orders (
+      id UUID PRIMARY KEY,
+      telegram_id BIGINT NOT NULL REFERENCES players(telegram_id),
+      product_id TEXT NOT NULL,
+      stars INTEGER NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending',
+      charge_id TEXT UNIQUE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      paid_at TIMESTAMPTZ
     );
     CREATE INDEX IF NOT EXISTS players_username_lower_idx ON players (LOWER(username));
   `);
@@ -100,7 +119,7 @@ async function auth(req, res, next) {
 function mainKeyboard(id) {
   return {
     inline_keyboard: [
-      [{ text: '⭐ Открыть кликер', web_app: { url: APP_URL } }],
+      [{ text: '⭐ Открыть кликер', web_app: { url: APP_URL } }],\n      [{ text: '✨ Улучшения за Telegram Stars', callback_data: 'star_shop' }],
       [{ text: '👤 Профиль и аватар', web_app: { url: APP_URL + '#profilePanel' } }],
       [{ text: '✨ Кликнуть +0.0001', callback_data: 'click' }, { text: '💰 Баланс', callback_data: 'balance' }],
       [{ text: '🔗 Реферальная ссылка', callback_data: 'referral' }],
@@ -146,7 +165,7 @@ async function transfer(fromId, recipient, amount) {
 function registerBot() {
   if (!BOT_TOKEN) { console.warn('BOT_TOKEN is not set; Telegram bot is disabled.'); return; }
   bot = new TelegramBot(BOT_TOKEN, { polling: true });
-  bot.on('error', e => console.error('Telegram bot error:', e.message));
+  bot.on('error', e => console.error('Telegram bot error:', e.message));\n  bot.on('pre_checkout_query', async q => {\n    try {\n      const order = await pool.query('SELECT telegram_id,stars,status FROM star_orders WHERE id=$1', [q.invoice_payload]);\n      const valid = order.rowCount && String(order.rows[0].telegram_id) === String(q.from.id) && Number(order.rows[0].stars) === Number(q.total_amount) && q.currency === 'XTR' && order.rows[0].status === 'pending';\n      await bot.answerPreCheckoutQuery(q.id, Boolean(valid), valid ? undefined : { error_message: 'Заказ не найден или уже обработан. Открой магазин и попробуй ещё раз.' });\n    } catch (e) { console.error('Ошибка pre-checkout:', e.message); await bot.answerPreCheckoutQuery(q.id, false, { error_message: 'Не удалось проверить заказ. Попробуй позже.' }).catch(()=>{}); }\n  });\n  bot.on('message', async msg => {\n    const payment = msg.successful_payment;\n    if (!payment || payment.currency !== 'XTR' || !dbReady) return;\n    const client = await pool.connect();\n    try {\n      await client.query('BEGIN');\n      const orderResult = await client.query('SELECT * FROM star_orders WHERE id=$1 FOR UPDATE', [payment.invoice_payload]);\n      if (!orderResult.rowCount) throw new Error('Заказ для платежа не найден: ' + payment.invoice_payload);\n      const order = orderResult.rows[0];\n      const product = STAR_PRODUCTS[order.product_id];\n      if (!product || String(order.telegram_id) !== String(msg.from.id) || Number(order.stars) !== Number(payment.total_amount)) throw new Error('Платёж не совпал с заказом');\n      if (order.status !== 'paid') {\n        const inserted = await client.query('INSERT INTO star_orders (id,telegram_id,product_id,stars,status,charge_id,paid_at) VALUES ($1,$2,$3,$4,\'paid\',$5,NOW()) ON CONFLICT (charge_id) DO NOTHING RETURNING id', [order.id, order.telegram_id, order.product_id, order.stars, payment.telegram_payment_charge_id]);\n        if (inserted.rowCount) {\n          await client.query('UPDATE players SET click_multiplier=GREATEST(click_multiplier,$2),updated_at=NOW() WHERE telegram_id=$1', [String(order.telegram_id), product.multiplier]);\n          await client.query('UPDATE star_orders SET status=\'paid\',charge_id=$2,paid_at=NOW() WHERE id=$1', [order.id, payment.telegram_payment_charge_id]);\n        }\n      }\n      await client.query('COMMIT');\n      await bot.sendMessage(msg.chat.id, '✅ Оплата получена! Улучшение «' + product.title + '» активно. Множитель клика: x' + product.multiplier + '.');\n    } catch (e) { await client.query('ROLLBACK'); console.error('Ошибка выдачи улучшения:', e.message); await bot.sendMessage(msg.chat.id, 'Платёж получен, но возникла ошибка активации. Напиши администратору и укажи ID платежа: ' + payment.telegram_payment_charge_id).catch(()=>{}); }\n    finally { client.release(); }\n  });
   bot.onText(/^\/start(?:\s+(.+))?/, async msg => { try { await botStart(msg); } catch (e) { console.error('Ошибка /start:', e.message); const hint = !dbReady ? 'База данных Stars пока недоступна. Администратору нужно подключить PostgreSQL в Railway: DATABASE_URL должен ссылаться на базу Railway, а не на localhost.' : 'Не удалось загрузить профиль. Попробуй позже.'; bot.sendMessage(msg.chat.id, hint).catch(err => console.error('Не удалось ответить на /start:', err.message)); } });
   bot.onText(/^\/name(?:\s+([\s\S]+))?$/i, async (msg, match) => {
     try {
@@ -186,7 +205,7 @@ function registerBot() {
         const r=await pool.query('UPDATE players SET balance=balance+0.0001,total=total+0.0001,updated_at=NOW() WHERE telegram_id=$1 RETURNING balance',[String(q.from.id)]);
         await bot.answerCallbackQuery(q.id,{text:'+0.0001 звезды'});
         await bot.sendMessage(q.message.chat.id,`⭐ +0.0001 звезды! Баланс: ${Number(r.rows[0].balance).toFixed(4)}`,{reply_markup:mainKeyboard(q.from.id)});
-      } else if(q.data==='balance') {
+      } else if(q.data==='star_shop') {\n        await bot.answerCallbackQuery(q.id);\n        await bot.sendMessage(q.message.chat.id, '✨ Улучшения за настоящие Telegram Stars\\n\\nОткрой приложение кнопкой ниже, выбери усиление от 50 до 500 ⭐ и подтверди оплату в Telegram.', { reply_markup: { inline_keyboard: [[{ text: '✨ Открыть магазин', web_app: { url: APP_URL + '#shopPanel' } }], ...mainKeyboard(q.from.id).inline_keyboard] } });\n      } else if(q.data==='balance') {
         const p=await upsertPlayer(q.from,''); await bot.answerCallbackQuery(q.id,{text:`Баланс: ${Number(p.balance).toFixed(4)} звёзд`,show_alert:true});
       } else if(q.data==='referral') {
         const me=await bot.getMe(); const link=`https://t.me/${me.username}?start=ref_${q.from.id}`;
@@ -201,8 +220,8 @@ function registerBot() {
   bot.on('polling_error', e => console.error('Telegram polling error:', e.message));
 }
 app.get('/health', (_req,res)=>res.status(200).json({ok:true,dbReady,botEnabled:Boolean(bot),message:dbReady?(bot?'Stars is ready':'Database ready; BOT_TOKEN is not configured'):'PostgreSQL is not ready; check DATABASE_URL and Railway database logs'}));
-app.get('/api/me', auth, async (req,res)=>res.json({player:publicPlayer(await getPlayer(req.player.telegram_id))}));
-app.post('/api/click', auth, async (req,res)=>{const amount=0.0001;const r=await pool.query('UPDATE players SET balance=balance+$2,total=total+$2,updated_at=NOW() WHERE telegram_id=$1 RETURNING balance,total',[String(req.player.telegram_id),amount]);res.json({balance:Number(r.rows[0].balance),total:Number(r.rows[0].total),gain:amount});});
+app.get('/api/me', auth, async (req,res)=>res.json({player:publicPlayer(await getPlayer(req.player.telegram_id))}));\napp.get('/api/shop/products', (_req,res)=>res.json({products:Object.entries(STAR_PRODUCTS).map(([id,p])=>({id,title:p.title,description:p.description,stars:p.stars,multiplier:p.multiplier}))}));\napp.post('/api/shop/invoice', auth, async (req,res)=>{\n  try {\n    if (!bot) return res.status(503).json({error:'Telegram-бот сейчас недоступен.'});\n    const product = STAR_PRODUCTS[String(req.body && req.body.productId || '')];\n    if (!product) return res.status(400).json({error:'Неизвестное улучшение.'});\n    const orderId = crypto.randomUUID();\n    await pool.query('INSERT INTO star_orders(id,telegram_id,product_id,stars,status) VALUES($1,$2,$3,$4,\'pending\')', [orderId,String(req.player.telegram_id),String(req.body.productId),product.stars]);\n    const invoiceUrl = await bot.createInvoiceLink(product.title, product.description, orderId, '', 'XTR', [{label:product.title,amount:product.stars}]);\n    res.json({url:invoiceUrl,stars:product.stars});\n  } catch(e) { console.error('Не удалось создать Stars invoice:',e.message); res.status(500).json({error:'Не удалось создать окно оплаты. Попробуй ещё раз.'}); }\n});
+app.post('/api/click', auth, async (req,res)=>{const r=await pool.query('UPDATE players SET balance=balance+(0.0001*click_multiplier),total=total+(0.0001*click_multiplier),updated_at=NOW() WHERE telegram_id=$1 RETURNING balance,total,click_multiplier',[String(req.player.telegram_id)]);const amount=0.0001*Number(r.rows[0].click_multiplier);res.json({balance:Number(r.rows[0].balance),total:Number(r.rows[0].total),gain:amount,clickMultiplier:Number(r.rows[0].click_multiplier)});});
 app.post('/api/profile', auth, async (_req,res)=>res.status(403).json({error:'Имя и аватар можно изменить только через Telegram-бота.'}));
 app.get('/api/leaderboard', auth, async (req,res)=>{
   const r=await pool.query('SELECT telegram_id,username,display_name,avatar,balance,total FROM players ORDER BY balance DESC,total DESC,created_at ASC LIMIT 100');
