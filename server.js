@@ -243,7 +243,14 @@ function registerBot() {
         await bot.sendMessage(q.message.chat.id,`⭐ +0.0001 звезды! Баланс: ${Number(r.rows[0].balance).toFixed(4)}`,{reply_markup:mainKeyboard(q.from.id)});
       } else if(q.data==='star_shop') {
         await bot.answerCallbackQuery(q.id);
-        await bot.sendMessage(q.message.chat.id, '✨ Улучшения за настоящие Telegram Stars\n\nОткрой приложение кнопкой ниже, выбери усиление от 50 до 500 ⭐ и подтверди оплату в Telegram.', { reply_markup: { inline_keyboard: [[{ text: '✨ Открыть магазин', web_app: { url: APP_URL + '#shopPanel' } }], ...mainKeyboard(q.from.id).inline_keyboard] } });
+        const rows = [];
+        for (const [id, product] of Object.entries(STAR_PRODUCTS)) {
+          const orderId = crypto.randomUUID();
+          await pool.query("INSERT INTO star_orders(id,telegram_id,product_id,stars,status) VALUES($1,$2,$3,$4,'pending')", [orderId, String(q.from.id), id, product.stars]);
+          const invoiceUrl = await bot.createInvoiceLink(product.title, product.description, orderId, '', 'XTR', [{ label: product.title, amount: product.stars }]);
+          rows.push([{ text: '⭐ ' + product.stars + ' — ' + product.title, url: invoiceUrl }]);
+        }
+        await bot.sendMessage(q.message.chat.id, '✨ <b>Улучшения за Telegram Stars</b>\\n\\nВыбери покупку ниже — оплата откроется в Telegram. Множитель клика действует постоянно.\\n\\nТакже магазин доступен в приложении.', { parse_mode: 'HTML', reply_markup: { inline_keyboard: [...rows, [{ text: '🛍 Открыть магазин в приложении', web_app: { url: APP_URL + '#shopPanel' } }], ...mainKeyboard(q.from.id).inline_keyboard] } });
       } else if(q.data==='balance') {
         const p=await upsertPlayer(q.from,''); await bot.answerCallbackQuery(q.id,{text:`Баланс: ${Number(p.balance).toFixed(4)} звёзд`,show_alert:true});
       } else if(q.data==='referral') {
