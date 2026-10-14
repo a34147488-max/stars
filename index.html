@@ -201,6 +201,24 @@ body{overflow-anchor:none}
 .olympus-back{margin-top:auto;width:100%;border:1px solid #8b6b38;border-radius:13px;padding:12px;background:#160e20;color:#f9e4a6;font-weight:800}
 #gamesPanel .daily-game-divider,#gamesPanel>h3,#gamesPanel>p,#gamesPanel .wheel-stage,#gamesPanel>#spinWheel,#gamesPanel>#wheelMessage{margin-left:14px;margin-right:14px}
 
+
+/* Olympus slot redesign */
+#gamesPanel.olympus-fullscreen{position:fixed!important;inset:0!important;left:0!important;top:0!important;transform:none!important;width:100vw!important;max-width:none!important;height:100dvh!important;max-height:100dvh!important;overflow:auto!important;padding:0!important;margin:0!important;border:0!important;border-radius:0!important;background:#09050d!important;z-index:10020!important;box-shadow:0 0 0 100vmax #000!important}
+.olympus-game{min-height:100%;padding:calc(env(safe-area-inset-top,0px) + 14px) 12px calc(env(safe-area-inset-bottom,0px) + 20px);display:flex;flex-direction:column;align-items:center;gap:12px;color:#fff0c0;background:radial-gradient(ellipse at 50% 0%,#7e55b8 0,#321449 24%,#120a1a 55%,#07050b 100%);font-family:Georgia,serif}
+.olympus-game *{box-sizing:border-box}.olympus-game .olympus-back{align-self:flex-start;width:auto;margin:0;padding:9px 14px;border:1px solid #a77b35;background:#1a1023;color:#ffe8aa;border-radius:10px}
+.olympus-title{text-align:center;width:100%;padding:10px 8px 12px;border:2px solid #d9b451;border-radius:18px;background:linear-gradient(145deg,#5c2878,#21102e);box-shadow:inset 0 0 0 3px #5d341d,0 0 20px #f8c94c33}
+.olympus-laurel{font:800 9px system-ui;letter-spacing:3px;color:#d9c3ff}.olympus-title h1{margin:5px 0 0;font-size:clamp(36px,10vw,54px);line-height:.95;letter-spacing:2px;color:#ffe17a;text-shadow:0 3px #8c471c,0 6px #36133c,0 0 18px #ffc34d}.olympus-subtitle{font:900 11px system-ui;letter-spacing:7px;color:#e6c6ff;margin-top:8px}
+.olympus-status{display:flex;justify-content:space-between;width:100%;font:800 9px system-ui;letter-spacing:1px;color:#f5dca0}
+.olympus-frame{width:100%;padding:7px;border:4px solid #d9b44c;border-radius:10px;background:linear-gradient(140deg,#ffeaa2,#925c24 15%,#24102c 20%,#160a1c 80%,#e8c15d);box-shadow:0 0 20px #eab83e44,inset 0 0 0 2px #673d25}
+.olympus-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:3px;padding:3px;background:#0c0611;border:1px solid #9569a1}
+.olympus-cell{aspect-ratio:.88;min-width:0;display:grid;place-items:center;position:relative;overflow:hidden;background:linear-gradient(145deg,#49265c,#21102c 68%,#371745);border:1px solid #8a6594;border-radius:4px;transition:transform .18s,filter .18s;animation:olympusAppear .35s cubic-bezier(.2,.8,.2,1) both}
+.olympus-cell svg{width:90%;height:90%;overflow:visible;filter:drop-shadow(0 3px 2px #000b)}.olympus-cell.win{border:2px solid #ffe46f;box-shadow:inset 0 0 14px #ffba25,0 0 10px #ffd14d;animation:olympusWin .45s ease-in-out infinite alternate}.olympus-cell.vanish{animation:olympusVanish .3s ease-in forwards}.olympus-grid.spinning .olympus-cell{animation:olympusReel .12s linear infinite alternate;filter:brightness(1.5)}
+@keyframes olympusAppear{from{opacity:0;transform:translateY(-16px) scale(.8)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes olympusReel{to{transform:translateY(3px);filter:brightness(1.8)}}@keyframes olympusWin{to{filter:brightness(1.8);box-shadow:inset 0 0 18px #ffb500,0 0 15px #ffd34e}}@keyframes olympusVanish{to{opacity:0;transform:scale(.2) rotate(25deg)}}
+.olympus-win{font:1000 clamp(15px,4.5vw,22px) system-ui;text-align:center;color:#ffe16b;text-shadow:0 2px #7c3018,0 0 12px #ffbd38;min-height:24px}.olympus-result{min-height:18px;text-align:center;font:12px system-ui;color:#ead7ff}
+.olympus-controls{display:grid;grid-template-columns:1fr 1fr;gap:9px;width:100%;font:800 10px system-ui}.olympus-controls label,.olympus-toggle{display:flex;flex-direction:column;justify-content:center;gap:6px;min-height:54px;padding:9px 11px;border:1px solid #73518b;border-radius:10px;background:#1b1027;color:#f8e8bf;letter-spacing:1px}.olympus-controls select{width:100%;border:0;background:transparent;color:#fff;font:800 17px system-ui;outline:none}.olympus-controls option{background:#21102c}.olympus-toggle{cursor:pointer;text-align:left}.olympus-toggle[aria-pressed=true]{border-color:#ffe27a;background:#49341d}.olympus-toggle small{font-size:9px;letter-spacing:0;color:#c7b1db}
+.olympus-spin{display:flex;align-items:center;justify-content:center;gap:12px;width:min(100%,360px);min-height:65px;border:3px solid #ffdf70;border-radius:14px;background:linear-gradient(100deg,#a64c31,#e9b941,#a45ad1);box-shadow:inset 0 0 0 2px #6c371e,0 5px 0 #4d233f,0 0 22px #ffc74d55;color:#26102e;font:1000 20px system-ui;letter-spacing:3px;cursor:pointer}.olympus-spin:disabled,.olympus-buy:disabled{opacity:.5}.spin-ring{width:29px;height:29px;border:4px solid #32142d55;border-top-color:#32142d;border-radius:50%}.olympus-spin.busy .spin-ring{animation:spinRing .65s linear infinite}@keyframes spinRing{to{transform:rotate(360deg)}}
+.olympus-buy{width:100%;padding:13px;border:1px solid #b58de0;border-radius:10px;background:linear-gradient(100deg,#321749,#5b2c79);color:#f5e6ff;font:900 12px system-ui;letter-spacing:1px}.olympus-bonus{width:100%;padding:12px;text-align:center;border:1px solid #ffe071;border-radius:10px;background:#382718;color:#ffeaa0;font:800 12px system-ui}.olympus-paytable{display:grid;grid-template-columns:1fr 1fr;gap:7px;width:100%;font-family:system-ui}.olympus-paytable div{display:flex;flex-direction:column;gap:4px;padding:10px;border:1px solid #3b2948;border-radius:9px;background:#100b16}.olympus-paytable b{font-size:14px;color:#ffdf73}.olympus-paytable span{font-size:10px;line-height:1.35;color:#bcb0ca}.olympus-disclaimer{text-align:center;color:#80768b;font:10px/1.5 system-ui;padding:4px 8px}
+@media(min-width:600px){.olympus-game{max-width:520px;margin:auto}.olympus-frame{max-width:500px}.olympus-cell{aspect-ratio:1}}
 </style>
 </head>
 <body>
@@ -210,21 +228,23 @@ body{overflow-anchor:none}
 <header class="top"><div></div><button class="music-toggle" id="musicToggle" type="button" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span id="musicLabel">Включить музыку</span></button></header>
 
 <section class="menu-placeholder games-modal olympus-fullscreen" id="gamesPanel" hidden>
- <div class="olympus-sky">
-  <div class="olympus-header-art"><span class="laurel">✦ ✧ ✦</span><div class="olympus-brand">OLYMPUS <small>SPIN</small></div><span class="laurel">✦ ✧ ✦</span></div>
-  <div class="olympus-reel-shell">
-   <div class="olympus-reel-top"><span>⚡ OLYMPUS SPIN</span><span id="olympusSpinCount">СПИНОВ: 0</span></div>
-   <div class="olympus-grid" id="olympusReels" aria-label="Игровые барабаны"></div>
+ <div class="olympus-game">
+  <button type="button" class="olympus-back" id="closeOlympus">‹ Назад</button>
+  <header class="olympus-title"><div class="olympus-laurel">ANCIENT GREECE · DIVINE REELS</div><h1>OLYMPUS</h1><div class="olympus-subtitle">GATES OF ZEUS</div></header>
+  <div class="olympus-status"><span id="olympusSpinCount">СПИНОВ: 0</span><span id="olympusMode">ОБЫЧНАЯ ИГРА</span></div>
+  <div class="olympus-frame"><div class="olympus-grid" id="olympusReels" aria-label="Поле 6 на 5"></div></div>
+  <div class="olympus-win" id="olympusWin">СОБЕРИ 8 ОДИНАКОВЫХ СИМВОЛОВ</div>
+  <div class="olympus-result" id="olympusResult" role="status">Каскады · Pay Anywhere · Без Wild</div>
+  <div class="olympus-controls">
+   <label>СТАВКА<select id="olympusBet"><option value="0.1">0.1</option><option value="0.25">0.25</option><option value="0.5" selected>0.5</option><option value="1">1</option><option value="2">2</option><option value="5">5</option></select></label>
+   <button type="button" id="olympusAnte" class="olympus-toggle" aria-pressed="false">ANTE +25%<small>Шанс Scatter ×2</small></button>
   </div>
-  <div class="olympus-win-banner">ВЫИГРЫШ ДО 5 000 X</div>
-  <div class="olympus-temple"><span>♜</span><span>🏛</span><span>♜</span></div>
-  <button type="button" class="olympus-big-spin" id="olympusSpin" aria-label="Крутить барабаны">⟳</button>
-  <div class="olympus-volatility">⚡　СРЕДНЯЯ ВОЛАТИЛЬНОСТЬ</div>
-  <div id="olympusResult" class="olympus-result" role="status">Демо-режим · без ставок и денежных призов</div>
-  <button type="button" class="olympus-back" id="closeOlympus">‹ Вернуться в меню</button>
+  <button type="button" class="olympus-spin" id="olympusSpin"><span class="spin-ring"></span><span>КРУТИТЬ</span></button>
+  <button type="button" class="olympus-buy" id="olympusBuy">КУПИТЬ FREE SPINS · ×100</button>
+  <div class="olympus-bonus" id="olympusBonus" hidden>FREE SPINS: <strong id="olympusFree">15</strong> · МНОЖИТЕЛЬ: <strong id="olympusMult">×1</strong></div>
+  <div class="olympus-paytable"><div><b>8+</b><span>одинаковых символов где угодно</span></div><div><b>4–6</b><span>Зевсов запускают 15 фриспинов</span></div><div><b>×2–×500</b><span>крылатые сферы складываются</span></div><div><b>×5000</b><span>максимальная выплата от ставки</span></div></div>
+  <div class="olympus-disclaimer">Демо-режим: результаты анимированы, баланс Stars не списывается и не начисляется.</div>
  </div>
- <div class="daily-game-divider"></div>
- <h3>🎡 Ежедневное колесо</h3><p>Крути раз в день и получай от 1 до 5 звёзд на игровой баланс.</p><div class="wheel-stage"><div id="dailyWheel" class="daily-wheel"><span>⭐</span><span>2 ⭐</span><span>3 ⭐</span><span>4 ⭐</span><span>5 ⭐</span><span>1 ⭐</span></div></div><button type="button" class="action-button primary" id="spinWheel">🎡 Крутить колесо</button><div id="wheelMessage" class="profile-message" role="status"></div>
 </section>
 <section class="menu-placeholder" id="walletPanel" hidden><h2>👛 Кошелёк</h2><p>Переводи звёзды игрового баланса другим игрокам по их Telegram @username.</p><div class="wallet-balance">Текущий баланс: <strong id="walletBalance">—</strong></div><label class="profile-field">Юзернейм получателя<input class="profile-input" id="menuTransferUsername" placeholder="@username" maxlength="33"></label><label class="profile-field">Сумма перевода<input class="profile-input" id="menuTransferAmount" type="number" min="0.0001" step="0.0001" placeholder="1.0000"></label><button type="button" class="action-button primary" id="menuSendTransfer">💸 Перевести звёзды</button><div id="walletMessage" class="profile-message" role="status"></div></section>
 <section class="menu-placeholder" id="morePanel" hidden><h2>💠 Прочее</h2><div class="stats modal-stats"><div class="stat"><strong id="perTapModal">0.0001</strong><span>ЗА КЛИК</span></div><div class="stat"><strong id="perSecModal">0.0000</strong><span>В СЕКУНДУ</span></div><div class="stat"><strong id="totalModal">0.0000</strong><span>ВСЕГО ДОБЫТО</span></div></div><a class="action-button channel-link" href="https://t.me/+39Jby9TgJps0Y2Ni" target="_blank" rel="noopener noreferrer">📣 Подписаться на Telegram-канал</a><div class="promo-box"><h3>🎟 Промокод</h3><p>Введи промокод, чтобы получить награду. Каждый код активируется один раз на аккаунт.</p><input class="profile-input" id="promoCodeInput" placeholder="ВВЕДИ ПРОМОКОД" maxlength="32" autocapitalize="characters"><button type="button" class="action-button primary" id="activatePromo">Активировать</button><div id="promoMessage" class="profile-message" role="status"></div></div><div class="settings-box"><h3>🎵 Новогодняя музыка</h3><p>Включай или выключай мелодию приложения.</p><button class="music-toggle" id="menuMusicToggle" type="button" aria-pressed="false"><span id="menuMusicLabel">Включить музыку</span></button></div></section>
@@ -379,34 +399,113 @@ $('spinWheel')?.addEventListener('click',async()=>{
   setTimeout(()=>{msg.textContent='🎉 Выпало '+d.reward+' '+(d.reward===1?'звезда':'звёзд')+'! Приходи завтра.';b.textContent='Уже использовано сегодня';},3200);
  }catch(e){msg.textContent=e.message; b.disabled=false;}
 });
-let olympusSpins=0,olympusBusy=false;
-const olympusSymbols=['💎','🔺','💜','👑','💍','⚡','⌛','🔱','🟢','🌟'];
-function initOlympusGrid(){
- const grid=$('olympusReels');if(!grid)return;
- if(grid.children.length===30)return;
- grid.innerHTML=Array.from({length:30},()=>'<span class="olympus-cell">'+olympusSymbols[Math.floor(Math.random()*olympusSymbols.length)]+'</span>').join('');
+let olympusSpins=0,olympusBusy=false,olympusFreeSpins=0,olympusGlobalMult=1,olympusAnte=false;
+const olympusSymbols=[
+ {id:'ruby',name:'Рубин',type:'gem',color:'#f34b64',shape:'gem',pay:0.25},
+ {id:'amethyst',name:'Аметист',type:'gem',color:'#c16bff',shape:'gem',pay:0.2},
+ {id:'topaz',name:'Топаз',type:'gem',color:'#ffd447',shape:'diamond',pay:0.18},
+ {id:'emerald',name:'Изумруд',type:'gem',color:'#4de09b',shape:'gem',pay:0.22},
+ {id:'sapphire',name:'Сапфир',type:'gem',color:'#58b9ff',shape:'diamond',pay:0.2},
+ {id:'cup',name:'Кубок',type:'artifact',color:'#e6bb67',shape:'cup',pay:0.5},
+ {id:'ring',name:'Кольцо с рубином',type:'artifact',color:'#ff7b75',shape:'ring',pay:0.7},
+ {id:'hourglass',name:'Песочные часы',type:'artifact',color:'#e7d4a3',shape:'hourglass',pay:1},
+ {id:'crown',name:'Корона',type:'artifact',color:'#ffd95a',shape:'crown',pay:1.5},
+ {id:'zeus',name:'Зевс Scatter',type:'scatter',color:'#fff0bb',shape:'zeus',pay:0},
+ {id:'orb',name:'Сфера-множитель',type:'orb',color:'#8ce6ff',shape:'orb',pay:0}
+];
+function olympusSvg(sym){
+ const c=sym.color;
+ const common='stroke="#fff4d2" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round"';
+ let shape='';
+ if(sym.shape==='gem')shape='<path d="M20 5 37 15 32 34 20 43 8 34 3 15Z" fill="'+c+'" '+common+'/><path d="M3 15h34L20 43Z" fill="#fff" opacity=".22"/><path d="M20 5v38" stroke="#fff" stroke-width="1.4" opacity=".65"/>';
+ if(sym.shape==='diamond')shape='<path d="M20 3 37 20 20 43 3 20Z" fill="'+c+'" '+common+'/><path d="m3 20 34 0M20 3v40" stroke="#fff" stroke-width="1.5" opacity=".65"/>';
+ if(sym.shape==='cup')shape='<path d="M9 7h22l-2 13q-2 10-9 10t-9-10Z" fill="'+c+'" '+common+'/><path d="M9 12H3v5q1 7 9 7M31 12h6v5q-1 7-9 7M20 30v8m-8 2h16" fill="none" '+common+'/>';
+ if(sym.shape==='ring')shape='<circle cx="20" cy="25" r="13" fill="none" stroke="'+c+'" stroke-width="7"/><path d="m20 4 7 6-7 7-7-7Z" fill="#e9435e" '+common+'/>';
+ if(sym.shape==='hourglass')shape='<path d="M8 5h24M8 39h24M11 7q0 10 9 15-9 5-9 15M29 7q0 10-9 15 9 5 9 15" fill="none" stroke="'+c+'" stroke-width="4" stroke-linecap="round"/><path d="m14 10 6 8 6-8M14 34l6-8 6 8" fill="'+c+'"/>';
+ if(sym.shape==='crown')shape='<path d="m4 12 10 9 6-15 6 15 10-9-4 25H8Z" fill="'+c+'" '+common+'/><path d="M9 32h22" stroke="#fff4d2" stroke-width="2"/>';
+ if(sym.shape==='zeus')shape='<path d="M20 3 37 10 35 29 20 42 5 29 3 10Z" fill="#f6e5bd" stroke="#c99a4e" stroke-width="3"/><path d="M24 7 14 22h8l-4 12 11-16h-8Z" fill="#7442a0" stroke="#fff" stroke-width="1.5"/><path d="M10 5 4 1M30 5l6-4" stroke="#ffe77d" stroke-width="2"/>';
+ if(sym.shape==='orb')shape='<circle cx="20" cy="22" r="15" fill="'+c+'" stroke="#ffe7a1" stroke-width="3"/><circle cx="20" cy="22" r="10" fill="none" stroke="#fff" stroke-width="1.5"/><path d="M20 4v36M2 22h36" stroke="#fff" stroke-width="1" opacity=".65"/><path d="m20 11 3 8 8 3-8 3-3 8-3-8-8-3 8-3Z" fill="#fff"/>';
+ return '<svg viewBox="0 0 40 46" aria-label="'+sym.name+'" role="img">'+shape+'</svg>';
 }
+function olympusSymbol(id){return olympusSymbols.find(s=>s.id===id)||olympusSymbols[0]}
+function olympusPick(){const pool=olympusSymbols.filter(s=>s.type!=='scatter'&&s.type!=='orb');return pool[Math.floor(Math.random()*pool.length)]}
+function olympusCell(id,i){const s=olympusSymbol(id);return '<span class="olympus-cell" data-symbol="'+s.id+'" style="animation-delay:'+((i%6)*25)+'ms" title="'+s.name+'">'+olympusSvg(s)+'</span>'}
+function olympusMakeBoard(){return Array.from({length:30},()=>olympusPick().id)}
+function olympusRender(board){$('olympusReels').innerHTML=board.map((id,i)=>olympusCell(id,i)).join('')}
+function olympusCluster(board){
+ const counts={};board.forEach(id=>{counts[id]=(counts[id]||0)+1});
+ return Object.keys(counts).filter(id=>counts[id]>=8&&olympusSymbol(id).type!=='scatter'&&olympusSymbol(id).type!=='orb').map(id=>({id,count:counts[id]}))
+}
+function olympusDrop(board,removed){
+ const kept=board.filter((id,i)=>!removed.includes(i));
+ while(kept.length<30)kept.unshift(olympusPick().id);
+ return kept.slice(-30)
+}
+function initOlympusGrid(){olympusRender(olympusMakeBoard())}
 initOlympusGrid();
-$('olympusSpin')?.addEventListener('click',()=>{
- if(olympusBusy)return;olympusBusy=true;
- const b=$('olympusSpin'),reels=$('olympusReels'),result=$('olympusResult');
- b.disabled=true;b.textContent='⟳';result.textContent='Барабаны вращаются…';reels.classList.add('spinning');
- reels.querySelectorAll('.olympus-cell').forEach(el=>el.classList.remove('win'));
- let ticks=0;const timer=setInterval(()=>{
-  reels.querySelectorAll('.olympus-cell').forEach(el=>el.textContent=olympusSymbols[Math.floor(Math.random()*olympusSymbols.length)]);
-  ticks++;
-  if(ticks>=18){
-   clearInterval(timer);reels.classList.remove('spinning');olympusSpins++;
-   const cells=[...reels.querySelectorAll('.olympus-cell')],symbol=olympusSymbols[Math.floor(Math.random()*olympusSymbols.length)];
-   const win=Math.random()<.30;
-   if(win){const picked=[];while(picked.length<5){const idx=Math.floor(Math.random()*cells.length);if(!picked.includes(idx))picked.push(idx);}picked.forEach(idx=>{cells[idx].textContent=symbol;cells[idx].classList.add('win');});result.textContent='✨ Комбинация собрана! Это бесплатный визуальный демо-режим; баланс не меняется.';}
-   else result.textContent='Попробуй ещё раз — демо-спин №'+olympusSpins+'. Баланс не меняется.';
-   $('olympusSpinCount').textContent='СПИНОВ: '+olympusSpins;b.disabled=false;b.textContent='⟳';olympusBusy=false;
+$('olympusAnte')?.addEventListener('click',()=>{olympusAnte=!olympusAnte;$('olympusAnte').setAttribute('aria-pressed',String(olympusAnte));$('olympusAnte').classList.toggle('active',olympusAnte)});
+async function olympusPlay(buyBonus=false){
+ if(olympusBusy)return;
+ const bet=Number($('olympusBet').value),isFree=olympusFreeSpins>0;
+ if(buyBonus&&!isFree&&bet<=0)return;
+ if(buyBonus&&!isFree&&!confirm('Купить 15 бесплатных вращений за '+(bet*100).toFixed(2)+'?'))return;
+ olympusBusy=true;
+ const button=$('olympusSpin'),grid=$('olympusReels'),result=$('olympusResult');
+ button.disabled=true;$('olympusBuy').disabled=true;button.classList.add('busy');$('olympusWin').textContent='БАРАБАНЫ ВРАЩАЮТСЯ';result.textContent='Символы падают с небес…';grid.classList.add('spinning');
+ let ticks=0;
+ const timer=setInterval(()=>{
+  const random=olympusMakeBoard();grid.innerHTML=random.map((id,i)=>olympusCell(id,i)).join('');ticks++;
+  if(ticks>=12){
+   clearInterval(timer);grid.classList.remove('spinning');
+   let board=olympusMakeBoard();
+   const forced=buyBonus?4:Math.random()<(olympusAnte?.18:.09)?4:Math.random()<.02?3:0;
+   for(let n=0;n<forced;n++)board[n]= 'zeus';
+   if(Math.random()<.18){const s=olympusPick().id;for(let n=0;n<8;n++)board[n]=s}
+   let totalWin=0,orbSum=0,cascades=0,scatter=board.filter(x=>x==='zeus').length;
+   const freeAtStart=olympusFreeSpins>0;
+   if(buyBonus&&!freeAtStart){olympusFreeSpins=15;olympusGlobalMult=1}
+   const effectiveBet=bet*(olympusAnte?1.25:1);
+   for(let step=0;step<8;step++){
+    const cells=[...grid.querySelectorAll('.olympus-cell')];
+    cells.forEach(el=>el.classList.remove('win','vanish'));
+    const clusters=olympusCluster(board);
+    if(!clusters.length)break;
+    const removed=[];
+    clusters.forEach(cl=>{const sym=olympusSymbol(cl.id);totalWin+=effectiveBet*sym.pay*(cl.count/8);});
+    board.forEach((id,i)=>{if(clusters.some(cl=>cl.id===id)){removed.push(i);cells[i]?.classList.add('win','vanish')}});
+    cascades++;
+    await new Promise(r=>setTimeout(r,330));
+    board=olympusDrop(board,removed);olympusRender(board);
+    grid.querySelectorAll('.olympus-cell').forEach((el,i)=>{el.style.animationDelay=(i%6*28)+'ms'});
+    await new Promise(r=>setTimeout(r,250));
+   }
+   board=board.map(id=>id==='orb'?id:id);
+   const sphereCount=Math.random()<.25?1:Math.random()<.08?2:0;
+   for(let i=0;i<sphereCount;i++)orbSum += [2,3,5,10,25,50,100,250,500][Math.floor(Math.random()*9)];
+   if(freeAtStart&&totalWin>0)olympusGlobalMult=Math.min(5000,olympusGlobalMult+orbSum);
+   if(freeAtStart)olympusFreeSpins=Math.max(0,olympusFreeSpins-1);
+   if(freeAtStart&&scatter>=3)olympusFreeSpins+=5;
+   if(scatter>=4&&!freeAtStart&&!buyBonus){olympusFreeSpins+=15;olympusGlobalMult=1}
+   if(freeAtStart)totalWin*=olympusGlobalMult;
+   else if(orbSum)totalWin*=orbSum;
+   totalWin=Math.min(totalWin,bet*5000);
+   if(totalWin>0){$('olympusWin').textContent='ВЫИГРЫШ '+totalWin.toFixed(2);result.textContent='Каскадов: '+cascades+(orbSum?' · Сферы: ×'+orbSum:'')+(scatter>=4?' · Зевс активировал 15 фриспинов':'');}
+   else{$('olympusWin').textContent='БЕЗ ВЫИГРЫША';result.textContent='Спин завершён. Попробуй ещё раз.'}
+   if(scatter>=4&&!freeAtStart&&!buyBonus)result.textContent+=' · Бонусный режим открыт';
+   if(freeAtStart)result.textContent+=' · Бесплатных вращений осталось: '+olympusFreeSpins;
+   if(buyBonus&&!freeAtStart)result.textContent='Бонус куплен: 15 бесплатных вращений. Демо-режим.';
+   if(freeAtStart&&olympusFreeSpins===0)olympusGlobalMult=1;
+   olympusSpins++;$('olympusSpinCount').textContent='СПИНОВ: '+olympusSpins;
+   $('olympusMode').textContent=olympusFreeSpins?'FREE SPINS':'ОБЫЧНАЯ ИГРА';
+   $('olympusBonus').hidden=olympusFreeSpins===0;$('olympusFree').textContent=olympusFreeSpins;$('olympusMult').textContent='×'+olympusGlobalMult;
+   if(orbSum&&totalWin===0)result.textContent+=' · Сфера ×'+orbSum+' выпала без выигрыша';
+   button.disabled=false;$('olympusBuy').disabled=false;button.classList.remove('busy');olympusBusy=false;
   }
- },95);
-});
+ },90);
+}
+$('olympusSpin')?.addEventListener('click',()=>olympusPlay(false));
+$('olympusBuy')?.addEventListener('click',()=>olympusPlay(true));
 $('closeOlympus')?.addEventListener('click',()=>closeAllMenus());
-
 async function refreshDailyWheel(){
  try{const d=await api('/api/daily-wheel');$('spinWheel').disabled=!d.canSpin;$('spinWheel').textContent=d.canSpin?'🎡 Крутить колесо':'Уже использовано сегодня';if(!d.canSpin)$('wheelMessage').textContent='Сегодняшняя награда: '+d.lastReward+' ⭐. Возвращайся завтра.';}
  catch(e){$('wheelMessage').textContent=e.message;}
