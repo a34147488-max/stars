@@ -362,7 +362,7 @@ app.post('/api/olympus/spin', auth, async (req,res)=>{
       board=board.slice(-30);cascades++;
     }
     const orbSum=orbValues.reduce((sum,value)=>sum+value,0);
-    if(freeAtStart&&win>0)multiplier=Math.min(5000,multiplier+orbSum);
+    if(freeAtStart&&orbSum>0)multiplier=Math.min(5000,multiplier+orbSum);
     if(freeAtStart)freeSpins=Math.max(0,freeSpins-1);
     if(freeAtStart&&scatter>=3)freeSpins+=5;
     if(scatter>=4&&!freeAtStart&&!buyBonus){freeSpins+=15;multiplier=1;}
