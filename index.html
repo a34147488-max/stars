@@ -454,6 +454,12 @@ document.querySelectorAll('[data-open]').forEach(btn=>btn.addEventListener('clic
  if(id==='profilePanel'){openModal(document.getElementById(id));return;}
  const panel=document.getElementById(id);if(!panel)return;
  if(!panel.hidden){closeAllMenus();return;}
+ if(id==='gamesPanel'){
+  panel.classList.remove('olympus-fullscreen');
+  const gamesHub=document.getElementById('gamesHub'),olympusView=document.getElementById('olympusGameView');
+  if(gamesHub)gamesHub.hidden=false;
+  if(olympusView)olympusView.hidden=true;
+ }
  openModal(panel);
  if(id==='leaderboardPanel')await loadLeaderboard();
  if(id==='shopPanel'){ $('toggleShop')?.setAttribute('aria-expanded','true'); await loadStarShop(); }
