@@ -598,14 +598,14 @@ app.post('/api/mines/action', auth, async (req,res)=>{
    const next=[...revealed,cell];
    if(mines.includes(cell)){q=await db.query("UPDATE mines_games SET revealed_cells=$2,status='lost',multiplier=0,payout=0,updated_at=NOW() WHERE telegram_id=$1 RETURNING *",[id,JSON.stringify(next)]);g=q.rows[0]}
    else{
-    const safe=25-Number(g.mine_count),prob=next.reduce((v,_,i)=>v*((safe-i)/(25-i)),1),mult=Number((.97/prob).toFixed(8)),status=next.length===safe?'won':'active',payout=status==='won'?Number((Number(g.stake)*mult).toFixed(8)):0;
+    const safe=25-Number(g.mine_count),prob=next.reduce((v,_,i)=>v*((safe-i)/(25-i)),1),mult=Number((.85/prob).toFixed(8)),status=next.length===safe?'won':'active',payout=status==='won'?Number((Number(g.stake)*mult).toFixed(8)):0;
     if(status==='won'){balance=Number((balance+payout).toFixed(8));total=Number((total+payout).toFixed(8));await db.query('UPDATE players SET balance=$2,total=$3,updated_at=NOW() WHERE telegram_id=$1',[id,balance,total])}
     q=await db.query('UPDATE mines_games SET revealed_cells=$2,status=$3,multiplier=$4,payout=$5,updated_at=NOW() WHERE telegram_id=$1 RETURNING *',[id,JSON.stringify(next),status,mult,payout]);g=q.rows[0];
    }
   }else if(action==='cashout'){
    if(!g||g.status!=='active')throw Error('Нет активного раунда');
    const revealed=arr(g.revealed_cells);if(!revealed.length)throw Error('Сначала открой безопасную клетку');
-   const safe=25-Number(g.mine_count),prob=revealed.reduce((v,_,i)=>v*((safe-i)/(25-i)),1),mult=Number((.97/prob).toFixed(8)),payout=Number((Number(g.stake)*mult).toFixed(8));
+   const safe=25-Number(g.mine_count),prob=revealed.reduce((v,_,i)=>v*((safe-i)/(25-i)),1),mult=Number((.85/prob).toFixed(8)),payout=Number((Number(g.stake)*mult).toFixed(8));
    balance=Number((balance+payout).toFixed(8));total=Number((total+payout).toFixed(8));
    await db.query('UPDATE players SET balance=$2,total=$3,updated_at=NOW() WHERE telegram_id=$1',[id,balance,total]);
    q=await db.query("UPDATE mines_games SET status='won',multiplier=$2,payout=$3,updated_at=NOW() WHERE telegram_id=$1 RETURNING *",[id,mult,payout]);g=q.rows[0];
