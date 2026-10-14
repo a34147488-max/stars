@@ -449,10 +449,11 @@ async function olympusPlay(buyBonus=false){
  const bet=Number($('olympusBet').value),isFree=olympusFreeSpins>0;
  if(buyBonus&&!isFree&&bet<=0)return;
  if(buyBonus&&!isFree&&!confirm('Купить 15 бесплатных вращений за '+(bet*100).toFixed(2)+'?'))return;
- if(!initData){const message='Открой приложение через Telegram-бота, чтобы играть с балансом.';$('olympusResult').textContent=message;if(tg&&tg.showAlert)tg.showAlert(message);return;}
+ olympusBusy=true;$('olympusSpin').disabled=true;$('olympusBuy').disabled=true;
+ if(!initData){const message='Открой приложение через Telegram-бота, чтобы играть с балансом.';$('olympusResult').textContent=message;if(tg&&tg.showAlert)tg.showAlert(message);olympusBusy=false;$('olympusSpin').disabled=false;$('olympusBuy').disabled=false;return;}
  let serverSpin;
  try{serverSpin=await api('/api/olympus/spin','POST',{bet,buyBonus,ante:olympusAnte});}
- catch(e){$('olympusResult').textContent=e.message;if(tg&&tg.showAlert)tg.showAlert(e.message);return;}
+ catch(e){$('olympusResult').textContent=e.message;if(tg&&tg.showAlert)tg.showAlert(e.message);olympusBusy=false;$('olympusSpin').disabled=false;$('olympusBuy').disabled=false;return;}
  state.balance=Number(serverSpin.balance);state.total=Number(serverSpin.total);renderStats();
  olympusBusy=true;
  const button=$('olympusSpin'),grid=$('olympusReels'),result=$('olympusResult');
