@@ -402,6 +402,11 @@ body{overflow-anchor:none}
 .games-hub>.roulette-cover .cover-play{background:linear-gradient(90deg,#111b16,#17613d,#b38a37)!important;color:#fff0b0!important;border:1px solid #d5ad58;box-shadow:0 3px 14px #3a9a6255!important}
 /* Compact matching action buttons and subtle motion for all game covers */
 .games-hub>.game-cover>.cover-play{align-self:center!important;width:calc(100% - 24px)!important;min-height:42px!important;box-sizing:border-box!important;margin:0 12px 12px!important;padding:10px 8px!important;border-radius:12px!important;font-size:12px!important;letter-spacing:1px!important;line-height:1.2!important;flex:0 0 auto!important}
+/* Preserve the original centered button placement on Olympus and Roulette Villa */
+.games-hub>.olympus-cover{justify-content:center!important}
+.games-hub>.olympus-cover>.cover-play,.games-hub>.roulette-cover>.cover-play{align-self:center!important;margin:17px 0 0!important;width:100%!important;flex:0 0 auto!important}
+.games-hub>.roulette-cover{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;padding:18px 12px!important}
+
 .games-hub>.image-game-cover>.cover-play{width:calc(100% - 24px)!important}
 .games-hub>.game-cover{transform:translateZ(0);animation:gameCoverFloat 4s ease-in-out infinite;transition:transform .25s ease,box-shadow .25s ease,filter .25s ease}
 .games-hub>.game-cover:nth-of-type(2){animation-delay:-.7s}
