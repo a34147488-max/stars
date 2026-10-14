@@ -82,6 +82,17 @@ async function initDb() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       PRIMARY KEY(code, telegram_id)
     );
+    CREATE TABLE IF NOT EXISTS withdrawal_requests (
+      id BIGSERIAL PRIMARY KEY,
+      telegram_id BIGINT NOT NULL REFERENCES players(telegram_id),
+      amount NUMERIC(24,8) NOT NULL CHECK(amount >= 300),
+      username TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','paid','rejected')),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      reviewed_by BIGINT
+    );
+    CREATE INDEX IF NOT EXISTS withdrawal_requests_player_idx ON withdrawal_requests(telegram_id,created_at DESC);
     CREATE INDEX IF NOT EXISTS players_username_lower_idx ON players (LOWER(username));
   `);
   // One-time promo code: +10,000 coins, single activation.
@@ -272,7 +283,29 @@ function registerBot() {
   });
   bot.on('callback_query', async q => {
     try {
-      if (q.data === 'click') {
+      if (q.data && /^withdraw_(paid|reject):\\d+$/.test(q.data)) {
+        if(!process.env.ADMIN_ID||String(q.from.id)!==String(process.env.ADMIN_ID)){
+          await bot.answerCallbackQuery(q.id,{text:'Доступ запрещён.',show_alert:true});return;
+        }
+        const match=/^withdraw_(paid|reject):(\\d+)$/.exec(q.data);
+        const next=match[1]==='paid'?'paid':'rejected',requestId=match[2];
+        const client=await pool.connect();
+        let updated;
+        try{
+          await client.query('BEGIN');
+          const r=await client.query('SELECT id,telegram_id,amount,username,status FROM withdrawal_requests WHERE id=$1 FOR UPDATE',[requestId]);
+          if(!r.rowCount||r.rows[0].status!=='pending'){await client.query('ROLLBACK');await bot.answerCallbackQuery(q.id,{text:'Заявка уже обработана или не найдена.',show_alert:true});return;}
+          updated=r.rows[0];
+          await client.query('UPDATE withdrawal_requests SET status=$2,updated_at=NOW(),reviewed_by=$3 WHERE id=$1',[requestId,next,String(q.from.id)]);
+          if(next==='rejected') await client.query('UPDATE players SET balance=balance+$2,updated_at=NOW() WHERE telegram_id=$1',[String(updated.telegram_id),updated.amount]);
+          await client.query('COMMIT');
+        }catch(e){await client.query('ROLLBACK').catch(()=>{});throw e;}finally{client.release();}
+        const statusText=next==='paid'?'✅ Выплачено':'❌ Отказано — звёзды возвращены на баланс игрока';
+        await bot.answerCallbackQuery(q.id,{text:next==='paid'?'Заявка отмечена как выплаченная.':'Заявка отклонена, баланс возвращён.'});
+        await bot.editMessageReplyMarkup({inline_keyboard:[]},{chat_id:q.message.chat.id,message_id:q.message.message_id}).catch(()=>{});
+        await bot.sendMessage(q.message.chat.id,'Заявка #'+requestId+': '+statusText+'.');
+        await bot.sendMessage(String(updated.telegram_id),next==='paid'?'✅ Заявка на вывод #'+requestId+' выполнена. Сумма: '+Number(updated.amount).toLocaleString('ru-RU')+' ⭐, аккаунт: '+updated.username+'.':'❌ Заявка на вывод #'+requestId+' отклонена. '+Number(updated.amount).toLocaleString('ru-RU')+' ⭐ возвращены на баланс.',{reply_markup:mainKeyboard(updated.telegram_id)}).catch(e=>console.error('Withdrawal player notification failed:',e.message));
+      } else if (q.data === 'click') {
         await upsertPlayer(q.from,'');
         const r=await pool.query('UPDATE players SET clicks_count=clicks_count+1,updated_at=NOW() WHERE telegram_id=$1 RETURNING clicks_count,click_multiplier',[String(q.from.id)]);
         const clicks=Number(r.rows[0].clicks_count);const level=clicks<100?0:clicks<500?1:2+Math.floor((clicks-500)/500);const bonus=level>=100?0.05:level>=30?0.005:0;const gain=0.0001*Number(r.rows[0].click_multiplier)+bonus;
@@ -423,6 +456,45 @@ app.post('/api/transfer', auth, async (req,res)=>{
     res.json({amount:result.amount,balance:result.balance,recipient:result.recipient.display_name});
     if(bot) bot.sendMessage(String(result.recipient.telegram_id),'✨ Тебе поступило '+result.amount.toFixed(4)+' звёзд от игрока '+escapeHtml(req.player.first_name||'Игрок')+'!',{parse_mode:'HTML'}).catch(()=>{});
   } catch(e) { res.status(400).json({error:e.message||'Не удалось выполнить перевод.'}); }
+});
+app.get('/api/withdrawals', auth, async (req,res)=>{
+  try {
+    const r=await pool.query('SELECT id,amount,username,status,created_at FROM withdrawal_requests WHERE telegram_id=$1 ORDER BY created_at DESC LIMIT 30',[String(req.player.telegram_id)]);
+    res.setHeader('Cache-Control','no-store');
+    res.json({requests:r.rows.map(x=>({id:String(x.id),amount:Number(x.amount),username:x.username,status:x.status,createdAt:x.created_at}))});
+  } catch(e) { console.error('Withdrawal list error:',e.message);res.status(500).json({error:'Не удалось загрузить заявки на вывод.'}); }
+});
+app.post('/api/withdrawals', auth, async (req,res)=>{
+  const amount=Number(req.body&&req.body.amount);
+  const username=String(req.body&&req.body.username||'').trim();
+  if(!Number.isInteger(amount)||amount<300||amount>1000000000) return res.status(400).json({error:'Минимальный вывод — 300 звёзд. Укажи целую сумму.'});
+  if(!/^@?[A-Za-z0-9_]{5,32}$/.test(username)) return res.status(400).json({error:'Укажи корректный Telegram @username.'});
+  const normalized='@'+username.replace(/^@/,'');
+  const client=await pool.connect();
+  let request,balance;
+  try{
+    await client.query('BEGIN');
+    const p=await client.query('SELECT balance FROM players WHERE telegram_id=$1 FOR UPDATE',[String(req.player.telegram_id)]);
+    if(!p.rowCount) throw new Error('Игрок не найден.');
+    if(Number(p.rows[0].balance)+1e-9<amount) throw new Error('Недостаточно звёзд на балансе для вывода.');
+    await client.query('UPDATE players SET balance=balance-$2,updated_at=NOW() WHERE telegram_id=$1',[String(req.player.telegram_id),amount]);
+    const r=await client.query("INSERT INTO withdrawal_requests(telegram_id,amount,username) VALUES($1,$2,$3) RETURNING id,amount,username,status,created_at",[String(req.player.telegram_id),amount,normalized]);
+    request=r.rows[0];
+    const b=await client.query('SELECT balance FROM players WHERE telegram_id=$1',[String(req.player.telegram_id)]);
+    balance=Number(b.rows[0].balance);
+    await client.query('COMMIT');
+    res.setHeader('Cache-Control','no-store');
+    res.json({request:{id:String(request.id),amount:Number(request.amount),username:request.username,status:request.status,createdAt:request.created_at},balance});
+  }catch(e){await client.query('ROLLBACK').catch(()=>{});return res.status(400).json({error:e.message||'Не удалось создать заявку.'});}
+  finally{client.release();}
+  if(bot){
+    const adminId=process.env.ADMIN_ID;
+    if(adminId){
+      const who=req.player.username?'@'+req.player.username:req.player.display_name;
+      const text='📤 <b>Новая заявка на вывод звёзд</b>\n\nЗаявка: <code>#'+request.id+'</code>\nСумма: <b>'+Number(request.amount).toLocaleString('ru-RU')+' ⭐</b>\nКуда зачислить: <b>'+escapeHtml(request.username)+'</b>\nИгрок: '+escapeHtml(who)+'\nTelegram ID: <code>'+escapeHtml(req.player.telegram_id)+'</code>\nСтатус: ⏳ Ожидание';
+      bot.sendMessage(String(adminId),text,{parse_mode:'HTML',reply_markup:{inline_keyboard:[[{text:'✅ Выплачено',callback_data:'withdraw_paid:'+request.id},{text:'❌ Отказать',callback_data:'withdraw_reject:'+request.id}]]}}).catch(e=>console.error('Withdrawal admin notification failed:',e.message));
+    }else console.error('ADMIN_ID is not configured; withdrawal notification was not sent.');
+  }
 });
 app.get('/api/daily-wheel', auth, async (req,res)=>{
   const r=await pool.query('SELECT spin_date,reward FROM daily_spins WHERE telegram_id=$1',[String(req.player.telegram_id)]);
