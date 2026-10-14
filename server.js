@@ -283,11 +283,11 @@ function registerBot() {
   });
   bot.on('callback_query', async q => {
     try {
-      if (q.data && /^withdraw_(paid|reject):\\d+$/.test(q.data)) {
+      if (q.data && /^withdraw_(paid|reject):\d+$/.test(q.data)) {
         if(!process.env.ADMIN_ID||String(q.from.id)!==String(process.env.ADMIN_ID)){
           await bot.answerCallbackQuery(q.id,{text:'Доступ запрещён.',show_alert:true});return;
         }
-        const match=/^withdraw_(paid|reject):(\\d+)$/.exec(q.data);
+        const match=/^withdraw_(paid|reject):(\d+)$/.exec(q.data);
         const next=match[1]==='paid'?'paid':'rejected',requestId=match[2];
         const client=await pool.connect();
         let updated;
