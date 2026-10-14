@@ -324,14 +324,6 @@ async function loadLeaderboard(){
  }catch(e){$('leaderboard').textContent='Не удалось загрузить топ: '+e.message;}
 }
 function escapeText(v){const d=document.createElement('div');d.textContent=String(v||'');return d.innerHTML;}
-$('toggleLeaderboard').addEventListener('click',async()=>{
- const panel=$('leaderboardPanel');
- const opening=panel.hidden;
- panel.hidden=!opening;
- $('toggleLeaderboard').setAttribute('aria-expanded',String(opening));
- $('toggleLeaderboard').textContent=opening?'🏆 Скрыть топ игроков':'🏆 Открыть топ игроков';
- if(opening) await loadLeaderboard();
-});
 $('refreshLeaderboard').addEventListener('click',loadLeaderboard);
 $('leaderboard').addEventListener('click',async e=>{
  const b=e.target.closest('[data-player-id]');if(!b)return;
