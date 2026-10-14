@@ -311,6 +311,13 @@ app.post('/api/shop/invoice', auth, async (req,res)=>{
 });
 app.post('/api/click', auth, async (req,res)=>{const r=await pool.query('UPDATE players SET balance=balance+(0.0001*click_multiplier),total=total+(0.0001*click_multiplier),updated_at=NOW() WHERE telegram_id=$1 RETURNING balance,total,click_multiplier',[String(req.player.telegram_id)]);const amount=0.0001*Number(r.rows[0].click_multiplier);res.json({balance:Number(r.rows[0].balance),total:Number(r.rows[0].total),gain:amount,clickMultiplier:Number(r.rows[0].click_multiplier)});});
 app.post('/api/profile', auth, async (_req,res)=>res.status(403).json({error:'Имя и аватар можно изменить только через Telegram-бота.'}));
+app.get('/api/referral', auth, async (req,res)=>{
+  try{
+    const info=await bot?.getMe();
+    if(!info?.username) return res.status(503).json({error:'Бот временно недоступен.'});
+    res.json({url:'https://t.me/'+info.username+'?start=ref_'+String(req.player.telegram_id)});
+  }catch(e){res.status(503).json({error:'Не удалось получить ссылку приглашения.'});}
+});
 app.post('/api/transfer', auth, async (req,res)=>{
   try {
     const amount=Number(req.body.amount);
