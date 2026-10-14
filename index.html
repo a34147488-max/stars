@@ -64,6 +64,8 @@ body{background:radial-gradient(ellipse at 50% -15%,#193f68 0%,#0b1729 45%,#070c
 <div class="profile-message" id="transferMessage" role="status"></div>
 </div>
 </section>
+<button class="action-button primary" id="toggleShop" type="button" aria-expanded="false" style="width:100%;margin:12px 0">✨ Улучшения</button>
+<section class="profile-panel" id="shopPanel" hidden><h2>✨ Улучшения</h2><p class="u-desc">Это текущие игровые улучшения. Оплата настоящими Telegram Stars пока не подключена.</p><div class="tabs"><button class="tab active" data-tab="click" type="button">За клик</button><button class="tab" data-tab="auto" type="button">Автокликер</button></div><div id="shop" class="shop"></div></section>
 <button class="action-button primary" id="toggleLeaderboard" type="button" aria-expanded="false" style="width:100%;margin:12px 0">🏆 Открыть топ игроков</button>
 <section class="profile-panel leaderboard-panel" id="leaderboardPanel" hidden>
 <h2>🏆 Топы игроков</h2>
@@ -76,7 +78,7 @@ body{background:radial-gradient(ellipse at 50% -15%,#193f68 0%,#0b1729 45%,#070c
 <div class="note">Баланс хранится на сервере и общий с Telegram-ботом.</div>
 <div class="withdraw-modal" id="withdrawModal" hidden role="dialog" aria-modal="true" aria-labelledby="withdrawTitle"><div class="withdraw-card"><div class="withdraw-star"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 4 61 35 95 36 68 57 78 91 50 71 22 91 32 57 5 36 39 35Z"/></svg></div><h2 id="withdrawTitle">Вывод звёзд</h2><p>Вывод звёзд будет доступен в <strong>00:00 по МСК 31 декабря</strong>.</p><button id="closeWithdraw" type="button">Понятно</button></div></div>
 </div>
-<div id="shop" hidden aria-hidden="true"></div>
+
 <script>
 (function(){
 const clickUpgrades=[
@@ -204,6 +206,7 @@ function iconSvg(name){const paths={spark:'M50 5 60 38 94 50 60 62 50 95 40 62 6
 function renderShop(){const list=tab==='click'?clickUpgrades:autoUpgrades;const levels=tab==='click'?state.clickLevel:state.autoLevel;$('shop').innerHTML=list.map((u,i)=>{const price=cost(u,levels[i]);return '<article class="upgrade"><div class="u-icon">'+iconSvg(u.icon)+'</div><div class="u-body"><div class="u-name">'+u.name+'</div><div class="u-desc">'+u.desc+'</div><div class="u-foot"><span class="cost">'+iconSvg('dust')+' '+fmt(price)+'</span><button class="buy" data-buy="'+i+'" '+(state.balance+1e-12<price?'disabled':'')+'>Купить</button></div><div class="level">Уровень: '+levels[i]+'</div></div></article>'}).join('')}
 function refresh(){renderStats();renderShop()}
 $('tap').addEventListener('click',async e=>{if(!serverMode||!profileReady)return;const button=$('tap');button.disabled=true;try{const d=await api('/api/click','POST',{});state.balance=Number(d.balance);state.total=Number(d.total);const f=document.createElement('span');f.className='gain-float';f.textContent='+'+fmt(d.gain);f.style.left=(e.offsetX||110)+'px';f.style.top=(e.offsetY||100)+'px';button.appendChild(f);setTimeout(()=>f.remove(),850);refresh();}catch(err){$('profileMessage').textContent='Клик не сохранён: '+err.message;}finally{button.disabled=false;}});
+$('toggleShop').addEventListener('click',()=>{const panel=$('shopPanel');panel.hidden=!panel.hidden;$('toggleShop').setAttribute('aria-expanded',String(!panel.hidden));if(!panel.hidden)panel.scrollIntoView({behavior:'smooth',block:'start'});});
 $('shop').addEventListener('click',e=>{const b=e.target.closest('[data-buy]');if(!b)return;const i=Number(b.dataset.buy),list=tab==='click'?clickUpgrades:autoUpgrades,levels=tab==='click'?state.clickLevel:state.autoLevel,price=cost(list[i],levels[i]);if(state.balance+1e-12<price)return;state.balance=Math.max(0,state.balance-price);levels[i]++;refresh();save()});
 document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{tab=b.dataset.tab;document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));renderShop()}));
 // Баланс меняется только сервером. Локальная авто-добыча отключена, чтобы не рассинхронизировать приложение и бота.
