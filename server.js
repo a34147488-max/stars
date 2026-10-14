@@ -607,7 +607,7 @@ app.post('/api/sweet-bananza/action', auth, async (req,res)=>{
   const bonusBombs=[];
    const pickBombMultiplier=()=>{const n=crypto.randomInt(100);return n<28?2:n<48?3:n<64?4:n<77?5:n<87?8:n<94?10:n<98?15:n<99?20:25};
    let accumulatedMultiplier=Number(session.bonus_multiplier||0);
-   if(inBonus){const count=crypto.randomInt(0,3);const positions=Array.from({length:30},(_,i)=>i);for(let i=positions.length-1;i>0;i--){const j=crypto.randomInt(i+1);[positions[i],positions[j]]=[positions[j],positions[i]]}for(const pos of positions.slice(0,count))bonusBombs.push([pos,pickBombMultiplier()]);for(const [pos,m] of bonusBombs)board[pos]='💣';}
+   if(inBonus){const count=crypto.randomInt(0,2);const positions=Array.from({length:30},(_,i)=>i);for(let i=positions.length-1;i>0;i--){const j=crypto.randomInt(i+1);[positions[i],positions[j]]=[positions[j],positions[i]]}for(const pos of positions.slice(0,count))bonusBombs.push([pos,pickBombMultiplier()]);for(const [pos,m] of bonusBombs)board[pos]='💣';}
   for(let step=0;step<12;step++){
    const hits=new Set();
    for(const sym of symbols.slice(0,7)){
@@ -620,7 +620,7 @@ app.post('/api/sweet-bananza/action', auth, async (req,res)=>{
    const left=board.filter(Boolean);
    while(left.length<30)left.unshift(symbols[crypto.randomInt(7)]);
    board=left.slice(-30);
-   if(inBonus&&bonusBombs.length<2){const available=Array.from({length:30},(_,i)=>i).filter(i=>board[i]!=='💣');for(let n=bonusBombs.length;n<2&&available.length;n++){if(crypto.randomInt(100)<3){const k=crypto.randomInt(available.length),pos=available.splice(k,1)[0];bonusBombs.push([pos,pickBombMultiplier()]);board[pos]='💣'}}}
+   if(inBonus&&bonusBombs.length<2){const available=Array.from({length:30},(_,i)=>i).filter(i=>board[i]!=='💣');for(let n=bonusBombs.length;n<2&&available.length;n++){if(crypto.randomInt(100)<2){const k=crypto.randomInt(available.length),pos=available.splice(k,1)[0];bonusBombs.push([pos,pickBombMultiplier()]);board[pos]='💣'}}}
   }
   let win=baseWin;
    if(inBonus){accumulatedMultiplier=Math.min(1000,accumulatedMultiplier+bonusBombs.reduce((sum,b)=>sum+b[1],0));win=baseWin*(accumulatedMultiplier||1)}
