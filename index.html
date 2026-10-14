@@ -123,6 +123,7 @@ async function api(path,method='GET',body){
  if(!res.ok)throw new Error(data.error||'Ошибка запроса');
  return data;
 }
+const $=id=>document.getElementById(id);
 // Редактирование аватара в приложении отключено: менять его можно только через Telegram-бота.
 document.getElementById('makeReferral').addEventListener('click',async()=>{
  const out=document.getElementById('referralResult');
@@ -193,7 +194,6 @@ const unlockMusic=()=>{if(!musicCtx)startMusic();};
 ['pointerdown','touchstart','keydown'].forEach(ev=>document.addEventListener(ev,unlockMusic,{once:true,passive:true}));
 const snow=document.getElementById('snowLayer');for(let i=0;i<65;i++){const fl=document.createElement('i');fl.className='snowflake';fl.style.setProperty('--x',(Math.random()*100)+'%');fl.style.setProperty('--size',(2+Math.random()*4)+'px');fl.style.setProperty('--opacity',(.25+Math.random()*.65).toFixed(2));fl.style.setProperty('--duration',(7+Math.random()*13)+'s');fl.style.setProperty('--delay',(-Math.random()*18)+'s');fl.style.setProperty('--drift',(-45+Math.random()*90)+'px');snow.appendChild(fl)}
 
-const $=id=>document.getElementById(id);
 function fmt(n){if(!Number.isFinite(n))return '∞';if(Math.abs(n)<1000)return n.toFixed(4);return n.toLocaleString('ru-RU',{maximumFractionDigits:2})}
 function perTap(){return .0001+clickUpgrades.reduce((s,u,i)=>s+u.add*state.clickLevel[i],0)}
 function perSec(){return autoUpgrades.reduce((s,u,i)=>s+u.add*state.autoLevel[i],0)}
