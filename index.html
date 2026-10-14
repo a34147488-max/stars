@@ -139,6 +139,30 @@ html{overscroll-behavior:none;overflow-x:hidden}
 .leader-row.glow-frame{background:linear-gradient(110deg,#0c2034,#102f3b)}
 .leader-row.gold-frame{background:linear-gradient(110deg,#30250c,#13243a)}
 
+
+.olympus-card{overflow:hidden;border:1px solid #6d4c99;border-radius:19px;background:#100d1d;box-shadow:0 8px 28px #0007}
+.olympus-cover{min-height:215px;padding:18px 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;text-align:center;background:radial-gradient(ellipse at 50% 30%,#ffc65d 0,#b84d95 25%,#43266f 56%,#141124 100%)}
+.olympus-cover:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 28px,#ffe49a12 29px 31px),linear-gradient(180deg,#fff0 55%,#f5a43b55);pointer-events:none}
+.olympus-cloud{font-size:27px;letter-spacing:12px;color:#fff2a1;text-shadow:0 0 18px #ffc54d;z-index:1}
+.olympus-zeus{font-size:76px;line-height:1;color:#f4e5c7;text-shadow:0 4px 0 #9c5a1c,0 0 28px #fff;z-index:1}
+.olympus-kicker{font-size:9px;letter-spacing:3px;color:#ffedb0;z-index:1}
+.olympus-logo{font-weight:1000;font-size:clamp(27px,8vw,43px);line-height:.92;color:#ffe34d;-webkit-text-stroke:1px #8b2b5e;text-shadow:0 3px 0 #7a2c9b,0 5px 0 #542078,0 0 20px #ffc34a;z-index:1}
+.olympus-logo small{font-size:13px}
+.olympus-subtitle{margin-top:12px;font-size:9px;letter-spacing:2px;color:#fff5d0;z-index:1}
+.olympus-info{padding:12px 14px 5px}.olympus-info h3{margin:0 0 6px}.olympus-info p{font-size:12px;line-height:1.5;color:#b8b2c8;margin:0}
+.slot-frame{margin:12px;padding:10px;border:2px solid #c49b45;border-radius:12px;background:linear-gradient(140deg,#311445,#170d25);box-shadow:inset 0 0 15px #e5b64c33}
+.slot-topline{display:flex;justify-content:space-between;color:#f8d875;font-size:9px;font-weight:900;letter-spacing:1px;margin-bottom:8px}
+.slot-reels{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:3px;padding:5px;border:1px solid #8050a1;border-radius:7px;background:#100817}
+.slot-reels span{aspect-ratio:1;display:grid;place-items:center;background:linear-gradient(145deg,#53256b,#281338);border:1px solid #9663a8;border-radius:4px;font-size:clamp(17px,5vw,25px);text-shadow:0 2px 4px #000}
+.slot-reels.spinning span{animation:reelBlink .15s linear infinite alternate}
+@keyframes reelBlink{to{filter:brightness(1.8);transform:translateY(2px)}}
+.olympus-spin{width:100%;margin-top:10px;background:linear-gradient(100deg,#b87b24,#f3d56c,#9a52d5)!important;color:#210f31!important;border-color:#ffdf75!important}
+#olympusResult{text-align:center;min-height:20px;color:#ffe8a3}
+.olympus-gallery{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 12px 12px}
+.olympus-gallery div{padding:12px 7px;text-align:center;font-size:11px;border:1px solid #554067;border-radius:9px;background:linear-gradient(140deg,#342044,#171321);color:#d8c8f3}
+.daily-game-divider{height:1px;background:#393045;margin:18px 0}
+.games-modal>h3{margin:0 0 7px}
+
 </style>
 </head>
 <body>
@@ -147,7 +171,17 @@ html{overscroll-behavior:none;overflow-x:hidden}
 <div class="garland" aria-hidden="true"><svg viewBox="0 0 600 55" preserveAspectRatio="none"><path d="M-10 5 Q75 65 150 20 T300 20 T450 20 T610 5" fill="none" stroke="#2b805e" stroke-width="3"/><path d="M-10 9 Q75 69 150 24 T300 24 T450 24 T610 9" fill="none" stroke="#174d3d" stroke-width="2"/><circle class="bulb" cx="15" cy="12" r="4.2" fill="#ff5c72" color="#ff5c72"/><circle class="bulb" cx="62" cy="22.76034136349284" r="4.2" fill="#ffe66d" color="#ffe66d"/><circle class="bulb" cx="109" cy="26.993604045622575" r="4.2" fill="#63e6be" color="#63e6be"/><circle class="bulb" cx="156" cy="22.13194770826726" r="4.2" fill="#75c9ff" color="#75c9ff"/><circle class="bulb" cx="203" cy="11.124387848586299" r="4.2" fill="#c49bff" color="#c49bff"/><circle class="bulb" cx="250" cy="0.6479625703810772" r="4.2" fill="#ff5c72" color="#ff5c72"/><circle class="bulb" cx="297" cy="-2.9424691325376084" r="4.2" fill="#ffe66d" color="#ffe66d"/><circle class="bulb" cx="344" cy="2.531000431915187" r="4.2" fill="#63e6be" color="#63e6be"/><circle class="bulb" cx="391" cy="13.748238072757404" r="4.2" fill="#75c9ff" color="#75c9ff"/><circle class="bulb" cx="438" cy="23.905017957737297" r="4.2" fill="#c49bff" color="#c49bff"/><circle class="bulb" cx="485" cy="26.840373699350728" r="4.2" fill="#ff5c72" color="#ff5c72"/><circle class="bulb" cx="532" cy="20.773757893376427" r="4.2" fill="#ffe66d" color="#ffe66d"/><circle class="bulb" cx="579" cy="9.385098281655278" r="4.2" fill="#63e6be" color="#63e6be"/></svg></div>
 <header class="top"><div></div><button class="music-toggle" id="musicToggle" type="button" aria-pressed="false"><svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg><span id="musicLabel">Включить музыку</span></button></header>
 
-<section class="menu-placeholder" id="gamesPanel" hidden><h2>🎮 Ежедневное колесо</h2><p>Крути раз в день и получай от 1 до 5 звёзд на игровой баланс.</p><div class="wheel-stage"><div id="dailyWheel" class="daily-wheel"><span>⭐</span><span>2 ⭐</span><span>3 ⭐</span><span>4 ⭐</span><span>5 ⭐</span><span>1 ⭐</span></div></div><button type="button" class="action-button primary" id="spinWheel">🎡 Крутить колесо</button><div id="wheelMessage" class="profile-message" role="status"></div></section>
+<section class="menu-placeholder games-modal" id="gamesPanel" hidden>
+<h2>🎮 Игры</h2>
+<div class="olympus-card">
+ <div class="olympus-cover"><div class="olympus-cloud">⚡ ✦ ⚡</div><div class="olympus-zeus">♜</div><div class="olympus-kicker">MYTHOLOGY • DEMO MODE</div><div class="olympus-logo">GATES <small>OF</small><br>OLYMPUS</div><div class="olympus-subtitle">БЕСПЛАТНЫЙ ДЕМО-РЕЖИМ</div></div>
+ <div class="olympus-info"><h3>Gates Of Olympus</h3><p>Демо-слоты с символами, вращением барабанов и случайными комбинациями. Без ставок и реальных денежных призов.</p></div>
+ <div class="slot-frame"><div class="slot-topline"><span>DEMO SPIN</span><span id="olympusSpinCount">СПИНОВ: 0</span></div><div class="slot-reels" id="olympusReels"><span>💎</span><span>👑</span><span>🔱</span><span>💎</span><span>⚡</span><span>🏺</span><span>👑</span><span>⚡</span><span>💎</span><span>🏺</span><span>🔱</span><span>💎</span><span>⚡</span><span>👑</span><span>🏺</span><span>💎</span><span>🔱</span><span>⚡</span><span>👑</span><span>💎</span><span>🏺</span><span>⚡</span><span>💎</span><span>👑</span><span>🔱</span><span>💎</span><span>🏺</span><span>⚡</span><span>👑</span><span>💎</span></div><button type="button" class="action-button primary olympus-spin" id="olympusSpin">⚡ Демо-спин</button><div id="olympusResult" class="profile-message" role="status">Нажми «Демо-спин», чтобы запустить барабаны.</div></div>
+ <div class="olympus-gallery"><div>🎨 Обложка режима</div><div>🎰 Символы и барабаны</div></div>
+</div>
+<div class="daily-game-divider"></div>
+<h3>🎡 Ежедневное колесо</h3><p>Крути раз в день и получай от 1 до 5 звёзд на игровой баланс.</p><div class="wheel-stage"><div id="dailyWheel" class="daily-wheel"><span>⭐</span><span>2 ⭐</span><span>3 ⭐</span><span>4 ⭐</span><span>5 ⭐</span><span>1 ⭐</span></div></div><button type="button" class="action-button primary" id="spinWheel">🎡 Крутить колесо</button><div id="wheelMessage" class="profile-message" role="status"></div>
+</section>
 <section class="menu-placeholder" id="walletPanel" hidden><h2>👛 Кошелёк</h2><p>Переводи звёзды игрового баланса другим игрокам по их Telegram @username.</p><div class="wallet-balance">Текущий баланс: <strong id="walletBalance">—</strong></div><label class="profile-field">Юзернейм получателя<input class="profile-input" id="menuTransferUsername" placeholder="@username" maxlength="33"></label><label class="profile-field">Сумма перевода<input class="profile-input" id="menuTransferAmount" type="number" min="0.0001" step="0.0001" placeholder="1.0000"></label><button type="button" class="action-button primary" id="menuSendTransfer">💸 Перевести звёзды</button><div id="walletMessage" class="profile-message" role="status"></div></section>
 <section class="menu-placeholder" id="morePanel" hidden><h2>💠 Прочее</h2><div class="stats modal-stats"><div class="stat"><strong id="perTapModal">0.0001</strong><span>ЗА КЛИК</span></div><div class="stat"><strong id="perSecModal">0.0000</strong><span>В СЕКУНДУ</span></div><div class="stat"><strong id="totalModal">0.0000</strong><span>ВСЕГО ДОБЫТО</span></div></div><a class="action-button channel-link" href="https://t.me/+39Jby9TgJps0Y2Ni" target="_blank" rel="noopener noreferrer">📣 Подписаться на Telegram-канал</a><div class="promo-box"><h3>🎟 Промокод</h3><p>Введи промокод, чтобы получить награду. Каждый код активируется один раз на аккаунт.</p><input class="profile-input" id="promoCodeInput" placeholder="ВВЕДИ ПРОМОКОД" maxlength="32" autocapitalize="characters"><button type="button" class="action-button primary" id="activatePromo">Активировать</button><div id="promoMessage" class="profile-message" role="status"></div></div><div class="settings-box"><h3>🎵 Новогодняя музыка</h3><p>Включай или выключай мелодию приложения.</p><button class="music-toggle" id="menuMusicToggle" type="button" aria-pressed="false"><span id="menuMusicLabel">Включить музыку</span></button></div></section>
 <section class="menu-placeholder" id="friendsPanel" hidden><h2>👥 Друзья</h2><p>За каждого нового друга, который впервые запускает бота по твоей ссылке, начисляется <strong>2 монеты</strong>.</p><div id="menuReferralResult" class="profile-message referral-link-text">Ссылка ещё не загружена.</div><button type="button" class="action-button primary" id="menuReferral">🔗 Получить ссылку</button><button type="button" class="action-button" id="copyReferral" disabled>📋 Скопировать ссылку</button></section>
@@ -299,6 +333,24 @@ $('spinWheel')?.addEventListener('click',async()=>{
   state.balance=Number(d.balance);state.total=Number(d.total);refresh();
   setTimeout(()=>{msg.textContent='🎉 Выпало '+d.reward+' '+(d.reward===1?'звезда':'звёзд')+'! Приходи завтра.';b.textContent='Уже использовано сегодня';},3200);
  }catch(e){msg.textContent=e.message; b.disabled=false;}
+});
+let olympusSpins=0,olympusBusy=false;
+$('olympusSpin')?.addEventListener('click',()=>{
+ if(olympusBusy)return;olympusBusy=true;
+ const b=$('olympusSpin'),reels=$('olympusReels'),result=$('olympusResult');
+ const symbols=['💎','👑','🔱','⚡','🏺','🟣','🟡','💫'];
+ b.disabled=true;b.textContent='⚡ Барабаны вращаются…';result.textContent='Ищем комбинацию…';reels.classList.add('spinning');
+ let ticks=0;const timer=setInterval(()=>{
+  reels.querySelectorAll('span').forEach(el=>el.textContent=symbols[Math.floor(Math.random()*symbols.length)]);
+  ticks++;
+  if(ticks>=12){
+   clearInterval(timer);reels.classList.remove('spinning');olympusSpins++;
+   const cells=[...reels.querySelectorAll('span')],sym=symbols[Math.floor(Math.random()*symbols.length)];
+   if(Math.random()<.28){for(let i=0;i<3;i++)cells[Math.floor(Math.random()*cells.length)].textContent=sym;result.textContent='✨ Красивая комбинация! Это бесплатная демо-игра — баланс не меняется.';}
+   else result.textContent='Попробуй ещё раз! Демо-спин №'+olympusSpins+'. Баланс не меняется.';
+   $('olympusSpinCount').textContent='СПИНОВ: '+olympusSpins;b.disabled=false;b.textContent='⚡ Демо-спин';olympusBusy=false;
+  }
+ },120);
 });
 async function refreshDailyWheel(){
  try{const d=await api('/api/daily-wheel');$('spinWheel').disabled=!d.canSpin;$('spinWheel').textContent=d.canSpin?'🎡 Крутить колесо':'Уже использовано сегодня';if(!d.canSpin)$('wheelMessage').textContent='Сегодняшняя награда: '+d.lastReward+' ⭐. Возвращайся завтра.';}
