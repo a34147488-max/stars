@@ -290,9 +290,19 @@ body{overflow-anchor:none}
 @keyframes olympusBoltFlash{0%,7.8%,10.5%,41.8%,44%,100%{opacity:0}8%,8.35%,9%,42%,42.8%{opacity:.95}8.6%,9.4%,43.2%{opacity:.2}}
 @keyframes olympusCloudDrift{from{transform:translate3d(-2%,0,0) scale(1)}to{transform:translate3d(3%,2%,0) scale(1.08)}}
 @media(prefers-reduced-motion:reduce){.olympus-storm:before,.olympus-storm-flash,.olympus-bolt{animation:none!important}.olympus-bolt{opacity:0}}
+
+#starsPlayLoader{position:fixed;inset:0;z-index:20000;background:radial-gradient(ellipse at 50% 35%,#242039 0%,#0b0b12 68%);display:none;align-items:center;justify-content:center;flex-direction:column;padding:24px}
+#starsPlayLoader.active{display:flex}
+#starsPlayLoader .sp-title{font-size:clamp(28px,8vw,42px);font-weight:1000;letter-spacing:3px;color:#fff;text-shadow:0 0 24px #ffd83d44;margin-bottom:30px}
+#starsPlayLoader .sp-track{width:min(340px,78vw);height:10px;border:1px solid #7c6824;border-radius:999px;background:#282315;overflow:hidden;box-shadow:0 0 20px #ffdc3b20}
+#starsPlayLoader .sp-fill{height:100%;width:0;background:linear-gradient(90deg,#e4b900,#ffe85a,#ffcc00);border-radius:inherit;box-shadow:0 0 15px #ffdc3b;animation:spLoading 6s linear forwards}
+#starsPlayLoader .sp-caption{margin-top:13px;color:#b7b0a0;font-size:12px;letter-spacing:2px}
+@keyframes spLoading{from{width:0}to{width:100%}}
+
 </style>
 </head>
 <body>
+<div id="starsPlayLoader" aria-live="polite" aria-label="Загрузка StarsPlay"><div class="sp-title">StarsPlay</div><div class="sp-track"><div class="sp-fill"></div></div><div class="sp-caption">ЗАГРУЗКА ИГРЫ</div></div>
 <div class="snow-layer" id="snowLayer" aria-hidden="true"></div>
 <div class="wrap">
 <div class="garland" aria-hidden="true"><svg viewBox="0 0 600 55" preserveAspectRatio="none"><path d="M-10 5 Q75 65 150 20 T300 20 T450 20 T610 5" fill="none" stroke="#2b805e" stroke-width="3"/><path d="M-10 9 Q75 69 150 24 T300 24 T450 24 T610 9" fill="none" stroke="#174d3d" stroke-width="2"/><circle class="bulb" cx="15" cy="12" r="4.2" fill="#ff5c72" color="#ff5c72"/><circle class="bulb" cx="62" cy="22.76034136349284" r="4.2" fill="#ffe66d" color="#ffe66d"/><circle class="bulb" cx="109" cy="26.993604045622575" r="4.2" fill="#63e6be" color="#63e6be"/><circle class="bulb" cx="156" cy="22.13194770826726" r="4.2" fill="#75c9ff" color="#75c9ff"/><circle class="bulb" cx="203" cy="11.124387848586299" r="4.2" fill="#c49bff" color="#c49bff"/><circle class="bulb" cx="250" cy="0.6479625703810772" r="4.2" fill="#ff5c72" color="#ff5c72"/><circle class="bulb" cx="297" cy="-2.9424691325376084" r="4.2" fill="#ffe66d" color="#ffe66d"/><circle class="bulb" cx="344" cy="2.531000431915187" r="4.2" fill="#63e6be" color="#63e6be"/><circle class="bulb" cx="391" cy="13.748238072757404" r="4.2" fill="#75c9ff" color="#75c9ff"/><circle class="bulb" cx="438" cy="23.905017957737297" r="4.2" fill="#c49bff" color="#c49bff"/><circle class="bulb" cx="485" cy="26.840373699350728" r="4.2" fill="#ff5c72" color="#ff5c72"/><circle class="bulb" cx="532" cy="20.773757893376427" r="4.2" fill="#ffe66d" color="#ffe66d"/><circle class="bulb" cx="579" cy="9.385098281655278" r="4.2" fill="#63e6be" color="#63e6be"/></svg></div>
@@ -300,7 +310,7 @@ body{overflow-anchor:none}
 
 <section class="menu-placeholder games-modal" id="gamesPanel" hidden>
  <div class="games-hub" id="gamesHub">
-  <header class="games-hub-header"><div class="games-hub-kicker">ИГРОВАЯ ЗОНА</div><h2>🎮 Игры</h2><p>Выбирай режим и испытай удачу</p></header>
+  <header class="games-hub-header"><div class="games-hub-kicker">ИГРОВАЯ ЗОНА</div><h2>✧ Игры</h2><p>Выбирай режим и испытай удачу</p></header>
   <button class="game-cover olympus-cover" id="openOlympusGame" type="button" aria-label="Открыть Gates Of Olympus">
    <img src="https://raw.githubusercontent.com/a34147488-max/stars/main/epic_high_detail_fantasy_game_poster_slot_art_sty.png" alt="Gates of Olympus — 2500" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit">
    <span class="cover-play" style="position:relative;z-index:2;margin-top:auto">ИГРАТЬ <b>›</b></span>
@@ -312,7 +322,7 @@ body{overflow-anchor:none}
   <div class="olympus-storm" aria-hidden="true"><div class="olympus-storm-flash"></div><svg class="olympus-bolt bolt-one" viewBox="0 0 120 420" preserveAspectRatio="none"><path d="M74 0 43 112 72 103 22 238 53 224 8 350 68 211 42 221 91 92 62 102Z"/><path class="bolt-core" d="M74 0 43 112 72 103 22 238 53 224 8 350"/></svg><svg class="olympus-bolt bolt-two" viewBox="0 0 120 420" preserveAspectRatio="none"><path d="M74 0 43 112 72 103 22 238 53 224 8 350 68 211 42 221 91 92 62 102Z"/><path class="bolt-core" d="M74 0 43 112 72 103 22 238 53 224 8 350"/></svg><svg class="olympus-bolt bolt-three" viewBox="0 0 120 420" preserveAspectRatio="none"><path d="M74 0 43 112 72 103 22 238 53 224 8 350 68 211 42 221 91 92 62 102Z"/></svg></div>
   <header class="olympus-title"><div class="olympus-laurel">ANCIENT GREECE · DIVINE REELS</div><h1>OLYMPUS</h1><div class="olympus-subtitle">GATES OF ZEUS</div></header>
   <div class="olympus-status"><span id="olympusSpinCount">СПИНОВ: 0</span><span id="olympusMode">ОБЫЧНАЯ ИГРА</span></div>
-  <div class="olympus-audio-row"><button id="olympusMusic" class="olympus-music" type="button">♫ Музыка: ВЫКЛ</button></div>
+  <div class="olympus-audio-row"><button id="olympusMusic" class="olympus-music" type="button">✧ Музыка: ВЫКЛ</button></div>
   <div class="olympus-frame"><div class="olympus-grid" id="olympusReels" aria-label="Поле 6 на 5"></div></div>
   <div class="olympus-win" id="olympusWin">СОБЕРИ 8 ОДИНАКОВЫХ СИМВОЛОВ</div>
   <div class="olympus-result" id="olympusResult" role="status">Каскады · Pay Anywhere · Без Wild</div>
@@ -331,7 +341,7 @@ body{overflow-anchor:none}
 </section>
 <div class="olympus-superwin" id="olympusSuperWin" role="dialog" aria-modal="true" aria-labelledby="olympusSuperWinTitle">
  <div class="olympus-superwin-card"><div class="olympus-superwin-content">
-  <div class="olympus-superwin-icon">⚡👑⚡</div>
+  <div class="olympus-superwin-icon">✧✧✧</div>
   <div class="olympus-superwin-title" id="olympusSuperWinTitle">СУПЕР ВЫИГРЫШ!</div>
   <div class="olympus-superwin-congrats">Поздравляем! Боги Олимпа на твоей стороне!</div>
   <div class="olympus-superwin-amount" id="olympusSuperWinAmount">+0.0000</div>
@@ -339,10 +349,10 @@ body{overflow-anchor:none}
   <button type="button" class="olympus-superwin-close" id="olympusSuperWinClose">ЗАБРАТЬ ВЫИГРЫШ</button>
  </div></div>
 </div>
-<div id="olympusFreeSpinModal" class="olympus-freespin-modal" role="dialog" aria-modal="true" aria-labelledby="olympusFreeSpinTitle"><div class="olympus-freespin-card"><div class="olympus-freespin-icon">⚡🏛️⚡</div><div id="olympusFreeSpinTitle" class="olympus-freespin-title">ПОЗДРАВЛЯЕМ!</div><div class="olympus-freespin-count">15 FREE SPINS</div><div class="olympus-freespin-copy">Ты активировал бонус Олимпа! Собирай молнии — их множители будут накапливаться и усиливать выигрыши во всех бесплатных вращениях.</div><button type="button" id="olympusFreeSpinClose" class="olympus-freespin-close">НАЧАТЬ БОНУС</button></div></div>
-<section class="menu-placeholder" id="walletPanel" hidden><h2>👛 Кошелёк</h2><p>Переводи звёзды игрового баланса другим игрокам по их Telegram @username.</p><div class="wallet-balance">Текущий баланс: <strong id="walletBalance">—</strong></div><label class="profile-field">Юзернейм получателя<input class="profile-input" id="menuTransferUsername" placeholder="@username" maxlength="33"></label><label class="profile-field">Сумма перевода<input class="profile-input" id="menuTransferAmount" type="number" min="0.0001" step="0.0001" placeholder="1.0000"></label><button type="button" class="action-button primary" id="menuSendTransfer">💸 Перевести звёзды</button><div id="walletMessage" class="profile-message" role="status"></div><div class="promo-box" id="withdrawBox"><h3>⭐ Вывод звёзд</h3><p>Минимальная сумма вывода — 300 звёзд. Укажи Telegram @username, куда нужно зачислить выплату.</p><label class="profile-field">Сумма вывода<input class="profile-input" id="withdrawAmount" type="number" min="300" step="1" placeholder="От 300"></label><label class="profile-field">Аккаунт для зачисления<input class="profile-input" id="withdrawUsername" maxlength="33" placeholder="@username"></label><button type="button" class="action-button primary" id="createWithdrawal">📤 Создать заявку на вывод</button><div id="withdrawMessage" class="profile-message" role="status"></div><h3 style="margin-top:18px">📋 Мои заявки</h3><div id="withdrawalList" class="leaderboard-list"><p>Загрузка заявок…</p></div></div></section>
-<section class="menu-placeholder" id="morePanel" hidden><h2>💠 Прочее</h2><div class="stats modal-stats"><div class="stat"><strong id="perTapModal">0.0001</strong><span>ЗА КЛИК</span></div><div class="stat"><strong id="perSecModal">0.0000</strong><span>В СЕКУНДУ</span></div><div class="stat"><strong id="totalModal">0.0000</strong><span>ВСЕГО ДОБЫТО</span></div></div><a class="action-button channel-link" href="https://t.me/+39Jby9TgJps0Y2Ni" target="_blank" rel="noopener noreferrer">📣 Подписаться на Telegram-канал</a><div class="promo-box"><h3>🎟 Промокод</h3><p>Промокоды OLYMPUS150 дают 150 ⭐ после отыгрыша суммы в 20 раз больше награды в «Олимпусе» (нужно поставить всего 3 000 ⭐). Каждый код — одна активация.</p><input class="profile-input" id="promoCodeInput" placeholder="ВВЕДИ ПРОМОКОД" maxlength="32" autocapitalize="characters"><button type="button" class="action-button primary" id="activatePromo">Активировать</button><div id="promoMessage" class="profile-message" role="status"></div><div id="promoWagerProgress" class="profile-message" aria-live="polite"></div></div><div class="settings-box"><h3>🎵 Новогодняя музыка</h3><p>Включай или выключай мелодию приложения.</p><button class="music-toggle" id="menuMusicToggle" type="button" aria-pressed="false"><span id="menuMusicLabel">Включить музыку</span></button></div></section>
-<section class="menu-placeholder" id="friendsPanel" hidden><h2>👥 Друзья</h2><p>За каждого нового друга, который впервые запускает бота по твоей ссылке, начисляется <strong>15 ⭐</strong>.</p><div id="menuReferralResult" class="profile-message referral-link-text">Ссылка ещё не загружена.</div><button type="button" class="action-button primary" id="menuReferral">🔗 Получить ссылку</button><button type="button" class="action-button" id="copyReferral" disabled>📋 Скопировать ссылку</button></section>
+<div id="olympusFreeSpinModal" class="olympus-freespin-modal" role="dialog" aria-modal="true" aria-labelledby="olympusFreeSpinTitle"><div class="olympus-freespin-card"><div class="olympus-freespin-icon">✧✧️✧</div><div id="olympusFreeSpinTitle" class="olympus-freespin-title">ПОЗДРАВЛЯЕМ!</div><div class="olympus-freespin-count">15 FREE SPINS</div><div class="olympus-freespin-copy">Ты активировал бонус Олимпа! Собирай молнии — их множители будут накапливаться и усиливать выигрыши во всех бесплатных вращениях.</div><button type="button" id="olympusFreeSpinClose" class="olympus-freespin-close">НАЧАТЬ БОНУС</button></div></div>
+<section class="menu-placeholder" id="walletPanel" hidden><h2>✧ Кошелёк</h2><p>Переводи звёзды игрового баланса другим игрокам по их Telegram @username.</p><div class="wallet-balance">Текущий баланс: <strong id="walletBalance">—</strong></div><label class="profile-field">Юзернейм получателя<input class="profile-input" id="menuTransferUsername" placeholder="@username" maxlength="33"></label><label class="profile-field">Сумма перевода<input class="profile-input" id="menuTransferAmount" type="number" min="0.0001" step="0.0001" placeholder="1.0000"></label><button type="button" class="action-button primary" id="menuSendTransfer">✧ Перевести звёзды</button><div id="walletMessage" class="profile-message" role="status"></div><div class="promo-box" id="withdrawBox"><h3>⭐ Вывод звёзд</h3><p>Минимальная сумма вывода — 300 звёзд. Укажи Telegram @username, куда нужно зачислить выплату.</p><label class="profile-field">Сумма вывода<input class="profile-input" id="withdrawAmount" type="number" min="300" step="1" placeholder="От 300"></label><label class="profile-field">Аккаунт для зачисления<input class="profile-input" id="withdrawUsername" maxlength="33" placeholder="@username"></label><button type="button" class="action-button primary" id="createWithdrawal">✧ Создать заявку на вывод</button><div id="withdrawMessage" class="profile-message" role="status"></div><h3 style="margin-top:18px">✧ Мои заявки</h3><div id="withdrawalList" class="leaderboard-list"><p>Загрузка заявок…</p></div></div></section>
+<section class="menu-placeholder" id="morePanel" hidden><h2>✧ Прочее</h2><div class="stats modal-stats"><div class="stat"><strong id="perTapModal">0.0001</strong><span>ЗА КЛИК</span></div><div class="stat"><strong id="perSecModal">0.0000</strong><span>В СЕКУНДУ</span></div><div class="stat"><strong id="totalModal">0.0000</strong><span>ВСЕГО ДОБЫТО</span></div></div><a class="action-button channel-link" href="https://t.me/+39Jby9TgJps0Y2Ni" target="_blank" rel="noopener noreferrer">✧ Подписаться на Telegram-канал</a><div class="promo-box"><h3>✧ Промокод</h3><p>Промокоды OLYMPUS150 дают 150 ⭐ после отыгрыша суммы в 20 раз больше награды в «Олимпусе» (нужно поставить всего 3 000 ⭐). Каждый код — одна активация.</p><input class="profile-input" id="promoCodeInput" placeholder="ВВЕДИ ПРОМОКОД" maxlength="32" autocapitalize="characters"><button type="button" class="action-button primary" id="activatePromo">Активировать</button><div id="promoMessage" class="profile-message" role="status"></div><div id="promoWagerProgress" class="profile-message" aria-live="polite"></div></div><div class="settings-box"><h3>✧ Новогодняя музыка</h3><p>Включай или выключай мелодию приложения.</p><button class="music-toggle" id="menuMusicToggle" type="button" aria-pressed="false"><span id="menuMusicLabel">Включить музыку</span></button></div></section>
+<section class="menu-placeholder" id="friendsPanel" hidden><h2>✧ Друзья</h2><p>За каждого нового друга, который впервые запускает бота по твоей ссылке, начисляется <strong>15 ⭐</strong>.</p><div id="menuReferralResult" class="profile-message referral-link-text">Ссылка ещё не загружена.</div><button type="button" class="action-button primary" id="menuReferral">✧ Получить ссылку</button><button type="button" class="action-button" id="copyReferral" disabled>✧ Скопировать ссылку</button></section>
 <div class="winter-row"><svg class="tree" viewBox="0 0 60 80" aria-hidden="true"><path d="M30 4 13 29h9L7 47h16L10 63h40L37 47h16L38 29h9Z" fill="#1ba879" stroke="#72f5c1" stroke-width="1.5"/><path d="M26 63h8v12h-8z" fill="#a9784c"/><path d="M30 1l2.5 5 5.5.8-4 3.8 1 5.4-5-2.6-5 2.6 1-5.4-4-3.8 5.5-.8Z" fill="#ffe77a"/><circle cx="21" cy="35" r="2.5" fill="#ff637d"/><circle cx="37" cy="43" r="2.5" fill="#ffe77a"/><circle cx="26" cy="54" r="2.5" fill="#8bd8ff"/></svg><span>Зимняя звёздная ночь</span><svg class="tree" viewBox="0 0 60 80" aria-hidden="true"><path d="M30 4 13 29h9L7 47h16L10 63h40L37 47h16L38 29h9Z" fill="#1ba879" stroke="#72f5c1" stroke-width="1.5"/><path d="M26 63h8v12h-8z" fill="#a9784c"/><path d="M30 1l2.5 5 5.5.8-4 3.8 1 5.4-5-2.6-5 2.6 1-5.4-4-3.8 5.5-.8Z" fill="#ffe77a"/><circle cx="21" cy="35" r="2.5" fill="#ff637d"/><circle cx="37" cy="43" r="2.5" fill="#ffe77a"/><circle cx="26" cy="54" r="2.5" fill="#8bd8ff"/></svg></div>
 <nav class="main-menu" aria-label="Главное меню">
 <button class="menu-tile" type="button" data-open="leaderboardPanel" style="--tile:#ff9147"><span class="menu-icon"><svg viewBox="0 0 48 48"><path d="M13 8h22l-2 20H15L13 8Zm-1 4H6l3 15c1 5 5 7 10 7m20-22h3l-3 15c-1 5-5 7-10 7M20 36h8m-4-8v8m-7 5h14" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Лидеры</span></button>
@@ -360,10 +370,10 @@ body{overflow-anchor:none}
 </section>
 
 <section class="profile-panel" id="profilePanel" hidden>
-<h2>👤 Профиль игрока</h2>
+<h2>✧ Профиль игрока</h2>
 <div class="profile-row"><div class="profile-avatar" id="profileAvatar">⭐</div><div class="profile-input" id="profileName" aria-live="polite">Загрузка профиля…</div></div>
 <div class="profile-message" id="profileMessage" role="status">Имя и аватар можно изменить только в Telegram-боте: /name Новое имя или отправь боту фотографию.</div>
-<div class="action-row"><button class="action-button" id="makeReferral" type="button">🔗 Моя ссылка</button><button class="action-button" id="showTransfer" type="button">💸 Перевести</button></div>
+<div class="action-row"><button class="action-button" id="makeReferral" type="button">✧ Моя ссылка</button><button class="action-button" id="showTransfer" type="button">✧ Перевести</button></div>
 <div id="referralResult" class="profile-message"></div>
 <div id="transferPanel" hidden>
 <label class="profile-field">Юзернейм получателя<input class="profile-input" id="transferUsername" placeholder="@username" maxlength="33"></label>
@@ -373,9 +383,9 @@ body{overflow-anchor:none}
 </div>
 </section>
 
-<section class="profile-panel star-shop-panel" id="shopPanel" hidden><div class="shop-title-row"><div><div class="shop-eyebrow">STARS STORE</div><h2>✨ Улучшения</h2></div><span class="shop-live">● ОПЛАТА TELEGRAM</span></div><p class="shop-intro">Выбери усиление — оплата откроется прямо в Telegram. Множитель действует постоянно.</p><div id="shopMessage" class="shop-message" role="status"></div><div id="shop" class="shop star-shop-grid"><div class="shop-loading">Загружаем улучшения…</div></div><div class="shop-footnote">Безопасная оплата Telegram Stars · 10 уровней усиления</div></section>
+<section class="profile-panel star-shop-panel" id="shopPanel" hidden><div class="shop-title-row"><div><div class="shop-eyebrow">STARS STORE</div><h2>✧ Улучшения</h2></div><span class="shop-live">● ОПЛАТА TELEGRAM</span></div><p class="shop-intro">Выбери усиление — оплата откроется прямо в Telegram. Множитель действует постоянно.</p><div id="shopMessage" class="shop-message" role="status"></div><div id="shop" class="shop star-shop-grid"><div class="shop-loading">Загружаем улучшения…</div></div><div class="shop-footnote">Безопасная оплата Telegram Stars · 10 уровней усиления</div></section>
 <section class="profile-panel leaderboard-panel" id="leaderboardPanel" hidden>
-<h2>🏆 Топы игроков</h2>
+<h2>✧ Топы игроков</h2>
 <p class="u-desc">Игроки с самым большим балансом</p>
 <div id="leaderboard" class="leaderboard-list">Загрузка рейтинга…</div>
 <button class="action-button" id="refreshLeaderboard" type="button" style="width:100%;margin-top:10px">Обновить топ</button>
@@ -464,11 +474,12 @@ document.querySelectorAll('[data-open]').forEach(btn=>btn.addEventListener('clic
  if(id==='morePanel')await loadPromoProgress();
 }));
 document.getElementById('openOlympusGame')?.addEventListener('click',()=>{
- const hub=document.getElementById('gamesHub'),view=document.getElementById('olympusGameView'),panel=document.getElementById('gamesPanel');
- if(!hub||!view||!panel)return;
- hub.hidden=true;view.hidden=false;panel.classList.add('olympus-fullscreen');
- panel.scrollTop=0;
- if(typeof initOlympusGrid==='function')initOlympusGrid();
+ const hub=document.getElementById('gamesHub'),view=document.getElementById('olympusGameView'),panel=document.getElementById('gamesPanel'),loader=document.getElementById('starsPlayLoader');
+ if(!hub||!view||!panel||!loader)return;
+ hub.hidden=true;view.hidden=true;panel.classList.add('olympus-fullscreen');panel.scrollTop=0;
+ loader.classList.add('active');
+ const fill=loader.querySelector('.sp-fill');if(fill){fill.style.animation='none';void fill.offsetWidth;fill.style.animation='spLoading 6s linear forwards';}
+ window.setTimeout(()=>{loader.classList.remove('active');view.hidden=false;if(typeof initOlympusGrid==='function')initOlympusGrid();},6000);
 });
 document.getElementById('toggleShop')?.addEventListener('click',async()=>{
  const panel=$('shopPanel');if(!panel)return;
@@ -490,14 +501,14 @@ $('menuReferral')?.addEventListener('click',async()=>{
   const d=await api('/api/referral');
   if(!d||!d.url||!/^https:\/\/t\.me\//.test(d.url))throw new Error('Сервер не вернул корректную ссылку.');
   out.textContent=d.url;out.dataset.url=d.url;
-  copy.disabled=false;copy.textContent='📋 Скопировать ссылку';
+  copy.disabled=false;copy.textContent='✧ Скопировать ссылку';
  }catch(e){out.textContent='Не удалось создать ссылку: '+e.message;out.dataset.url='';copy.disabled=true;console.error('Referral link error:',e);}
- finally{button.disabled=false;button.textContent='🔗 Получить ссылку';}
+ finally{button.disabled=false;button.textContent='✧ Получить ссылку';}
 });
 $('copyReferral')?.addEventListener('click',async()=>{
  const url=$('menuReferralResult').dataset.url||'';
  if(!url)return;
- try{if(navigator.clipboard&&navigator.clipboard.writeText)await navigator.clipboard.writeText(url);else{const x=document.createElement('textarea');x.value=url;document.body.appendChild(x);x.select();document.execCommand('copy');x.remove();} $('copyReferral').textContent='✅ Ссылка скопирована';}
+ try{if(navigator.clipboard&&navigator.clipboard.writeText)await navigator.clipboard.writeText(url);else{const x=document.createElement('textarea');x.value=url;document.body.appendChild(x);x.select();document.execCommand('copy');x.remove();} $('copyReferral').textContent='✧ Ссылка скопирована';}
  catch(e){$('menuReferralResult').textContent=url;}
 });
 $('spinWheel')?.addEventListener('click',async()=>{
@@ -507,7 +518,7 @@ $('spinWheel')?.addEventListener('click',async()=>{
   const d=await api('/api/daily-wheel/spin','POST',{});
   wheel.style.transform='rotate('+(360*5+Math.floor(Math.random()*360))+'deg)';
   state.balance=Number(d.balance);state.total=Number(d.total);refresh();
-  setTimeout(()=>{msg.textContent='🎉 Выпало '+d.reward+' '+(d.reward===1?'звезда':'звёзд')+'! Приходи завтра.';b.textContent='Уже использовано сегодня';},3200);
+  setTimeout(()=>{msg.textContent='✧ Выпало '+d.reward+' '+(d.reward===1?'звезда':'звёзд')+'! Приходи завтра.';b.textContent='Уже использовано сегодня';},3200);
  }catch(e){msg.textContent=e.message; b.disabled=false;}
 });
 let olympusSpins=0,olympusBusy=false,olympusFreeSpins=0,olympusGlobalMult=1,olympusAnte=false;
@@ -535,8 +546,8 @@ function olympusCongratsSound(){[659.25,783.99,987.77,1318.51,1567.98].forEach((
 function olympusStartCongratsSound(){if(olympusCongratsTimer)clearTimeout(olympusCongratsTimer);const tick=()=>{const a=$('olympusSuperWin')?.classList.contains('open'),b=$('olympusFreeSpinModal')?.classList.contains('open');if(!a&&!b){olympusCongratsTimer=null;return}olympusCongratsSound();olympusCongratsTimer=setTimeout(tick,1800)};tick()}
 function olympusStopCongratsSound(){if(olympusCongratsTimer){clearTimeout(olympusCongratsTimer);olympusCongratsTimer=null}}
 function olympusMusicTick(){if(!olympusMusicOn)return;const melody=[293.66,349.23,440,523.25,587.33,523.25,440,349.23,392,493.88,587.33,659.25,587.33,493.88,392,349.23],bass=[146.83,146.83,174.61,174.61,130.81,130.81,196,196],i=olympusMusicStep++;olympusTone(melody[i%melody.length],.48,'triangle',.018);if(i%2===0)olympusTone(melody[(i+3)%melody.length]*2,.22,'sine',.008,.12);if(i%4===0)olympusTone(bass[Math.floor(i/2)%bass.length],.65,'sine',.018);olympusMusicTimer=setTimeout(olympusMusicTick,360)}
-function olympusToggleMusic(){olympusAudio();olympusMusicOn=!olympusMusicOn;const b=$('olympusMusic');if(b){b.textContent=olympusMusicOn?'♫ Музыка: ВКЛ':'♫ Музыка: ВЫКЛ';b.classList.toggle('active',olympusMusicOn)}if(olympusMusicTimer){clearTimeout(olympusMusicTimer);olympusMusicTimer=null}if(olympusMusicOn)olympusMusicTick()}
-function olympusStopMusic(){olympusMusicOn=false;if(olympusMusicTimer){clearTimeout(olympusMusicTimer);olympusMusicTimer=null}if(olympusAudioCtx){const ctx=olympusAudioCtx;olympusAudioCtx=null;ctx.close().catch(()=>{})}olympusMusicStep=0;const b=$('olympusMusic');if(b){b.textContent='♫ Музыка: ВЫКЛ';b.classList.remove('active')}}
+function olympusToggleMusic(){olympusAudio();olympusMusicOn=!olympusMusicOn;const b=$('olympusMusic');if(b){b.textContent=olympusMusicOn?'✧ Музыка: ВКЛ':'✧ Музыка: ВЫКЛ';b.classList.toggle('active',olympusMusicOn)}if(olympusMusicTimer){clearTimeout(olympusMusicTimer);olympusMusicTimer=null}if(olympusMusicOn)olympusMusicTick()}
+function olympusStopMusic(){olympusMusicOn=false;if(olympusMusicTimer){clearTimeout(olympusMusicTimer);olympusMusicTimer=null}if(olympusAudioCtx){const ctx=olympusAudioCtx;olympusAudioCtx=null;ctx.close().catch(()=>{})}olympusMusicStep=0;const b=$('olympusMusic');if(b){b.textContent='✧ Музыка: ВЫКЛ';b.classList.remove('active')}}
 function olympusSvg(sym){
  const c=sym.color;
  const common='stroke="#fff4d2" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round"';
@@ -592,7 +603,7 @@ async function olympusPlay(buyBonus=false){
  try{serverSpin=await api('/api/olympus/spin','POST',{bet,buyBonus,ante:olympusAnte});}
  catch(e){$('olympusResult').textContent=e.message;if(tg&&tg.showAlert)tg.showAlert(e.message);olympusBusy=false;$('olympusSpin').disabled=false;$('olympusBuy').disabled=false;return;}
  state.balance=Number(serverSpin.balance);state.total=Number(serverSpin.total);renderStats();
- if(Array.isArray(serverSpin.completedPromos)&&serverSpin.completedPromos.length){const rewards=serverSpin.completedPromos.reduce((n,p)=>n+Number(p.reward||0),0);if($('promoMessage'))$('promoMessage').textContent='🎉 Отыгрыш выполнен! На реальный баланс зачислено '+fmt(rewards)+' ⭐.';if($('promoWagerProgress'))loadPromoProgress();}
+ if(Array.isArray(serverSpin.completedPromos)&&serverSpin.completedPromos.length){const rewards=serverSpin.completedPromos.reduce((n,p)=>n+Number(p.reward||0),0);if($('promoMessage'))$('promoMessage').textContent='✧ Отыгрыш выполнен! На реальный баланс зачислено '+fmt(rewards)+' ⭐.';if($('promoWagerProgress'))loadPromoProgress();}
  else if(Array.isArray(serverSpin.promoProgress)&&$('promoWagerProgress'))renderPromoProgress(serverSpin.promoProgress);
  const showSuperWin=Number(serverSpin.win)>=bet*10;
  const gotFreeSpins=Number(serverSpin.freeSpins)>=15&&freeSpinsBefore===0&&(Number(serverSpin.scatter)>=4||buyBonus);
@@ -661,7 +672,7 @@ $('olympusBet')?.addEventListener('change',olympusUpdateBuyPrice);olympusUpdateB
 $('olympusBuy')?.addEventListener('click',()=>olympusPlay(true));
 $('closeOlympus')?.addEventListener('click',()=>closeAllMenus());
 async function refreshDailyWheel(){
- try{const d=await api('/api/daily-wheel');$('spinWheel').disabled=!d.canSpin;$('spinWheel').textContent=d.canSpin?'🎡 Крутить колесо':'Уже использовано сегодня';if(!d.canSpin)$('wheelMessage').textContent='Сегодняшняя награда: '+d.lastReward+' ⭐. Возвращайся завтра.';}
+ try{const d=await api('/api/daily-wheel');$('spinWheel').disabled=!d.canSpin;$('spinWheel').textContent=d.canSpin?'✧ Крутить колесо':'Уже использовано сегодня';if(!d.canSpin)$('wheelMessage').textContent='Сегодняшняя награда: '+d.lastReward+' ⭐. Возвращайся завтра.';}
  catch(e){$('wheelMessage').textContent=e.message;}
 }
 $('menuSendTransfer')?.addEventListener('click',async()=>{
@@ -678,7 +689,7 @@ async function loadWithdrawals(){
   const d=await api('/api/withdrawals');
   if(!d.requests.length){list.innerHTML='<p style="color:#aaaab8;font-size:12px">Заявок пока нет.</p>';return;}
   list.innerHTML=d.requests.map(r=>{
-   const status=r.status==='paid'?'✅ Выплачено':r.status==='rejected'?'❌ Отказано':'⏳ Ожидание';
+   const status=r.status==='paid'?'✧ Выплачено':r.status==='rejected'?'✧ Отказано':'⏳ Ожидание';
    const color=r.status==='paid'?'#8af2ce':r.status==='rejected'?'#ff9caa':'#ffe17b';
    return '<div class="leader-row" style="cursor:default;align-items:flex-start"><div class="leader-meta"><div class="leader-name">'+Number(r.amount).toLocaleString('ru-RU')+' ⭐ → '+escapeText(r.username)+'</div><div style="font-size:11px;color:'+color+';margin-top:5px">'+status+'</div><div style="font-size:10px;color:#888;margin-top:4px">'+new Date(r.createdAt).toLocaleString('ru-RU')+'</div></div></div>';
   }).join('');
@@ -706,7 +717,7 @@ function renderPromoProgress(promos){
  if(!promos.length){el.textContent='Активных промокодов с отыгрышем нет.';return;}
  el.innerHTML=promos.map(p=>{
   const done=p.status==='completed',pct=Math.min(100,Math.floor(Number(p.wagered)/Math.max(1,Number(p.target))*100));
-  return '<div style="margin-top:8px;padding:9px;border:1px solid #2a2a35;border-radius:10px">🎟 <b>'+escapeText(p.code)+'</b> · '+(done?'✅ Выполнено':'⏳ Отыгрыш')+'<div style="font-size:11px;margin-top:4px">'+fmt(Number(p.wagered))+' / '+fmt(Number(p.target))+' ⭐ ('+pct+'%)</div><div style="height:5px;border-radius:5px;background:#292932;margin-top:6px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+(done?'#72e6b7':'#ffe17b')+'"></div></div>'+(done?'<div style="font-size:11px;color:#8af2ce;margin-top:4px">Зачислено '+fmt(Number(p.reward))+' ⭐</div>':'<div style="font-size:11px;color:#aaaab8;margin-top:4px">Осталось поставить '+fmt(Math.max(0,Number(p.target)-Number(p.wagered)))+' ⭐</div>')+'</div>';
+  return '<div style="margin-top:8px;padding:9px;border:1px solid #2a2a35;border-radius:10px">✧ <b>'+escapeText(p.code)+'</b> · '+(done?'✧ Выполнено':'⏳ Отыгрыш')+'<div style="font-size:11px;margin-top:4px">'+fmt(Number(p.wagered))+' / '+fmt(Number(p.target))+' ⭐ ('+pct+'%)</div><div style="height:5px;border-radius:5px;background:#292932;margin-top:6px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+(done?'#72e6b7':'#ffe17b')+'"></div></div>'+(done?'<div style="font-size:11px;color:#8af2ce;margin-top:4px">Зачислено '+fmt(Number(p.reward))+' ⭐</div>':'<div style="font-size:11px;color:#aaaab8;margin-top:4px">Осталось поставить '+fmt(Math.max(0,Number(p.target)-Number(p.wagered)))+' ⭐</div>')+'</div>';
  }).join('');
 }
 $('activatePromo')?.addEventListener('click',async()=>{
@@ -714,8 +725,8 @@ $('activatePromo')?.addEventListener('click',async()=>{
  if(!code){msg.textContent='Введи промокод.';return;}
  b.disabled=true;
  try{const d=await api('/api/promo/activate','POST',{code});state.balance=d.balance;state.total=d.total;refresh();$('walletBalance').textContent=fmt(state.balance);
- if(d.wagering){msg.textContent='✅ Промокод принят! Поставь в «Олимпусе» '+fmt(d.wagering.target)+' ⭐ суммарно. После выполнения на баланс зачислится '+fmt(d.amount)+' ⭐.';}
- else{msg.textContent='🎉 Промокод активирован! Начислено '+fmt(d.amount)+' звёзд.';}
+ if(d.wagering){msg.textContent='✧ Промокод принят! Поставь в «Олимпусе» '+fmt(d.wagering.target)+' ⭐ суммарно. После выполнения на баланс зачислится '+fmt(d.amount)+' ⭐.';}
+ else{msg.textContent='✧ Промокод активирован! Начислено '+fmt(d.amount)+' звёзд.';}
  $('promoCodeInput').value='';await loadPromoProgress();}
  catch(e){msg.textContent=e.message;}
  finally{b.disabled=false;}
@@ -730,9 +741,9 @@ document.getElementById('makeReferral').addEventListener('click',async()=>{
   out.textContent='Твоя ссылка: '+d.url+'\\nНаграда за каждого нового друга: +15 звёзд.';
   out.dataset.url=d.url;
   if(!document.getElementById('copyReferralProfile')){
-   const copy=document.createElement('button');copy.id='copyReferralProfile';copy.type='button';copy.className='action-button';copy.textContent='📋 Скопировать ссылку';
+   const copy=document.createElement('button');copy.id='copyReferralProfile';copy.type='button';copy.className='action-button';copy.textContent='✧ Скопировать ссылку';
    copy.addEventListener('click',async()=>{
-    try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(out.dataset.url);else{const x=document.createElement('textarea');x.value=out.dataset.url;document.body.appendChild(x);x.select();document.execCommand('copy');x.remove();}copy.textContent='✅ Скопировано';}
+    try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(out.dataset.url);else{const x=document.createElement('textarea');x.value=out.dataset.url;document.body.appendChild(x);x.select();document.execCommand('copy');x.remove();}copy.textContent='✧ Скопировано';}
     catch(e){out.textContent='Скопируй ссылку вручную: '+out.dataset.url;}
    });
    out.after(copy);
@@ -750,7 +761,7 @@ document.getElementById('sendTransfer').addEventListener('click',async()=>{
 async function loadLeaderboard(){
  try{
   const d=await api('/api/leaderboard');
-  $('leaderboard').innerHTML=d.players.length?d.players.map(p=>{const level=Number(p.level||0);const frame=level>=30?'gold-frame':level>=10?'glow-frame':'';const crown=level>=100?'<span class="leader-crown">👑</span>':'';return '<button type="button" class="leader-row '+frame+(p.isMe?' me':'')+'" data-player-id="'+p.id+'"><span class="leader-rank">#'+p.rank+'</span><span class="leader-avatar '+frame+'" data-avatar-slot="'+p.id+'">'+(p.avatar&&!String(p.avatar).startsWith('data:image/')&&!String(p.avatar).startsWith('https://')?escapeText(p.avatar):'⭐')+'</span><span class="leader-meta"><span class="leader-name">'+escapeText(p.name||'Игрок')+(p.isMe?' (ты)':'')+crown+'</span><span class="leader-balance">'+fmt(Number(p.balance))+' монет</span><span class="leader-level">Уровень '+level+' · '+Number(p.clicks||0)+' кликов</span></span></button>'}).join(''):'Пока нет игроков в рейтинге.';
+  $('leaderboard').innerHTML=d.players.length?d.players.map(p=>{const level=Number(p.level||0);const frame=level>=30?'gold-frame':level>=10?'glow-frame':'';const crown=level>=100?'<span class="leader-crown">✧</span>':'';return '<button type="button" class="leader-row '+frame+(p.isMe?' me':'')+'" data-player-id="'+p.id+'"><span class="leader-rank">#'+p.rank+'</span><span class="leader-avatar '+frame+'" data-avatar-slot="'+p.id+'">'+(p.avatar&&!String(p.avatar).startsWith('data:image/')&&!String(p.avatar).startsWith('https://')?escapeText(p.avatar):'⭐')+'</span><span class="leader-meta"><span class="leader-name">'+escapeText(p.name||'Игрок')+(p.isMe?' (ты)':'')+crown+'</span><span class="leader-balance">'+fmt(Number(p.balance))+' монет</span><span class="leader-level">Уровень '+level+' · '+Number(p.clicks||0)+' кликов</span></span></button>'}).join(''):'Пока нет игроков в рейтинге.';
   d.players.forEach(p=>{if(p.avatar)setAvatar($('leaderboard').querySelector('[data-avatar-slot="'+p.id+'"]'),p.avatar)});
  }catch(e){$('leaderboard').textContent='Не удалось загрузить топ: '+e.message;}
 }
@@ -759,7 +770,7 @@ $('refreshLeaderboard').addEventListener('click',loadLeaderboard);
 $('leaderboard').addEventListener('click',async e=>{
  const b=e.target.closest('[data-player-id]');if(!b)return;
  const box=$('playerDetail');box.hidden=false;box.textContent='Загрузка профиля…';
- try{const d=await api('/api/players/'+encodeURIComponent(b.dataset.playerId));const p=d.player;box.innerHTML='<div style="display:flex;gap:12px;align-items:center"><div class="detail-avatar '+(Number(p.level||0)>=30?'gold-frame':Number(p.level||0)>=10?'glow-frame':'')+'" id="detailAvatar">⭐</div><div><strong>'+escapeText(p.name||'Игрок')+(Number(p.level||0)>=100?' 👑':'')+'</strong><div class="leader-balance">Баланс: '+fmt(Number(p.balance))+' монет</div><div class="u-desc">Уровень '+Number(p.level||0)+' · '+Number(p.clicks||0)+' кликов</div><div class="u-desc">Всего добыто: '+fmt(Number(p.total))+'</div></div></div>';setAvatar($('detailAvatar'),p.avatar||'⭐');}
+ try{const d=await api('/api/players/'+encodeURIComponent(b.dataset.playerId));const p=d.player;box.innerHTML='<div style="display:flex;gap:12px;align-items:center"><div class="detail-avatar '+(Number(p.level||0)>=30?'gold-frame':Number(p.level||0)>=10?'glow-frame':'')+'" id="detailAvatar">⭐</div><div><strong>'+escapeText(p.name||'Игрок')+(Number(p.level||0)>=100?' ✧':'')+'</strong><div class="leader-balance">Баланс: '+fmt(Number(p.balance))+' монет</div><div class="u-desc">Уровень '+Number(p.level||0)+' · '+Number(p.clicks||0)+' кликов</div><div class="u-desc">Всего добыто: '+fmt(Number(p.total))+'</div></div></div>';setAvatar($('detailAvatar'),p.avatar||'⭐');}
  catch(err){box.textContent=err.message;}
 });
 
