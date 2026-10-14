@@ -137,7 +137,7 @@ async function getPlayer(id) {
 function publicPlayer(p) {
   return { id: String(p.telegram_id), username: p.username, name: p.display_name, avatar: p.avatar, balance: Number(p.balance), total: Number(p.total), referredBy: p.referred_by ? String(p.referred_by) : null };
 }
-async function auth(req, res, next) {
+async async function auth(req, res, next) {
   try {
     const user = verifyInitData(req.get('x-telegram-init-data'));
     if (!user) return res.status(401).json({ error: 'Открой приложение через Telegram-бота, чтобы синхронизировать баланс.' });
@@ -146,25 +146,16 @@ async function auth(req, res, next) {
   } catch (e) { console.error(e); res.status(500).json({ error: 'Ошибка базы данных' }); }
 }
 function mainKeyboard(id) {
-  return {
-    inline_keyboard: [
-      [{ text: '⭐ Открыть кликер', web_app: { url: APP_URL } }],
-      [{ text: '✨ Улучшения за Telegram Stars', callback_data: 'star_shop' }],
-      [{ text: '👤 Профиль и аватар', web_app: { url: APP_URL + '#profilePanel' } }],
-      [{ text: '✨ Кликнуть +0.0001', callback_data: 'click' }, { text: '💰 Баланс', callback_data: 'balance' }],
-      [{ text: '🔗 Реферальная ссылка', callback_data: 'referral' }],
-      [{ text: '💸 Перевод звёзд', callback_data: 'transfer_help' }]
-    ]
-  };
+  return { inline_keyboard: [[{ text: '⭐ Открыть приложение', web_app: { url: APP_URL } }]] };
 }
 async function botStart(msg) {
   const user = msg.from;
   const payload = (msg.text || '').split(/\s+/)[1] || '';
-  const p = await upsertPlayer(user, payload);
-  const botInfo = await bot.getMe();
-  const link = `https://t.me/${botInfo.username}?start=ref_${user.id}`;
-  const text = `❄️ <b>Добро пожаловать в Stars!</b>\n\n⭐ Баланс: <b>${Number(p.balance).toFixed(4)} звёзд</b>\n👤 Имя: <b>${escapeHtml(p.display_name)}</b>\n\nНажимай на звезду в приложении. Чтобы изменить имя, отправь боту команду <code>/name Новое имя</code>, а чтобы сменить аватар — пришли боту фотографию. Приглашай друзей и отправляй звёзды другим игрокам.\n\n🔗 Твоя ссылка:\n<code>${link}</code>\n\nДля перевода используй: <code>/transfer @username 1.5</code>`;
-  await bot.sendMessage(msg.chat.id, text, { parse_mode: 'HTML', reply_markup: mainKeyboard(user.id), disable_web_page_preview: true });
+  await upsertPlayer(user, payload);
+  await bot.sendMessage(msg.chat.id, '❄️ Добро пожаловать в Stars! Нажми кнопку ниже, чтобы открыть приложение.', {
+    reply_markup: mainKeyboard(user.id),
+    disable_web_page_preview: true
+  });
 }
 function escapeHtml(s) { return String(s || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 async function botClick(chatId, from) {
