@@ -366,7 +366,7 @@ body{overflow-anchor:none}
    <div class="roulette-bets"><button type="button" class="roulette-bet roulette-bet-red" data-pick="red">Красное ×2</button><button type="button" class="roulette-bet roulette-bet-black" data-pick="black">Чёрное ×2</button><button type="button" class="roulette-bet" data-pick="even">ЧЁТНОЕ ×2</button><button type="button" class="roulette-bet" data-pick="odd">НЕЧЁТНОЕ ×2</button></div>
    <button type="button" id="rouletteNumberOpen" class="roulette-number-open">↗ Поставить на число</button>
    <div class="roulette-live-bets"><div class="roulette-live-title">СТАВКИ РАУНДА <span id="rouletteCountdown">15 сек.</span></div><div id="rouletteLiveList" class="roulette-live-list"><div class="roulette-empty">Пока никто не поставил</div></div></div>
-   <div class="roulette-note">Выигрыш рассчитывается сервером. Ставка списывается с баланса перед вращением.</div>
+   <div class="roulette-note">Ставка резервируется сервером сразу после выбора исхода. Баланс обновляется автоматически.</div>
    <div id="rouletteNumberModal" class="roulette-number-modal" hidden><div class="roulette-number-backdrop" id="rouletteNumberBackdrop"></div><div class="roulette-number-sheet"><div class="roulette-sheet-head"><button type="button" id="rouletteNumberCancel">Отмена</button><strong>Ставка на число (x36)</strong></div><div class="roulette-modal-grid" id="rouletteNumberBets"></div></div></div>
   </div>
   <div class="olympus-status"><span id="olympusSpinCount">СПИНОВ: 0</span><span id="olympusMode">ОБЫЧНАЯ ИГРА</span></div>
@@ -774,7 +774,12 @@ async function rouletteSyncServerBet(){
   $('rouletteResult').textContent=e.message||'Не удалось принять ставку';
   try{const refund=await api('/api/roulette/bet','POST',{bet:Number($('rouletteStake')?.value)||0,picks:[]});state.balance=Number(refund.balance);renderStats()}catch(_){}
   rouletteBalanceBeforeBets=null;rouletteReservedAmount=0;
-  rouletteRoundRunning=false;clearInterval(rouletteRoundTimer);
+  // Do not stop or reset the countdown when the server rejects an unaffordable bet.
+  if(rouletteRoundRunning&&rouletteRoundEnds>Date.now()){
+   const left=Math.max(0,Math.ceil((rouletteRoundEnds-Date.now())/1000));
+   if($('rouletteCountdown'))$('rouletteCountdown').textContent=left+' сек.';
+   if($('rouletteCenterTimer'))$('rouletteCenterTimer').textContent=left;
+  }
  }
 }
 function rouletteChoose(p){
@@ -949,7 +954,7 @@ async function loadServerProfile(){
  if(!initData){$('profileMessage').textContent='Telegram не передал авторизацию. Открой Mini App кнопкой внутри бота.';tapButton.disabled=false;return;}
  try{
   const d=await api('/api/me');serverMode=true;profileReady=true;
-  state.balance=Number(d.player.balance)||0;state.total=Number(d.player.total)||0;if($('walletBalance'))$('walletBalance').textContent=fmt(state.balance);if($('rouletteUserBalance'))$('rouletteUserBalance').textContent=fmt(state.balance);
+  state.balance=Number(d.player.balance)||0;state.total=Number(d.player.total)||0;if($('walletBalance'))$('walletBalance').textContent=fmt(state.balance);if($('rouletteUserBalance'))$('rouletteUserBalance').textContent=fmt(state.balance);if($('rouletteUserBalance'))$('rouletteUserBalance').textContent=fmt(state.balance);
   selectedAvatar=d.player.avatar||'⭐';
   $('profileName').textContent=d.player.name||'Игрок';setAvatar($('profileAvatar'),selectedAvatar);
   $('profileMessage').textContent='Баланс подключён. Нажимай на звезду, чтобы получать звёзды.';
