@@ -320,7 +320,9 @@ app.post('/api/olympus/spin', auth, async (req,res)=>{
     return res.status(400).json({error:'Некорректная ставка.'});
   const symbols=[['ruby',.25],['amethyst',.2],['topaz',.18],['emerald',.22],['sapphire',.2],['cup',.5],['ring',.7],['hourglass',1],['crown',1.5]];
   const pick=()=>symbols[crypto.randomInt(symbols.length)][0];
-  const makeBoard=()=>Array.from({length:30},()=>{const r=crypto.randomInt(10000)/10000;return r<.018?'orb':r<.045?'zeus':pick()});
+  const lightningMultipliers=[2,2,2,3,3,5,5,10,10,25,50,100,250,500,1000];
+  const pickLightningMultiplier=()=>lightningMultipliers[crypto.randomInt(lightningMultipliers.length)];
+  const makeBoard=()=>Array.from({length:30},()=>{const r=crypto.randomInt(10000)/10000;return r<.003?'orb':r<.011?'zeus':pick()});
   const client=await pool.connect();
   try{
     await client.query('BEGIN');
@@ -342,11 +344,12 @@ app.post('/api/olympus/spin', auth, async (req,res)=>{
     }
     const freeAtStart=freeSpins>0;
     let board=makeBoard();
-    if(crypto.randomInt(10000)<(ante?250:80)){for(let n=0;n<4;n++)board[n]='zeus';}
-    else if(crypto.randomInt(10000)<30){for(let n=0;n<3;n++)board[n]='zeus';}
+    if(crypto.randomInt(10000)<(ante?80:30)){for(let n=0;n<4;n++)board[n]='zeus';}
+    else if(crypto.randomInt(10000)<15){for(let n=0;n<3;n++)board[n]='zeus';}
     if(crypto.randomInt(100)<18){const sym=pick();for(let n=0;n<8;n++)board[n]=sym;}
     const scatter=board.filter(x=>x==='zeus').length;
     const displayBoard=[...board];
+    const orbValues=displayBoard.map(x=>x==='orb'?pickLightningMultiplier():0);
     const effectiveBet=bet*(ante?1.25:1);
     let win=0,cascades=0;
     for(let step=0;step<8;step++){
@@ -358,10 +361,7 @@ app.post('/api/olympus/spin', auth, async (req,res)=>{
       while(board.length<30)board.unshift(pick());
       board=board.slice(-30);cascades++;
     }
-    let orbSum=0;
-    const sphereCount=crypto.randomInt(100)<25?1:crypto.randomInt(100)<8?2:0;
-    const multipliers=[2,3,5,10,25,50,100,250,500];
-    for(let i=0;i<sphereCount;i++)orbSum+=multipliers[crypto.randomInt(multipliers.length)];
+    const orbSum=orbValues.reduce((sum,value)=>sum+value,0);
     if(freeAtStart&&win>0)multiplier=Math.min(5000,multiplier+orbSum);
     if(freeAtStart)freeSpins=Math.max(0,freeSpins-1);
     if(freeAtStart&&scatter>=3)freeSpins+=5;
@@ -373,7 +373,7 @@ app.post('/api/olympus/spin', auth, async (req,res)=>{
     await client.query('INSERT INTO olympus_sessions(telegram_id,free_spins,multiplier,updated_at) VALUES($1,$2,$3,NOW()) ON CONFLICT(telegram_id) DO UPDATE SET free_spins=EXCLUDED.free_spins,multiplier=EXCLUDED.multiplier,updated_at=NOW()',[id,freeSpins,multiplier]);
     await client.query('COMMIT');
     res.setHeader('Cache-Control','no-store');
-    res.json({balance,total,win,freeSpins,multiplier,cascades,scatter,orbSum,board:displayBoard});
+    res.json({balance,total,win,freeSpins,multiplier,cascades,scatter,orbSum,orbValues,board:displayBoard});
   }catch(e){await client.query('ROLLBACK');console.error('Olympus spin error:',e.stack||e.message);res.status(500).json({error:'Не удалось провести спин. Баланс не изменён.'});}
   finally{client.release();}
 });
