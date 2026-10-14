@@ -426,14 +426,17 @@ app.post('/api/olympus/spin', auth, async (req,res)=>{
     const orbValues=displayBoard.map(x=>x==='orb'?pickLightningMultiplier():0);
     const effectiveBet=bet*(ante?1.25:1);
     let win=0,cascades=0;
+    const cascadeSteps=[];
     for(let step=0;step<8;step++){
       const counts={};board.forEach(x=>counts[x]=(counts[x]||0)+1);
       const hits=Object.keys(counts).filter(x=>counts[x]>=8&&!['zeus','orb'].includes(x));
       if(!hits.length)break;
+      const removed=board.map((x,i)=>hits.includes(x)?i:-1).filter(i=>i>=0);
       for(const sym of hits){const data=symbols.find(x=>x[0]===sym);win+=effectiveBet*data[1]*(counts[sym]/8);}
       board=board.filter(x=>!hits.includes(x));
       while(board.length<30)board.unshift(pick());
       board=board.slice(-30);cascades++;
+      cascadeSteps.push({removed,board:[...board]});
     }
     const orbSum=orbValues.reduce((sum,value)=>sum+value,0);
     if(freeAtStart&&orbSum>0)multiplier=Math.min(5000,multiplier+orbSum);
@@ -465,7 +468,7 @@ app.post('/api/olympus/spin', auth, async (req,res)=>{
     await client.query('INSERT INTO olympus_sessions(telegram_id,free_spins,multiplier,updated_at) VALUES($1,$2,$3,NOW()) ON CONFLICT(telegram_id) DO UPDATE SET free_spins=EXCLUDED.free_spins,multiplier=EXCLUDED.multiplier,updated_at=NOW()',[id,freeSpins,multiplier]);
     await client.query('COMMIT');
     res.setHeader('Cache-Control','no-store');
-    res.json({balance,total,win,freeSpins,multiplier,cascades,scatter,orbSum,orbValues,board:displayBoard,completedPromos,promoProgress:promoProgress.rows.map(p=>({code:p.code,reward:Number(p.reward),target:Number(p.target),wagered:Number(p.wagered),status:p.status}))});
+    res.json({balance,total,win,freeSpins,multiplier,cascades,scatter,orbSum,orbValues,board:displayBoard,finalBoard:board,cascadeSteps,completedPromos,promoProgress:promoProgress.rows.map(p=>({code:p.code,reward:Number(p.reward),target:Number(p.target),wagered:Number(p.wagered),status:p.status}))});
   }catch(e){await client.query('ROLLBACK');console.error('Olympus spin error:',e.stack||e.message);res.status(500).json({error:'Не удалось провести спин. Баланс не изменён.'});}
   finally{client.release();}
 });
