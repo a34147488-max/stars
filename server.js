@@ -51,7 +51,6 @@ async function initDb() {
     );
     ALTER TABLE players ADD COLUMN IF NOT EXISTS click_multiplier NUMERIC(8,2) NOT NULL DEFAULT 1;
     ALTER TABLE players ADD COLUMN IF NOT EXISTS clicks_count BIGINT NOT NULL DEFAULT 0;
-    ALTER TABLE promo_codes ADD COLUMN IF NOT EXISTS wagering_multiplier INTEGER NOT NULL DEFAULT 1;
     CREATE TABLE IF NOT EXISTS star_orders (
       id UUID PRIMARY KEY,
       telegram_id BIGINT NOT NULL REFERENCES players(telegram_id),
@@ -89,6 +88,7 @@ async function initDb() {
       PRIMARY KEY(code,telegram_id)
     );
     CREATE INDEX IF NOT EXISTS promo_wagers_player_idx ON promo_wagers(telegram_id,status);
+    ALTER TABLE promo_codes ADD COLUMN IF NOT EXISTS wagering_multiplier INTEGER NOT NULL DEFAULT 1;
     CREATE TABLE IF NOT EXISTS promo_redemptions (
       code TEXT NOT NULL REFERENCES promo_codes(code),
       telegram_id BIGINT NOT NULL REFERENCES players(telegram_id),
