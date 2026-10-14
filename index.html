@@ -183,7 +183,7 @@ let state;try{state={...initial,...JSON.parse(localStorage.getItem('stars-clicke
 let tab='click',lastSave=0;
 const tg=window.Telegram&&window.Telegram.WebApp?window.Telegram.WebApp:null;
 const initData=tg?tg.initData:'';
-if(tg){tg.ready();tg.expand();}
+if(tg){tg.ready();tg.expand();if(typeof tg.disableVerticalSwipes==='function')tg.disableVerticalSwipes();}
 let selectedAvatar='⭐',serverMode=false,profileReady=false;
 async function api(path,method='GET',body){
  const res=await fetch(path,{method,headers:{'Content-Type':'application/json','X-Telegram-Init-Data':initData},body:body?JSON.stringify(body):undefined});
