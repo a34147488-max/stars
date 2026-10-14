@@ -317,17 +317,17 @@ app.post('/api/click', auth, async (req,res)=>{
     const r=await pool.query(`
       UPDATE players
       SET clicks_count=clicks_count+1,
-          balance=balance+(0.0001*click_multiplier + CASE WHEN clicks_count+1>=49500 THEN 0.05 WHEN clicks_count+1>=30 THEN 0.005 ELSE 0 END),
-          total=total+(0.0001*click_multiplier + CASE WHEN clicks_count+1>=49500 THEN 0.05 WHEN clicks_count+1>=30 THEN 0.005 ELSE 0 END),
+          balance=balance+(0.0001*click_multiplier + CASE WHEN clicks_count+1>=49500 THEN 0.05 WHEN clicks_count+1>=14500 THEN 0.005 ELSE 0 END),
+          total=total+(0.0001*click_multiplier + CASE WHEN clicks_count+1>=49500 THEN 0.05 WHEN clicks_count+1>=14500 THEN 0.005 ELSE 0 END),
           updated_at=NOW()
       WHERE telegram_id=$1
       RETURNING clicks_count,balance,total,click_multiplier,
-        (0.0001*click_multiplier + CASE WHEN clicks_count>=49500 THEN 0.05 WHEN clicks_count>=30 THEN 0.005 ELSE 0 END) AS gain
+        (0.0001*click_multiplier + CASE WHEN clicks_count>=49500 THEN 0.05 WHEN clicks_count>=14500 THEN 0.005 ELSE 0 END) AS gain
     `,[id]);
     if(!r.rowCount) return res.status(404).json({error:'Игрок не найден. Закрой приложение и открой его через Telegram-бота.'});
     const p=r.rows[0], clicks=Number(p.clicks_count);
     const level=clicks<100?0:clicks<500?1:2+Math.floor((clicks-500)/500);
-    const bonus=clicks>=49500?0.05:clicks>=30?0.005:0;
+    const bonus=clicks>=49500?0.05:clicks>=14500?0.005:0;
     res.setHeader('Cache-Control','no-store');
     res.json({balance:Number(p.balance),total:Number(p.total),gain:Number(p.gain),clickMultiplier:Number(p.click_multiplier),clicks,level,clickBonus:bonus});
   } catch(e) {
