@@ -187,6 +187,7 @@ body{overflow-anchor:none}
 .olympus-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:2px;padding:3px;background:#18091f;border:2px solid #a86e2e}
 .olympus-cell{display:grid;place-items:center;aspect-ratio:.88;background:linear-gradient(145deg,#4a1e59,#24102d 65%,#391547);border:1px solid #8f5a9c;font-size:clamp(22px,7vw,38px);text-shadow:0 3px 3px #000;box-shadow:inset 0 0 8px #e8a6ff18;min-width:0}
 .olympus-audio-row{display:flex;justify-content:center;margin:8px 0 12px}.olympus-music{border:1px solid #d7a83b;border-radius:999px;padding:9px 15px;background:#24152d;color:#ffe8a2;font-weight:800}.olympus-music.active{background:#493018;box-shadow:0 0 15px #e8bd4c66}
+.olympus-freespin-modal{position:fixed;inset:0;z-index:10020;display:none;align-items:center;justify-content:center;padding:20px;background:#080310df;backdrop-filter:blur(7px)}.olympus-freespin-modal.open{display:flex}.olympus-freespin-card{width:min(420px,100%);padding:28px 22px;text-align:center;border:2px solid #f5d16b;border-radius:22px;background:radial-gradient(ellipse at top,#60377a,#1a1029 72%);box-shadow:0 0 45px #e9b94c55;color:#fff1bd}.olympus-freespin-icon{font-size:54px}.olympus-freespin-title{font-size:clamp(25px,7vw,34px);font-weight:1000;color:#ffdf73;text-shadow:0 0 18px #ffba32;margin:10px 0}.olympus-freespin-count{font-size:52px;font-weight:1000;color:#fff}.olympus-freespin-copy{line-height:1.5;margin:8px 0 20px}.olympus-freespin-close{border:0;border-radius:999px;padding:13px 25px;background:linear-gradient(135deg,#ffe78a,#d89a2b);color:#351743;font-weight:1000}.olympus-multiplier-panel{display:none;margin:10px auto;padding:12px 16px;max-width:320px;text-align:center;border:1px solid #80eaff;border-radius:14px;background:linear-gradient(135deg,#103b55,#21132f);color:#e9faff;box-shadow:0 0 16px #45cfff33}.olympus-multiplier-panel.active{display:block}.olympus-multiplier-label{font-size:11px;letter-spacing:1.3px;font-weight:900}.olympus-multiplier-value{font-size:30px;font-weight:1000;color:#8cecff;text-shadow:0 0 13px #26cfff}.olympus-multiplier-note{font-size:11px;opacity:.85}
 .olympus-cell.win{border:2px solid #ffe575;box-shadow:inset 0 0 15px #ffb500,0 0 12px #ffd34e;animation:olympusWin .55s ease-in-out infinite alternate}
 .olympus-grid.spinning .olympus-cell{animation:olympusReel .12s linear infinite alternate;filter:brightness(1.2)}
 @keyframes olympusReel{to{transform:translateY(3px);filter:brightness(1.7)}}
@@ -267,6 +268,7 @@ body{overflow-anchor:none}
   <button type="button" class="olympus-spin" id="olympusSpin"><span class="spin-ring"></span><span>КРУТИТЬ</span></button>
   <button type="button" class="olympus-buy" id="olympusBuy">КУПИТЬ FREE SPINS · ×100</button>
   <div class="olympus-bonus" id="olympusBonus" hidden>FREE SPINS: <strong id="olympusFree">15</strong> · МНОЖИТЕЛЬ: <strong id="olympusMult">×1</strong></div>
+  <div id="olympusMultiplierPanel" class="olympus-multiplier-panel"><div class="olympus-multiplier-label">НАКОПЛЕННЫЙ МНОЖИТЕЛЬ ФРИСПИНОВ</div><div id="olympusMultiplierValue" class="olympus-multiplier-value">×1</div><div class="olympus-multiplier-note">Множитель молний суммируется и усиливает все выигрыши бонусного режима</div></div>
   <div class="olympus-paytable"><div><b>8+</b><span>одинаковых символов где угодно</span></div><div><b>4–6</b><span>Зевсов запускают 15 фриспинов</span></div><div><b>×2–×1000</b><span>молнии показывают множитель выигрыша</span></div><div><b>×5000</b><span>максимальная выплата от ставки</span></div></div>
   <div class="olympus-disclaimer">Ставки и выигрыши списываются и начисляются на игровой баланс сервера.</div>
  </div>
@@ -281,6 +283,7 @@ body{overflow-anchor:none}
   <button type="button" class="olympus-superwin-close" id="olympusSuperWinClose">ЗАБРАТЬ ВЫИГРЫШ</button>
  </div></div>
 </div>
+<div id="olympusFreeSpinModal" class="olympus-freespin-modal" role="dialog" aria-modal="true" aria-labelledby="olympusFreeSpinTitle"><div class="olympus-freespin-card"><div class="olympus-freespin-icon">⚡🏛️⚡</div><div id="olympusFreeSpinTitle" class="olympus-freespin-title">ПОЗДРАВЛЯЕМ!</div><div class="olympus-freespin-count">15 FREE SPINS</div><div class="olympus-freespin-copy">Ты активировал бонус Олимпа! Собирай молнии — их множители будут накапливаться и усиливать выигрыши во всех бесплатных вращениях.</div><button type="button" id="olympusFreeSpinClose" class="olympus-freespin-close">НАЧАТЬ БОНУС</button></div></div>
 <section class="menu-placeholder" id="walletPanel" hidden><h2>👛 Кошелёк</h2><p>Переводи звёзды игрового баланса другим игрокам по их Telegram @username.</p><div class="wallet-balance">Текущий баланс: <strong id="walletBalance">—</strong></div><label class="profile-field">Юзернейм получателя<input class="profile-input" id="menuTransferUsername" placeholder="@username" maxlength="33"></label><label class="profile-field">Сумма перевода<input class="profile-input" id="menuTransferAmount" type="number" min="0.0001" step="0.0001" placeholder="1.0000"></label><button type="button" class="action-button primary" id="menuSendTransfer">💸 Перевести звёзды</button><div id="walletMessage" class="profile-message" role="status"></div></section>
 <section class="menu-placeholder" id="morePanel" hidden><h2>💠 Прочее</h2><div class="stats modal-stats"><div class="stat"><strong id="perTapModal">0.0001</strong><span>ЗА КЛИК</span></div><div class="stat"><strong id="perSecModal">0.0000</strong><span>В СЕКУНДУ</span></div><div class="stat"><strong id="totalModal">0.0000</strong><span>ВСЕГО ДОБЫТО</span></div></div><a class="action-button channel-link" href="https://t.me/+39Jby9TgJps0Y2Ni" target="_blank" rel="noopener noreferrer">📣 Подписаться на Telegram-канал</a><div class="promo-box"><h3>🎟 Промокод</h3><p>Введи промокод, чтобы получить награду. Каждый код активируется один раз на аккаунт.</p><input class="profile-input" id="promoCodeInput" placeholder="ВВЕДИ ПРОМОКОД" maxlength="32" autocapitalize="characters"><button type="button" class="action-button primary" id="activatePromo">Активировать</button><div id="promoMessage" class="profile-message" role="status"></div></div><div class="settings-box"><h3>🎵 Новогодняя музыка</h3><p>Включай или выключай мелодию приложения.</p><button class="music-toggle" id="menuMusicToggle" type="button" aria-pressed="false"><span id="menuMusicLabel">Включить музыку</span></button></div></section>
 <section class="menu-placeholder" id="friendsPanel" hidden><h2>👥 Друзья</h2><p>За каждого нового друга, который впервые запускает бота по твоей ссылке, начисляется <strong>2 монеты</strong>.</p><div id="menuReferralResult" class="profile-message referral-link-text">Ссылка ещё не загружена.</div><button type="button" class="action-button primary" id="menuReferral">🔗 Получить ссылку</button><button type="button" class="action-button" id="copyReferral" disabled>📋 Скопировать ссылку</button></section>
@@ -494,12 +497,15 @@ function showOlympusSuperWin(amount,bet){
  $('olympusSuperWinMult').textContent='×'+(bet>0?(Number(amount)/bet).toFixed(1):'10')+' от ставки';
  modal.classList.add('open');
 }
+function closeOlympusFreeSpinModal(){$('olympusFreeSpinModal')?.classList.remove('open')}
+$('olympusFreeSpinClose')?.addEventListener('click',closeOlympusFreeSpinModal);
+$('olympusFreeSpinModal')?.addEventListener('click',e=>{if(e.target===$('olympusFreeSpinModal'))closeOlympusFreeSpinModal()});
 function closeOlympusSuperWin(){$('olympusSuperWin')?.classList.remove('open')}
 $('olympusSuperWinClose')?.addEventListener('click',closeOlympusSuperWin);
 $('olympusSuperWin')?.addEventListener('click',e=>{if(e.target===$('olympusSuperWin'))closeOlympusSuperWin()});
 async function olympusPlay(buyBonus=false){
  if(olympusBusy)return;
- const bet=Number($('olympusBet').value),isFree=olympusFreeSpins>0;
+ const bet=Number($('olympusBet').value),isFree=olympusFreeSpins>0,freeSpinsBefore=olympusFreeSpins;
  if(buyBonus&&!isFree&&bet<=0)return;
  if(buyBonus&&!isFree&&!confirm('Купить 15 бесплатных вращений за '+(bet*100).toFixed(2)+'?'))return;
  olympusBusy=true;$('olympusSpin').disabled=true;$('olympusBuy').disabled=true;
@@ -509,6 +515,7 @@ async function olympusPlay(buyBonus=false){
  catch(e){$('olympusResult').textContent=e.message;if(tg&&tg.showAlert)tg.showAlert(e.message);olympusBusy=false;$('olympusSpin').disabled=false;$('olympusBuy').disabled=false;return;}
  state.balance=Number(serverSpin.balance);state.total=Number(serverSpin.total);renderStats();
  const showSuperWin=Number(serverSpin.win)>=bet*10;
+ const gotFreeSpins=Number(serverSpin.freeSpins)>=15&&freeSpinsBefore===0&&(Number(serverSpin.scatter)>=4||buyBonus);
  olympusBusy=true;
  const button=$('olympusSpin'),grid=$('olympusReels'),result=$('olympusResult');
  button.disabled=true;$('olympusBuy').disabled=true;button.classList.add('busy');$('olympusWin').textContent='БАРАБАНЫ ВРАЩАЮТСЯ';result.textContent='Символы падают с небес…';grid.classList.add('spinning');
@@ -559,8 +566,9 @@ async function olympusPlay(buyBonus=false){
    if(freeAtStart&&olympusFreeSpins===0)olympusGlobalMult=1;
    olympusSpins++;$('olympusSpinCount').textContent='СПИНОВ: '+olympusSpins;
    $('olympusMode').textContent=olympusFreeSpins?'FREE SPINS':'ОБЫЧНАЯ ИГРА';
-   $('olympusBonus').hidden=olympusFreeSpins===0;$('olympusFree').textContent=olympusFreeSpins;$('olympusMult').textContent='×'+olympusGlobalMult;
+   $('olympusBonus').hidden=olympusFreeSpins===0;$('olympusFree').textContent=olympusFreeSpins;$('olympusMult').textContent='×'+olympusGlobalMult;$('olympusMultiplierPanel')?.classList.toggle('active',olympusFreeSpins>0);if($('olympusMultiplierValue'))$('olympusMultiplierValue').textContent='×'+olympusGlobalMult;
    if(orbSum&&totalWin===0)result.textContent+=' · Сфера ×'+orbSum+' выпала без выигрыша';
+   if(gotFreeSpins)$('olympusFreeSpinModal')?.classList.add('open');
    if(showSuperWin)showOlympusSuperWin(serverSpin.win,bet);
    button.disabled=false;$('olympusBuy').disabled=false;button.classList.remove('busy');olympusBusy=false;
   }
