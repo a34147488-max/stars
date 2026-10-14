@@ -64,14 +64,16 @@ body{background:radial-gradient(ellipse at 50% -15%,#193f68 0%,#0b1729 45%,#070c
 <div class="profile-message" id="transferMessage" role="status"></div>
 </div>
 </section>
-<section class="profile-panel leaderboard-panel" id="leaderboardPanel">
+<button class="action-button primary" id="toggleLeaderboard" type="button" aria-expanded="false" style="width:100%;margin:12px 0">🏆 Открыть топ игроков</button>
+<section class="profile-panel leaderboard-panel" id="leaderboardPanel" hidden>
 <h2>🏆 Топы игроков</h2>
 <p class="u-desc">Игроки с самым большим балансом</p>
 <div id="leaderboard" class="leaderboard-list">Загрузка рейтинга…</div>
+<button class="action-button" id="refreshLeaderboard" type="button" style="width:100%;margin-top:10px">Обновить топ</button>
 <div id="playerDetail" class="player-detail" hidden></div>
 </section>
 <button class="withdraw-button" id="withdrawButton" type="button">Вывести звёзды</button>
-<div class="note">Прогресс автоматически сохраняется на этом устройстве.</div>
+<div class="note">Баланс хранится на сервере и общий с Telegram-ботом.</div>
 <div class="withdraw-modal" id="withdrawModal" hidden role="dialog" aria-modal="true" aria-labelledby="withdrawTitle"><div class="withdraw-card"><div class="withdraw-star"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 4 61 35 95 36 68 57 78 91 50 71 22 91 32 57 5 36 39 35Z"/></svg></div><h2 id="withdrawTitle">Вывод звёзд</h2><p>Вывод звёзд будет доступен в <strong>00:00 по МСК 31 декабря</strong>.</p><button id="closeWithdraw" type="button">Понятно</button></div></div>
 </div>
 <div id="shop" hidden aria-hidden="true"></div>
@@ -121,9 +123,7 @@ async function api(path,method='GET',body){
  if(!res.ok)throw new Error(data.error||'Ошибка запроса');
  return data;
 }
-const avatarBox=document.getElementById('avatarOptions');
-avatarBox.innerHTML=avatars.map(a=>'<button type="button" class="avatar-choice'+(a===selectedAvatar?' selected':'')+'" data-avatar="'+a+'" aria-label="Аватар '+a+'">'+a+'</button>').join('');
-avatarBox.addEventListener('click',e=>{const b=e.target.closest('[data-avatar]');if(!b)return;selectedAvatar=b.dataset.avatar;document.getElementById('profileAvatar').textContent=selectedAvatar;avatarBox.querySelectorAll('[data-avatar]').forEach(x=>x.classList.toggle('selected',x===b));});
+// Редактирование аватара в приложении отключено: менять его можно только через Telegram-бота.
 document.getElementById('makeReferral').addEventListener('click',async()=>{
  const out=document.getElementById('referralResult');
  try{const d=await api('/api/referral');out.textContent=d.url;if(tg&&tg.HapticFeedback)tg.HapticFeedback.notificationOccurred('success');}
@@ -144,6 +144,15 @@ async function loadLeaderboard(){
  }catch(e){$('leaderboard').textContent='Не удалось загрузить топ: '+e.message;}
 }
 function escapeText(v){const d=document.createElement('div');d.textContent=String(v||'');return d.innerHTML;}
+$('toggleLeaderboard').addEventListener('click',async()=>{
+ const panel=$('leaderboardPanel');
+ const opening=panel.hidden;
+ panel.hidden=!opening;
+ $('toggleLeaderboard').setAttribute('aria-expanded',String(opening));
+ $('toggleLeaderboard').textContent=opening?'🏆 Скрыть топ игроков':'🏆 Открыть топ игроков';
+ if(opening) await loadLeaderboard();
+});
+$('refreshLeaderboard').addEventListener('click',loadLeaderboard);
 $('leaderboard').addEventListener('click',async e=>{
  const b=e.target.closest('[data-player-id]');if(!b)return;
  const box=$('playerDetail');box.hidden=false;box.textContent='Загрузка профиля…';
@@ -162,7 +171,7 @@ async function loadServerProfile(){
   $('profileName').textContent=d.player.name||'Игрок';setAvatar($('profileAvatar'),selectedAvatar);
   $('profileMessage').textContent='Имя и аватар меняются через Telegram-бота.';
   tapButton.disabled=false;refresh();await loadLeaderboard();
- }catch(e){$('profileMessage').textContent='Не удалось загрузить общий баланс: '+e.message+' Обнови страницу после проверки Telegram.';}
+ }catch(e){$('profileMessage').textContent='Клики отключены: '+e.message+' Открой актуальную ссылку приложения через Telegram-бота и обнови страницу.';tapButton.disabled=true;}
 }
 
 const withdrawModal=document.getElementById('withdrawModal');
@@ -197,7 +206,7 @@ function refresh(){renderStats();renderShop()}
 $('tap').addEventListener('click',async e=>{if(!serverMode||!profileReady)return;const button=$('tap');button.disabled=true;try{const d=await api('/api/click','POST',{});state.balance=Number(d.balance);state.total=Number(d.total);const f=document.createElement('span');f.className='gain-float';f.textContent='+'+fmt(d.gain);f.style.left=(e.offsetX||110)+'px';f.style.top=(e.offsetY||100)+'px';button.appendChild(f);setTimeout(()=>f.remove(),850);refresh();}catch(err){$('profileMessage').textContent='Клик не сохранён: '+err.message;}finally{button.disabled=false;}});
 $('shop').addEventListener('click',e=>{const b=e.target.closest('[data-buy]');if(!b)return;const i=Number(b.dataset.buy),list=tab==='click'?clickUpgrades:autoUpgrades,levels=tab==='click'?state.clickLevel:state.autoLevel,price=cost(list[i],levels[i]);if(state.balance+1e-12<price)return;state.balance=Math.max(0,state.balance-price);levels[i]++;refresh();save()});
 document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>{tab=b.dataset.tab;document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x===b));renderShop()}));
-setInterval(()=>{const gain=perSec()/10;if(gain>0){state.balance+=gain;state.total+=gain}renderStats();if(Date.now()-lastSave>2500){save();lastSave=Date.now()}},100);
+// Баланс меняется только сервером. Локальная авто-добыча отключена, чтобы не рассинхронизировать приложение и бота.
 window.addEventListener('pagehide',()=>{save();stopMusic()});refresh();loadServerProfile();
 })();
 </script>
