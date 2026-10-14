@@ -810,8 +810,9 @@ async function olympusPlay(buyBonus=false){
    if(scatter>=4&&!freeAtStart&&!buyBonus)result.textContent+=' · Бонусный режим открыт';
    if(freeAtStart)result.textContent+=' · Бесплатных вращений осталось: '+olympusFreeSpins;
    if(buyBonus&&!freeAtStart)result.textContent='Бонус куплен: 15 бесплатных вращений.';
-   if(freeAtStart&&olympusFreeSpins===0){olympusGlobalMult=1;showBonusSummary(olympusBonusTotal);olympusBonusTotal=0;}
    if(freeAtStart)olympusBonusTotal+=Number(serverSpin.win)||0;
+   if(gotFreeSpins)olympusBonusTotal=0;
+   if(freeAtStart&&olympusFreeSpins===0){olympusGlobalMult=1;showBonusSummary(olympusBonusTotal);olympusBonusTotal=0;}
    olympusSpins++;$('olympusSpinCount').textContent='СПИНОВ: '+olympusSpins;
    $('olympusMode').textContent=olympusFreeSpins?'FREE SPINS':'ОБЫЧНАЯ ИГРА';
    $('olympusBonus').hidden=olympusFreeSpins===0;$('olympusFree').textContent=olympusFreeSpins;$('olympusMult').textContent='×'+olympusGlobalMult;$('olympusMultiplierPanel')?.classList.toggle('active',olympusFreeSpins>0);if($('olympusMultiplierValue'))$('olympusMultiplierValue').textContent='×'+olympusGlobalMult;
