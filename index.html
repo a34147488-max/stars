@@ -392,6 +392,14 @@ body{overflow-anchor:none}
 .image-game-cover .cover-art{position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;object-fit:fill!important;object-position:center!important;padding:0!important;margin:0!important;border:0!important;border-radius:inherit!important;z-index:0!important;max-width:none!important;max-height:none!important;transform:none}
 .image-game-cover:before{content:"";position:absolute!important;z-index:1!important;inset:58% 0 0!important;background:linear-gradient(transparent,#000d)!important;pointer-events:none}
 .image-game-cover .cover-play{position:relative!important;z-index:2!important;width:100%;margin-top:auto!important;flex-shrink:0}
+/* Keep all four game tiles the same size; match each action bar to its cover palette. */
+.games-hub>.game-cover{min-height:215px!important;aspect-ratio:1/1.02!important;box-sizing:border-box}
+.games-hub>.image-game-cover{min-height:215px!important}
+.games-hub>.mines-cover.image-game-cover{min-height:215px!important}
+.games-hub>.sweet-cover .cover-play{background:linear-gradient(90deg,#7d1f78,#d83b91,#ffb94b)!important;color:#fff7df!important;border:1px solid #ffb5dc;box-shadow:0 3px 14px #e63b9a66!important}
+.games-hub>.mines-cover .cover-play{background:linear-gradient(90deg,#073f35,#087e68,#26c99a)!important;color:#eafff8!important;border:1px solid #62f5c4;box-shadow:0 3px 14px #20d6a066!important}
+.games-hub>.olympus-cover .cover-play{background:linear-gradient(90deg,#47266f,#b84d95,#ffc65d)!important;color:#fff5c8!important;border:1px solid #ffe08a;box-shadow:0 3px 14px #ffb84b55!important}
+.games-hub>.roulette-cover .cover-play{background:linear-gradient(90deg,#111b16,#17613d,#b38a37)!important;color:#fff0b0!important;border:1px solid #d5ad58;box-shadow:0 3px 14px #3a9a6255!important}
 </style>
 </head>
 <body>
