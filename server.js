@@ -61,6 +61,13 @@ async function initDb() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       paid_at TIMESTAMPTZ
     );
+    CREATE TABLE IF NOT EXISTS roulette_pending_bets (
+      telegram_id BIGINT PRIMARY KEY REFERENCES players(telegram_id) ON DELETE CASCADE,
+      bet NUMERIC(24,8) NOT NULL,
+      picks JSONB NOT NULL,
+      reserved_amount NUMERIC(24,8) NOT NULL,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
     CREATE TABLE IF NOT EXISTS olympus_sessions (telegram_id BIGINT PRIMARY KEY REFERENCES players(telegram_id), free_spins INTEGER NOT NULL DEFAULT 0, multiplier NUMERIC(12,2) NOT NULL DEFAULT 1, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
     CREATE TABLE IF NOT EXISTS daily_spins (
       telegram_id BIGINT PRIMARY KEY REFERENCES players(telegram_id),
@@ -482,32 +489,84 @@ app.post('/api/olympus/spin', auth, async (req,res)=>{
   }catch(e){await client.query('ROLLBACK');console.error('Olympus spin error:',e.stack||e.message);res.status(500).json({error:'Не удалось провести спин. Баланс не изменён.'});}
   finally{client.release();}
 });
-app.post('/api/roulette/spin', auth, async (req,res)=>{
+app.post('/api/roulette/bet', auth, async (req,res)=>{
+  const id=String(req.player.telegram_id);
   const bet=Number(req.body&&req.body.bet);
-  const picks=Array.isArray(req.body&&req.body.picks)?[...new Set(req.body.picks.map(String))]:[String(req.body&&req.body.pick||'')];
-  const validBets=[0.1,0.25,0.5,1,2,5];
-  if(!Number.isFinite(bet)||bet<0.1||bet>5||(!Number.isInteger(bet*10)&&Math.abs(bet-0.25)>1e-8)) return res.status(400).json({error:'Ставка должна быть от 0.1 до 5 с шагом 0.1 (или 0.25).'});
+  const picks=Array.isArray(req.body&&req.body.picks)?[...new Set(req.body.picks.map(String))]:[];
   const validPick=/^(red|black|even|odd|number:(?:[0-9]|[12][0-9]|3[0-6]))$/;
-  if(!picks.length||picks.length>41||picks.some(p=>!validPick.test(p))) return res.status(400).json({error:'Выбери один или несколько исходов.'});
+  if(picks.length>41||picks.some(p=>!validPick.test(p)))return res.status(400).json({error:'Выбери корректные исходы.'});
+  if(picks.length&&(!Number.isFinite(bet)||bet<0.1||bet>5||(!Number.isInteger(bet*10)&&Math.abs(bet-0.25)>1e-8)))return res.status(400).json({error:'Ставка должна быть от 0.1 до 5.'});
+  const client=await pool.connect();
+  try{
+    await client.query('BEGIN');
+    const p=await client.query('SELECT balance,total FROM players WHERE telegram_id=$1 FOR UPDATE',[id]);
+    if(!p.rowCount)throw new Error('Игрок не найден.');
+    const old=await client.query('SELECT reserved_amount,updated_at FROM roulette_pending_bets WHERE telegram_id=$1 FOR UPDATE',[id]);
+    let balance=Number(p.rows[0].balance),total=Number(p.rows[0].total),oldReserved=0;
+    if(old.rowCount){
+      const age=Date.now()-new Date(old.rows[0].updated_at).getTime();
+      if(age>30000){
+        oldReserved=Number(old.rows[0].reserved_amount);
+        balance+=oldReserved;
+        await client.query('DELETE FROM roulette_pending_bets WHERE telegram_id=$1',[id]);
+        await client.query('UPDATE players SET balance=$2,updated_at=NOW() WHERE telegram_id=$1',[id,balance]);
+        oldReserved=0;
+      }else oldReserved=Number(old.rows[0].reserved_amount);
+    }
+    if(!picks.length){
+      if(oldReserved>0){balance+=oldReserved;await client.query('UPDATE players SET balance=$2,updated_at=NOW() WHERE telegram_id=$1',[id,balance]);}
+      await client.query('DELETE FROM roulette_pending_bets WHERE telegram_id=$1',[id]);
+      await client.query('COMMIT');
+      res.setHeader('Cache-Control','no-store');
+      return res.json({balance,total,reserved:0,picks:[]});
+    }
+    const reserved=Number((bet*picks.length).toFixed(8)),delta=Number((reserved-oldReserved).toFixed(8));
+    if(delta>0&&balance+1e-9<delta)throw new Error('Недостаточно монет для выбранной ставки.');
+    balance=Number((balance-delta).toFixed(8));
+    await client.query('UPDATE players SET balance=$2,updated_at=NOW() WHERE telegram_id=$1',[id,balance]);
+    await client.query('INSERT INTO roulette_pending_bets(telegram_id,bet,picks,reserved_amount,updated_at) VALUES($1,$2,$3::jsonb,$4,NOW()) ON CONFLICT(telegram_id) DO UPDATE SET bet=EXCLUDED.bet,picks=EXCLUDED.picks,reserved_amount=EXCLUDED.reserved_amount,updated_at=NOW()',[id,bet,JSON.stringify(picks),reserved]);
+    await client.query('COMMIT');
+    res.setHeader('Cache-Control','no-store');
+    res.json({balance,total,reserved,picks});
+  }catch(e){await client.query('ROLLBACK').catch(()=>{});res.status(e.message==='Недостаточно монет для выбранной ставки.'?400:500).json({error:e.message||'Не удалось принять ставку.'});}
+  finally{client.release();}
+});
+
+app.post('/api/roulette/spin', auth, async (req,res)=>{
+  const id=String(req.player.telegram_id);
+  const requestedBet=Number(req.body&&req.body.bet);
+  const requestedPicks=Array.isArray(req.body&&req.body.picks)?[...new Set(req.body.picks.map(String))]:[String(req.body&&req.body.pick||'')];
   const red=new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
   const client=await pool.connect();
   try{
     await client.query('BEGIN');
-    const locked=await client.query('SELECT balance,total FROM players WHERE telegram_id=$1 FOR UPDATE',[String(req.player.telegram_id)]);
-    if(!locked.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'Игрок не найден.'});}
-    const cost=Number((bet*picks.length).toFixed(8)),balanceNow=Number(locked.rows[0].balance);
-    if(balanceNow+1e-9<cost){await client.query('ROLLBACK');return res.status(400).json({error:'Недостаточно монет для всех выбранных исходов. Нужно '+cost.toFixed(4)+'.'});}
+    const locked=await client.query('SELECT balance,total FROM players WHERE telegram_id=$1 FOR UPDATE',[id]);
+    if(!locked.rowCount)throw new Error('Игрок не найден.');
+    const pending=await client.query('SELECT bet,picks,reserved_amount,updated_at FROM roulette_pending_bets WHERE telegram_id=$1 FOR UPDATE',[id]);
+    if(!pending.rowCount)throw new Error('Сначала выбери исход и подтверди ставку.');
+    if(Date.now()-new Date(pending.rows[0].updated_at).getTime()>30000){
+      const refund=Number(pending.rows[0].reserved_amount),balance=Number((Number(locked.rows[0].balance)+refund).toFixed(8));
+      await client.query('UPDATE players SET balance=$2,updated_at=NOW() WHERE telegram_id=$1',[id,balance]);
+      await client.query('DELETE FROM roulette_pending_bets WHERE telegram_id=$1',[id]);
+      await client.query('COMMIT');
+      return res.status(409).json({error:'Время ставки истекло. Баланс возвращён, выбери исходы ещё раз.',balance});
+    }
+    const bet=Number(pending.rows[0].bet),picks=Array.isArray(pending.rows[0].picks)?pending.rows[0].picks:JSON.parse(pending.rows[0].picks);
+    if(!Number.isFinite(requestedBet)||Math.abs(requestedBet-bet)>1e-8||JSON.stringify(requestedPicks.slice().sort())!==JSON.stringify(picks.slice().sort()))throw new Error('Ставка изменилась. Выбери исходы заново.');
+    const cost=Number(pending.rows[0].reserved_amount);
     const number=crypto.randomInt(37),color=number===0?'green':red.has(number)?'red':'black';
     const results=picks.map(p=>{const won=p==='red'?color==='red':p==='black'?color==='black':p==='even'?number!==0&&number%2===0:p==='odd'?number%2===1:p.startsWith('number:')&&number===Number(p.slice(7));const multiplier=p.startsWith('number:')?36:2;return {pick:p,win:won?Number((bet*multiplier).toFixed(8)):0,multiplier:won?multiplier:0,won}});
     const win=Number(results.reduce((sum,r)=>sum+r.win,0).toFixed(8));
-    const balance=Number((balanceNow-cost+win).toFixed(8));
-    await client.query('UPDATE players SET balance=$2,total=total+$3,updated_at=NOW() WHERE telegram_id=$1',[String(req.player.telegram_id),balance,win]);
+    const balance=Number((Number(locked.rows[0].balance)+win).toFixed(8));
+    await client.query('UPDATE players SET balance=$2,total=total+$3,updated_at=NOW() WHERE telegram_id=$1',[id,balance,win]);
+    await client.query('DELETE FROM roulette_pending_bets WHERE telegram_id=$1',[id]);
     await client.query('COMMIT');
     res.setHeader('Cache-Control','no-store');
     res.json({number,color,win,balance,total:Number(locked.rows[0].total)+win,picks,results,cost});
-  }catch(e){await client.query('ROLLBACK').catch(()=>{});console.error('Roulette spin error:',e.stack||e.message);res.status(500).json({error:'Не удалось провести раунд рулетки.'});}
+  }catch(e){await client.query('ROLLBACK').catch(()=>{});console.error('Roulette spin error:',e.stack||e.message);res.status(e.message==='Игрок не найден.'?404:400).json({error:e.message||'Не удалось провести раунд рулетки.'});}
   finally{client.release();}
 });
+
 app.post('/api/click', auth, async (req,res)=>{
   try {
     const id=String(req.player.telegram_id);
