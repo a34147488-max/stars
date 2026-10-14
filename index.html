@@ -928,30 +928,26 @@ bomb:'<defs><radialGradient id="sweetBombGrad"><stop offset="0" stop-color="#fff
 function sweetBoardRender(cells,opts={}){const board=$('sweetBoard');if(!board)return;const bombMap=new Map((opts.bombs||[]).map(b=>[Number(b.position),Number(b.multiplier)]));const frag=document.createDocumentFragment();cells.forEach((x,i)=>{const kind=x==='💣'||bombMap.has(i)?'bomb':x==='🍭'?'scatter':({'🍌':'banana','🍇':'grapes','🍉':'watermelon','🍓':'strawberry','🍍':'pineapple','🍏':'apple','🍬':'candy'}[x]||x);const cell=document.createElement('div');cell.className='sweet-cell '+(kind==='bomb'?'bomb ':'')+(kind==='scatter'?'scatter ':'')+(opts.falling?'falling':'');cell.dataset.sweetCell=String(i);cell.dataset.kind=kind;cell.style.setProperty('--fall-delay',opts.falling?(Math.floor(i/6)*58+(i%6)*9)+'ms':'0ms');cell.innerHTML=sweetArt(kind)+(kind==='bomb'?'<span class="sweet-bomb-value">×'+(bombMap.get(i)||2)+'</span>':'');frag.appendChild(cell)});board.replaceChildren(frag);board.classList.toggle('spinning',!!opts.spinning)}
 function sweetAnimateResult(out){
  const board=$('sweetBoard');if(!board)return;
- const symbols=['🍌','🍇','🍉','🍓','🍍','🍏','🍬'];
- const final=Array.isArray(out.board)&&out.board.length===30?out.board:Array.from({length:30},()=>symbols[Math.floor(Math.random()*symbols.length)]);
+ const final=Array.isArray(out.board)&&out.board.length===30?out.board:[];
+ const bombs=Array.isArray(out.bombs)?out.bombs:[];
+ $('sweetStatus').textContent='Элементы падают…';
+ // One real server result per spin: no invented preview grid and no random substitute board.
+ sweetBoardRender(final,{falling:true,bombs});
  const paidSymbols=new Set((out.details||[]).map(d=>d.symbol));
  const iconToKind={'🍌':'banana','🍇':'grapes','🍉':'watermelon','🍓':'strawberry','🍍':'pineapple','🍏':'apple','🍬':'candy'};
  const paidKinds=new Set([...paidSymbols].map(x=>iconToKind[x]||x));
- $('sweetStatus').textContent='Кручение…';
- sweetBoardRender(Array.from({length:30},()=>symbols[Math.floor(Math.random()*symbols.length)]),{spinning:true});
- setTimeout(()=>{
-  const cascadeCount=Math.max(0,Number(out.cascades)||0);
-  const preview=final.map((x,i)=>((i%4===0&&cascadeCount>0)?symbols[Math.floor(Math.random()*symbols.length)]:x));
-  sweetBoardRender(preview,{falling:true,bombs:out.bombs});
-  const cells=[...board.children];
-  let hits=cells.filter(el=>paidKinds.has(el.dataset.kind)&&el.dataset.kind!=='scatter'&&el.dataset.kind!=='bomb');
-  if(cascadeCount>0&&!hits.length)hits=cells.filter(el=>el.dataset.kind!=='scatter'&&el.dataset.kind!=='bomb').slice(0,Math.min(10,Math.max(4,(out.details||[]).length)));
-  hits.forEach(el=>{
-   el.classList.remove('falling');el.classList.add('hit');
-   for(let j=0;j<8;j++){const shard=document.createElement('i');shard.className='sweet-fragment';shard.style.setProperty('--dx',(Math.cos(j*Math.PI/4)*(24+Math.random()*20))+'px');shard.style.setProperty('--dy',(Math.sin(j*Math.PI/4)*(24+Math.random()*20))+'px');shard.style.setProperty('--rot',(j*65)+'deg');el.appendChild(shard)}
-  });
-  if(cascadeCount>0)$('sweetStatus').textContent='Каскад '+cascadeCount+' · элементы взрываются и падают новые';
-  setTimeout(()=>{
-   sweetBoardRender(final,{falling:true,bombs:out.bombs});
-   $('sweetWin').classList.toggle('payout',Number(out.win)>0);
-  },hits.length?540:260);
- },90)
+ const hits=[...board.children].filter(el=>paidKinds.has(el.dataset.kind)&&el.dataset.kind!=='scatter'&&el.dataset.kind!=='bomb');
+ hits.forEach(el=>{
+  el.classList.remove('falling');el.classList.add('hit');
+  for(let j=0;j<8;j++){
+   const shard=document.createElement('i');shard.className='sweet-fragment';
+   shard.style.setProperty('--dx',(Math.cos(j*Math.PI/4)*(24+j%3*7))+'px');
+   shard.style.setProperty('--dy',(Math.sin(j*Math.PI/4)*(24+j%3*7))+'px');
+   shard.style.setProperty('--rot',(j*65)+'deg');el.appendChild(shard);
+  }
+ });
+ $('sweetWin').classList.toggle('payout',Number(out.win)>0);
+ if(Number(out.cascades)>0)$('sweetStatus').textContent='Каскады: '+Number(out.cascades);
 }
 function sweetUpdate(out){const previousFreeSpins=sweetFreeSpins;if(Number.isFinite(Number(out.balance))){state.balance=Number(out.balance);renderStats()}$('sweetBalance').textContent=fmt(state.balance);sweetFreeSpins=Number(out.freeSpins||0);if(out.bonus)sweetBonusTotal+=Number(out.win)||0;if(previousFreeSpins>0&&sweetFreeSpins===0){showBonusSummary(sweetBonusTotal);sweetBonusTotal=0;}$('sweetFree').textContent='Бесплатные вращения: '+sweetFreeSpins;const bm=Number(out.bonusMultiplier||0);$('sweetBonusMultiplier').textContent=bm.toFixed(0);$('sweetBonusMeter').classList.toggle('active',!!out.bonus||sweetFreeSpins>0);$('sweetWin').innerHTML='<span class="sweet-win-amount">+'+Number(out.win||0).toFixed(2)+'</span> <span class="sweet-star" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2.2 14.9 8.3 21.6 9.1 16.7 13.7 18 20.4 12 17 6 20.4 7.3 13.7 2.4 9.1 9.1 8.3Z" fill="white" stroke="#d9d9e4" stroke-width="1.1"/></svg></span>';sweetAnimateResult(out);$('sweetStatus').textContent=out.message||'Удачи!'}
 async function sweetPlay(action){if(sweetBusy)return;if(!initData){$('sweetStatus').textContent='Открой приложение через Telegram-бота.';return}const stake=Number($('sweetStake').value);if(!Number.isFinite(stake)||stake<.1||stake>1000000){$('sweetStatus').textContent='Ставка должна быть от 0.1 до 1 000 000 ⭐';return}sweetBusy=true;$('sweetSpin').disabled=$('sweetBuy').disabled=true;try{const out=await api('/api/sweet-bananza/action','POST',{action,stake,ante:$('sweetAnte').checked});sweetUpdate(out)}catch(e){$('sweetStatus').textContent=e.message||'Ошибка вращения'}finally{sweetBusy=false;$('sweetSpin').disabled=$('sweetBuy').disabled=false;}}
