@@ -174,7 +174,6 @@ html{overscroll-behavior:none;overflow-x:hidden}
 </section>
 
 <section class="profile-panel star-shop-panel" id="shopPanel" hidden><div class="shop-title-row"><div><div class="shop-eyebrow">STARS STORE</div><h2>✨ Улучшения</h2></div><span class="shop-live">● ОПЛАТА TELEGRAM</span></div><p class="shop-intro">Выбери усиление — оплата откроется прямо в Telegram. Множитель действует постоянно.</p><div id="shopMessage" class="shop-message" role="status"></div><div id="shop" class="shop star-shop-grid"><div class="shop-loading">Загружаем улучшения…</div></div><div class="shop-footnote">Безопасная оплата Telegram Stars · 10 уровней усиления</div></section>
-<button class="action-button primary" id="toggleLeaderboard" type="button" aria-expanded="false" style="width:100%;margin:12px 0">🏆 Открыть топ игроков</button>
 <section class="profile-panel leaderboard-panel" id="leaderboardPanel" hidden>
 <h2>🏆 Топы игроков</h2>
 <p class="u-desc">Игроки с самым большим балансом</p>
@@ -182,9 +181,6 @@ html{overscroll-behavior:none;overflow-x:hidden}
 <button class="action-button" id="refreshLeaderboard" type="button" style="width:100%;margin-top:10px">Обновить топ</button>
 <div id="playerDetail" class="player-detail" hidden></div>
 </section>
-<button class="withdraw-button" id="withdrawButton" type="button">Вывести звёзды</button>
-<div class="note">Баланс хранится на сервере и общий с Telegram-ботом.</div>
-<div class="withdraw-modal" id="withdrawModal" hidden role="dialog" aria-modal="true" aria-labelledby="withdrawTitle"><div class="withdraw-card"><div class="withdraw-star"><svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 4 61 35 95 36 68 57 78 91 50 71 22 91 32 57 5 36 39 35Z"/></svg></div><h2 id="withdrawTitle">Вывод звёзд</h2><p>Вывод звёзд будет доступен в <strong>00:00 по МСК 31 декабря</strong>.</p><button id="closeWithdraw" type="button">Понятно</button></div></div>
 </div>
 
 <script>
@@ -231,17 +227,19 @@ const $=id=>document.getElementById(id);
 // Редактирование аватара в приложении отключено: менять его можно только через Telegram-бота.
 
 function closeAllMenus(){
- document.querySelectorAll('.menu-placeholder,.star-shop-panel,#profilePanel,#leaderboardPanel').forEach(p=>p.hidden=true);
- document.body.classList.remove('modal-open');document.body.style.top='';window.scrollTo({top:0,behavior:'auto'});
+ document.querySelectorAll('.menu-placeholder,.star-shop-panel,#profilePanel,#leaderboardPanel').forEach(p=>{p.hidden=true;});
+ document.body.classList.remove('modal-open');
 }
 function openModal(panel){
  if(!panel)return;
  closeAllMenus();
  panel.hidden=false;document.body.classList.add('modal-open');
- if(!panel.querySelector('.modal-close')){
-  const close=document.createElement('button');close.type='button';close.className='modal-close';close.textContent='×';close.setAttribute('aria-label','Закрыть окно');
-  close.addEventListener('click',closeAllMenus);panel.prepend(close);
+ let close=panel.querySelector('.modal-close');
+ if(!close){
+  close=document.createElement('button');close.type='button';close.className='modal-close';close.textContent='×';close.setAttribute('aria-label','Закрыть окно');
+  panel.prepend(close);
  }
+ close.onclick=(event)=>{event.preventDefault();event.stopPropagation();closeAllMenus();};
 }
 document.querySelectorAll('[data-open]').forEach(btn=>btn.addEventListener('click',async()=>{
  const id=btn.getAttribute('data-open');
@@ -386,7 +384,20 @@ function renderStarShop(){if(!starProducts.length){$('shop').innerHTML='<div cla
 async function buyStarProduct(button,id){button.disabled=true;button.textContent='Создаём оплату…';$('shopMessage').textContent='';try{const d=await api('/api/shop/invoice','POST',{productId:id});if(tg&&typeof tg.openInvoice==='function'){tg.openInvoice(d.url, status=>{if(status==='paid'){$('shopMessage').style.color='#8af2ce';$('shopMessage').textContent='Оплата прошла! Усиление активировано.';}else if(status==='failed'){$('shopMessage').style.color='#ffb6a9';$('shopMessage').textContent='Оплата не прошла. Попробуй ещё раз.';}else{$('shopMessage').style.color='#aab8d8';$('shopMessage').textContent='Оплата отменена.';}button.disabled=false;button.textContent='Купить за '+(starProducts.find(p=>p.id===id)?.stars||'')+' ⭐';});}else{window.open(d.url,'_blank');button.disabled=false;button.textContent='Открыть оплату ⭐';}}catch(e){$('shopMessage').style.color='#ffb6a9';$('shopMessage').textContent=e.message;button.disabled=false;button.textContent='Повторить покупку';}}
 
 function refresh(){renderStats()}
-$('tap').addEventListener('click',async e=>{if(!serverMode||!profileReady)return;const button=$('tap');button.disabled=true;try{const d=await api('/api/click','POST',{});state.balance=Number(d.balance);state.total=Number(d.total);const f=document.createElement('span');f.className='gain-float';f.textContent='+'+fmt(d.gain);f.style.left=(e.offsetX||110)+'px';f.style.top=(e.offsetY||100)+'px';button.appendChild(f);setTimeout(()=>f.remove(),850);refresh();}catch(err){$('profileMessage').textContent='Клик не сохранён: '+err.message;}finally{button.disabled=false;}});
+$('tap').addEventListener('click',async e=>{
+ const button=$('tap');
+ if(!serverMode||!profileReady){$('profileMessage').textContent='Баланс пока не подключён. Закрой приложение и открой его через кнопку меню в Telegram-боте.';return;}
+ if(button.dataset.busy==='1')return;
+ button.dataset.busy='1';button.disabled=true;
+ try{
+  const d=await api('/api/click','POST',{});
+  state.balance=Number(d.balance);state.total=Number(d.total);
+  const f=document.createElement('span');f.className='gain-float';f.textContent='+'+fmt(d.gain);
+  f.style.left=(e.offsetX||110)+'px';f.style.top=(e.offsetY||100)+'px';button.appendChild(f);
+  window.setTimeout(()=>f.remove(),850);refresh();
+ }catch(err){$('profileMessage').textContent='Клик не сохранён: '+err.message;}
+ finally{button.dataset.busy='0';button.disabled=false;}
+});
 
 $('shop').addEventListener('click',e=>{const b=e.target.closest('[data-product]');if(b)buyStarProduct(b,b.dataset.product);});
 // Магазин реальных Telegram Stars загружается с сервера.
