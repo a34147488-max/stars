@@ -69,6 +69,7 @@ async function initDb() {
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
     CREATE TABLE IF NOT EXISTS olympus_sessions (telegram_id BIGINT PRIMARY KEY REFERENCES players(telegram_id), free_spins INTEGER NOT NULL DEFAULT 0, multiplier NUMERIC(12,2) NOT NULL DEFAULT 1, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
+    CREATE TABLE IF NOT EXISTS mines_games (telegram_id BIGINT PRIMARY KEY REFERENCES players(telegram_id) ON DELETE CASCADE, stake NUMERIC(24,8) NOT NULL, mine_count INTEGER NOT NULL, mine_cells JSONB NOT NULL, revealed_cells JSONB NOT NULL DEFAULT '[]'::jsonb, status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active','won','lost')), multiplier NUMERIC(16,8) NOT NULL DEFAULT 1, payout NUMERIC(24,8) NOT NULL DEFAULT 0, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
     CREATE TABLE IF NOT EXISTS daily_spins (
       telegram_id BIGINT PRIMARY KEY REFERENCES players(telegram_id),
       spin_date DATE NOT NULL,
@@ -565,6 +566,55 @@ app.post('/api/roulette/spin', auth, async (req,res)=>{
     res.json({number,color,win,balance,total:Number(locked.rows[0].total)+win,picks,results,cost});
   }catch(e){await client.query('ROLLBACK').catch(()=>{});console.error('Roulette spin error:',e.stack||e.message);res.status(e.message==='Игрок не найден.'?404:400).json({error:e.message||'Не удалось провести раунд рулетки.'});}
   finally{client.release();}
+});
+
+
+app.post('/api/mines/action', auth, async (req,res)=>{
+ const id=String(req.player.telegram_id),action=String(req.body?.action||''),db=await pool.connect();
+ try{
+  await db.query('BEGIN');
+  const p=await db.query('SELECT balance,total FROM players WHERE telegram_id=$1 FOR UPDATE',[id]);
+  if(!p.rowCount)throw Error('Игрок не найден');
+  let balance=Number(p.rows[0].balance),total=Number(p.rows[0].total);
+  let q=await db.query('SELECT * FROM mines_games WHERE telegram_id=$1 FOR UPDATE',[id]),g=q.rows[0];
+  const arr=v=>Array.isArray(v)?v:JSON.parse(v||'[]');
+  if(action==='start'){
+   if(g?.status==='active')throw Error('У тебя уже есть активный раунд');
+   const stake=Number(req.body.stake),n=Number(req.body.mines);
+   if(!Number.isFinite(stake)||stake<.1||stake>1000000)throw Error('Ставка должна быть от 0.1 до 1 000 000 звёзд');
+   if(![3,5,10,15].includes(n))throw Error('Неверная сложность');
+   if(balance<stake)throw Error('Недостаточно звёзд');
+   const cells=Array.from({length:25},(_,i)=>i);
+   for(let i=24;i>0;i--){const j=crypto.randomInt(i+1);[cells[i],cells[j]]=[cells[j],cells[i]]}
+   balance=Number((balance-stake).toFixed(8));
+   await db.query('UPDATE players SET balance=$2,updated_at=NOW() WHERE telegram_id=$1',[id,balance]);
+   q=await db.query("INSERT INTO mines_games(telegram_id,stake,mine_count,mine_cells,revealed_cells,status,multiplier,payout) VALUES($1,$2,$3,$4,'[]'::jsonb,'active',1,0) ON CONFLICT(telegram_id) DO UPDATE SET stake=EXCLUDED.stake,mine_count=EXCLUDED.mine_count,mine_cells=EXCLUDED.mine_cells,revealed_cells='[]'::jsonb,status='active',multiplier=1,payout=0,created_at=NOW(),updated_at=NOW() RETURNING *",[id,stake,n,JSON.stringify(cells.slice(0,n).sort((a,b)=>a-b))]);g=q.rows[0];
+  }else if(action==='reveal'){
+   const cell=Number(req.body.cell);
+   if(!Number.isInteger(cell)||cell<0||cell>24)throw Error('Некорректная клетка');
+   if(!g||g.status!=='active')throw Error('Нет активного раунда');
+   const revealed=arr(g.revealed_cells),mines=arr(g.mine_cells);
+   if(revealed.includes(cell))throw Error('Эта клетка уже открыта');
+   const next=[...revealed,cell];
+   if(mines.includes(cell)){q=await db.query("UPDATE mines_games SET revealed_cells=$2,status='lost',multiplier=0,payout=0,updated_at=NOW() WHERE telegram_id=$1 RETURNING *",[id,JSON.stringify(next)]);g=q.rows[0]}
+   else{
+    const safe=25-Number(g.mine_count),prob=next.reduce((v,_,i)=>v*((safe-i)/(25-i)),1),mult=Number((.97/prob).toFixed(8)),status=next.length===safe?'won':'active',payout=status==='won'?Number((Number(g.stake)*mult).toFixed(8)):0;
+    if(status==='won'){balance=Number((balance+payout).toFixed(8));total=Number((total+payout).toFixed(8));await db.query('UPDATE players SET balance=$2,total=$3,updated_at=NOW() WHERE telegram_id=$1',[id,balance,total])}
+    q=await db.query('UPDATE mines_games SET revealed_cells=$2,status=$3,multiplier=$4,payout=$5,updated_at=NOW() WHERE telegram_id=$1 RETURNING *',[id,JSON.stringify(next),status,mult,payout]);g=q.rows[0];
+   }
+  }else if(action==='cashout'){
+   if(!g||g.status!=='active')throw Error('Нет активного раунда');
+   const revealed=arr(g.revealed_cells);if(!revealed.length)throw Error('Сначала открой безопасную клетку');
+   const safe=25-Number(g.mine_count),prob=revealed.reduce((v,_,i)=>v*((safe-i)/(25-i)),1),mult=Number((.97/prob).toFixed(8)),payout=Number((Number(g.stake)*mult).toFixed(8));
+   balance=Number((balance+payout).toFixed(8));total=Number((total+payout).toFixed(8));
+   await db.query('UPDATE players SET balance=$2,total=$3,updated_at=NOW() WHERE telegram_id=$1',[id,balance,total]);
+   q=await db.query("UPDATE mines_games SET status='won',multiplier=$2,payout=$3,updated_at=NOW() WHERE telegram_id=$1 RETURNING *",[id,mult,payout]);g=q.rows[0];
+  }else throw Error('Неизвестное действие');
+  await db.query('COMMIT');
+  const ended=g.status!=='active';
+  res.setHeader('Cache-Control','no-store');
+  res.json({balance,total,game:{stake:Number(g.stake),mineCount:Number(g.mine_count),revealed:arr(g.revealed_cells),status:g.status,multiplier:Number(g.multiplier),potential:g.status==='active'?Number((Number(g.stake)*Number(g.multiplier)).toFixed(8)):0,payout:Number(g.payout||0),...(ended?{mines:arr(g.mine_cells)}:{})}});
+ }catch(e){await db.query('ROLLBACK').catch(()=>{});res.status(400).json({error:e.message||'Ошибка в игре Мины'})}finally{db.release()}
 });
 
 app.post('/api/click', auth, async (req,res)=>{
