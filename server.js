@@ -148,7 +148,7 @@ function registerBot() {
   bot = new TelegramBot(BOT_TOKEN, { polling: true });
   bot.on('error', e => console.error('Telegram bot error:', e.message));
   bot.onText(/^\/start(?:\s+(.+))?/, async msg => { try { await botStart(msg); } catch (e) { console.error('Ошибка /start:', e.message); const hint = !dbReady ? 'База данных Stars пока недоступна. Администратору нужно подключить PostgreSQL в Railway: DATABASE_URL должен ссылаться на базу Railway, а не на localhost.' : 'Не удалось загрузить профиль. Попробуй позже.'; bot.sendMessage(msg.chat.id, hint).catch(err => console.error('Не удалось ответить на /start:', err.message)); } });
-  bot.onText(/^\/name(?:\\s+([\\s\\S]+))?$/i, async (msg, match) => {
+  bot.onText(/^\/name(?:\s+([\s\S]+))?$/i, async (msg, match) => {
     try {
       const name = String(match[1] || '').trim().slice(0, 32);
       if (name.length < 2) return bot.sendMessage(msg.chat.id, 'Напиши имя так: /name Новое имя');
@@ -214,30 +214,6 @@ app.get('/api/players/:id', auth, async (req,res)=>{
   const p=r.rows[0]; res.json({player:{...publicPlayer(p),createdAt:p.created_at}});
 });
 
-app.post('/api/profile', auth, async (req,res)=>{
-  const name=String(req.body.name||'').trim().slice(0,32), avatar=String(req.body.avatar||'⭐');
-  const allowed=['⭐','🌟','✨','🌙','🪐','🚀','❄️','🎄','🦊','🐱','🐼','🐸','🐧','🐺','🐯'];
-  if(name.length<2) return res.status(400).json({error:'Имя должно содержать минимум 2 символа.'});
-  if(!allowed.includes(avatar)) return res.status(400).json({error:'Выбери аватар из списка.'});
-  await pool.query('UPDATE players SET display_name=$2,avatar=$3,updated_at=NOW() WHERE telegram_id=$1',[String(req.player.telegram_id),name,avatar]);
-  res.json({player:publicPlayer(await getPlayer(req.player.telegram_id))});
-});
-app.post('/api/transfer', auth, async (req,res)=>{
-  try { const username=String(req.body.username||'').trim(),amount=Number(req.body.amount); const result=await transfer(req.player.telegram_id,username,amount); res.json({ok:true,amount:result.amount,balance:result.balance,recipient:result.recipient.display_name}); }
-  catch(e){res.status(400).json({error:e.message});}
-});
-app.get('/api/referral', auth, async (req,res)=>{
-  const me=await bot?.getMe().catch(()=>null);
-  if(!me) return res.status(503).json({error:'Бот пока не настроен.'});
-  res.json({url:`https://t.me/${me.username}?start=ref_${req.player.telegram_id}`});
-});
-app.get('/api/transfers', auth, async (req,res)=>{
-  const r=await pool.query(`SELECT t.amount,t.created_at,p.display_name,p.username,
-    CASE WHEN t.from_id=$1 THEN 'out' ELSE 'in' END AS direction
-    FROM transfers t JOIN players p ON p.telegram_id=CASE WHEN t.from_id=$1 THEN t.to_id ELSE t.from_id END
-    WHERE t.from_id=$1 OR t.to_id=$1 ORDER BY t.created_at DESC LIMIT 20`,[String(req.player.telegram_id)]);
-  res.json({transfers:r.rows.map(x=>({...x,amount:Number(x.amount)}))});
-});
 app.get('*', (_req,res)=>res.sendFile(path.join(__dirname,'index.html')));
 app.listen(PORT,()=>console.log('Stars web server listening on '+PORT));
 pool.on('error', e => console.error('PostgreSQL pool error:', e.message));
