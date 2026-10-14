@@ -453,7 +453,7 @@ async function olympusPlay(buyBonus=false){
  const button=$('olympusSpin'),grid=$('olympusReels'),result=$('olympusResult');
  button.disabled=true;$('olympusBuy').disabled=true;button.classList.add('busy');$('olympusWin').textContent='БАРАБАНЫ ВРАЩАЮТСЯ';result.textContent='Символы падают с небес…';grid.classList.add('spinning');
  let ticks=0;
- const timer=setInterval(()=>{
+ const timer=setInterval(async()=>{
   const random=olympusMakeBoard();grid.innerHTML=random.map((id,i)=>olympusCell(id,i)).join('');ticks++;
   if(ticks>=12){
    clearInterval(timer);grid.classList.remove('spinning');
