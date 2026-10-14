@@ -146,7 +146,8 @@ async function transfer(fromId, recipient, amount) {
 function registerBot() {
   if (!BOT_TOKEN) { console.warn('BOT_TOKEN is not set; Telegram bot is disabled.'); return; }
   bot = new TelegramBot(BOT_TOKEN, { polling: true });
-  bot.onText(/^\/start(?:\s+(.+))?/, async msg => { try { await botStart(msg); } catch (e) { console.error(e); bot.sendMessage(msg.chat.id, 'Не удалось загрузить профиль. Попробуй позже.'); } });
+  bot.on('error', e => console.error('Telegram bot error:', e.message));
+  bot.onText(/^\/start(?:\s+(.+))?/, async msg => { try { await botStart(msg); } catch (e) { console.error('Ошибка /start:', e.message); const hint = !dbReady ? 'База данных Stars пока недоступна. Администратору нужно подключить PostgreSQL в Railway: DATABASE_URL должен ссылаться на базу Railway, а не на localhost.' : 'Не удалось загрузить профиль. Попробуй позже.'; bot.sendMessage(msg.chat.id, hint).catch(err => console.error('Не удалось ответить на /start:', err.message)); } });
   bot.onText(/^\/balance/, async msg => { try { const p=await upsertPlayer(msg.from,''); bot.sendMessage(msg.chat.id, `⭐ Твой баланс: ${Number(p.balance).toFixed(4)} звёзд`, {reply_markup:mainKeyboard(msg.from.id)}); } catch(e) { bot.sendMessage(msg.chat.id,'Ошибка получения баланса.'); } });
   bot.onText(/^\/transfer\s+(@?[A-Za-z0-9_]{5,32})\s+([0-9]+(?:[.,][0-9]{1,8})?)/, async (msg, m) => {
     try { await upsertPlayer(msg.from,''); const result=await transfer(msg.from.id,m[1],Number(m[2].replace(',','.'))); await bot.sendMessage(msg.chat.id,`✅ Переведено ${result.amount.toFixed(4)} звёзд игроку ${escapeHtml(result.recipient.display_name)}. Остаток: ${result.balance.toFixed(4)} звёзд.`,{parse_mode:'HTML',reply_markup:mainKeyboard(msg.from.id)}); await bot.sendMessage(String(result.recipient.telegram_id),`✨ Тебе поступило ${result.amount.toFixed(4)} звёзд от игрока ${escapeHtml(msg.from.first_name || 'Игрок')}!`,{parse_mode:'HTML'}).catch(()=>{}); }
@@ -202,14 +203,19 @@ app.get('/api/transfers', auth, async (req,res)=>{
 });
 app.get('*', (_req,res)=>res.sendFile(path.join(__dirname,'index.html')));
 app.listen(PORT,()=>console.log('Stars web server listening on '+PORT));
+pool.on('error', e => console.error('PostgreSQL pool error:', e.message));
+// Start Telegram polling independently from PostgreSQL so /start can explain a DB outage.
+registerBot();
 (async()=>{
   try {
-    if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is not configured');
+    const dbUrl = process.env.DATABASE_URL;
+    if (!dbUrl) throw new Error('DATABASE_URL is not configured. In Railway, reference the PostgreSQL service variable DATABASE_URL.');
+    if (/localhost|127\\.0\\.0\\.1|\\[::1\\]/i.test(dbUrl)) throw new Error('DATABASE_URL points to localhost. Use the DATABASE_URL value from the Railway PostgreSQL service, not localhost.');
     await initDb();
     dbReady = true;
-    registerBot();
     console.log('PostgreSQL connected; database ready.');
   } catch(e) {
-    console.error('PostgreSQL initialization failed. Web page remains available, but bot and synchronized balance need a working DATABASE_URL:',e.message);
+    dbReady = false;
+    console.error('PostgreSQL initialization failed. Check Railway Variables: DATABASE_URL must reference the PostgreSQL service. Error:',e.message);
   }
 })();
