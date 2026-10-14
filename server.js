@@ -254,7 +254,19 @@ function registerBot() {
   bot.on('polling_error', e => console.error('Telegram polling error:', e.message));
 }
 app.get('/health', (_req,res)=>res.status(200).json({ok:true,dbReady,botEnabled:Boolean(bot),message:dbReady?(bot?'Stars is ready':'Database ready; BOT_TOKEN is not configured'):'PostgreSQL is not ready; check DATABASE_URL and Railway database logs'}));
-app.get('/api/me', auth, async (req,res)=>res.json({player:publicPlayer(await getPlayer(req.player.telegram_id))}));\napp.get('/api/shop/products', (_req,res)=>res.json({products:Object.entries(STAR_PRODUCTS).map(([id,p])=>({id,title:p.title,description:p.description,stars:p.stars,multiplier:p.multiplier}))}));\napp.post('/api/shop/invoice', auth, async (req,res)=>{\n  try {\n    if (!bot) return res.status(503).json({error:'Telegram-бот сейчас недоступен.'});\n    const product = STAR_PRODUCTS[String(req.body && req.body.productId || '')];\n    if (!product) return res.status(400).json({error:'Неизвестное улучшение.'});\n    const orderId = crypto.randomUUID();\n    await pool.query('INSERT INTO star_orders(id,telegram_id,product_id,stars,status) VALUES($1,$2,$3,$4,\'pending\')', [orderId,String(req.player.telegram_id),String(req.body.productId),product.stars]);\n    const invoiceUrl = await bot.createInvoiceLink(product.title, product.description, orderId, '', 'XTR', [{label:product.title,amount:product.stars}]);\n    res.json({url:invoiceUrl,stars:product.stars});\n  } catch(e) { console.error('Не удалось создать Stars invoice:',e.message); res.status(500).json({error:'Не удалось создать окно оплаты. Попробуй ещё раз.'}); }\n});
+app.get('/api/me', auth, async (req,res)=>res.json({player:publicPlayer(await getPlayer(req.player.telegram_id))}));
+app.get('/api/shop/products', (_req,res)=>res.json({products:Object.entries(STAR_PRODUCTS).map(([id,p])=>({id,title:p.title,description:p.description,stars:p.stars,multiplier:p.multiplier}))}));
+app.post('/api/shop/invoice', auth, async (req,res)=>{
+  try {
+    if (!bot) return res.status(503).json({error:'Telegram-бот сейчас недоступен.'});
+    const product = STAR_PRODUCTS[String(req.body && req.body.productId || '')];
+    if (!product) return res.status(400).json({error:'Неизвестное улучшение.'});
+    const orderId = crypto.randomUUID();
+    await pool.query('INSERT INTO star_orders(id,telegram_id,product_id,stars,status) VALUES($1,$2,$3,$4,\'pending\')', [orderId,String(req.player.telegram_id),String(req.body.productId),product.stars]);
+    const invoiceUrl = await bot.createInvoiceLink(product.title, product.description, orderId, '', 'XTR', [{label:product.title,amount:product.stars}]);
+    res.json({url:invoiceUrl,stars:product.stars});
+  } catch(e) { console.error('Не удалось создать Stars invoice:',e.message); res.status(500).json({error:'Не удалось создать окно оплаты. Попробуй ещё раз.'}); }
+});
 app.post('/api/click', auth, async (req,res)=>{const r=await pool.query('UPDATE players SET balance=balance+(0.0001*click_multiplier),total=total+(0.0001*click_multiplier),updated_at=NOW() WHERE telegram_id=$1 RETURNING balance,total,click_multiplier',[String(req.player.telegram_id)]);const amount=0.0001*Number(r.rows[0].click_multiplier);res.json({balance:Number(r.rows[0].balance),total:Number(r.rows[0].total),gain:amount,clickMultiplier:Number(r.rows[0].click_multiplier)});});
 app.post('/api/profile', auth, async (_req,res)=>res.status(403).json({error:'Имя и аватар можно изменить только через Telegram-бота.'}));
 app.get('/api/leaderboard', auth, async (req,res)=>{
