@@ -58,6 +58,26 @@ async function initDb() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       paid_at TIMESTAMPTZ
     );
+    CREATE TABLE IF NOT EXISTS daily_spins (
+      telegram_id BIGINT PRIMARY KEY REFERENCES players(telegram_id),
+      spin_date DATE NOT NULL,
+      reward NUMERIC(24,8) NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+    CREATE TABLE IF NOT EXISTS promo_codes (
+      code TEXT PRIMARY KEY,
+      amount NUMERIC(24,8) NOT NULL CHECK(amount > 0),
+      max_uses INTEGER NOT NULL CHECK(max_uses > 0),
+      uses INTEGER NOT NULL DEFAULT 0,
+      active BOOLEAN NOT NULL DEFAULT TRUE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+    CREATE TABLE IF NOT EXISTS promo_redemptions (
+      code TEXT NOT NULL REFERENCES promo_codes(code),
+      telegram_id BIGINT NOT NULL REFERENCES players(telegram_id),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY(code, telegram_id)
+    );
     CREATE INDEX IF NOT EXISTS players_username_lower_idx ON players (LOWER(username));
   `);
 }
@@ -229,6 +249,15 @@ function registerBot() {
       await bot.sendMessage(msg.chat.id, '✅ Фото сохранено как твой аватар в Stars!', { reply_markup: mainKeyboard(msg.from.id) });
     } catch (e) { console.error('Ошибка аватара:', e.message); bot.sendMessage(msg.chat.id, 'Не удалось сохранить фото. Попробуй отправить его ещё раз.'); }
   });
+  bot.onText(/^\/promocreate\\s+([A-Za-z0-9_-]{3,32})\\s+(\\d+(?:[.,]\\d{1,8})?)\\s+(\\d+)$/i, async (msg,m)=>{
+    try {
+      if(!process.env.ADMIN_ID||String(msg.from.id)!==String(process.env.ADMIN_ID)) return bot.sendMessage(msg.chat.id,'Эта команда доступна только администратору.');
+      const code=m[1].toUpperCase(), amount=Number(m[2].replace(',','.')), uses=Number(m[3]);
+      if(!(amount>0)||!Number.isFinite(amount)||!Number.isInteger(uses)||uses<1||uses>100000) return bot.sendMessage(msg.chat.id,'Формат: /promocreate CODE СУММА КОЛИЧЕСТВО_АКТИВАЦИЙ');
+      await pool.query('INSERT INTO promo_codes(code,amount,max_uses) VALUES($1,$2,$3)',[code,amount,uses]);
+      await bot.sendMessage(msg.chat.id,'Промокод '+code+' создан. Награда: '+amount+' звёзд, активаций: '+uses+'.');
+    } catch(e) { bot.sendMessage(msg.chat.id,e.code==='23505'?'Такой промокод уже существует.':'Не удалось создать промокод: '+e.message); }
+  });
   bot.onText(/^\/balance/, async msg => { try { const p=await upsertPlayer(msg.from,''); bot.sendMessage(msg.chat.id, `⭐ Твой баланс: ${Number(p.balance).toFixed(4)} звёзд`, {reply_markup:mainKeyboard(msg.from.id)}); } catch(e) { bot.sendMessage(msg.chat.id,'Ошибка получения баланса.'); } });
   bot.onText(/^\/transfer\s+(@?[A-Za-z0-9_]{5,32})\s+([0-9]+(?:[.,][0-9]{1,8})?)/, async (msg, m) => {
     try { await upsertPlayer(msg.from,''); const result=await transfer(msg.from.id,m[1],Number(m[2].replace(',','.'))); await bot.sendMessage(msg.chat.id,`✅ Переведено ${result.amount.toFixed(4)} звёзд игроку ${escapeHtml(result.recipient.display_name)}. Остаток: ${result.balance.toFixed(4)} звёзд.`,{parse_mode:'HTML',reply_markup:mainKeyboard(msg.from.id)}); await bot.sendMessage(String(result.recipient.telegram_id),`✨ Тебе поступило ${result.amount.toFixed(4)} звёзд от игрока ${escapeHtml(msg.from.first_name || 'Игрок')}!`,{parse_mode:'HTML'}).catch(()=>{}); }
@@ -282,6 +311,56 @@ app.post('/api/shop/invoice', auth, async (req,res)=>{
 });
 app.post('/api/click', auth, async (req,res)=>{const r=await pool.query('UPDATE players SET balance=balance+(0.0001*click_multiplier),total=total+(0.0001*click_multiplier),updated_at=NOW() WHERE telegram_id=$1 RETURNING balance,total,click_multiplier',[String(req.player.telegram_id)]);const amount=0.0001*Number(r.rows[0].click_multiplier);res.json({balance:Number(r.rows[0].balance),total:Number(r.rows[0].total),gain:amount,clickMultiplier:Number(r.rows[0].click_multiplier)});});
 app.post('/api/profile', auth, async (_req,res)=>res.status(403).json({error:'Имя и аватар можно изменить только через Telegram-бота.'}));
+app.post('/api/transfer', auth, async (req,res)=>{
+  try {
+    const amount=Number(req.body.amount);
+    const username=String(req.body.username||'').trim();
+    if(!/^@?[A-Za-z0-9_]{5,32}$/.test(username)) return res.status(400).json({error:'Укажи корректный @username получателя.'});
+    const result=await transfer(req.player.telegram_id,username,amount);
+    res.json({amount:result.amount,balance:result.balance,recipient:result.recipient.display_name});
+    if(bot) bot.sendMessage(String(result.recipient.telegram_id),'✨ Тебе поступило '+result.amount.toFixed(4)+' звёзд от игрока '+escapeHtml(req.player.first_name||'Игрок')+'!',{parse_mode:'HTML'}).catch(()=>{});
+  } catch(e) { res.status(400).json({error:e.message||'Не удалось выполнить перевод.'}); }
+});
+app.get('/api/daily-wheel', auth, async (req,res)=>{
+  const r=await pool.query('SELECT spin_date,reward FROM daily_spins WHERE telegram_id=$1',[String(req.player.telegram_id)]);
+  const today= (await pool.query("SELECT CURRENT_DATE AS today")).rows[0].today;
+  const last=r.rows[0];
+  res.json({canSpin:!last||String(last.spin_date).slice(0,10)!==String(today).slice(0,10),lastReward:last?Number(last.reward):null});
+});
+app.post('/api/daily-wheel/spin', auth, async (req,res)=>{
+  const client=await pool.connect();
+  try{
+    await client.query('BEGIN');
+    const today=(await client.query('SELECT CURRENT_DATE AS today')).rows[0].today;
+    const old=await client.query('SELECT spin_date,reward FROM daily_spins WHERE telegram_id=$1 FOR UPDATE',[String(req.player.telegram_id)]);
+    if(old.rowCount&&String(old.rows[0].spin_date).slice(0,10)===String(today).slice(0,10)){await client.query('ROLLBACK');return res.status(409).json({error:'Колесо уже использовано сегодня.',canSpin:false,lastReward:Number(old.rows[0].reward)});}
+    const reward=1+Math.floor(Math.random()*5);
+    await client.query('UPDATE players SET balance=balance+$2,total=total+$2,updated_at=NOW() WHERE telegram_id=$1',[String(req.player.telegram_id),reward]);
+    await client.query('INSERT INTO daily_spins(telegram_id,spin_date,reward) VALUES($1,$2,$3) ON CONFLICT(telegram_id) DO UPDATE SET spin_date=EXCLUDED.spin_date,reward=EXCLUDED.reward,created_at=NOW()',[String(req.player.telegram_id),today,reward]);
+    const p=await client.query('SELECT balance,total FROM players WHERE telegram_id=$1',[String(req.player.telegram_id)]);
+    await client.query('COMMIT');
+    res.json({reward,balance:Number(p.rows[0].balance),total:Number(p.rows[0].total),canSpin:false});
+  }catch(e){await client.query('ROLLBACK').catch(()=>{});console.error('Daily wheel error:',e.message);res.status(500).json({error:'Не удалось прокрутить колесо.'});}
+  finally{client.release();}
+});
+app.post('/api/promo/activate', auth, async (req,res)=>{
+  const code=String(req.body.code||'').trim().toUpperCase();
+  if(!/^[A-Z0-9_-]{3,32}$/.test(code)) return res.status(400).json({error:'Проверь промокод.'});
+  const client=await pool.connect();
+  try{
+    await client.query('BEGIN');
+    const p=await client.query('SELECT amount,max_uses,uses,active FROM promo_codes WHERE code=$1 FOR UPDATE',[code]);
+    if(!p.rowCount||!p.rows[0].active) throw new Error('Промокод не найден или отключён.');
+    if(Number(p.rows[0].uses)>=Number(p.rows[0].max_uses)) throw new Error('Активации этого промокода закончились.');
+    await client.query('INSERT INTO promo_redemptions(code,telegram_id) VALUES($1,$2)',[code,String(req.player.telegram_id)]);
+    const amount=Number(p.rows[0].amount);
+    await client.query('UPDATE promo_codes SET uses=uses+1 WHERE code=$1',[code]);
+    const bal=await client.query('UPDATE players SET balance=balance+$2,total=total+$2,updated_at=NOW() WHERE telegram_id=$1 RETURNING balance,total',[String(req.player.telegram_id),amount]);
+    await client.query('COMMIT');
+    res.json({code,amount,balance:Number(bal.rows[0].balance),total:Number(bal.rows[0].total)});
+  }catch(e){await client.query('ROLLBACK').catch(()=>{});res.status(400).json({error:e.code==='23505'?'Ты уже активировал этот промокод.':e.message||'Не удалось активировать промокод.'});}
+  finally{client.release();}
+});
 app.get('/api/leaderboard', auth, async (req,res)=>{
   const r=await pool.query('SELECT telegram_id,username,display_name,avatar,balance,total FROM players ORDER BY balance DESC,total DESC,created_at ASC LIMIT 100');
   res.json({players:r.rows.map((p,i)=>({...publicPlayer(p),rank:i+1,isMe:String(p.telegram_id)===String(req.player.telegram_id)}))});
