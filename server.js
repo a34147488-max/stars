@@ -114,10 +114,13 @@ async function upsertPlayer(user, startParam) {
         const r = await client.query('SELECT telegram_id FROM players WHERE telegram_id=$1', [referrer]);
         if (r.rowCount) validRef = referrer;
       }
-      await client.query(
-        'INSERT INTO players (telegram_id, username, display_name, referred_by) VALUES ($1,$2,$3,$4) ON CONFLICT (telegram_id) DO NOTHING',
+      const inserted = await client.query(
+        'INSERT INTO players (telegram_id, username, display_name, referred_by) VALUES ($1,$2,$3,$4) ON CONFLICT (telegram_id) DO NOTHING RETURNING telegram_id',
         [id, username, displayName, validRef]
       );
+      if (inserted.rowCount && validRef) {
+        await client.query('UPDATE players SET balance=balance+2,total=total+2,updated_at=NOW() WHERE telegram_id=$1', [validRef]);
+      }
     } else {
       await client.query('UPDATE players SET username=$2, updated_at=NOW() WHERE telegram_id=$1', [id, username]);
     }
