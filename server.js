@@ -9,7 +9,7 @@ app.use(express.json({ limit: '32kb' }));
 app.use(express.static(__dirname));
 const PORT = process.env.PORT || 3000;
 const BOT_TOKEN = process.env.BOT_TOKEN;
-const APP_URL = (process.env.APP_URL || 'https://mainap-production.up.railway.app').replace(/\/$/, '');
+const APP_URL = (process.env.APP_URL || 'https://stars-production-0668.up.railway.app').replace(/\/$/, '');
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: process.env.DATABASE_URL && !/localhost|127\.0\.0\.1/.test(process.env.DATABASE_URL) ? { rejectUnauthorized: false } : false });
 let bot = null;
 let dbReady = false;
