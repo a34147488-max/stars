@@ -243,7 +243,7 @@ body{overflow-anchor:none}
   <button type="button" class="olympus-buy" id="olympusBuy">КУПИТЬ FREE SPINS · ×100</button>
   <div class="olympus-bonus" id="olympusBonus" hidden>FREE SPINS: <strong id="olympusFree">15</strong> · МНОЖИТЕЛЬ: <strong id="olympusMult">×1</strong></div>
   <div class="olympus-paytable"><div><b>8+</b><span>одинаковых символов где угодно</span></div><div><b>4–6</b><span>Зевсов запускают 15 фриспинов</span></div><div><b>×2–×500</b><span>крылатые сферы складываются</span></div><div><b>×5000</b><span>максимальная выплата от ставки</span></div></div>
-  <div class="olympus-disclaimer">Демо-режим: результаты анимированы, баланс Stars не списывается и не начисляется.</div>
+  <div class="olympus-disclaimer">Ставки и выигрыши списываются и начисляются на игровой баланс сервера.</div>
  </div>
 </section>
 <section class="menu-placeholder" id="walletPanel" hidden><h2>👛 Кошелёк</h2><p>Переводи звёзды игрового баланса другим игрокам по их Telegram @username.</p><div class="wallet-balance">Текущий баланс: <strong id="walletBalance">—</strong></div><label class="profile-field">Юзернейм получателя<input class="profile-input" id="menuTransferUsername" placeholder="@username" maxlength="33"></label><label class="profile-field">Сумма перевода<input class="profile-input" id="menuTransferAmount" type="number" min="0.0001" step="0.0001" placeholder="1.0000"></label><button type="button" class="action-button primary" id="menuSendTransfer">💸 Перевести звёзды</button><div id="walletMessage" class="profile-message" role="status"></div></section>
@@ -449,6 +449,11 @@ async function olympusPlay(buyBonus=false){
  const bet=Number($('olympusBet').value),isFree=olympusFreeSpins>0;
  if(buyBonus&&!isFree&&bet<=0)return;
  if(buyBonus&&!isFree&&!confirm('Купить 15 бесплатных вращений за '+(bet*100).toFixed(2)+'?'))return;
+ if(!initData){const message='Открой приложение через Telegram-бота, чтобы играть с балансом.';$('olympusResult').textContent=message;if(tg&&tg.showAlert)tg.showAlert(message);return;}
+ let serverSpin;
+ try{serverSpin=await api('/api/olympus/spin','POST',{bet,buyBonus,ante:olympusAnte});}
+ catch(e){$('olympusResult').textContent=e.message;if(tg&&tg.showAlert)tg.showAlert(e.message);return;}
+ state.balance=Number(serverSpin.balance);state.total=Number(serverSpin.total);renderStats();
  olympusBusy=true;
  const button=$('olympusSpin'),grid=$('olympusReels'),result=$('olympusResult');
  button.disabled=true;$('olympusBuy').disabled=true;button.classList.add('busy');$('olympusWin').textContent='БАРАБАНЫ ВРАЩАЮТСЯ';result.textContent='Символы падают с небес…';grid.classList.add('spinning');
@@ -488,12 +493,12 @@ async function olympusPlay(buyBonus=false){
    if(scatter>=4&&!freeAtStart&&!buyBonus){olympusFreeSpins+=15;olympusGlobalMult=1}
    if(freeAtStart)totalWin*=olympusGlobalMult;
    else if(orbSum)totalWin*=orbSum;
-   totalWin=Math.min(totalWin,bet*5000);
+   totalWin=Number(serverSpin.win)||0; board=serverSpin.board||board; olympusFreeSpins=Number(serverSpin.freeSpins)||0; olympusGlobalMult=Number(serverSpin.multiplier)||1; olympusRender(board); renderStats();
    if(totalWin>0){$('olympusWin').textContent='ВЫИГРЫШ '+totalWin.toFixed(2);result.textContent='Каскадов: '+cascades+(orbSum?' · Сферы: ×'+orbSum:'')+(scatter>=4?' · Зевс активировал 15 фриспинов':'');}
    else{$('olympusWin').textContent='БЕЗ ВЫИГРЫША';result.textContent='Спин завершён. Попробуй ещё раз.'}
    if(scatter>=4&&!freeAtStart&&!buyBonus)result.textContent+=' · Бонусный режим открыт';
    if(freeAtStart)result.textContent+=' · Бесплатных вращений осталось: '+olympusFreeSpins;
-   if(buyBonus&&!freeAtStart)result.textContent='Бонус куплен: 15 бесплатных вращений. Демо-режим.';
+   if(buyBonus&&!freeAtStart)result.textContent='Бонус куплен: 15 бесплатных вращений.';
    if(freeAtStart&&olympusFreeSpins===0)olympusGlobalMult=1;
    olympusSpins++;$('olympusSpinCount').textContent='СПИНОВ: '+olympusSpins;
    $('olympusMode').textContent=olympusFreeSpins?'FREE SPINS':'ОБЫЧНАЯ ИГРА';
