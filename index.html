@@ -645,7 +645,8 @@ async function olympusPlay(buyBonus=false){
     el.classList.add('falling');
     el.style.animationDelay=(row*135+col*35)+'ms';
    });
-   await new Promise(r=>setTimeout(r,1450));
+   // Wait until even the last row has completed its fall animation.
+   await new Promise(r=>setTimeout(r,1650));
    firstDropCells.forEach(el=>{el.classList.remove('falling');el.style.animationDelay='';});
    for(const step of cascadeSteps){
     const cells=[...grid.querySelectorAll('.olympus-cell')];
