@@ -285,8 +285,8 @@ body{overflow-anchor:none}
 </div>
 <div id="olympusFreeSpinModal" class="olympus-freespin-modal" role="dialog" aria-modal="true" aria-labelledby="olympusFreeSpinTitle"><div class="olympus-freespin-card"><div class="olympus-freespin-icon">⚡🏛️⚡</div><div id="olympusFreeSpinTitle" class="olympus-freespin-title">ПОЗДРАВЛЯЕМ!</div><div class="olympus-freespin-count">15 FREE SPINS</div><div class="olympus-freespin-copy">Ты активировал бонус Олимпа! Собирай молнии — их множители будут накапливаться и усиливать выигрыши во всех бесплатных вращениях.</div><button type="button" id="olympusFreeSpinClose" class="olympus-freespin-close">НАЧАТЬ БОНУС</button></div></div>
 <section class="menu-placeholder" id="walletPanel" hidden><h2>👛 Кошелёк</h2><p>Переводи звёзды игрового баланса другим игрокам по их Telegram @username.</p><div class="wallet-balance">Текущий баланс: <strong id="walletBalance">—</strong></div><label class="profile-field">Юзернейм получателя<input class="profile-input" id="menuTransferUsername" placeholder="@username" maxlength="33"></label><label class="profile-field">Сумма перевода<input class="profile-input" id="menuTransferAmount" type="number" min="0.0001" step="0.0001" placeholder="1.0000"></label><button type="button" class="action-button primary" id="menuSendTransfer">💸 Перевести звёзды</button><div id="walletMessage" class="profile-message" role="status"></div><div class="promo-box" id="withdrawBox"><h3>⭐ Вывод звёзд</h3><p>Минимальная сумма вывода — 300 звёзд. Укажи Telegram @username, куда нужно зачислить выплату.</p><label class="profile-field">Сумма вывода<input class="profile-input" id="withdrawAmount" type="number" min="300" step="1" placeholder="От 300"></label><label class="profile-field">Аккаунт для зачисления<input class="profile-input" id="withdrawUsername" maxlength="33" placeholder="@username"></label><button type="button" class="action-button primary" id="createWithdrawal">📤 Создать заявку на вывод</button><div id="withdrawMessage" class="profile-message" role="status"></div><h3 style="margin-top:18px">📋 Мои заявки</h3><div id="withdrawalList" class="leaderboard-list"><p>Загрузка заявок…</p></div></div></section>
-<section class="menu-placeholder" id="morePanel" hidden><h2>💠 Прочее</h2><div class="stats modal-stats"><div class="stat"><strong id="perTapModal">0.0001</strong><span>ЗА КЛИК</span></div><div class="stat"><strong id="perSecModal">0.0000</strong><span>В СЕКУНДУ</span></div><div class="stat"><strong id="totalModal">0.0000</strong><span>ВСЕГО ДОБЫТО</span></div></div><a class="action-button channel-link" href="https://t.me/+39Jby9TgJps0Y2Ni" target="_blank" rel="noopener noreferrer">📣 Подписаться на Telegram-канал</a><div class="promo-box"><h3>🎟 Промокод</h3><p>Введи промокод, чтобы получить награду. Каждый код активируется один раз на аккаунт.</p><input class="profile-input" id="promoCodeInput" placeholder="ВВЕДИ ПРОМОКОД" maxlength="32" autocapitalize="characters"><button type="button" class="action-button primary" id="activatePromo">Активировать</button><div id="promoMessage" class="profile-message" role="status"></div></div><div class="settings-box"><h3>🎵 Новогодняя музыка</h3><p>Включай или выключай мелодию приложения.</p><button class="music-toggle" id="menuMusicToggle" type="button" aria-pressed="false"><span id="menuMusicLabel">Включить музыку</span></button></div></section>
-<section class="menu-placeholder" id="friendsPanel" hidden><h2>👥 Друзья</h2><p>За каждого нового друга, который впервые запускает бота по твоей ссылке, начисляется <strong>2 монеты</strong>.</p><div id="menuReferralResult" class="profile-message referral-link-text">Ссылка ещё не загружена.</div><button type="button" class="action-button primary" id="menuReferral">🔗 Получить ссылку</button><button type="button" class="action-button" id="copyReferral" disabled>📋 Скопировать ссылку</button></section>
+<section class="menu-placeholder" id="morePanel" hidden><h2>💠 Прочее</h2><div class="stats modal-stats"><div class="stat"><strong id="perTapModal">0.0001</strong><span>ЗА КЛИК</span></div><div class="stat"><strong id="perSecModal">0.0000</strong><span>В СЕКУНДУ</span></div><div class="stat"><strong id="totalModal">0.0000</strong><span>ВСЕГО ДОБЫТО</span></div></div><a class="action-button channel-link" href="https://t.me/+39Jby9TgJps0Y2Ni" target="_blank" rel="noopener noreferrer">📣 Подписаться на Telegram-канал</a><div class="promo-box"><h3>🎟 Промокод</h3><p>Промокоды OLYMPUS150 дают 150 ⭐ после отыгрыша суммы в 20 раз больше награды в «Олимпусе» (нужно поставить всего 3 000 ⭐). Каждый код — одна активация.</p><input class="profile-input" id="promoCodeInput" placeholder="ВВЕДИ ПРОМОКОД" maxlength="32" autocapitalize="characters"><button type="button" class="action-button primary" id="activatePromo">Активировать</button><div id="promoMessage" class="profile-message" role="status"></div><div id="promoWagerProgress" class="profile-message" aria-live="polite"></div></div><div class="settings-box"><h3>🎵 Новогодняя музыка</h3><p>Включай или выключай мелодию приложения.</p><button class="music-toggle" id="menuMusicToggle" type="button" aria-pressed="false"><span id="menuMusicLabel">Включить музыку</span></button></div></section>
+<section class="menu-placeholder" id="friendsPanel" hidden><h2>👥 Друзья</h2><p>За каждого нового друга, который впервые запускает бота по твоей ссылке, начисляется <strong>15 ⭐</strong>.</p><div id="menuReferralResult" class="profile-message referral-link-text">Ссылка ещё не загружена.</div><button type="button" class="action-button primary" id="menuReferral">🔗 Получить ссылку</button><button type="button" class="action-button" id="copyReferral" disabled>📋 Скопировать ссылку</button></section>
 <div class="winter-row"><svg class="tree" viewBox="0 0 60 80" aria-hidden="true"><path d="M30 4 13 29h9L7 47h16L10 63h40L37 47h16L38 29h9Z" fill="#1ba879" stroke="#72f5c1" stroke-width="1.5"/><path d="M26 63h8v12h-8z" fill="#a9784c"/><path d="M30 1l2.5 5 5.5.8-4 3.8 1 5.4-5-2.6-5 2.6 1-5.4-4-3.8 5.5-.8Z" fill="#ffe77a"/><circle cx="21" cy="35" r="2.5" fill="#ff637d"/><circle cx="37" cy="43" r="2.5" fill="#ffe77a"/><circle cx="26" cy="54" r="2.5" fill="#8bd8ff"/></svg><span>Зимняя звёздная ночь</span><svg class="tree" viewBox="0 0 60 80" aria-hidden="true"><path d="M30 4 13 29h9L7 47h16L10 63h40L37 47h16L38 29h9Z" fill="#1ba879" stroke="#72f5c1" stroke-width="1.5"/><path d="M26 63h8v12h-8z" fill="#a9784c"/><path d="M30 1l2.5 5 5.5.8-4 3.8 1 5.4-5-2.6-5 2.6 1-5.4-4-3.8 5.5-.8Z" fill="#ffe77a"/><circle cx="21" cy="35" r="2.5" fill="#ff637d"/><circle cx="37" cy="43" r="2.5" fill="#ffe77a"/><circle cx="26" cy="54" r="2.5" fill="#8bd8ff"/></svg></div>
 <nav class="main-menu" aria-label="Главное меню">
 <button class="menu-tile" type="button" data-open="leaderboardPanel" style="--tile:#ff9147"><span class="menu-icon"><svg viewBox="0 0 48 48"><path d="M13 8h22l-2 20H15L13 8Zm-1 4H6l3 15c1 5 5 7 10 7m20-22h3l-3 15c-1 5-5 7-10 7M20 36h8m-4-8v8m-7 5h14" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Лидеры</span></button>
@@ -397,6 +397,7 @@ document.querySelectorAll('[data-open]').forEach(btn=>btn.addEventListener('clic
  if(id==='shopPanel'){ $('toggleShop')?.setAttribute('aria-expanded','true'); await loadStarShop(); }
  
  if(id==='walletPanel'){$('walletBalance').textContent=fmt(state.balance);await loadWithdrawals();}
+ if(id==='morePanel')await loadPromoProgress();
 }));
 document.getElementById('toggleShop')?.addEventListener('click',async()=>{
  const panel=$('shopPanel');if(!panel)return;
@@ -520,6 +521,8 @@ async function olympusPlay(buyBonus=false){
  try{serverSpin=await api('/api/olympus/spin','POST',{bet,buyBonus,ante:olympusAnte});}
  catch(e){$('olympusResult').textContent=e.message;if(tg&&tg.showAlert)tg.showAlert(e.message);olympusBusy=false;$('olympusSpin').disabled=false;$('olympusBuy').disabled=false;return;}
  state.balance=Number(serverSpin.balance);state.total=Number(serverSpin.total);renderStats();
+ if(Array.isArray(serverSpin.completedPromos)&&serverSpin.completedPromos.length){const rewards=serverSpin.completedPromos.reduce((n,p)=>n+Number(p.reward||0),0);if($('promoMessage'))$('promoMessage').textContent='🎉 Отыгрыш выполнен! На реальный баланс зачислено '+fmt(rewards)+' ⭐.';if($('promoWagerProgress'))loadPromoProgress();}
+ else if(Array.isArray(serverSpin.promoProgress)&&$('promoWagerProgress'))renderPromoProgress(serverSpin.promoProgress);
  const showSuperWin=Number(serverSpin.win)>=bet*10;
  const gotFreeSpins=Number(serverSpin.freeSpins)>=15&&freeSpinsBefore===0&&(Number(serverSpin.scatter)>=4||buyBonus);
  olympusBusy=true;
@@ -622,11 +625,27 @@ $('createWithdrawal')?.addEventListener('click',async()=>{
  }catch(e){msg.textContent=e.message;}
  finally{b.disabled=false;}
 });
+async function loadPromoProgress(){
+ try{const d=await api('/api/promo/progress');renderPromoProgress(d.promos||[]);}
+ catch(e){if($('promoWagerProgress'))$('promoWagerProgress').textContent='Не удалось загрузить прогресс отыгрыша.';}
+}
+function renderPromoProgress(promos){
+ const el=$('promoWagerProgress');if(!el)return;
+ const active=promos.filter(p=>p.status==='pending');
+ if(!promos.length){el.textContent='Активных промокодов с отыгрышем нет.';return;}
+ el.innerHTML=promos.map(p=>{
+  const done=p.status==='completed',pct=Math.min(100,Math.floor(Number(p.wagered)/Math.max(1,Number(p.target))*100));
+  return '<div style="margin-top:8px;padding:9px;border:1px solid #2a2a35;border-radius:10px">🎟 <b>'+escapeText(p.code)+'</b> · '+(done?'✅ Выполнено':'⏳ Отыгрыш')+'<div style="font-size:11px;margin-top:4px">'+fmt(Number(p.wagered))+' / '+fmt(Number(p.target))+' ⭐ ('+pct+'%)</div><div style="height:5px;border-radius:5px;background:#292932;margin-top:6px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+(done?'#72e6b7':'#ffe17b')+'"></div></div>'+(done?'<div style="font-size:11px;color:#8af2ce;margin-top:4px">Зачислено '+fmt(Number(p.reward))+' ⭐</div>':'<div style="font-size:11px;color:#aaaab8;margin-top:4px">Осталось поставить '+fmt(Math.max(0,Number(p.target)-Number(p.wagered)))+' ⭐</div>')+'</div>';
+ }).join('');
+}
 $('activatePromo')?.addEventListener('click',async()=>{
  const b=$('activatePromo'),msg=$('promoMessage'),code=$('promoCodeInput').value.trim();
  if(!code){msg.textContent='Введи промокод.';return;}
  b.disabled=true;
- try{const d=await api('/api/promo/activate','POST',{code});state.balance=d.balance;state.total=d.total;refresh();$('walletBalance').textContent=fmt(state.balance);msg.textContent='🎉 Промокод активирован! Начислено '+fmt(d.amount)+' звёзд.';$('promoCodeInput').value='';}
+ try{const d=await api('/api/promo/activate','POST',{code});state.balance=d.balance;state.total=d.total;refresh();$('walletBalance').textContent=fmt(state.balance);
+ if(d.wagering){msg.textContent='✅ Промокод принят! Поставь в «Олимпусе» '+fmt(d.wagering.target)+' ⭐ суммарно. После выполнения на баланс зачислится '+fmt(d.amount)+' ⭐.';}
+ else{msg.textContent='🎉 Промокод активирован! Начислено '+fmt(d.amount)+' звёзд.';}
+ $('promoCodeInput').value='';await loadPromoProgress();}
  catch(e){msg.textContent=e.message;}
  finally{b.disabled=false;}
 });
@@ -637,7 +656,7 @@ document.getElementById('makeReferral').addEventListener('click',async()=>{
  const out=document.getElementById('referralResult');
  try{
   const d=await api('/api/referral');
-  out.textContent='Твоя ссылка: '+d.url+'\\nНаграда за каждого нового друга: +2 монеты.';
+  out.textContent='Твоя ссылка: '+d.url+'\\nНаграда за каждого нового друга: +15 звёзд.';
   out.dataset.url=d.url;
   if(!document.getElementById('copyReferralProfile')){
    const copy=document.createElement('button');copy.id='copyReferralProfile';copy.type='button';copy.className='action-button';copy.textContent='📋 Скопировать ссылку';
