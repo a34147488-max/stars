@@ -277,6 +277,20 @@ function registerBot() {
     } catch(e) { bot.sendMessage(msg.chat.id,e.code==='23505'?'Такой промокод уже существует.':'Не удалось создать промокод: '+e.message); }
   });
   bot.onText(/^\/balance/, async msg => { try { const p=await upsertPlayer(msg.from,''); bot.sendMessage(msg.chat.id, `⭐ Твой баланс: ${Number(p.balance).toFixed(4)} звёзд`, {reply_markup:mainKeyboard(msg.from.id)}); } catch(e) { bot.sendMessage(msg.chat.id,'Ошибка получения баланса.'); } });
+  // Admin diagnostics: show the numeric Telegram ID and test withdrawal notifications.
+  bot.onText(/^\/id$/, async msg => {
+    await bot.sendMessage(msg.chat.id, 'Твой Telegram ID: ' + msg.from.id + '\\nДля Railway переменная ADMIN_ID должна содержать только это число.');
+  });
+  bot.onText(/^\/testwithdraw$/, async msg => {
+    const adminId = String(process.env.ADMIN_ID || '').trim();
+    if (!adminId || String(msg.from.id) !== adminId) return bot.sendMessage(msg.chat.id, 'Доступ запрещён. ADMIN_ID должен совпадать с твоим числовым Telegram ID. Твой ID: ' + msg.from.id);
+    try {
+      await bot.sendMessage(adminId, '✅ Тест уведомлений о выводе работает. Если видишь это сообщение, ADMIN_ID и доступ бота настроены верно.');
+    } catch (e) {
+      console.error('Withdrawal test notification failed:', e.message);
+      await bot.sendMessage(msg.chat.id, '❌ Не удалось отправить сообщение на ADMIN_ID=' + adminId + '. Ошибка Telegram: ' + e.message + '. Убедись, что ты нажал /start у этого же бота.');
+    }
+  });
   bot.onText(/^\/transfer\s+(@?[A-Za-z0-9_]{5,32})\s+([0-9]+(?:[.,][0-9]{1,8})?)/, async (msg, m) => {
     try { await upsertPlayer(msg.from,''); const result=await transfer(msg.from.id,m[1],Number(m[2].replace(',','.'))); await bot.sendMessage(msg.chat.id,`✅ Переведено ${result.amount.toFixed(4)} звёзд игроку ${escapeHtml(result.recipient.display_name)}. Остаток: ${result.balance.toFixed(4)} звёзд.`,{parse_mode:'HTML',reply_markup:mainKeyboard(msg.from.id)}); await bot.sendMessage(String(result.recipient.telegram_id),`✨ Тебе поступило ${result.amount.toFixed(4)} звёзд от игрока ${escapeHtml(msg.from.first_name || 'Игрок')}!`,{parse_mode:'HTML'}).catch(()=>{}); }
     catch(e) { bot.sendMessage(msg.chat.id, '❌ '+e.message); }
@@ -492,7 +506,7 @@ app.post('/api/withdrawals', auth, async (req,res)=>{
     if(adminId){
       const who=req.player.username?'@'+req.player.username:req.player.display_name;
       const text='📤 <b>Новая заявка на вывод звёзд</b>\n\nЗаявка: <code>#'+request.id+'</code>\nСумма: <b>'+Number(request.amount).toLocaleString('ru-RU')+' ⭐</b>\nКуда зачислить: <b>'+escapeHtml(request.username)+'</b>\nИгрок: '+escapeHtml(who)+'\nTelegram ID: <code>'+escapeHtml(req.player.telegram_id)+'</code>\nСтатус: ⏳ Ожидание';
-      bot.sendMessage(String(adminId),text,{parse_mode:'HTML',reply_markup:{inline_keyboard:[[{text:'✅ Выплачено',callback_data:'withdraw_paid:'+request.id},{text:'❌ Отказать',callback_data:'withdraw_reject:'+request.id}]]}}).catch(e=>console.error('Withdrawal admin notification failed:',e.message));
+      bot.sendMessage(String(adminId).trim(),text,{parse_mode:'HTML',reply_markup:{inline_keyboard:[[{text:'✅ Выплачено',callback_data:'withdraw_paid:'+request.id},{text:'❌ Отказать',callback_data:'withdraw_reject:'+request.id}]]}}).then(()=>console.log('Withdrawal notification sent to ADMIN_ID='+String(adminId).trim()+' for request #'+request.id)).catch(e=>console.error('Withdrawal admin notification failed for request #'+request.id+' to ADMIN_ID='+String(adminId).trim()+':',e.message));
     }else console.error('ADMIN_ID is not configured; withdrawal notification was not sent.');
   }
 });
