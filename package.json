@@ -1,0 +1,18 @@
+{
+  "name": "stars-clicker-bot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Stars clicker Telegram bot and synchronized app",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "node-telegram-bot-api": "^0.66.0",
+    "pg": "^8.13.1"
+  }
+}
