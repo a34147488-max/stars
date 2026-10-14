@@ -374,6 +374,7 @@ const $=id=>document.getElementById(id);
 function closeAllMenus(){
  document.querySelectorAll('.menu-placeholder,.star-shop-panel,#profilePanel,#leaderboardPanel').forEach(p=>{p.hidden=true;});
  document.body.classList.remove('modal-open');
+ if(typeof olympusStopMusic==='function')olympusStopMusic();
 }
 function openModal(panel){
  if(!panel)return;
@@ -459,6 +460,7 @@ function olympusSpinSound(){const c=olympusAudio();if(!c)return;const t=c.curren
 function olympusMatchSound(){[523.25,659.25,783.99,1046.5].forEach((f,i)=>olympusTone(f,.24,'triangle',.045,i*.065))}
 function olympusMusicTick(){if(!olympusMusicOn)return;const melody=[293.66,349.23,440,523.25,587.33,523.25,440,349.23,392,493.88,587.33,659.25,587.33,493.88,392,349.23],bass=[146.83,146.83,174.61,174.61,130.81,130.81,196,196],i=olympusMusicStep++;olympusTone(melody[i%melody.length],.48,'triangle',.018);if(i%2===0)olympusTone(melody[(i+3)%melody.length]*2,.22,'sine',.008,.12);if(i%4===0)olympusTone(bass[Math.floor(i/2)%bass.length],.65,'sine',.018);olympusMusicTimer=setTimeout(olympusMusicTick,360)}
 function olympusToggleMusic(){olympusAudio();olympusMusicOn=!olympusMusicOn;const b=$('olympusMusic');if(b){b.textContent=olympusMusicOn?'♫ Музыка: ВКЛ':'♫ Музыка: ВЫКЛ';b.classList.toggle('active',olympusMusicOn)}if(olympusMusicTimer){clearTimeout(olympusMusicTimer);olympusMusicTimer=null}if(olympusMusicOn)olympusMusicTick()}
+function olympusStopMusic(){olympusMusicOn=false;if(olympusMusicTimer){clearTimeout(olympusMusicTimer);olympusMusicTimer=null}if(olympusAudioCtx){const ctx=olympusAudioCtx;olympusAudioCtx=null;ctx.close().catch(()=>{})}olympusMusicStep=0;const b=$('olympusMusic');if(b){b.textContent='♫ Музыка: ВЫКЛ';b.classList.remove('active')}}
 function olympusSvg(sym){
  const c=sym.color;
  const common='stroke="#fff4d2" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round"';
