@@ -183,10 +183,10 @@ document.querySelectorAll('[data-open]').forEach(btn=>btn.addEventListener('clic
  const id=btn.getAttribute('data-open');
  const panel=document.getElementById(id);
  if(!panel)return;
+ if(id==='profilePanel'){panel.scrollIntoView({behavior:'smooth',block:'start'});return;}
  panel.hidden=!panel.hidden;
  if(id==='leaderboardPanel'&&!panel.hidden) await loadLeaderboard();
- if(id==='shopPanel'&&!panel.hidden) { $('toggleShop').setAttribute('aria-expanded','true'); $('shopPanel').scrollIntoView({behavior:'smooth',block:'start'}); }
- if(id==='profilePanel'&&!panel.hidden) $('profilePanel').scrollIntoView({behavior:'smooth',block:'start'});
+ if(id==='shopPanel'&&!panel.hidden) { $('toggleShop').setAttribute('aria-expanded','true'); loadStarShop(); $('shopPanel').scrollIntoView({behavior:'smooth',block:'start'}); }
 }));
 document.getElementById('menuReferral')?.addEventListener('click',async()=>{
  const out=$('menuReferralResult');
