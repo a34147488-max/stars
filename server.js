@@ -167,7 +167,7 @@ async function botClick(chatId, from) {
   const r = await pool.query('UPDATE players SET clicks_count=clicks_count+1,updated_at=NOW() WHERE telegram_id=$1 RETURNING clicks_count,click_multiplier');
   const clicks=Number(r.rows[0].clicks_count);const level=clicks<100?0:clicks<500?1:2+Math.floor((clicks-500)/500);const bonus=level>=100?0.05:level>=30?0.005:0;const gain=0.0001*Number(r.rows[0].click_multiplier)+bonus;
   const credited=await pool.query('UPDATE players SET balance=balance+$2,total=total+$2,updated_at=NOW() WHERE telegram_id=$1 RETURNING balance',[String(from.id),gain]);
-  await bot.sendMessage(chatId, `⭐ +0.0001 звезды!\nБаланс: ${Number(credited.rows[0].balance).toFixed(4)} звёзд`, { reply_markup: mainKeyboard(from.id) });
+  await bot.sendMessage(chatId, `⭐ +${gain.toFixed(4)} звезды!\nБаланс: ${Number(credited.rows[0].balance).toFixed(4)} звёзд`, { reply_markup: mainKeyboard(from.id) });
 }
 async function transfer(fromId, recipient, amount) {
   if (!Number.isFinite(amount) || amount <= 0 || amount > 1000000000) throw new Error('Укажи положительную сумму перевода.');
@@ -272,7 +272,7 @@ function registerBot() {
         const clicks=Number(r.rows[0].clicks_count);const level=clicks<100?0:clicks<500?1:2+Math.floor((clicks-500)/500);const bonus=level>=100?0.05:level>=30?0.005:0;const gain=0.0001*Number(r.rows[0].click_multiplier)+bonus;
         const credited=await pool.query('UPDATE players SET balance=balance+$2,total=total+$2,updated_at=NOW() WHERE telegram_id=$1 RETURNING balance',[String(q.from.id),gain]);
         await bot.answerCallbackQuery(q.id,{text:'+'+gain.toFixed(4)+' звезды'});
-        await bot.sendMessage(q.message.chat.id,`⭐ +${gain.toFixed(4)} звезды! Баланс: ${Number(r.rows[0].balance).toFixed(4)}`,{reply_markup:mainKeyboard(q.from.id)});
+        await bot.sendMessage(q.message.chat.id,`⭐ +${gain.toFixed(4)} звезды! Баланс: ${Number(credited.rows[0].balance).toFixed(4)}`,{reply_markup:mainKeyboard(q.from.id)});
       } else if(q.data==='star_shop') {
         await bot.answerCallbackQuery(q.id);
         const rows = [];
