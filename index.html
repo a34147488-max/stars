@@ -148,7 +148,7 @@ html{overscroll-behavior:none;overflow-x:hidden}
 <div class="eyebrow">Твой звёздный запас</div><div class="balance" id="balance">0.0000</div><div class="unit"><svg class="mini-star" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 4 61 35 95 36 68 57 78 91 50 71 22 91 32 57 5 36 39 35Z"/></svg> звёзд</div>
 <div class="rate" id="rate">За клик: +0.0001 звезды</div>
 <button class="star-button" id="tap" aria-label="Получить звёзды нажатием"><svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="starGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fffde0"/><stop offset=".32" stop-color="#fff07a"/><stop offset=".68" stop-color="#ffc32d"/><stop offset="1" stop-color="#ff8c20"/></linearGradient></defs><path class="main-star" d="M60 5 73 42 113 44 82 69 93 109 60 85 27 109 38 69 7 44 47 42Z"/><path class="star-inner" d="M60 17 70 46 101 48 77 67 85 96 60 78 35 96 43 67 19 48 50 46Z"/><path class="spark" d="M30 28 33 37 42 40 33 43 30 52 27 43 18 40 27 37Z"/><circle class="spark" cx="86" cy="30" r="3"/><circle class="spark" cx="89" cy="81" r="2.5"/></svg></button>
-<div class="tap-hint">Нажимай на звезду, чтобы добывать звёзды</div>
+
 </section>
 
 <section class="profile-panel" id="profilePanel" hidden>
@@ -223,8 +223,8 @@ const $=id=>document.getElementById(id);
 // Редактирование аватара в приложении отключено: менять его можно только через Telegram-бота.
 
 function closeAllMenus(){
- document.querySelectorAll('.menu-placeholder,.star-shop-panel,#profilePanel').forEach(p=>p.hidden=true);
- document.body.classList.remove('modal-open');
+ document.querySelectorAll('.menu-placeholder,.star-shop-panel,#profilePanel,#leaderboardPanel').forEach(p=>p.hidden=true);
+ document.body.classList.remove('modal-open');document.body.style.top='';window.scrollTo({top:0,behavior:'auto'});
 }
 function openModal(panel){
  if(!panel)return;
