@@ -299,7 +299,7 @@ function registerBot() {
 }
 app.get('/health', (_req,res)=>res.status(200).json({ok:true,dbReady,botEnabled:Boolean(bot),message:dbReady?(bot?'Stars is ready':'Database ready; BOT_TOKEN is not configured'):'PostgreSQL is not ready; check DATABASE_URL and Railway database logs'}));
 app.get('/api/me', auth, async (req,res)=>res.json({player:publicPlayer(await getPlayer(req.player.telegram_id))}));
-app.get('/api/shop/products', (_req,res)=>res.json({products:Object.entries(STAR_PRODUCTS).map(([id,p])=>({id,title:p.title,description:p.description,stars:p.stars,multiplier:p.multiplier}))}));
+app.get('/api/shop/products', (_req,res)=>{res.setHeader('Cache-Control','no-store');res.json({products:Object.entries(STAR_PRODUCTS).map(([id,p])=>({id,title:p.title,description:p.description,stars:p.stars,multiplier:p.multiplier}))});});
 app.post('/api/shop/invoice', auth, async (req,res)=>{
   try {
     if (!bot) return res.status(503).json({error:'Telegram-бот сейчас недоступен.'});
@@ -314,16 +314,22 @@ app.post('/api/shop/invoice', auth, async (req,res)=>{
 app.post('/api/click', auth, async (req,res)=>{
   try {
     const id=String(req.player.telegram_id);
-    const r=await pool.query('UPDATE players SET clicks_count=clicks_count+1,updated_at=NOW() WHERE telegram_id=$1 RETURNING clicks_count,click_multiplier',[id]);
-    if(!r.rowCount) return res.status(404).json({error:'Игрок не найден. Перезапусти приложение через бота.'});
-    const clicks=Number(r.rows[0].clicks_count);
+    const r=await pool.query(`
+      UPDATE players
+      SET clicks_count=clicks_count+1,
+          balance=balance+(0.0001*click_multiplier + CASE WHEN clicks_count+1>=49500 THEN 0.05 WHEN clicks_count+1>=30 THEN 0.005 ELSE 0 END),
+          total=total+(0.0001*click_multiplier + CASE WHEN clicks_count+1>=49500 THEN 0.05 WHEN clicks_count+1>=30 THEN 0.005 ELSE 0 END),
+          updated_at=NOW()
+      WHERE telegram_id=$1
+      RETURNING clicks_count,balance,total,click_multiplier,
+        (0.0001*click_multiplier + CASE WHEN clicks_count>=49500 THEN 0.05 WHEN clicks_count>=30 THEN 0.005 ELSE 0 END) AS gain
+    `,[id]);
+    if(!r.rowCount) return res.status(404).json({error:'Игрок не найден. Закрой приложение и открой его через Telegram-бота.'});
+    const p=r.rows[0], clicks=Number(p.clicks_count);
     const level=clicks<100?0:clicks<500?1:2+Math.floor((clicks-500)/500);
-    const bonus=level>=100?0.05:level>=30?0.005:0;
-    const amount=0.0001*Number(r.rows[0].click_multiplier)+bonus;
-    const p=await pool.query('UPDATE players SET balance=balance+$2,total=total+$2,updated_at=NOW() WHERE telegram_id=$1 RETURNING balance,total',[id,amount]);
-    if(!p.rowCount) return res.status(404).json({error:'Не удалось обновить баланс. Перезапусти приложение.'});
+    const bonus=clicks>=49500?0.05:clicks>=30?0.005:0;
     res.setHeader('Cache-Control','no-store');
-    res.json({balance:Number(p.rows[0].balance),total:Number(p.rows[0].total),gain:amount,clickMultiplier:Number(r.rows[0].click_multiplier),clicks,level,clickBonus:bonus});
+    res.json({balance:Number(p.balance),total:Number(p.total),gain:Number(p.gain),clickMultiplier:Number(p.click_multiplier),clicks,level,clickBonus:bonus});
   } catch(e) {
     console.error('Click API error:',e.stack||e.message);
     res.status(500).json({error:'Ошибка начисления в базе данных. Попробуй ещё раз.'});
