@@ -10,52 +10,52 @@
 *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#29265c 0%,var(--bg) 55%);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
 .wrap{width:min(980px,100%);margin:auto;padding:22px 16px 40px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:24px;letter-spacing:.4px}.brand-mark{width:38px;height:38px;color:var(--gold)}.pill{border:1px solid var(--line);background:#11162a;border-radius:999px;padding:9px 13px;color:var(--muted);font-size:12px}
 .hero{margin:22px 0 18px;padding:25px 18px 22px;border:1px solid #39365c;border-radius:26px;background:linear-gradient(155deg,#211e43aa,#11162aee 70%);text-align:center;overflow:hidden;position:relative}
-.eyebrow{color:#b7a9ff;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:2px}.balance{font-size:clamp(32px,8vw,54px);font-weight:900;letter-spacing:-1.5px;margin:8px 0 0;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.unit{font-size:15px;color:var(--gold);font-weight:700}.rate{color:var(--muted);font-size:13px;margin-top:8px}
-.star-button{display:grid;place-items:center;margin:18px auto 13px;width:min(220px,58vw);aspect-ratio:1;border:0;border-radius:50%;background:radial-gradient(circle at 35% 25%,#fff6b1 0%,#ffe45c 25%,#ffb82e 57%,#ed7d1a 100%);box-shadow:0 0 0 8px #ffcf3d12,0 0 45px #ffbd3b45,inset 0 4px 10px #fff9b5;cursor:pointer;transition:transform .08s,filter .15s;touch-action:manipulation;position:relative}
+.eyebrow{color:#b7a9ff;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:2px}.balance{font-size:clamp(32px,8vw,54px);font-weight:900;letter-spacing:-1.5px;margin:8px 0 0;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}.unit{font-size:15px;color:var(--gold);font-weight:700;display:flex;align-items:center;justify-content:center;gap:5px}.mini-star{width:15px;height:15px;fill:currentColor}.rate{color:var(--muted);font-size:13px;margin-top:8px}
+.star-button{display:grid;place-items:center;margin:22px auto 17px;width:min(220px,58vw);aspect-ratio:1;border:1px solid #fff0a6;border-radius:50%;background:radial-gradient(circle at 50% 45%,#fff7c7 0%,#ffd94d 28%,#ffb62e 54%,#a84bff 100%);box-shadow:0 0 0 7px #ffcf3d10,0 0 38px #ffc83f55,0 0 80px #a36bff30,inset 0 0 25px #fff6bf;cursor:pointer;transition:transform .12s,filter .15s;touch-action:manipulation;position:relative;isolation:isolate}.star-button:after{content:"";position:absolute;inset:12%;border:1px solid #fff7c777;border-radius:50%;box-shadow:0 0 24px #fff3a633;pointer-events:none}.star-button svg{width:78%;height:78%;filter:drop-shadow(0 7px 5px #8a4b13aa);overflow:visible}.star-button .main-star{fill:url(#starGold);stroke:#fff3a1;stroke-width:1.4;stroke-linejoin:round}.star-button .star-inner{fill:#fff8d7;opacity:.85}.star-button .spark{fill:#fffde8;filter:drop-shadow(0 0 5px #fff}.star-button:active{transform:scale(.93) rotate(-3deg);filter:brightness(1.12)}
 .star-button:before{content:"";position:absolute;inset:-12px;border:1px solid #ffd84a3b;border-radius:50%}.star-button:active{transform:scale(.94);filter:brightness(1.15)}.star-button svg{width:68%;height:68%;filter:drop-shadow(0 4px 3px #a95b1470)}.tap-hint{font-size:13px;color:#b9bfd6}.gain-float{position:absolute;pointer-events:none;color:#fff2a0;font-weight:900;font-size:19px;animation:floatup .8s ease-out forwards;text-shadow:0 2px 8px #ffae00}@keyframes floatup{to{transform:translateY(-80px);opacity:0}}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:22px}.stat{background:#11162a;border:1px solid var(--line);border-radius:15px;padding:13px 10px;text-align:center}.stat strong{display:block;font-size:17px}.stat span{display:block;color:var(--muted);font-size:11px;margin-top:4px}
 .section-head{display:flex;align-items:end;justify-content:space-between;gap:10px;margin:24px 2px 12px}.section-head h2{font-size:20px;margin:0}.section-head p{font-size:12px;color:var(--muted);margin:0;text-align:right}
 .tabs{display:flex;gap:8px;margin-bottom:12px}.tab{flex:1;border:1px solid var(--line);background:#11162a;color:var(--muted);padding:12px 8px;border-radius:12px;font-weight:800;cursor:pointer}.tab.active{background:#302853;border-color:#7962c6;color:#fff}
-.shop{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.upgrade{display:flex;gap:12px;align-items:center;min-width:0;padding:14px;background:linear-gradient(145deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:17px}.u-icon{display:grid;place-items:center;flex:0 0 46px;height:46px;border-radius:13px;background:#302b51;color:var(--gold);font-size:22px;font-weight:900}.u-body{min-width:0;flex:1}.u-name{font-weight:800;font-size:14px}.u-desc{color:var(--muted);font-size:11px;line-height:1.4;margin:4px 0 8px}.u-foot{display:flex;align-items:center;justify-content:space-between;gap:6px}.cost{font-size:11px;font-weight:800;color:#ffe37c}.buy{border:0;border-radius:9px;padding:8px 10px;background:linear-gradient(135deg,#9a7cff,#6f5ce0);color:white;font-weight:900;font-size:11px;cursor:pointer;white-space:nowrap}.buy:disabled{background:#292f46;color:#6f7895;cursor:not-allowed}.level{color:#8f9abe;font-size:10px;margin-top:5px}
+.shop{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.upgrade{display:flex;gap:12px;align-items:center;min-width:0;padding:14px;background:linear-gradient(145deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:17px}.u-icon{display:grid;place-items:center;flex:0 0 46px;height:46px;border-radius:13px;background:#302b51;color:var(--gold)}.u-icon svg{width:29px;height:29px}.cost svg{width:12px;height:12px;vertical-align:-2px;display:inline-block}.cost svg path{fill:currentColor;stroke:currentColor;stroke-width:1.5}.u-body{min-width:0;flex:1}.u-name{font-weight:800;font-size:14px}.u-desc{color:var(--muted);font-size:11px;line-height:1.4;margin:4px 0 8px}.u-foot{display:flex;align-items:center;justify-content:space-between;gap:6px}.cost{font-size:11px;font-weight:800;color:#ffe37c}.buy{border:0;border-radius:9px;padding:8px 10px;background:linear-gradient(135deg,#9a7cff,#6f5ce0);color:white;font-weight:900;font-size:11px;cursor:pointer;white-space:nowrap}.buy:disabled{background:#292f46;color:#6f7895;cursor:not-allowed}.level{color:#8f9abe;font-size:10px;margin-top:5px}
 .note{margin-top:18px;text-align:center;color:#747e9e;font-size:11px;line-height:1.6}button:focus-visible{outline:2px solid white;outline-offset:3px}
 @media(max-width:560px){.wrap{padding:16px 12px 30px}.hero{padding:22px 12px}.shop{grid-template-columns:1fr}.upgrade{padding:12px}.stats{gap:7px}.stat{padding:11px 5px}.stat strong{font-size:15px}.section-head h2{font-size:18px}.pill{padding:8px 10px}}
 </style>
 </head>
 <body>
 <div class="wrap">
-<header class="top"><div class="brand"><svg class="brand-mark" viewBox="0 0 100 100" aria-hidden="true"><path fill="currentColor" d="M50 3 61 35 96 36 68 57 78 91 50 71 22 91 32 57 4 36 39 35Z"/></svg>STARS</div><div class="pill">✦ ЗВЁЗДНЫЙ КЛИКЕР</div></header>
+<header class="top"><div class="brand"><svg class="brand-mark" viewBox="0 0 100 100" aria-hidden="true"><path fill="currentColor" d="M50 3 61 35 96 36 68 57 78 91 50 71 22 91 32 57 4 36 39 35Z"/></svg>STARS</div><div class="pill">ЗВЁЗДНЫЙ КЛИКЕР</div></header>
 <section class="hero">
-<div class="eyebrow">Твой звёздный запас</div><div class="balance" id="balance">0.0000</div><div class="unit">✦ звёзд</div>
+<div class="eyebrow">Твой звёздный запас</div><div class="balance" id="balance">0.0000</div><div class="unit"><svg class="mini-star" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 4 61 35 95 36 68 57 78 91 50 71 22 91 32 57 5 36 39 35Z"/></svg> звёзд</div>
 <div class="rate" id="rate">За клик: +0.0001 звезды</div>
-<button class="star-button" id="tap" aria-label="Получить звёзды нажатием"><svg viewBox="0 0 100 100" aria-hidden="true"><path fill="#fff8c9" stroke="#d98217" stroke-width="2" stroke-linejoin="round" d="M50 4 61 35 95 36 68 57 78 91 50 71 22 91 32 57 5 36 39 35Z"/></svg></button>
+<button class="star-button" id="tap" aria-label="Получить звёзды нажатием"><svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="starGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fffde0"/><stop offset=".32" stop-color="#fff07a"/><stop offset=".68" stop-color="#ffc32d"/><stop offset="1" stop-color="#ff8c20"/></linearGradient></defs><path class="main-star" d="M60 5 73 42 113 44 82 69 93 109 60 85 27 109 38 69 7 44 47 42Z"/><path class="star-inner" d="M60 17 70 46 101 48 77 67 85 96 60 78 35 96 43 67 19 48 50 46Z"/><path class="spark" d="M30 28 33 37 42 40 33 43 30 52 27 43 18 40 27 37Z"/><circle class="spark" cx="86" cy="30" r="3"/><circle class="spark" cx="89" cy="81" r="2.5"/></svg></button>
 <div class="tap-hint">Нажимай на звезду, чтобы добывать звёзды</div>
 </section>
 <div class="stats"><div class="stat"><strong id="perTap">0.0001</strong><span>ЗА КЛИК</span></div><div class="stat"><strong id="perSec">0.0000</strong><span>В СЕКУНДУ</span></div><div class="stat"><strong id="total">0.0000</strong><span>ВСЕГО ДОБЫТО</span></div></div>
 <div class="section-head"><h2>Улучшения</h2><p>Усиливай добычу</p></div>
-<div class="tabs"><button class="tab active" data-tab="click">✦ Сила клика</button><button class="tab" data-tab="auto">↻ Автокликер</button></div>
+<div class="tabs"><button class="tab active" data-tab="click">Сила клика</button><button class="tab" data-tab="auto">Автокликер</button></div>
 <div class="shop" id="shop"></div>
 <div class="note">Прогресс автоматически сохраняется на этом устройстве.<br>Цены и доход растут с каждым уровнем улучшения.</div>
 </div>
 <script>
 (function(){
 const clickUpgrades=[
-{name:'Искра',desc:'+0.0001 звезды за клик',base:0.001,add:0.0001,icon:'✧'},
-{name:'Звёздная пыль',desc:'+0.0005 звезды за клик',base:0.008,add:0.0005,icon:'✦'},
-{name:'Сияющий луч',desc:'+0.002 звезды за клик',base:0.04,add:0.002,icon:'☼'},
-{name:'Лунный кристалл',desc:'+0.01 звезды за клик',base:0.2,add:0.01,icon:'◇'},
-{name:'Пульсар',desc:'+0.05 звезды за клик',base:1,add:0.05,icon:'✹'},
-{name:'Сверхновая',desc:'+0.2 звезды за клик',base:5,add:0.2,icon:'✷'},
-{name:'Квантовый луч',desc:'+1 звезда за клик',base:25,add:1,icon:'⌁'},
-{name:'Галактическое ядро',desc:'+5 звёзд за клик',base:125,add:5,icon:'◎'},
-{name:'Тёмная материя',desc:'+25 звёзд за клик',base:625,add:25,icon:'◈'},
-{name:'Сердце вселенной',desc:'+100 звёзд за клик',base:3000,add:100,icon:'✺'}
+{name:'Искра',desc:'+0.0001 звезды за клик',base:0.001,add:0.0001,icon:'spark'},
+{name:'Звёздная пыль',desc:'+0.0005 звезды за клик',base:0.008,add:0.0005,icon:'dust'},
+{name:'Сияющий луч',desc:'+0.002 звезды за клик',base:0.04,add:0.002,icon:'sun'},
+{name:'Лунный кристалл',desc:'+0.01 звезды за клик',base:0.2,add:0.01,icon:'crystal'},
+{name:'Пульсар',desc:'+0.05 звезды за клик',base:1,add:0.05,icon:'pulse'},
+{name:'Сверхновая',desc:'+0.2 звезды за клик',base:5,add:0.2,icon:'nova'},
+{name:'Квантовый луч',desc:'+1 звезда за клик',base:25,add:1,icon:'quantum'},
+{name:'Галактическое ядро',desc:'+5 звёзд за клик',base:125,add:5,icon:'core'},
+{name:'Тёмная материя',desc:'+25 звёзд за клик',base:625,add:25,icon:'matter'},
+{name:'Сердце вселенной',desc:'+100 звёзд за клик',base:3000,add:100,icon:'heart'}
 ];
 const autoUpgrades=[
-{name:'Маленький дрон',desc:'Автоматически добывает 0.0001/сек',base:0.01,add:0.0001,icon:'↻'},
-{name:'Звёздный бот',desc:'Автоматически добывает 0.0005/сек',base:0.08,add:0.0005,icon:'⌘'},
-{name:'Орбитальный спутник',desc:'Автоматически добывает 0.002/сек',base:0.4,add:0.002,icon:'◉'},
-{name:'Автофабрика',desc:'Автоматически добывает 0.01/сек',base:2,add:0.01,icon:'⚙'},
-{name:'Галактический ИИ',desc:'Автоматически добывает 0.05/сек',base:10,add:0.05,icon:'⌬'}
+{name:'Маленький дрон',desc:'Автоматически добывает 0.0001/сек',base:0.01,add:0.0001,icon:'drone'},
+{name:'Звёздный бот',desc:'Автоматически добывает 0.0005/сек',base:0.08,add:0.0005,icon:'bot'},
+{name:'Орбитальный спутник',desc:'Автоматически добывает 0.002/сек',base:0.4,add:0.002,icon:'satellite'},
+{name:'Автофабрика',desc:'Автоматически добывает 0.01/сек',base:2,add:0.01,icon:'factory'},
+{name:'Галактический ИИ',desc:'Автоматически добывает 0.05/сек',base:10,add:0.05,icon:'ai'}
 ];
 const initial={balance:0,total:0,clickLevel:Array(10).fill(0),autoLevel:Array(5).fill(0)};
 let state;try{state={...initial,...JSON.parse(localStorage.getItem('stars-clicker-save')||'{}')};if(!Array.isArray(state.clickLevel)||state.clickLevel.length!==10)state.clickLevel=Array(10).fill(0);if(!Array.isArray(state.autoLevel)||state.autoLevel.length!==5)state.autoLevel=Array(5).fill(0)}catch(e){state={...initial,clickLevel:[...initial.clickLevel],autoLevel:[...initial.autoLevel]}}
@@ -67,7 +67,8 @@ function perSec(){return autoUpgrades.reduce((s,u,i)=>s+u.add*state.autoLevel[i]
 function cost(u,lvl){return u.base*Math.pow(1.65,lvl)}
 function save(){try{localStorage.setItem('stars-clicker-save',JSON.stringify(state))}catch(e){}}
 function renderStats(){$('balance').textContent=fmt(state.balance);$('perTap').textContent=fmt(perTap());$('perSec').textContent=fmt(perSec());$('total').textContent=fmt(state.total);$('rate').textContent='За клик: +'+fmt(perTap())+' звезды'}
-function renderShop(){const list=tab==='click'?clickUpgrades:autoUpgrades;const levels=tab==='click'?state.clickLevel:state.autoLevel;$('shop').innerHTML=list.map((u,i)=>{const price=cost(u,levels[i]);return '<article class="upgrade"><div class="u-icon">'+u.icon+'</div><div class="u-body"><div class="u-name">'+u.name+'</div><div class="u-desc">'+u.desc+'</div><div class="u-foot"><span class="cost">✦ '+fmt(price)+'</span><button class="buy" data-buy="'+i+'" '+(state.balance+1e-12<price?'disabled':'')+'>Купить</button></div><div class="level">Уровень: '+levels[i]+'</div></div></article>'}).join('')}
+function iconSvg(name){const paths={spark:'M50 5 60 38 94 50 60 62 50 95 40 62 6 50 40 38Z',dust:'M50 8 57 40 89 50 57 60 50 92 43 60 11 50 43 40Z',sun:'M50 8 58 38 88 50 58 62 50 92 42 62 12 50 42 38Z',crystal:'M50 6 84 36 70 82 30 82 16 36Z',pulse:'M50 5 62 35 94 50 62 65 50 95 38 65 6 50 38 35Z',nova:'M50 5 60 38 94 50 60 62 50 95 40 62 6 50 40 38Z',quantum:'M18 62 Q38 12 62 36 T102 40 M18 80 Q42 30 68 54 T102 58',core:'M50 7 A43 43 0 1 1 49.9 7 M50 24 A26 26 0 1 0 50.1 24',matter:'M50 5 91 50 50 95 9 50Z',heart:'M50 90 13 53 Q-2 30 20 17 Q37 8 50 29 Q64 8 81 17 Q102 30 87 53Z',drone:'M50 18 A16 16 0 1 0 50.1 18 M50 34 V64 M20 64 H80 M28 64 L17 83 M72 64 L83 83',bot:'M25 28 H75 V76 H25Z M35 17 V28 M65 17 V28 M35 46 H36 M64 46 H65 M38 62 H62',satellite:'M25 25 L75 75 M30 18 L18 30 34 46 46 34Z M66 54 L54 66 70 82 82 70Z M49 49 L61 61',factory:'M15 85 V48 L40 62 V42 L62 56 V35 L85 48 V85Z M30 72 H36 M50 72 H56 M70 72 H76',ai:'M50 10 84 30 V70 L50 90 16 70 V30Z M35 43 H36 M64 43 H65 M35 62 Q50 72 65 62'};return '<svg viewBox="0 0 100 100" aria-hidden="true"><path d="'+(paths[name]||paths.spark)+'" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>'}
+function renderShop(){const list=tab==='click'?clickUpgrades:autoUpgrades;const levels=tab==='click'?state.clickLevel:state.autoLevel;$('shop').innerHTML=list.map((u,i)=>{const price=cost(u,levels[i]);return '<article class="upgrade"><div class="u-icon">'+iconSvg(u.icon)+'</div><div class="u-body"><div class="u-name">'+u.name+'</div><div class="u-desc">'+u.desc+'</div><div class="u-foot"><span class="cost">'+iconSvg('dust')+' '+fmt(price)+'</span><button class="buy" data-buy="'+i+'" '+(state.balance+1e-12<price?'disabled':'')+'>Купить</button></div><div class="level">Уровень: '+levels[i]+'</div></div></article>'}).join('')}
 function refresh(){renderStats();renderShop()}
 $('tap').addEventListener('click',e=>{const gain=perTap();state.balance+=gain;state.total+=gain;const f=document.createElement('span');f.className='gain-float';f.textContent='+'+fmt(gain);f.style.left=(e.offsetX||110)+'px';f.style.top=(e.offsetY||100)+'px';$('tap').appendChild(f);setTimeout(()=>f.remove(),850);refresh();save()});
 $('shop').addEventListener('click',e=>{const b=e.target.closest('[data-buy]');if(!b)return;const i=Number(b.dataset.buy),list=tab==='click'?clickUpgrades:autoUpgrades,levels=tab==='click'?state.clickLevel:state.autoLevel,price=cost(list[i],levels[i]);if(state.balance+1e-12<price)return;state.balance=Math.max(0,state.balance-price);levels[i]++;refresh();save()});
