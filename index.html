@@ -224,6 +224,8 @@ body{overflow-anchor:none}
 .olympus-cell[data-symbol="zeus"]{position:relative;z-index:1;background:radial-gradient(circle,#fff9bd 0%,#ffdf54 22%,#6834a0 57%,#261035 100%);border:2px solid #fff47a;box-shadow:inset 0 0 14px #fff27b,0 0 8px #ffd52d,0 0 17px #a75bff;animation:olympusZeusPulse .65s ease-in-out infinite alternate}
 .olympus-cell[data-symbol="zeus"] svg{filter:drop-shadow(0 0 4px #fff) drop-shadow(0 0 9px #ffe34b)}
 .olympus-cell[data-symbol="orb"]{background:radial-gradient(circle,#eaffff 0%,#55dfff 25%,#3861cb 60%,#24102d 100%);border:2px solid #a7f5ff;box-shadow:inset 0 0 12px #fff,0 0 12px #43e9ff;animation:olympusOrbPulse .8s ease-in-out infinite alternate}
+.olympus-mult-label{position:absolute;right:1px;bottom:1px;z-index:3;padding:2px 4px;border-radius:5px;background:#071323ed;border:1px solid #a7f5ff;color:#eaffff;font:900 clamp(9px,2.5vw,13px)/1 system-ui;text-shadow:0 0 5px #00cfff;box-shadow:0 0 7px #43e9ff;pointer-events:none}
+.olympus-cell[data-symbol="orb"] svg{width:78%;height:78%;transform:translateY(-4px)}
 @keyframes olympusZeusPulse{to{filter:brightness(1.55);box-shadow:inset 0 0 22px #fff,0 0 16px #ffe34b,0 0 26px #b76cff}}
 @keyframes olympusOrbPulse{to{filter:brightness(1.5);box-shadow:inset 0 0 18px #fff,0 0 22px #43e9ff}}
 .olympus-superwin{position:fixed;inset:0;z-index:20000;display:none;align-items:center;justify-content:center;padding:22px;background:#07020de8;backdrop-filter:blur(8px)}
@@ -263,7 +265,7 @@ body{overflow-anchor:none}
   <button type="button" class="olympus-spin" id="olympusSpin"><span class="spin-ring"></span><span>КРУТИТЬ</span></button>
   <button type="button" class="olympus-buy" id="olympusBuy">КУПИТЬ FREE SPINS · ×100</button>
   <div class="olympus-bonus" id="olympusBonus" hidden>FREE SPINS: <strong id="olympusFree">15</strong> · МНОЖИТЕЛЬ: <strong id="olympusMult">×1</strong></div>
-  <div class="olympus-paytable"><div><b>8+</b><span>одинаковых символов где угодно</span></div><div><b>4–6</b><span>Зевсов запускают 15 фриспинов</span></div><div><b>×2–×500</b><span>крылатые сферы складываются</span></div><div><b>×5000</b><span>максимальная выплата от ставки</span></div></div>
+  <div class="olympus-paytable"><div><b>8+</b><span>одинаковых символов где угодно</span></div><div><b>4–6</b><span>Зевсов запускают 15 фриспинов</span></div><div><b>×2–×1000</b><span>молнии показывают множитель выигрыша</span></div><div><b>×5000</b><span>максимальная выплата от ставки</span></div></div>
   <div class="olympus-disclaimer">Ставки и выигрыши списываются и начисляются на игровой баланс сервера.</div>
  </div>
 </section>
@@ -460,9 +462,9 @@ function olympusSvg(sym){
 }
 function olympusSymbol(id){return olympusSymbols.find(s=>s.id===id)||olympusSymbols[0]}
 function olympusPick(){const pool=olympusSymbols.filter(s=>s.type!=='scatter'&&s.type!=='orb');return pool[Math.floor(Math.random()*pool.length)]}
-function olympusCell(id,i){const s=olympusSymbol(id);return '<span class="olympus-cell" data-symbol="'+s.id+'" style="animation-delay:'+((i%6)*25)+'ms" title="'+s.name+'">'+olympusSvg(s)+'</span>'}
-function olympusMakeBoard(){return Array.from({length:30},()=>{const r=Math.random();return r<.018?'orb':r<.045?'zeus':olympusPick().id})}
-function olympusRender(board){$('olympusReels').innerHTML=board.map((id,i)=>olympusCell(id,i)).join('')}
+function olympusCell(id,i,multiplier){const s=olympusSymbol(id),label=s.id==='orb'&&Number(multiplier)>0?'<b class="olympus-mult-label">×'+Number(multiplier)+'</b>':'';return '<span class="olympus-cell" data-symbol="'+s.id+'" style="animation-delay:'+((i%6)*25)+'ms" title="'+s.name+(label?' ×'+Number(multiplier):'')+'">'+olympusSvg(s)+label+'</span>'}
+function olympusMakeBoard(){return Array.from({length:30},()=>{const r=Math.random();return r<.003?'orb':r<.011?'zeus':olympusPick().id})}
+function olympusRender(board,orbValues=[]){$('olympusReels').innerHTML=board.map((id,i)=>olympusCell(id,i,orbValues[i])).join('')}
 function olympusCluster(board){
  const counts={};board.forEach(id=>{counts[id]=(counts[id]||0)+1});
  return Object.keys(counts).filter(id=>counts[id]>=8&&olympusSymbol(id).type!=='scatter'&&olympusSymbol(id).type!=='orb').map(id=>({id,count:counts[id]}))
@@ -536,7 +538,7 @@ async function olympusPlay(buyBonus=false){
    if(scatter>=4&&!freeAtStart&&!buyBonus){olympusFreeSpins+=15;olympusGlobalMult=1}
    if(freeAtStart)totalWin*=olympusGlobalMult;
    else if(orbSum)totalWin*=orbSum;
-   totalWin=Number(serverSpin.win)||0; board=serverSpin.board||board; olympusFreeSpins=Number(serverSpin.freeSpins)||0; olympusGlobalMult=Number(serverSpin.multiplier)||1; olympusRender(board); renderStats();
+   totalWin=Number(serverSpin.win)||0; board=serverSpin.board||board; orbSum=Number(serverSpin.orbSum)||0; olympusFreeSpins=Number(serverSpin.freeSpins)||0; olympusGlobalMult=Number(serverSpin.multiplier)||1; olympusRender(board,serverSpin.orbValues||[]); renderStats();
    if(totalWin>0){$('olympusWin').textContent='ВЫИГРЫШ '+totalWin.toFixed(2);result.textContent='Каскадов: '+cascades+(orbSum?' · Сферы: ×'+orbSum:'')+(scatter>=4?' · Зевс активировал 15 фриспинов':'');}
    else{$('olympusWin').textContent='БЕЗ ВЫИГРЫША';result.textContent='Спин завершён. Попробуй ещё раз.'}
    if(scatter>=4&&!freeAtStart&&!buyBonus)result.textContent+=' · Бонусный режим открыт';
