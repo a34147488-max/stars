@@ -167,9 +167,36 @@ function registerBot() {
   if (!BOT_TOKEN) { console.warn('BOT_TOKEN is not set; Telegram bot is disabled.'); return; }
   bot = new TelegramBot(BOT_TOKEN, { polling: true });
   bot.on('error', e => console.error('Telegram bot error:', e.message));
-  bot.on('pre_checkout_query', async q => {\n    try {\n      const order = await pool.query('SELECT telegram_id,stars,status FROM star_orders WHERE id=$1', [q.invoice_payload]);\n      const valid = order.rowCount && String(order.rows[0].telegram_id) === String(q.from.id) && Number(order.rows[0].stars) === Number(q.total_amount) && q.currency === 'XTR' && order.rows[0].status === 'pending';\n      await bot.answerPreCheckoutQuery(q.id, Boolean(valid), valid ? undefined : { error_message: 'Заказ не найден или уже обработан. Открой магазин и попробуй ещё раз.' });\n    } catch (e) { console.error('Ошибка pre-checkout:', e.message); await bot.answerPreCheckoutQuery(q.id, false, { error_message: 'Не удалось проверить заказ. Попробуй позже.' }).catch(()=>{}); }\n  });
+  bot.on('pre_checkout_query', async q => {
+    try {
+      const order = await pool.query('SELECT telegram_id,stars,status FROM star_orders WHERE id=$1', [q.invoice_payload]);
+      const valid = order.rowCount && String(order.rows[0].telegram_id) === String(q.from.id) && Number(order.rows[0].stars) === Number(q.total_amount) && q.currency === 'XTR' && order.rows[0].status === 'pending';
+      await bot.answerPreCheckoutQuery(q.id, Boolean(valid), valid ? undefined : { error_message: 'Заказ не найден или уже обработан. Открой магазин и попробуй ещё раз.' });
+    } catch (e) { console.error('Ошибка pre-checkout:', e.message); await bot.answerPreCheckoutQuery(q.id, false, { error_message: 'Не удалось проверить заказ. Попробуй позже.' }).catch(()=>{}); }
+  });
   bot.on('message', async msg => {
-    const payment = msg.successful_payment;\n    if (!payment || payment.currency !== 'XTR' || !dbReady) return;\n    const client = await pool.connect();\n    try {\n      await client.query('BEGIN');\n      const orderResult = await client.query('SELECT * FROM star_orders WHERE id=$1 FOR UPDATE', [payment.invoice_payload]);\n      if (!orderResult.rowCount) throw new Error('Заказ для платежа не найден: ' + payment.invoice_payload);\n      const order = orderResult.rows[0];\n      const product = STAR_PRODUCTS[order.product_id];\n      if (!product || String(order.telegram_id) !== String(msg.from.id) || Number(order.stars) !== Number(payment.total_amount)) throw new Error('Платёж не совпал с заказом');\n      if (order.status !== 'paid') {\n        const inserted = await client.query('UPDATE star_orders SET status=\'paid\',charge_id=$2,paid_at=NOW() WHERE id=$1 AND status=\'pending\' RETURNING id', [order.id, payment.telegram_payment_charge_id]);\n        if (inserted.rowCount) {\n          await client.query('UPDATE players SET click_multiplier=GREATEST(click_multiplier,$2),updated_at=NOW() WHERE telegram_id=$1', [String(order.telegram_id), product.multiplier]);\n          await client.query('UPDATE star_orders SET status=\'paid\',charge_id=$2,paid_at=NOW() WHERE id=$1', [order.id, payment.telegram_payment_charge_id]);\n        }\n      }\n      await client.query('COMMIT');\n      await bot.sendMessage(msg.chat.id, '✅ Оплата получена! Улучшение «' + product.title + '» активно. Множитель клика: x' + product.multiplier + '.');\n    } catch (e) { await client.query('ROLLBACK'); console.error('Ошибка выдачи улучшения:', e.message); await bot.sendMessage(msg.chat.id, 'Платёж получен, но возникла ошибка активации. Напиши администратору и укажи ID платежа: ' + payment.telegram_payment_charge_id).catch(()=>{}); }\n    finally { client.release(); }\n  });
+    const payment = msg.successful_payment;
+    if (!payment || payment.currency !== 'XTR' || !dbReady) return;
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN');
+      const orderResult = await client.query('SELECT * FROM star_orders WHERE id=$1 FOR UPDATE', [payment.invoice_payload]);
+      if (!orderResult.rowCount) throw new Error('Заказ для платежа не найден: ' + payment.invoice_payload);
+      const order = orderResult.rows[0];
+      const product = STAR_PRODUCTS[order.product_id];
+      if (!product || String(order.telegram_id) !== String(msg.from.id) || Number(order.stars) !== Number(payment.total_amount)) throw new Error('Платёж не совпал с заказом');
+      if (order.status !== 'paid') {
+        const inserted = await client.query('UPDATE star_orders SET status=\'paid\',charge_id=$2,paid_at=NOW() WHERE id=$1 AND status=\'pending\' RETURNING id', [order.id, payment.telegram_payment_charge_id]);
+        if (inserted.rowCount) {
+          await client.query('UPDATE players SET click_multiplier=GREATEST(click_multiplier,$2),updated_at=NOW() WHERE telegram_id=$1', [String(order.telegram_id), product.multiplier]);
+          await client.query('UPDATE star_orders SET status=\'paid\',charge_id=$2,paid_at=NOW() WHERE id=$1', [order.id, payment.telegram_payment_charge_id]);
+        }
+      }
+      await client.query('COMMIT');
+      await bot.sendMessage(msg.chat.id, '✅ Оплата получена! Улучшение «' + product.title + '» активно. Множитель клика: x' + product.multiplier + '.');
+    } catch (e) { await client.query('ROLLBACK'); console.error('Ошибка выдачи улучшения:', e.message); await bot.sendMessage(msg.chat.id, 'Платёж получен, но возникла ошибка активации. Напиши администратору и укажи ID платежа: ' + payment.telegram_payment_charge_id).catch(()=>{}); }
+    finally { client.release(); }
+  });
   bot.onText(/^\/start(?:\s+(.+))?/, async msg => { try { await botStart(msg); } catch (e) { console.error('Ошибка /start:', e.message); const hint = !dbReady ? 'База данных Stars пока недоступна. Администратору нужно подключить PostgreSQL в Railway: DATABASE_URL должен ссылаться на базу Railway, а не на localhost.' : 'Не удалось загрузить профиль. Попробуй позже.'; bot.sendMessage(msg.chat.id, hint).catch(err => console.error('Не удалось ответить на /start:', err.message)); } });
   bot.onText(/^\/name(?:\s+([\s\S]+))?$/i, async (msg, match) => {
     try {
