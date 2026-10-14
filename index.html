@@ -772,7 +772,8 @@ async function rouletteSyncServerBet(){
   roulettePicks.clear();
   document.querySelectorAll('.roulette-bet,.roulette-num').forEach(b=>b.classList.remove('selected'));
   $('rouletteResult').textContent=e.message||'Не удалось принять ставку';
-  try{const fresh=await api('/api/state','GET');if(fresh&&Number.isFinite(Number(fresh.balance))){state.balance=Number(fresh.balance);renderStats()}}catch(_){}
+  try{const refund=await api('/api/roulette/bet','POST',{bet:Number($('rouletteStake')?.value)||0,picks:[]});state.balance=Number(refund.balance);renderStats()}catch(_){}
+  rouletteBalanceBeforeBets=null;rouletteReservedAmount=0;
   rouletteRoundRunning=false;clearInterval(rouletteRoundTimer);
  }
 }
