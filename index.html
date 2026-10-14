@@ -131,6 +131,14 @@ html,body{scroll-behavior:auto!important;overscroll-behavior:none!important}
 
 html{overscroll-behavior:none;overflow-x:hidden}
 
+
+.leader-level{display:block;margin-top:4px;color:#aab5d4;font-size:11px;font-weight:700}
+.leader-crown{display:inline-block;margin-left:6px;font-size:17px;filter:drop-shadow(0 0 5px #ffdf58)}
+.glow-frame{border-color:#75f5ff!important;box-shadow:0 0 6px #2deaff,0 0 14px #2deaff99,inset 0 0 7px #2deaff33!important}
+.gold-frame{border-color:#ffcf48!important;box-shadow:0 0 7px #ffc52b,0 0 17px #ffb300aa,inset 0 0 8px #ffdb5533!important}
+.leader-row.glow-frame{background:linear-gradient(110deg,#0c2034,#102f3b)}
+.leader-row.gold-frame{background:linear-gradient(110deg,#30250c,#13243a)}
+
 </style>
 </head>
 <body>
@@ -142,7 +150,7 @@ html{overscroll-behavior:none;overflow-x:hidden}
 <section class="menu-placeholder" id="gamesPanel" hidden><h2>🎮 Ежедневное колесо</h2><p>Крути раз в день и получай от 1 до 5 звёзд на игровой баланс.</p><div class="wheel-stage"><div id="dailyWheel" class="daily-wheel"><span>⭐</span><span>2 ⭐</span><span>3 ⭐</span><span>4 ⭐</span><span>5 ⭐</span><span>1 ⭐</span></div></div><button type="button" class="action-button primary" id="spinWheel">🎡 Крутить колесо</button><div id="wheelMessage" class="profile-message" role="status"></div></section>
 <section class="menu-placeholder" id="walletPanel" hidden><h2>👛 Кошелёк</h2><p>Переводи звёзды игрового баланса другим игрокам по их Telegram @username.</p><div class="wallet-balance">Текущий баланс: <strong id="walletBalance">—</strong></div><label class="profile-field">Юзернейм получателя<input class="profile-input" id="menuTransferUsername" placeholder="@username" maxlength="33"></label><label class="profile-field">Сумма перевода<input class="profile-input" id="menuTransferAmount" type="number" min="0.0001" step="0.0001" placeholder="1.0000"></label><button type="button" class="action-button primary" id="menuSendTransfer">💸 Перевести звёзды</button><div id="walletMessage" class="profile-message" role="status"></div></section>
 <section class="menu-placeholder" id="morePanel" hidden><h2>💠 Прочее</h2><div class="stats modal-stats"><div class="stat"><strong id="perTapModal">0.0001</strong><span>ЗА КЛИК</span></div><div class="stat"><strong id="perSecModal">0.0000</strong><span>В СЕКУНДУ</span></div><div class="stat"><strong id="totalModal">0.0000</strong><span>ВСЕГО ДОБЫТО</span></div></div><a class="action-button channel-link" href="https://t.me/+39Jby9TgJps0Y2Ni" target="_blank" rel="noopener noreferrer">📣 Подписаться на Telegram-канал</a><div class="promo-box"><h3>🎟 Промокод</h3><p>Введи промокод, чтобы получить награду. Каждый код активируется один раз на аккаунт.</p><input class="profile-input" id="promoCodeInput" placeholder="ВВЕДИ ПРОМОКОД" maxlength="32" autocapitalize="characters"><button type="button" class="action-button primary" id="activatePromo">Активировать</button><div id="promoMessage" class="profile-message" role="status"></div></div><div class="settings-box"><h3>🎵 Новогодняя музыка</h3><p>Включай или выключай мелодию приложения.</p><button class="music-toggle" id="menuMusicToggle" type="button" aria-pressed="false"><span id="menuMusicLabel">Включить музыку</span></button></div></section>
-<section class="menu-placeholder" id="friendsPanel" hidden><h2>👥 Друзья</h2><p>Приглашай друзей и делись персональной ссылкой.</p><div id="menuReferralResult" class="profile-message referral-link-text">Ссылка ещё не загружена.</div><button type="button" class="action-button primary" id="menuReferral">🔗 Получить ссылку</button><button type="button" class="action-button" id="copyReferral" disabled>📋 Скопировать ссылку</button></section>
+<section class="menu-placeholder" id="friendsPanel" hidden><h2>👥 Друзья</h2><p>За каждого нового друга, который впервые запускает бота по твоей ссылке, начисляется <strong>2 монеты</strong>.</p><div id="menuReferralResult" class="profile-message referral-link-text">Ссылка ещё не загружена.</div><button type="button" class="action-button primary" id="menuReferral">🔗 Получить ссылку</button><button type="button" class="action-button" id="copyReferral" disabled>📋 Скопировать ссылку</button></section>
 <div class="winter-row"><svg class="tree" viewBox="0 0 60 80" aria-hidden="true"><path d="M30 4 13 29h9L7 47h16L10 63h40L37 47h16L38 29h9Z" fill="#1ba879" stroke="#72f5c1" stroke-width="1.5"/><path d="M26 63h8v12h-8z" fill="#a9784c"/><path d="M30 1l2.5 5 5.5.8-4 3.8 1 5.4-5-2.6-5 2.6 1-5.4-4-3.8 5.5-.8Z" fill="#ffe77a"/><circle cx="21" cy="35" r="2.5" fill="#ff637d"/><circle cx="37" cy="43" r="2.5" fill="#ffe77a"/><circle cx="26" cy="54" r="2.5" fill="#8bd8ff"/></svg><span>Зимняя звёздная ночь</span><svg class="tree" viewBox="0 0 60 80" aria-hidden="true"><path d="M30 4 13 29h9L7 47h16L10 63h40L37 47h16L38 29h9Z" fill="#1ba879" stroke="#72f5c1" stroke-width="1.5"/><path d="M26 63h8v12h-8z" fill="#a9784c"/><path d="M30 1l2.5 5 5.5.8-4 3.8 1 5.4-5-2.6-5 2.6 1-5.4-4-3.8 5.5-.8Z" fill="#ffe77a"/><circle cx="21" cy="35" r="2.5" fill="#ff637d"/><circle cx="37" cy="43" r="2.5" fill="#ffe77a"/><circle cx="26" cy="54" r="2.5" fill="#8bd8ff"/></svg></div>
 <nav class="main-menu" aria-label="Главное меню">
 <button class="menu-tile" type="button" data-open="leaderboardPanel" style="--tile:#ff9147"><span class="menu-icon"><svg viewBox="0 0 48 48"><path d="M13 8h22l-2 20H15L13 8Zm-1 4H6l3 15c1 5 5 7 10 7m20-22h3l-3 15c-1 5-5 7-10 7M20 36h8m-4-8v8m-7 5h14" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>Лидеры</span></button>
@@ -219,8 +227,8 @@ async function api(path,method='GET',body){
 }
 function setAvatar(el,value){
  el.textContent='';
- if(typeof value==='string' && value.startsWith('data:image/')){
-   const img=document.createElement('img');img.src=value;img.alt='Аватар игрока';el.appendChild(img);
+ if(typeof value==='string' && (/^data:image\//i.test(value)||/^https:\/\//i.test(value))){
+   const img=document.createElement('img');img.src=value;img.alt='Аватар игрока';img.referrerPolicy='no-referrer';img.onerror=()=>{el.textContent='⭐';};el.appendChild(img);
  }else el.textContent=value||'⭐';
 }
 const $=id=>document.getElementById(id);
@@ -331,8 +339,8 @@ document.getElementById('sendTransfer').addEventListener('click',async()=>{
 async function loadLeaderboard(){
  try{
   const d=await api('/api/leaderboard');
-  $('leaderboard').innerHTML=d.players.length?d.players.map(p=>'<button type="button" class="leader-row'+(p.isMe?' me':'')+'" data-player-id="'+p.id+'"><span class="leader-rank">#'+p.rank+'</span><span class="leader-avatar" data-avatar-slot="'+p.id+'">'+(p.avatar&&!String(p.avatar).startsWith('data:image/')?p.avatar:'⭐')+'</span><span class="leader-meta"><span class="leader-name">'+escapeText(p.name||'Игрок')+(p.isMe?' (ты)':'')+'</span><span class="leader-balance">'+fmt(Number(p.balance))+' звёзд</span></span></button>').join(''):'Пока нет игроков в рейтинге.';
-  d.players.forEach(p=>{if(p.avatar&&String(p.avatar).startsWith('data:image/'))setAvatar($('leaderboard').querySelector('[data-avatar-slot="'+p.id+'"]'),p.avatar)});
+  $('leaderboard').innerHTML=d.players.length?d.players.map(p=>{const level=Number(p.level||0);const frame=level>=30?'gold-frame':level>=10?'glow-frame':'';const crown=level>=100?'<span class="leader-crown">👑</span>':'';return '<button type="button" class="leader-row '+frame+(p.isMe?' me':'')+'" data-player-id="'+p.id+'"><span class="leader-rank">#'+p.rank+'</span><span class="leader-avatar '+frame+'" data-avatar-slot="'+p.id+'">'+(p.avatar&&!String(p.avatar).startsWith('data:image/')&&!String(p.avatar).startsWith('https://')?escapeText(p.avatar):'⭐')+'</span><span class="leader-meta"><span class="leader-name">'+escapeText(p.name||'Игрок')+(p.isMe?' (ты)':'')+crown+'</span><span class="leader-balance">'+fmt(Number(p.balance))+' монет</span><span class="leader-level">Уровень '+level+' · '+Number(p.clicks||0)+' кликов</span></span></button>'}).join(''):'Пока нет игроков в рейтинге.';
+  d.players.forEach(p=>{if(p.avatar)setAvatar($('leaderboard').querySelector('[data-avatar-slot="'+p.id+'"]'),p.avatar)});
  }catch(e){$('leaderboard').textContent='Не удалось загрузить топ: '+e.message;}
 }
 function escapeText(v){const d=document.createElement('div');d.textContent=String(v||'');return d.innerHTML;}
@@ -340,7 +348,7 @@ $('refreshLeaderboard').addEventListener('click',loadLeaderboard);
 $('leaderboard').addEventListener('click',async e=>{
  const b=e.target.closest('[data-player-id]');if(!b)return;
  const box=$('playerDetail');box.hidden=false;box.textContent='Загрузка профиля…';
- try{const d=await api('/api/players/'+encodeURIComponent(b.dataset.playerId));const p=d.player;box.innerHTML='<div style="display:flex;gap:12px;align-items:center"><div class="detail-avatar" id="detailAvatar">⭐</div><div><strong>'+escapeText(p.name||'Игрок')+'</strong><div class="leader-balance">Баланс: '+fmt(Number(p.balance))+' звёзд</div><div class="u-desc">Всего добыто: '+fmt(Number(p.total))+'</div></div></div>';setAvatar($('detailAvatar'),p.avatar||'⭐');}
+ try{const d=await api('/api/players/'+encodeURIComponent(b.dataset.playerId));const p=d.player;box.innerHTML='<div style="display:flex;gap:12px;align-items:center"><div class="detail-avatar '+(Number(p.level||0)>=30?'gold-frame':Number(p.level||0)>=10?'glow-frame':'')+'" id="detailAvatar">⭐</div><div><strong>'+escapeText(p.name||'Игрок')+(Number(p.level||0)>=100?' 👑':'')+'</strong><div class="leader-balance">Баланс: '+fmt(Number(p.balance))+' монет</div><div class="u-desc">Уровень '+Number(p.level||0)+' · '+Number(p.clicks||0)+' кликов</div><div class="u-desc">Всего добыто: '+fmt(Number(p.total))+'</div></div></div>';setAvatar($('detailAvatar'),p.avatar||'⭐');}
  catch(err){box.textContent=err.message;}
 });
 
