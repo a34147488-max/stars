@@ -249,7 +249,7 @@ function registerBot() {
       await bot.sendMessage(msg.chat.id, '✅ Фото сохранено как твой аватар в Stars!', { reply_markup: mainKeyboard(msg.from.id) });
     } catch (e) { console.error('Ошибка аватара:', e.message); bot.sendMessage(msg.chat.id, 'Не удалось сохранить фото. Попробуй отправить его ещё раз.'); }
   });
-  bot.onText(/^\/promocreate\\s+([A-Za-z0-9_-]{3,32})\\s+(\\d+(?:[.,]\\d{1,8})?)\\s+(\\d+)$/i, async (msg,m)=>{
+  bot.onText(/^\/promocreate\s+([A-Za-z0-9_-]{3,32})\s+(\d+(?:[.,]\d{1,8})?)\s+(\d+)$/i, async (msg,m)=>{
     try {
       if(!process.env.ADMIN_ID||String(msg.from.id)!==String(process.env.ADMIN_ID)) return bot.sendMessage(msg.chat.id,'Эта команда доступна только администратору.');
       const code=m[1].toUpperCase(), amount=Number(m[2].replace(',','.')), uses=Number(m[3]);
