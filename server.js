@@ -137,7 +137,7 @@ async function getPlayer(id) {
 function publicPlayer(p) {
   return { id: String(p.telegram_id), username: p.username, name: p.display_name, avatar: p.avatar, balance: Number(p.balance), total: Number(p.total), referredBy: p.referred_by ? String(p.referred_by) : null };
 }
-async async function auth(req, res, next) {
+async function auth(req, res, next) {
   try {
     const user = verifyInitData(req.get('x-telegram-init-data'));
     if (!user) return res.status(401).json({ error: 'Открой приложение через Telegram-бота, чтобы синхронизировать баланс.' });
