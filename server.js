@@ -70,6 +70,7 @@ async function initDb() {
     );
     CREATE TABLE IF NOT EXISTS olympus_sessions (telegram_id BIGINT PRIMARY KEY REFERENCES players(telegram_id), free_spins INTEGER NOT NULL DEFAULT 0, multiplier NUMERIC(12,2) NOT NULL DEFAULT 1, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
     CREATE TABLE IF NOT EXISTS sweet_bananza_sessions (telegram_id BIGINT PRIMARY KEY REFERENCES players(telegram_id) ON DELETE CASCADE, free_spins INTEGER NOT NULL DEFAULT 0, bonus_stake NUMERIC(24,8) NOT NULL DEFAULT 0, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
+    ALTER TABLE sweet_bananza_sessions ADD COLUMN IF NOT EXISTS bonus_multiplier NUMERIC(12,2) NOT NULL DEFAULT 0;
     CREATE TABLE IF NOT EXISTS mines_games (telegram_id BIGINT PRIMARY KEY REFERENCES players(telegram_id) ON DELETE CASCADE, stake NUMERIC(24,8) NOT NULL, mine_count INTEGER NOT NULL, mine_cells JSONB NOT NULL, revealed_cells JSONB NOT NULL DEFAULT '[]'::jsonb, status TEXT NOT NULL DEFAULT 'active' CHECK(status IN ('active','won','lost')), multiplier NUMERIC(16,8) NOT NULL DEFAULT 1, payout NUMERIC(24,8) NOT NULL DEFAULT 0, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
     CREATE TABLE IF NOT EXISTS daily_spins (
       telegram_id BIGINT PRIMARY KEY REFERENCES players(telegram_id),
@@ -587,7 +588,7 @@ app.post('/api/sweet-bananza/action', auth, async (req,res)=>{
    if(balance<cost)throw Error('Недостаточно звёзд для покупки бонуса ×100');
    balance=Number((balance-cost).toFixed(8));
    await db.query('UPDATE players SET balance=$2,updated_at=NOW() WHERE telegram_id=$1',[id,balance]);
-   sr=await db.query("INSERT INTO sweet_bananza_sessions(telegram_id,free_spins,bonus_stake) VALUES($1,10,$2) ON CONFLICT(telegram_id) DO UPDATE SET free_spins=10,bonus_stake=EXCLUDED.bonus_stake,updated_at=NOW() RETURNING *",[id,stake]);
+   sr=await db.query("INSERT INTO sweet_bananza_sessions(telegram_id,free_spins,bonus_stake,bonus_multiplier) VALUES($1,10,$2,0) ON CONFLICT(telegram_id) DO UPDATE SET free_spins=10,bonus_stake=EXCLUDED.bonus_stake,bonus_multiplier=0,updated_at=NOW() RETURNING *",[id,stake]);
    await db.query('COMMIT');
    return res.json({balance,total,win:0,freeSpins:10,board:Array.from({length:30},()=>['🍌','🍇','🍉','🍓','🍍','🍏','🍬','🍭'][crypto.randomInt(8)]),message:'🎉 Бонус куплен! Тебя ждут 10 бесплатных вращений.'});
   }
@@ -604,10 +605,9 @@ app.post('/api/sweet-bananza/action', auth, async (req,res)=>{
   let cascades=0,baseWin=0;const details=[];
   const tier=n=>n>=22?150:n>=21?100:n>=20?60:n>=19?35:n>=18?20:n>=17?12:n>=16?8:n>=15?5:n>=14?3:n>=13?2:n>=12?1.2:n>=11?.8:n>=10?.5:n>=9?.3:.2;
   const bonusBombs=[];
-  if(inBonus){
-   for(let i=0;i<30;i++)if(crypto.randomInt(100)<8)bonusBombs.push([i,[2,3,5,10,20,50,100][crypto.randomInt(7)]]);
-   for(const [pos,m] of bonusBombs)board[pos]='💣';
-  }
+   const pickBombMultiplier=()=>{const n=crypto.randomInt(100);return n<28?2:n<48?3:n<64?4:n<77?5:n<87?8:n<94?10:n<98?15:n<99?20:25};
+   let accumulatedMultiplier=Number(session.bonus_multiplier||0);
+   if(inBonus){for(let i=0;i<30;i++)if(crypto.randomInt(100)<8)bonusBombs.push([i,pickBombMultiplier()]);for(const [pos,m] of bonusBombs)board[pos]='💣';}
   for(let step=0;step<12;step++){
    const hits=new Set();
    for(const sym of symbols.slice(0,7)){
@@ -620,20 +620,19 @@ app.post('/api/sweet-bananza/action', auth, async (req,res)=>{
    const left=board.filter(Boolean);
    while(left.length<30)left.unshift(symbols[crypto.randomInt(7)]);
    board=left.slice(-30);
-   if(inBonus){for(let i=0;i<30;i++)if(crypto.randomInt(100)<3){const m=[2,3,5,10,20,50,100][crypto.randomInt(7)];bonusBombs.push([i,m]);board[i]='💣'}}
+   if(inBonus){for(let i=0;i<30;i++)if(crypto.randomInt(100)<3){const m=pickBombMultiplier();bonusBombs.push([i,m]);board[i]='💣'}}
   }
   let win=baseWin;
-  if(inBonus){const mult=bonusBombs.reduce((sum,b)=>sum+b[1],0);win=baseWin*(mult||1)}
+   if(inBonus){accumulatedMultiplier=Math.min(1000,accumulatedMultiplier+bonusBombs.reduce((sum,b)=>sum+b[1],0));win=baseWin*(accumulatedMultiplier||1)}
   if(!inBonus&&scatterCount>=4){
    const spins=10;
-   await db.query("INSERT INTO sweet_bananza_sessions(telegram_id,free_spins,bonus_stake) VALUES($1,$2,$3) ON CONFLICT(telegram_id) DO UPDATE SET free_spins=EXCLUDED.free_spins,bonus_stake=EXCLUDED.bonus_stake,updated_at=NOW()",[id,spins,stake]);
+   await db.query("INSERT INTO sweet_bananza_sessions(telegram_id,free_spins,bonus_stake,bonus_multiplier) VALUES($1,$2,$3,0) ON CONFLICT(telegram_id) DO UPDATE SET free_spins=EXCLUDED.free_spins,bonus_stake=EXCLUDED.bonus_stake,bonus_multiplier=0,updated_at=NOW()",[id,spins,stake]);
   }else if(inBonus){
    let remaining=Math.max(0,Number(session.free_spins)-1);
    if(scatterCount>=3)remaining+=5;
-   await db.query('UPDATE sweet_bananza_sessions SET free_spins=$2,updated_at=NOW() WHERE telegram_id=$1',[id,remaining]);
-   if(remaining===0)await db.query('UPDATE sweet_bananza_sessions SET bonus_stake=0 WHERE telegram_id=$1',[id]);
+   await db.query('UPDATE sweet_bananza_sessions SET free_spins=$2,bonus_multiplier=$3,updated_at=NOW() WHERE telegram_id=$1',[id,remaining,remaining===0?0:accumulatedMultiplier]);if(remaining===0)await db.query('UPDATE sweet_bananza_sessions SET bonus_stake=0,bonus_multiplier=0 WHERE telegram_id=$1',[id]);
   }else{
-   await db.query("INSERT INTO sweet_bananza_sessions(telegram_id,free_spins,bonus_stake) VALUES($1,0,0) ON CONFLICT(telegram_id) DO NOTHING",[id]);
+   await db.query("INSERT INTO sweet_bananza_sessions(telegram_id,free_spins,bonus_stake,bonus_multiplier) VALUES($1,0,0,0) ON CONFLICT(telegram_id) DO NOTHING",[id]);
   }
   win=Number(Math.min(win,stake*21175).toFixed(8));
   balance=Number((balance+win).toFixed(8));total=Number((total+win).toFixed(8));
@@ -641,7 +640,7 @@ app.post('/api/sweet-bananza/action', auth, async (req,res)=>{
   const fs=await db.query('SELECT free_spins FROM sweet_bananza_sessions WHERE telegram_id=$1',[id]);
   await db.query('COMMIT');
   res.setHeader('Cache-Control','no-store');
-  res.json({balance,total,win,freeSpins:Number(fs.rows[0]?.free_spins||0),board,scatterCount,cascades,details,bonus:inBonus,bombs:bonusBombs.map(b=>b[1]),message:inBonus?'🎁 Бесплатный спин завершён'+(scatterCount>=3?' · +5 вращений!':''):scatterCount>=4?'🍭 Бонус активирован: 10 бесплатных вращений!':win>0?'✨ Каскады принесли выигрыш!':'Попробуй ещё раз — комбинации от 8 символов'});
+  res.json({balance,total,win,freeSpins:Number(fs.rows[0]?.free_spins||0),board,scatterCount,cascades,details,bonus:inBonus,bombs:bonusBombs.map(b=>({position:b[0],multiplier:b[1]})),bonusMultiplier:inBonus?accumulatedMultiplier:0,message:inBonus?'🎁 Бесплатный спин завершён'+(scatterCount>=3?' · +5 вращений!':''):scatterCount>=4?'🍭 Бонус активирован: 10 бесплатных вращений!':win>0?'✨ Каскады принесли выигрыш!':'Попробуй ещё раз — комбинации от 8 символов'});
  }catch(e){await db.query('ROLLBACK').catch(()=>{});res.status(400).json({error:e.message||'Ошибка Sweet Bananza'})}finally{db.release()}
 });
 
