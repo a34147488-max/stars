@@ -356,7 +356,7 @@ document.querySelectorAll('[data-open]').forEach(btn=>btn.addEventListener('clic
  openModal(panel);
  if(id==='leaderboardPanel')await loadLeaderboard();
  if(id==='shopPanel'){ $('toggleShop')?.setAttribute('aria-expanded','true'); await loadStarShop(); }
- if(id==='gamesPanel')await refreshDailyWheel();
+ 
  if(id==='walletPanel')$('walletBalance').textContent=fmt(state.balance);
 }));
 document.getElementById('toggleShop')?.addEventListener('click',async()=>{
@@ -430,7 +430,7 @@ function olympusSvg(sym){
 function olympusSymbol(id){return olympusSymbols.find(s=>s.id===id)||olympusSymbols[0]}
 function olympusPick(){const pool=olympusSymbols.filter(s=>s.type!=='scatter'&&s.type!=='orb');return pool[Math.floor(Math.random()*pool.length)]}
 function olympusCell(id,i){const s=olympusSymbol(id);return '<span class="olympus-cell" data-symbol="'+s.id+'" style="animation-delay:'+((i%6)*25)+'ms" title="'+s.name+'">'+olympusSvg(s)+'</span>'}
-function olympusMakeBoard(){return Array.from({length:30},()=>olympusPick().id)}
+function olympusMakeBoard(){return Array.from({length:30},()=>{const r=Math.random();return r<.018?'orb':r<.045?'zeus':olympusPick().id})}
 function olympusRender(board){$('olympusReels').innerHTML=board.map((id,i)=>olympusCell(id,i)).join('')}
 function olympusCluster(board){
  const counts={};board.forEach(id=>{counts[id]=(counts[id]||0)+1});
@@ -646,7 +646,7 @@ $('tap').addEventListener('click',async e=>{
 $('shop').addEventListener('click',e=>{const retry=e.target.closest('#retryStarShop');if(retry){loadStarShop();return;}const b=e.target.closest('[data-product]');if(b)buyStarProduct(b,b.dataset.product);});
 // Магазин реальных Telegram Stars загружается с сервера.
 // Баланс меняется только сервером. Локальная авто-добыча отключена, чтобы не рассинхронизировать приложение и бота.
-window.addEventListener('pagehide',()=>{save();stopMusic()});refresh();loadServerProfile();refreshDailyWheel();
+window.addEventListener('pagehide',()=>{save();stopMusic()});refresh();loadServerProfile();
 })();
 </script>
 </body>
