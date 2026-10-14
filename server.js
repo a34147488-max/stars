@@ -211,7 +211,8 @@ function registerBot() {
         await bot.sendMessage(q.message.chat.id,`⭐ +0.0001 звезды! Баланс: ${Number(r.rows[0].balance).toFixed(4)}`,{reply_markup:mainKeyboard(q.from.id)});
       } else if(q.data==='star_shop') {
         await bot.answerCallbackQuery(q.id);
-        await bot.sendMessage(q.message.chat.id, '✨ Улучшения за настоящие Telegram Stars\n\nОткрой приложение кнопкой ниже, выбери усиление от 50 до 500 ⭐ и подтверди оплату в Telegram.', { reply_markup: { inline_keyboard: [[{ text: '✨ Открыть магазин', web_app: { url: APP_URL + '#shopPanel' } }], ...mainKeyboard(q.from.id).inline_keyboard] } });\n      } else if(q.data==='balance') {
+        await bot.sendMessage(q.message.chat.id, '✨ Улучшения за настоящие Telegram Stars\n\nОткрой приложение кнопкой ниже, выбери усиление от 50 до 500 ⭐ и подтверди оплату в Telegram.', { reply_markup: { inline_keyboard: [[{ text: '✨ Открыть магазин', web_app: { url: APP_URL + '#shopPanel' } }], ...mainKeyboard(q.from.id).inline_keyboard] } });
+      } else if(q.data==='balance') {
         const p=await upsertPlayer(q.from,''); await bot.answerCallbackQuery(q.id,{text:`Баланс: ${Number(p.balance).toFixed(4)} звёзд`,show_alert:true});
       } else if(q.data==='referral') {
         const me=await bot.getMe(); const link=`https://t.me/${me.username}?start=ref_${q.from.id}`;
