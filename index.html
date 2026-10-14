@@ -354,11 +354,7 @@ async function loadServerProfile(){
  }catch(e){$('profileMessage').textContent='Клики отключены: '+e.message+' Открой актуальную ссылку приложения через Telegram-бота и обнови страницу.';tapButton.disabled=true;}
 }
 
-const withdrawModal=document.getElementById('withdrawModal');
-document.getElementById('withdrawButton').addEventListener('click',()=>{withdrawModal.hidden=false});
-document.getElementById('closeWithdraw').addEventListener('click',()=>{withdrawModal.hidden=true});
-withdrawModal.addEventListener('click',e=>{if(e.target===withdrawModal)withdrawModal.hidden=true});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')withdrawModal.hidden=true});
+
 
 let musicCtx=null,musicTimer=null,musicStep=0;
 const melody=[523.25,659.25,783.99,659.25,587.33,698.46,880,698.46,523.25,587.33,659.25,523.25,392,493.88,523.25,0];
