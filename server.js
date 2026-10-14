@@ -114,7 +114,7 @@ async function botStart(msg) {
   const p = await upsertPlayer(user, payload);
   const botInfo = await bot.getMe();
   const link = `https://t.me/${botInfo.username}?start=ref_${user.id}`;
-  const text = `❄️ <b>Добро пожаловать в Stars!</b>\n\n⭐ Баланс: <b>${Number(p.balance).toFixed(4)} звёзд</b>\n👤 Имя: <b>${escapeHtml(p.display_name)}</b>\n\nНажимай на звезду, меняй имя и аватар в приложении, приглашай друзей и отправляй звёзды другим игрокам.\n\n🔗 Твоя ссылка:\n<code>${link}</code>\n\nДля перевода используй: <code>/transfer @username 1.5</code>`;
+  const text = `❄️ <b>Добро пожаловать в Stars!</b>\n\n⭐ Баланс: <b>${Number(p.balance).toFixed(4)} звёзд</b>\n👤 Имя: <b>${escapeHtml(p.display_name)}</b>\n\nНажимай на звезду в приложении. Чтобы изменить имя, отправь боту команду <code>/name Новое имя</code>, а чтобы сменить аватар — пришли боту фотографию. Приглашай друзей и отправляй звёзды другим игрокам.\n\n🔗 Твоя ссылка:\n<code>${link}</code>\n\nДля перевода используй: <code>/transfer @username 1.5</code>`;
   await bot.sendMessage(msg.chat.id, text, { parse_mode: 'HTML', reply_markup: mainKeyboard(user.id), disable_web_page_preview: true });
 }
 function escapeHtml(s) { return String(s || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
@@ -148,6 +148,32 @@ function registerBot() {
   bot = new TelegramBot(BOT_TOKEN, { polling: true });
   bot.on('error', e => console.error('Telegram bot error:', e.message));
   bot.onText(/^\/start(?:\s+(.+))?/, async msg => { try { await botStart(msg); } catch (e) { console.error('Ошибка /start:', e.message); const hint = !dbReady ? 'База данных Stars пока недоступна. Администратору нужно подключить PostgreSQL в Railway: DATABASE_URL должен ссылаться на базу Railway, а не на localhost.' : 'Не удалось загрузить профиль. Попробуй позже.'; bot.sendMessage(msg.chat.id, hint).catch(err => console.error('Не удалось ответить на /start:', err.message)); } });
+  bot.onText(/^\/name(?:\\s+([\\s\\S]+))?$/i, async (msg, match) => {
+    try {
+      const name = String(match[1] || '').trim().slice(0, 32);
+      if (name.length < 2) return bot.sendMessage(msg.chat.id, 'Напиши имя так: /name Новое имя');
+      await upsertPlayer(msg.from, '');
+      await pool.query('UPDATE players SET display_name=$2,updated_at=NOW() WHERE telegram_id=$1', [String(msg.from.id), name]);
+      await bot.sendMessage(msg.chat.id, '✅ Имя изменено на: ' + escapeHtml(name), { parse_mode: 'HTML', reply_markup: mainKeyboard(msg.from.id) });
+    } catch (e) { console.error(e); bot.sendMessage(msg.chat.id, 'Не удалось изменить имя. Попробуй позже.'); }
+  });
+  bot.on('message', async msg => {
+    if (!msg.from || !msg.photo || msg.chat.type !== 'private' || !dbReady) return;
+    try {
+      const largest = msg.photo[msg.photo.length - 1];
+      const fileUrl = await bot.getFileLink(largest.file_id);
+      const response = await fetch(fileUrl);
+      if (!response.ok) throw new Error('Не удалось скачать фото Telegram');
+      const image = Buffer.from(await response.arrayBuffer());
+      if (image.length > 5 * 1024 * 1024) return bot.sendMessage(msg.chat.id, 'Фото слишком большое. Отправь изображение до 5 МБ.');
+      const mime = response.headers.get('content-type') || 'image/jpeg';
+      if (!mime.startsWith('image/')) throw new Error('Получен файл не изображения');
+      const dataUrl = 'data:' + mime + ';base64,' + image.toString('base64');
+      await upsertPlayer(msg.from, '');
+      await pool.query('UPDATE players SET avatar=$2,updated_at=NOW() WHERE telegram_id=$1', [String(msg.from.id), dataUrl]);
+      await bot.sendMessage(msg.chat.id, '✅ Фото сохранено как твой аватар в Stars!', { reply_markup: mainKeyboard(msg.from.id) });
+    } catch (e) { console.error('Ошибка аватара:', e.message); bot.sendMessage(msg.chat.id, 'Не удалось сохранить фото. Попробуй отправить его ещё раз.'); }
+  });
   bot.onText(/^\/balance/, async msg => { try { const p=await upsertPlayer(msg.from,''); bot.sendMessage(msg.chat.id, `⭐ Твой баланс: ${Number(p.balance).toFixed(4)} звёзд`, {reply_markup:mainKeyboard(msg.from.id)}); } catch(e) { bot.sendMessage(msg.chat.id,'Ошибка получения баланса.'); } });
   bot.onText(/^\/transfer\s+(@?[A-Za-z0-9_]{5,32})\s+([0-9]+(?:[.,][0-9]{1,8})?)/, async (msg, m) => {
     try { await upsertPlayer(msg.from,''); const result=await transfer(msg.from.id,m[1],Number(m[2].replace(',','.'))); await bot.sendMessage(msg.chat.id,`✅ Переведено ${result.amount.toFixed(4)} звёзд игроку ${escapeHtml(result.recipient.display_name)}. Остаток: ${result.balance.toFixed(4)} звёзд.`,{parse_mode:'HTML',reply_markup:mainKeyboard(msg.from.id)}); await bot.sendMessage(String(result.recipient.telegram_id),`✨ Тебе поступило ${result.amount.toFixed(4)} звёзд от игрока ${escapeHtml(msg.from.first_name || 'Игрок')}!`,{parse_mode:'HTML'}).catch(()=>{}); }
@@ -177,6 +203,17 @@ function registerBot() {
 app.get('/health', (_req,res)=>res.status(200).json({ok:true,dbReady,botEnabled:Boolean(bot),message:dbReady?(bot?'Stars is ready':'Database ready; BOT_TOKEN is not configured'):'PostgreSQL is not ready; check DATABASE_URL and Railway database logs'}));
 app.get('/api/me', auth, async (req,res)=>res.json({player:publicPlayer(await getPlayer(req.player.telegram_id))}));
 app.post('/api/click', auth, async (req,res)=>{const amount=0.0001;const r=await pool.query('UPDATE players SET balance=balance+$2,total=total+$2,updated_at=NOW() WHERE telegram_id=$1 RETURNING balance,total',[String(req.player.telegram_id),amount]);res.json({balance:Number(r.rows[0].balance),total:Number(r.rows[0].total),gain:amount});});
+app.post('/api/profile', auth, async (_req,res)=>res.status(403).json({error:'Имя и аватар можно изменить только через Telegram-бота.'}));
+app.get('/api/leaderboard', auth, async (req,res)=>{
+  const r=await pool.query('SELECT telegram_id,username,display_name,avatar,balance,total FROM players ORDER BY balance DESC,total DESC,created_at ASC LIMIT 100');
+  res.json({players:r.rows.map((p,i)=>({...publicPlayer(p),rank:i+1,isMe:String(p.telegram_id)===String(req.player.telegram_id)}))});
+});
+app.get('/api/players/:id', auth, async (req,res)=>{
+  const r=await pool.query('SELECT telegram_id,username,display_name,avatar,balance,total,created_at FROM players WHERE telegram_id=$1',[req.params.id]);
+  if(!r.rowCount)return res.status(404).json({error:'Игрок не найден.'});
+  const p=r.rows[0]; res.json({player:{...publicPlayer(p),createdAt:p.created_at}});
+});
+
 app.post('/api/profile', auth, async (req,res)=>{
   const name=String(req.body.name||'').trim().slice(0,32), avatar=String(req.body.avatar||'⭐');
   const allowed=['⭐','🌟','✨','🌙','🪐','🚀','❄️','🎄','🦊','🐱','🐼','🐸','🐧','🐺','🐯'];
