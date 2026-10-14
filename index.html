@@ -204,10 +204,10 @@ document.querySelectorAll('[data-open]').forEach(btn=>btn.addEventListener('clic
  const id=btn.getAttribute('data-open');
  const panel=document.getElementById(id);
  if(!panel)return;
- if(id==='profilePanel'){panel.scrollIntoView({behavior:'smooth',block:'start'});return;}
+ if(id==='profilePanel'){panel.scrollIntoView({behavior:'auto',block:'nearest'});return;}
  panel.hidden=!panel.hidden;
  if(id==='leaderboardPanel'&&!panel.hidden) await loadLeaderboard();
- if(id==='shopPanel'&&!panel.hidden) { $('toggleShop').setAttribute('aria-expanded','true'); loadStarShop(); $('shopPanel').scrollIntoView({behavior:'smooth',block:'start'}); }
+ if(id==='shopPanel'&&!panel.hidden) { $('toggleShop').setAttribute('aria-expanded','true'); loadStarShop();  }
 }));
 document.getElementById('menuReferral')?.addEventListener('click',async()=>{
  const out=$('menuReferralResult'),copy=$('copyReferral');
@@ -295,7 +295,7 @@ async function loadServerProfile(){
  if(!initData){$('profileMessage').textContent='Открой приложение через Telegram-бота, чтобы загрузить общий баланс.';return;}
  try{
   const d=await api('/api/me');serverMode=true;profileReady=true;
-  state.balance=Number(d.player.balance)||0;state.total=Number(d.player.total)||0;
+  state.balance=Number(d.player.balance)||0;state.total=Number(d.player.total)||0;if($('walletBalance'))$('walletBalance').textContent=fmt(state.balance);
   selectedAvatar=d.player.avatar||'⭐';
   $('profileName').textContent=d.player.name||'Игрок';setAvatar($('profileAvatar'),selectedAvatar);
   $('profileMessage').textContent='Имя и аватар меняются через Telegram-бота.';
@@ -334,7 +334,7 @@ async function buyStarProduct(button,id){button.disabled=true;button.textContent
 
 function refresh(){renderStats()}
 $('tap').addEventListener('click',async e=>{if(!serverMode||!profileReady)return;const button=$('tap');button.disabled=true;try{const d=await api('/api/click','POST',{});state.balance=Number(d.balance);state.total=Number(d.total);const f=document.createElement('span');f.className='gain-float';f.textContent='+'+fmt(d.gain);f.style.left=(e.offsetX||110)+'px';f.style.top=(e.offsetY||100)+'px';button.appendChild(f);setTimeout(()=>f.remove(),850);refresh();}catch(err){$('profileMessage').textContent='Клик не сохранён: '+err.message;}finally{button.disabled=false;}});
-$('toggleShop').addEventListener('click',()=>{const panel=$('shopPanel');panel.hidden=!panel.hidden;$('toggleShop').setAttribute('aria-expanded',String(!panel.hidden));if(!panel.hidden){loadStarShop();panel.scrollIntoView({behavior:'smooth',block:'start'});}});
+$('toggleShop').addEventListener('click',()=>{const panel=$('shopPanel');panel.hidden=!panel.hidden;$('toggleShop').setAttribute('aria-expanded',String(!panel.hidden));if(!panel.hidden){loadStarShop();}});
 $('shop').addEventListener('click',e=>{const b=e.target.closest('[data-product]');if(b)buyStarProduct(b,b.dataset.product);});
 // Магазин реальных Telegram Stars загружается с сервера.
 // Баланс меняется только сервером. Локальная авто-добыча отключена, чтобы не рассинхронизировать приложение и бота.
