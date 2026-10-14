@@ -84,6 +84,11 @@ async function initDb() {
     );
     CREATE INDEX IF NOT EXISTS players_username_lower_idx ON players (LOWER(username));
   `);
+  // One-time promo code: +10,000 coins, single activation.
+  await pool.query(
+    "INSERT INTO promo_codes(code,amount,max_uses) VALUES($1,$2,$3) ON CONFLICT(code) DO NOTHING",
+    ['MONETY10000',10000,1]
+  );
 }
 
 function verifyInitData(initData) {
