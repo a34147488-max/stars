@@ -311,7 +311,24 @@ app.post('/api/shop/invoice', auth, async (req,res)=>{
     res.json({url:invoiceUrl,stars:product.stars});
   } catch(e) { console.error('Не удалось создать Stars invoice:',e.message); res.status(500).json({error:'Не удалось создать окно оплаты. Попробуй ещё раз.'}); }
 });
-app.post('/api/click', auth, async (req,res)=>{const r=await pool.query('UPDATE players SET clicks_count=clicks_count+1,updated_at=NOW() WHERE telegram_id=$1 RETURNING clicks_count,click_multiplier',[String(req.player.telegram_id)]);const clicks=Number(r.rows[0].clicks_count);const level=clicks<100?0:clicks<500?1:2+Math.floor((clicks-500)/500);const bonus=level>=100?0.05:level>=30?0.005:0;const amount=0.0001*Number(r.rows[0].click_multiplier)+bonus;const p=await pool.query('UPDATE players SET balance=balance+$2,total=total+$2,updated_at=NOW() WHERE telegram_id=$1 RETURNING balance,total',[String(req.player.telegram_id),amount]);res.json({balance:Number(p.rows[0].balance),total:Number(p.rows[0].total),gain:amount,clickMultiplier:Number(r.rows[0].click_multiplier),clicks,level,clickBonus:bonus});});
+app.post('/api/click', auth, async (req,res)=>{
+  try {
+    const id=String(req.player.telegram_id);
+    const r=await pool.query('UPDATE players SET clicks_count=clicks_count+1,updated_at=NOW() WHERE telegram_id=$1 RETURNING clicks_count,click_multiplier',[id]);
+    if(!r.rowCount) return res.status(404).json({error:'Игрок не найден. Перезапусти приложение через бота.'});
+    const clicks=Number(r.rows[0].clicks_count);
+    const level=clicks<100?0:clicks<500?1:2+Math.floor((clicks-500)/500);
+    const bonus=level>=100?0.05:level>=30?0.005:0;
+    const amount=0.0001*Number(r.rows[0].click_multiplier)+bonus;
+    const p=await pool.query('UPDATE players SET balance=balance+$2,total=total+$2,updated_at=NOW() WHERE telegram_id=$1 RETURNING balance,total',[id,amount]);
+    if(!p.rowCount) return res.status(404).json({error:'Не удалось обновить баланс. Перезапусти приложение.'});
+    res.setHeader('Cache-Control','no-store');
+    res.json({balance:Number(p.rows[0].balance),total:Number(p.rows[0].total),gain:amount,clickMultiplier:Number(r.rows[0].click_multiplier),clicks,level,clickBonus:bonus});
+  } catch(e) {
+    console.error('Click API error:',e.stack||e.message);
+    res.status(500).json({error:'Ошибка начисления в базе данных. Попробуй ещё раз.'});
+  }
+});
 app.post('/api/profile', auth, async (_req,res)=>res.status(403).json({error:'Имя и аватар можно изменить только через Telegram-бота.'}));
 app.get('/api/referral', auth, async (req,res)=>{
   try{
