@@ -163,6 +163,14 @@ html{overscroll-behavior:none;overflow-x:hidden}
 .daily-game-divider{height:1px;background:#393045;margin:18px 0}
 .games-modal>h3{margin:0 0 7px}
 
+
+/* Keep the main tap stable: no layout shift or page bounce while tapping */
+html,body{overscroll-behavior:none;overflow-x:hidden}
+body{overflow-anchor:none}
+#tap{transform:none!important;transition:filter .12s!important;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+#tap:active{transform:none!important;filter:brightness(1.08)}
+.gain-float{pointer-events:none}
+
 </style>
 </head>
 <body>
@@ -460,17 +468,19 @@ $('tap').addEventListener('click',async e=>{
  e.preventDefault();e.stopPropagation();
  const button=$('tap');
  if(button.dataset.busy==='1')return;
- if(!initData){$('profileMessage').textContent='Открой приложение через кнопку «Открыть кликер» в Telegram-боте — только так можно начислить звёзды на общий баланс.';return;}
+ if(!initData){const message='Баланс доступен только при запуске через кнопку «Открыть приложение» в Telegram-боте.';if(tg&&tg.showAlert)tg.showAlert(message);else alert(message);return;}
  button.dataset.busy='1';button.setAttribute('aria-busy','true');
  try{
   const d=await api('/api/click','POST',{});
-  serverMode=true;profileReady=true;
-  state.balance=Number(d.balance);state.total=Number(d.total);
-  const f=document.createElement('span');f.className='gain-float';f.textContent='+'+fmt(d.gain);
+  serverMode=true;profileReady=true;state.balance=Number(d.balance);state.total=Number(d.total);
+  const f=document.createElement('span');f.className='gain-float';f.textContent='+'+fmt(Number(d.gain)||0);
   const rect=button.getBoundingClientRect();f.style.left=((e.clientX||rect.left+rect.width/2)-rect.left)+'px';f.style.top=((e.clientY||rect.top+rect.height/2)-rect.top)+'px';button.appendChild(f);
   window.setTimeout(()=>f.remove(),850);refresh();
- }catch(err){$('profileMessage').textContent='Клик не сохранён: '+err.message+' Закрой Mini App и открой через Telegram-бота.';console.error('Click API error:',err);}
- finally{button.dataset.busy='0';button.removeAttribute('aria-busy');}
+ }catch(err){
+  console.error('Click API error:',err);
+  const message='Не удалось начислить звёзды: '+err.message;
+  if(tg&&tg.showAlert)tg.showAlert(message);else alert(message);
+ }finally{button.dataset.busy='0';button.removeAttribute('aria-busy');}
 });
 
 $('shop').addEventListener('click',e=>{const retry=e.target.closest('#retryStarShop');if(retry){loadStarShop();return;}const b=e.target.closest('[data-product]');if(b)buyStarProduct(b,b.dataset.product);});
