@@ -250,7 +250,7 @@ function registerBot() {
           const invoiceUrl = await bot.createInvoiceLink(product.title, product.description, orderId, '', 'XTR', [{ label: product.title, amount: product.stars }]);
           rows.push([{ text: '⭐ ' + product.stars + ' — ' + product.title, url: invoiceUrl }]);
         }
-        await bot.sendMessage(q.message.chat.id, '✨ <b>Улучшения за Telegram Stars</b>\\n\\nВыбери покупку ниже — оплата откроется в Telegram. Множитель клика действует постоянно.\\n\\nТакже магазин доступен в приложении.', { parse_mode: 'HTML', reply_markup: { inline_keyboard: [...rows, [{ text: '🛍 Открыть магазин в приложении', web_app: { url: APP_URL + '#shopPanel' } }], ...mainKeyboard(q.from.id).inline_keyboard] } });
+        await bot.sendMessage(q.message.chat.id, '✨ <b>Улучшения за Telegram Stars</b>\n\nВыбери покупку ниже — оплата откроется в Telegram. Множитель клика действует постоянно.\n\nТакже магазин доступен в приложении.', { parse_mode: 'HTML', reply_markup: { inline_keyboard: [...rows, [{ text: '🛍 Открыть магазин в приложении', web_app: { url: APP_URL + '#shopPanel' } }], ...mainKeyboard(q.from.id).inline_keyboard] } });
       } else if(q.data==='balance') {
         const p=await upsertPlayer(q.from,''); await bot.answerCallbackQuery(q.id,{text:`Баланс: ${Number(p.balance).toFixed(4)} звёзд`,show_alert:true});
       } else if(q.data==='referral') {
