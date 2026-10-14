@@ -81,6 +81,27 @@ body{background:#07070d}
 .shop-open,.action-button,.tab{border-radius:14px}
 @media(max-width:420px){.main-menu{gap:9px}.menu-tile{border-radius:23px;gap:11px}.menu-icon{width:52px;height:52px}.menu-icon svg{width:39px;height:39px}.wrap{padding-left:12px;padding-right:12px}}
 
+
+/* Functional panels requested by user */
+html{scroll-behavior:auto;overscroll-behavior-y:none}
+body{overscroll-behavior-y:none;overflow-anchor:none}
+button,a,input{touch-action:manipulation}
+button:active{transform:none!important}
+#tap{touch-action:manipulation;animation:none!important}
+.wheel-stage{display:flex;justify-content:center;padding:18px 0}
+.daily-wheel{width:min(68vw,250px);aspect-ratio:1;border-radius:50%;border:8px solid #e2b43d;background:conic-gradient(#ffda5c 0 60deg,#fff0a0 60deg 120deg,#ffcb42 120deg 180deg,#fff0a0 180deg 240deg,#ffcb42 240deg 300deg,#fff0a0 300deg);display:grid;grid-template-columns:repeat(2,1fr);align-items:center;justify-items:center;box-shadow:0 0 0 4px #815900,inset 0 0 0 4px #ffe58a;color:#725000;font-weight:900;transition:transform 3.2s cubic-bezier(.12,.72,.1,1);position:relative}
+.daily-wheel span{font-size:17px;text-shadow:0 1px #fff7c5}
+.wheel-stage{position:relative}
+.wheel-stage:after{content:"▼";position:absolute;top:6px;color:#ff6a84;font-size:26px;text-shadow:0 2px 4px #000}
+#spinWheel{width:100%}
+.wallet-balance{padding:12px;border:1px solid #2c2c38;background:#0c0c12;border-radius:13px;margin:12px 0}
+.wallet-balance strong{color:#ffe17b}
+.promo-box,.settings-box{border:1px solid #2a2a35;border-radius:16px;padding:14px;margin-top:14px;background:#0c0c12}
+.promo-box h3,.settings-box h3{margin:0 0 8px}.promo-box p,.settings-box p{font-size:13px;color:#aaaab8}
+.promo-box .action-button,.settings-box .music-toggle,.channel-link{width:100%;justify-content:center;margin-top:10px;text-decoration:none;box-sizing:border-box}
+.referral-link-text{overflow-wrap:anywhere;user-select:text;padding:8px 0}
+.menu-placeholder[hidden],.profile-panel[hidden]{display:none!important}
+
 </style>
 </head>
 <body>
@@ -96,10 +117,10 @@ body{background:#07070d}
 <button class="menu-tile" type="button" data-open="morePanel" style="--tile:#27d8e8"><span class="menu-icon"><svg viewBox="0 0 48 48"><path d="m24 5 19 10-19 10L5 15 24 5Zm-19 17 19 10 19-10M5 31l19 11 19-11" fill="currentColor" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/></svg></span><span>Прочее</span></button>
 <button class="menu-tile" type="button" data-open="friendsPanel" style="--tile:#66a8ff"><span class="menu-icon"><svg viewBox="0 0 48 48"><circle cx="18" cy="16" r="8" fill="currentColor"/><circle cx="33" cy="18" r="6" fill="currentColor"/><path d="M3 39c0-9 6-14 15-14s15 5 15 14M30 27c8-1 14 4 15 11" fill="currentColor" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></span><span>Друзья</span></button>
 </nav>
-<section class="menu-placeholder" id="gamesPanel" hidden><h2>🎮 Игры</h2><p>Мини-игры появятся здесь.</p></section>
-<section class="menu-placeholder" id="walletPanel" hidden><h2>👛 Кошелёк</h2><p>Твой баланс и переводы звёзд доступны в профиле ниже.</p><button type="button" class="action-button" data-open="profilePanel">Открыть кошелёк</button></section>
-<section class="menu-placeholder" id="morePanel" hidden><h2>💠 Прочее</h2><p>Улучшения, профиль и настройки приложения.</p><button type="button" class="action-button" data-open="shopPanel">Магазин улучшений</button></section>
-<section class="menu-placeholder" id="friendsPanel" hidden><h2>👥 Друзья</h2><p>Приглашай друзей по своей ссылке и получай бонусы.</p><button type="button" class="action-button" id="menuReferral">Моя реферальная ссылка</button><div id="menuReferralResult" class="profile-message"></div></section>
+<section class="menu-placeholder" id="gamesPanel" hidden><h2>🎮 Ежедневное колесо</h2><p>Крути раз в день и получай от 1 до 5 звёзд на игровой баланс.</p><div class="wheel-stage"><div id="dailyWheel" class="daily-wheel"><span>⭐</span><span>2 ⭐</span><span>3 ⭐</span><span>4 ⭐</span><span>5 ⭐</span><span>1 ⭐</span></div></div><button type="button" class="action-button primary" id="spinWheel">🎡 Крутить колесо</button><div id="wheelMessage" class="profile-message" role="status"></div></section>
+<section class="menu-placeholder" id="walletPanel" hidden><h2>👛 Кошелёк</h2><p>Переводи звёзды игрового баланса другим игрокам по их Telegram @username.</p><div class="wallet-balance">Текущий баланс: <strong id="walletBalance">—</strong></div><label class="profile-field">Юзернейм получателя<input class="profile-input" id="menuTransferUsername" placeholder="@username" maxlength="33"></label><label class="profile-field">Сумма перевода<input class="profile-input" id="menuTransferAmount" type="number" min="0.0001" step="0.0001" placeholder="1.0000"></label><button type="button" class="action-button primary" id="menuSendTransfer">💸 Перевести звёзды</button><div id="walletMessage" class="profile-message" role="status"></div></section>
+<section class="menu-placeholder" id="morePanel" hidden><h2>💠 Прочее</h2><a class="action-button channel-link" href="https://t.me/+39Jby9TgJps0Y2Ni" target="_blank" rel="noopener noreferrer">📣 Подписаться на Telegram-канал</a><div class="promo-box"><h3>🎟 Промокод</h3><p>Введи промокод, чтобы получить награду. Каждый код активируется один раз на аккаунт.</p><input class="profile-input" id="promoCodeInput" placeholder="ВВЕДИ ПРОМОКОД" maxlength="32" autocapitalize="characters"><button type="button" class="action-button primary" id="activatePromo">Активировать</button><div id="promoMessage" class="profile-message" role="status"></div></div><div class="settings-box"><h3>🎵 Новогодняя музыка</h3><p>Включай или выключай мелодию приложения.</p><button class="music-toggle" id="menuMusicToggle" type="button" aria-pressed="false"><span id="menuMusicLabel">Включить музыку</span></button></div></section>
+<section class="menu-placeholder" id="friendsPanel" hidden><h2>👥 Друзья</h2><p>Приглашай друзей и делись персональной ссылкой.</p><div id="menuReferralResult" class="profile-message referral-link-text">Ссылка ещё не загружена.</div><button type="button" class="action-button primary" id="menuReferral">🔗 Получить ссылку</button><button type="button" class="action-button" id="copyReferral" disabled>📋 Скопировать ссылку</button></section>
 <div class="winter-row"><svg class="tree" viewBox="0 0 60 80" aria-hidden="true"><path d="M30 4 13 29h9L7 47h16L10 63h40L37 47h16L38 29h9Z" fill="#1ba879" stroke="#72f5c1" stroke-width="1.5"/><path d="M26 63h8v12h-8z" fill="#a9784c"/><path d="M30 1l2.5 5 5.5.8-4 3.8 1 5.4-5-2.6-5 2.6 1-5.4-4-3.8 5.5-.8Z" fill="#ffe77a"/><circle cx="21" cy="35" r="2.5" fill="#ff637d"/><circle cx="37" cy="43" r="2.5" fill="#ffe77a"/><circle cx="26" cy="54" r="2.5" fill="#8bd8ff"/></svg><span>Зимняя звёздная ночь</span><svg class="tree" viewBox="0 0 60 80" aria-hidden="true"><path d="M30 4 13 29h9L7 47h16L10 63h40L37 47h16L38 29h9Z" fill="#1ba879" stroke="#72f5c1" stroke-width="1.5"/><path d="M26 63h8v12h-8z" fill="#a9784c"/><path d="M30 1l2.5 5 5.5.8-4 3.8 1 5.4-5-2.6-5 2.6 1-5.4-4-3.8 5.5-.8Z" fill="#ffe77a"/><circle cx="21" cy="35" r="2.5" fill="#ff637d"/><circle cx="37" cy="43" r="2.5" fill="#ffe77a"/><circle cx="26" cy="54" r="2.5" fill="#8bd8ff"/></svg></div>
 <section class="hero">
 <div class="eyebrow">Твой звёздный запас</div><div class="balance" id="balance">0.0000</div><div class="unit"><svg class="mini-star" viewBox="0 0 100 100" aria-hidden="true"><path d="M50 4 61 35 95 36 68 57 78 91 50 71 22 91 32 57 5 36 39 35Z"/></svg> звёзд</div>
