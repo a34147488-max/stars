@@ -61,6 +61,7 @@ async function initDb() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       paid_at TIMESTAMPTZ
     );
+    CREATE TABLE IF NOT EXISTS olympus_sessions (telegram_id BIGINT PRIMARY KEY REFERENCES players(telegram_id), free_spins INTEGER NOT NULL DEFAULT 0, multiplier NUMERIC(12,2) NOT NULL DEFAULT 1, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
     CREATE TABLE IF NOT EXISTS daily_spins (
       telegram_id BIGINT PRIMARY KEY REFERENCES players(telegram_id),
       spin_date DATE NOT NULL,
@@ -310,6 +311,70 @@ app.post('/api/shop/invoice', auth, async (req,res)=>{
     const invoiceUrl = await bot.createInvoiceLink(product.title, product.description, orderId, '', 'XTR', [{label:product.title,amount:product.stars}]);
     res.json({url:invoiceUrl,stars:product.stars});
   } catch(e) { console.error('Не удалось создать Stars invoice:',e.message); res.status(500).json({error:'Не удалось создать окно оплаты. Попробуй ещё раз.'}); }
+});
+app.post('/api/olympus/spin', auth, async (req,res)=>{
+  const bet=Number(req.body && req.body.bet);
+  const buyBonus=Boolean(req.body && req.body.buyBonus);
+  const ante=Boolean(req.body && req.body.ante);
+  if(!Number.isFinite(bet)||bet<0.1||bet>5||![0.1,0.25,0.5,1,2,5].some(v=>Math.abs(v-bet)<0.000001))
+    return res.status(400).json({error:'Некорректная ставка.'});
+  const symbols=[['ruby',.25],['amethyst',.2],['topaz',.18],['emerald',.22],['sapphire',.2],['cup',.5],['ring',.7],['hourglass',1],['crown',1.5]];
+  const pick=()=>symbols[crypto.randomInt(symbols.length)][0];
+  const makeBoard=()=>Array.from({length:30},()=>{const r=crypto.randomInt(10000)/10000;return r<.018?'orb':r<.045?'zeus':pick()});
+  const client=await pool.connect();
+  try{
+    await client.query('BEGIN');
+    const id=String(req.player.telegram_id);
+    const locked=await client.query('SELECT balance,total FROM players WHERE telegram_id=$1 FOR UPDATE',[id]);
+    if(!locked.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'Игрок не найден.'});}
+    let session=(await client.query('SELECT free_spins,multiplier FROM olympus_sessions WHERE telegram_id=$1 FOR UPDATE',[id])).rows[0];
+    if(!session){await client.query('INSERT INTO olympus_sessions(telegram_id) VALUES($1) ON CONFLICT DO NOTHING',[id]);session={free_spins:0,multiplier:1};}
+    let freeSpins=Number(session.free_spins)||0, multiplier=Number(session.multiplier)||1;
+    let balance=Number(locked.rows[0].balance), total=Number(locked.rows[0].total);
+    if(buyBonus&&freeSpins===0){
+      const cost=Number((bet*100).toFixed(8));
+      if(balance+1e-9<cost){await client.query('ROLLBACK');return res.status(400).json({error:'Недостаточно монет для покупки 15 фриспинов. Нужно '+cost.toFixed(4)+'.'});}
+      balance-=cost;freeSpins=15;multiplier=1;
+    } else if(freeSpins===0){
+      const cost=Number((bet*(ante?1.25:1)).toFixed(8));
+      if(balance+1e-9<cost){await client.query('ROLLBACK');return res.status(400).json({error:'Недостаточно монет для ставки '+cost.toFixed(4)+'. Пополни баланс кликами.'});}
+      balance-=cost;
+    }
+    const freeAtStart=freeSpins>0;
+    let board=makeBoard();
+    if(crypto.randomInt(100)<(ante?18:9)){for(let n=0;n<4;n++)board[n]='zeus';}
+    else if(crypto.randomInt(100)<2){for(let n=0;n<3;n++)board[n]='zeus';}
+    if(crypto.randomInt(100)<18){const sym=pick();for(let n=0;n<8;n++)board[n]=sym;}
+    const scatter=board.filter(x=>x==='zeus').length;
+    const effectiveBet=bet*(ante?1.25:1);
+    let win=0,cascades=0;
+    for(let step=0;step<8;step++){
+      const counts={};board.forEach(x=>counts[x]=(counts[x]||0)+1);
+      const hits=Object.keys(counts).filter(x=>counts[x]>=8&&!['zeus','orb'].includes(x));
+      if(!hits.length)break;
+      for(const sym of hits){const data=symbols.find(x=>x[0]===sym);win+=effectiveBet*data[1]*(counts[sym]/8);}
+      board=board.filter(x=>!hits.includes(x));
+      while(board.length<30)board.unshift(pick());
+      board=board.slice(-30);cascades++;
+    }
+    let orbSum=0;
+    const sphereCount=crypto.randomInt(100)<25?1:crypto.randomInt(100)<8?2:0;
+    const multipliers=[2,3,5,10,25,50,100,250,500];
+    for(let i=0;i<sphereCount;i++)orbSum+=multipliers[crypto.randomInt(multipliers.length)];
+    if(freeAtStart&&win>0)multiplier=Math.min(5000,multiplier+orbSum);
+    if(freeAtStart)freeSpins=Math.max(0,freeSpins-1);
+    if(freeAtStart&&scatter>=3)freeSpins+=5;
+    if(scatter>=4&&!freeAtStart&&!buyBonus){freeSpins+=15;multiplier=1;}
+    if(freeAtStart)win*=multiplier;else if(orbSum)win*=orbSum;
+    win=Math.max(0,Math.min(Number(win.toFixed(8)),bet*5000));
+    balance+=win;total+=win;
+    await client.query('UPDATE players SET balance=$2,total=$3,updated_at=NOW() WHERE telegram_id=$1',[id,balance,total]);
+    await client.query('INSERT INTO olympus_sessions(telegram_id,free_spins,multiplier,updated_at) VALUES($1,$2,$3,NOW()) ON CONFLICT(telegram_id) DO UPDATE SET free_spins=EXCLUDED.free_spins,multiplier=EXCLUDED.multiplier,updated_at=NOW()',[id,freeSpins,multiplier]);
+    await client.query('COMMIT');
+    res.setHeader('Cache-Control','no-store');
+    res.json({balance,total,win,freeSpins,multiplier,cascades,scatter,orbSum,board});
+  }catch(e){await client.query('ROLLBACK');console.error('Olympus spin error:',e.stack||e.message);res.status(500).json({error:'Не удалось провести спин. Баланс не изменён.'});}
+  finally{client.release();}
 });
 app.post('/api/click', auth, async (req,res)=>{
   try {
