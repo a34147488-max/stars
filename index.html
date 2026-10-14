@@ -632,33 +632,30 @@ async function olympusPlay(buyBonus=false){
   const random=olympusMakeBoard();grid.innerHTML=random.map((id,i)=>olympusCell(id,i)).join('');ticks++;
   if(ticks>=12){
    clearInterval(timer);grid.classList.remove('spinning');
-   let board=olympusMakeBoard();
-   const forced=buyBonus?4:Math.random()<(olympusAnte?.18:.09)?4:Math.random()<.02?3:0;
-   for(let n=0;n<forced;n++)board[n]= 'zeus';
-   if(Math.random()<.18){const s=olympusPick().id;for(let n=0;n<8;n++)board[n]=s}
-   let totalWin=0,orbSum=0,cascades=0,scatter=board.filter(x=>x==='zeus').length;
-   const freeAtStart=olympusFreeSpins>0;
-   if(buyBonus&&!freeAtStart){olympusFreeSpins=15;olympusGlobalMult=1}
-   const effectiveBet=bet*(olympusAnte?1.25:1);
-   for(let step=0;step<8;step++){
+   let board=Array.isArray(serverSpin.board)?[...serverSpin.board]:olympusMakeBoard();
+   let totalWin=Number(serverSpin.win)||0,orbSum=Number(serverSpin.orbSum)||0;
+   let cascades=0,scatter=Number(serverSpin.scatter)||0;
+   const freeAtStart=freeSpinsBefore>0;
+   const cascadeSteps=Array.isArray(serverSpin.cascadeSteps)?serverSpin.cascadeSteps:[];
+   olympusRender(board,serverSpin.orbValues||[]);
+   for(const step of cascadeSteps){
     const cells=[...grid.querySelectorAll('.olympus-cell')];
     cells.forEach(el=>el.classList.remove('win','vanish'));
-    const clusters=olympusCluster(board);
-    if(!clusters.length)break;
-    const removed=[];
-    clusters.forEach(cl=>{const sym=olympusSymbol(cl.id);totalWin+=effectiveBet*sym.pay*(cl.count/8);});
+    const removed=Array.isArray(step.removed)?step.removed:[];
+    if(!removed.length)continue;
     olympusMatchSound();
-    board.forEach((id,i)=>{if(clusters.some(cl=>cl.id===id)){removed.push(i);cells[i]?.classList.add('win','vanish')}});
+    removed.forEach(i=>{if(cells[i])cells[i].classList.add('win','vanish')});
     cascades++;
-    // Let winning fragments visibly glow, pause, then fade away before the next symbols fall.
-    await new Promise(r=>setTimeout(r,650));
-    board=olympusDrop(board,removed);olympusRender(board);
+    // Keep the exact server-confirmed winning symbols visible before clearing them.
+    await new Promise(r=>setTimeout(r,850));
+    board=Array.isArray(step.board)?[...step.board]:board;
+    olympusRender(board);
     const newCells=[...grid.querySelectorAll('.olympus-cell')];
-    newCells.forEach((el,i)=>{el.classList.add('falling');el.style.animationDelay=(i%6)*45+'ms';});
-    // Keep the board in view until the replacement fragments finish their fall animation.
-    await new Promise(r=>setTimeout(r,900));
+    newCells.forEach((el,i)=>{el.classList.add('falling');el.style.animationDelay=(i%6)*35+'ms';});
+    await new Promise(r=>setTimeout(r,850));
     newCells.forEach(el=>{el.classList.remove('falling');el.style.animationDelay='';});
    }
+   board=Array.isArray(serverSpin.finalBoard)?[...serverSpin.finalBoard]:board;
    board=board.map(id=>id==='orb'?id:id);
    const sphereCount=Math.random()<.25?1:Math.random()<.08?2:0;
    for(let i=0;i<sphereCount;i++)orbSum += [2,3,5,10,25,50,100,250,500][Math.floor(Math.random()*9)];
@@ -668,7 +665,7 @@ async function olympusPlay(buyBonus=false){
    if(scatter>=4&&!freeAtStart&&!buyBonus){olympusFreeSpins+=15;olympusGlobalMult=1}
    if(freeAtStart)totalWin*=olympusGlobalMult;
    else if(orbSum)totalWin*=orbSum;
-   totalWin=Number(serverSpin.win)||0; board=serverSpin.board||board; orbSum=Number(serverSpin.orbSum)||0; olympusFreeSpins=Number(serverSpin.freeSpins)||0; olympusGlobalMult=Number(serverSpin.multiplier)||1; olympusRender(board,serverSpin.orbValues||[]); renderStats();
+   totalWin=Number(serverSpin.win)||0; board=Array.isArray(serverSpin.finalBoard)?serverSpin.finalBoard:(serverSpin.board||board); orbSum=Number(serverSpin.orbSum)||0; olympusFreeSpins=Number(serverSpin.freeSpins)||0; olympusGlobalMult=Number(serverSpin.multiplier)||1; olympusRender(board,serverSpin.orbValues||[]); renderStats();
    if(totalWin>0){$('olympusWin').textContent='ВЫИГРЫШ '+totalWin.toFixed(2);result.textContent='Каскадов: '+cascades+(orbSum?' · Сферы: ×'+orbSum:'')+(scatter>=4?' · Зевс активировал 15 фриспинов':'');}
    else{$('olympusWin').textContent='БЕЗ ВЫИГРЫША';result.textContent='Спин завершён. Попробуй ещё раз.'}
    if(scatter>=4&&!freeAtStart&&!buyBonus)result.textContent+=' · Бонусный режим открыт';
