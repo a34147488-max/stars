@@ -844,8 +844,37 @@ app.get('/api/players/:id', auth, async (req,res)=>{
 app.get('*', (_req,res)=>res.sendFile(path.join(__dirname,'index.html')));
 app.listen(PORT,()=>console.log('Stars web server listening on '+PORT));
 pool.on('error', e => console.error('PostgreSQL pool error:', e.message));
-// Start Telegram polling independently from PostgreSQL so /start can explain a DB outage.
-registerBot();
+// A PostgreSQL session-level advisory lock ensures only one Railway instance
+// polls Telegram with this bot token, including during overlapping deployments.
+let telegramPollingLockClient = null;
+async function startTelegramPollingOnce() {
+  if (!BOT_TOKEN) {
+    console.warn('BOT_TOKEN is not set; Telegram bot is disabled.');
+    return;
+  }
+  if (!process.env.DATABASE_URL) {
+    console.error('Telegram polling disabled: DATABASE_URL is required for single-instance locking.');
+    return;
+  }
+  let lockClient;
+  try {
+    lockClient = await pool.connect();
+    const lock = await lockClient.query('SELECT pg_try_advisory_lock($1::bigint) AS locked', ['735184209631']);
+    if (!lock.rows[0].locked) {
+      console.warn('Telegram polling not started: another instance holds the PostgreSQL advisory lock.');
+      lockClient.release();
+      return;
+    }
+    // Keep this PostgreSQL connection open for the lifetime of the process.
+    // The lock is automatically released if the process/connection dies.
+    telegramPollingLockClient = lockClient;
+    registerBot();
+    console.log('Telegram polling started; single-instance lock acquired.');
+  } catch (e) {
+    if (lockClient && lockClient !== telegramPollingLockClient) lockClient.release();
+    console.error('Telegram polling could not start because the single-instance lock failed:', e.message);
+  }
+}
 (async()=>{
   try {
     const dbUrl = process.env.DATABASE_URL;
@@ -859,3 +888,4 @@ registerBot();
     console.error('PostgreSQL initialization failed. Check Railway Variables: DATABASE_URL must reference the PostgreSQL service. Error:',e.message);
   }
 })();
+startTelegramPollingOnce();
