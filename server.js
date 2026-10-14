@@ -486,7 +486,7 @@ app.post('/api/roulette/spin', auth, async (req,res)=>{
   const bet=Number(req.body&&req.body.bet);
   const picks=Array.isArray(req.body&&req.body.picks)?[...new Set(req.body.picks.map(String))]:[String(req.body&&req.body.pick||'')];
   const validBets=[0.1,0.25,0.5,1,2,5];
-  if(!Number.isFinite(bet)||!validBets.some(v=>Math.abs(v-bet)<1e-8)) return res.status(400).json({error:'Ставка должна быть 0.1, 0.25, 0.5, 1, 2 или 5.'});
+  if(!Number.isFinite(bet)||bet<0.1||bet>5||(!Number.isInteger(bet*10)&&Math.abs(bet-0.25)>1e-8)) return res.status(400).json({error:'Ставка должна быть от 0.1 до 5 с шагом 0.1 (или 0.25).'});
   const validPick=/^(red|black|even|odd|number:(?:[0-9]|[12][0-9]|3[0-6]))$/;
   if(!picks.length||picks.length>41||picks.some(p=>!validPick.test(p))) return res.status(400).json({error:'Выбери один или несколько исходов.'});
   const red=new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
