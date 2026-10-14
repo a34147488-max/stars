@@ -34,6 +34,7 @@ async function initDb() {
       username TEXT UNIQUE,
       display_name TEXT NOT NULL DEFAULT 'Игрок',
       avatar TEXT NOT NULL DEFAULT '⭐',
+      clicks_count BIGINT NOT NULL DEFAULT 0,
       balance NUMERIC(24,8) NOT NULL DEFAULT 0,
       total NUMERIC(24,8) NOT NULL DEFAULT 0,
       click_multiplier NUMERIC(8,2) NOT NULL DEFAULT 1,
@@ -49,6 +50,7 @@ async function initDb() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
     ALTER TABLE players ADD COLUMN IF NOT EXISTS click_multiplier NUMERIC(8,2) NOT NULL DEFAULT 1;
+    ALTER TABLE players ADD COLUMN IF NOT EXISTS clicks_count BIGINT NOT NULL DEFAULT 0;
     CREATE TABLE IF NOT EXISTS star_orders (
       id UUID PRIMARY KEY,
       telegram_id BIGINT NOT NULL REFERENCES players(telegram_id),
@@ -102,6 +104,7 @@ function verifyInitData(initData) {
 async function upsertPlayer(user, startParam) {
   const id = String(user.id);
   const username = user.username || null;
+  const telegramAvatar = typeof user.photo_url === 'string' && /^https:\/\//i.test(user.photo_url) ? user.photo_url : null;
   const displayName = [user.first_name, user.last_name].filter(Boolean).join(' ').slice(0, 48) || 'Игрок';
   const refMatch = /^ref_(\d+)$/.exec(startParam || '');
   const referrer = refMatch && refMatch[1] !== id ? refMatch[1] : null;
@@ -116,14 +119,14 @@ async function upsertPlayer(user, startParam) {
         if (r.rowCount) validRef = referrer;
       }
       const inserted = await client.query(
-        'INSERT INTO players (telegram_id, username, display_name, referred_by) VALUES ($1,$2,$3,$4) ON CONFLICT (telegram_id) DO NOTHING RETURNING telegram_id',
-        [id, username, displayName, validRef]
+        'INSERT INTO players (telegram_id, username, display_name, avatar, referred_by) VALUES ($1,$2,$3,COALESCE($4,\'⭐\'),$5) ON CONFLICT (telegram_id) DO NOTHING RETURNING telegram_id',
+        [id, username, displayName, telegramAvatar, validRef]
       );
       if (inserted.rowCount && validRef) {
         await client.query('UPDATE players SET balance=balance+2,total=total+2,updated_at=NOW() WHERE telegram_id=$1', [validRef]);
       }
     } else {
-      await client.query('UPDATE players SET username=$2, updated_at=NOW() WHERE telegram_id=$1', [id, username]);
+      await client.query('UPDATE players SET username=$2, avatar=CASE WHEN avatar=\'⭐\' AND $3::text IS NOT NULL THEN $3 ELSE avatar END, updated_at=NOW() WHERE telegram_id=$1', [id, username, telegramAvatar]);
     }
     await client.query('COMMIT');
   } catch (e) { await client.query('ROLLBACK'); throw e; }
@@ -131,11 +134,12 @@ async function upsertPlayer(user, startParam) {
   return getPlayer(id);
 }
 async function getPlayer(id) {
-  const r = await pool.query('SELECT telegram_id, username, display_name, avatar, balance, total, referred_by FROM players WHERE telegram_id=$1', [String(id)]);
+  const r = await pool.query('SELECT telegram_id, username, display_name, avatar, balance, total, referred_by, clicks_count, click_multiplier FROM players WHERE telegram_id=$1', [String(id)]);
   return r.rows[0] || null;
 }
 function publicPlayer(p) {
-  return { id: String(p.telegram_id), username: p.username, name: p.display_name, avatar: p.avatar, balance: Number(p.balance), total: Number(p.total), referredBy: p.referred_by ? String(p.referred_by) : null };
+  const clicks=Number(p.clicks_count||0); const level=clicks<100?0:clicks<500?1:2+Math.floor((clicks-500)/500); const clickBonus=level>=100?0.05:level>=30?0.005:0;
+  return { id: String(p.telegram_id), username: p.username, name: p.display_name, avatar: p.avatar, balance: Number(p.balance), total: Number(p.total), clicks, level, clickBonus, clickMultiplier:Number(p.click_multiplier||1), referredBy: p.referred_by ? String(p.referred_by) : null };
 }
 async function auth(req, res, next) {
   try {
@@ -160,8 +164,10 @@ async function botStart(msg) {
 function escapeHtml(s) { return String(s || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 async function botClick(chatId, from) {
   const p = await upsertPlayer(from, '');
-  const r = await pool.query('UPDATE players SET balance=balance+0.0001,total=total+0.0001,updated_at=NOW() WHERE telegram_id=$1 RETURNING balance', [String(from.id)]);
-  await bot.sendMessage(chatId, `⭐ +0.0001 звезды!\nБаланс: ${Number(r.rows[0].balance).toFixed(4)} звёзд`, { reply_markup: mainKeyboard(from.id) });
+  const r = await pool.query('UPDATE players SET clicks_count=clicks_count+1,updated_at=NOW() WHERE telegram_id=$1 RETURNING clicks_count,click_multiplier');
+  const clicks=Number(r.rows[0].clicks_count);const level=clicks<100?0:clicks<500?1:2+Math.floor((clicks-500)/500);const bonus=level>=100?0.05:level>=30?0.005:0;const gain=0.0001*Number(r.rows[0].click_multiplier)+bonus;
+  const credited=await pool.query('UPDATE players SET balance=balance+$2,total=total+$2,updated_at=NOW() WHERE telegram_id=$1 RETURNING balance',[String(from.id),gain]);
+  await bot.sendMessage(chatId, `⭐ +0.0001 звезды!\nБаланс: ${Number(credited.rows[0].balance).toFixed(4)} звёзд`, { reply_markup: mainKeyboard(from.id) });
 }
 async function transfer(fromId, recipient, amount) {
   if (!Number.isFinite(amount) || amount <= 0 || amount > 1000000000) throw new Error('Укажи положительную сумму перевода.');
@@ -262,8 +268,9 @@ function registerBot() {
     try {
       if (q.data === 'click') {
         await upsertPlayer(q.from,'');
-        const r=await pool.query('UPDATE players SET balance=balance+(0.0001*click_multiplier),total=total+(0.0001*click_multiplier),updated_at=NOW() WHERE telegram_id=$1 RETURNING balance,click_multiplier',[String(q.from.id)]);
-        const gain=0.0001*Number(r.rows[0].click_multiplier);
+        const r=await pool.query('UPDATE players SET clicks_count=clicks_count+1,updated_at=NOW() WHERE telegram_id=$1 RETURNING clicks_count,click_multiplier',[String(q.from.id)]);
+        const clicks=Number(r.rows[0].clicks_count);const level=clicks<100?0:clicks<500?1:2+Math.floor((clicks-500)/500);const bonus=level>=100?0.05:level>=30?0.005:0;const gain=0.0001*Number(r.rows[0].click_multiplier)+bonus;
+        const credited=await pool.query('UPDATE players SET balance=balance+$2,total=total+$2,updated_at=NOW() WHERE telegram_id=$1 RETURNING balance',[String(q.from.id),gain]);
         await bot.answerCallbackQuery(q.id,{text:'+'+gain.toFixed(4)+' звезды'});
         await bot.sendMessage(q.message.chat.id,`⭐ +${gain.toFixed(4)} звезды! Баланс: ${Number(r.rows[0].balance).toFixed(4)}`,{reply_markup:mainKeyboard(q.from.id)});
       } else if(q.data==='star_shop') {
@@ -304,7 +311,7 @@ app.post('/api/shop/invoice', auth, async (req,res)=>{
     res.json({url:invoiceUrl,stars:product.stars});
   } catch(e) { console.error('Не удалось создать Stars invoice:',e.message); res.status(500).json({error:'Не удалось создать окно оплаты. Попробуй ещё раз.'}); }
 });
-app.post('/api/click', auth, async (req,res)=>{const r=await pool.query('UPDATE players SET balance=balance+(0.0001*click_multiplier),total=total+(0.0001*click_multiplier),updated_at=NOW() WHERE telegram_id=$1 RETURNING balance,total,click_multiplier',[String(req.player.telegram_id)]);const amount=0.0001*Number(r.rows[0].click_multiplier);res.json({balance:Number(r.rows[0].balance),total:Number(r.rows[0].total),gain:amount,clickMultiplier:Number(r.rows[0].click_multiplier)});});
+app.post('/api/click', auth, async (req,res)=>{const r=await pool.query('UPDATE players SET clicks_count=clicks_count+1,updated_at=NOW() WHERE telegram_id=$1 RETURNING clicks_count,click_multiplier',[String(req.player.telegram_id)]);const clicks=Number(r.rows[0].clicks_count);const level=clicks<100?0:clicks<500?1:2+Math.floor((clicks-500)/500);const bonus=level>=100?0.05:level>=30?0.005:0;const amount=0.0001*Number(r.rows[0].click_multiplier)+bonus;const p=await pool.query('UPDATE players SET balance=balance+$2,total=total+$2,updated_at=NOW() WHERE telegram_id=$1 RETURNING balance,total',[String(req.player.telegram_id),amount]);res.json({balance:Number(p.rows[0].balance),total:Number(p.rows[0].total),gain:amount,clickMultiplier:Number(r.rows[0].click_multiplier),clicks,level,clickBonus:bonus});});
 app.post('/api/profile', auth, async (_req,res)=>res.status(403).json({error:'Имя и аватар можно изменить только через Telegram-бота.'}));
 app.get('/api/referral', auth, async (req,res)=>{
   try{
@@ -364,11 +371,11 @@ app.post('/api/promo/activate', auth, async (req,res)=>{
   finally{client.release();}
 });
 app.get('/api/leaderboard', auth, async (req,res)=>{
-  const r=await pool.query('SELECT telegram_id,username,display_name,avatar,balance,total FROM players ORDER BY balance DESC,total DESC,created_at ASC LIMIT 100');
+  const r=await pool.query('SELECT telegram_id,username,display_name,avatar,balance,total,clicks_count,click_multiplier FROM players ORDER BY balance DESC,total DESC,created_at ASC LIMIT 100');
   res.json({players:r.rows.map((p,i)=>({...publicPlayer(p),rank:i+1,isMe:String(p.telegram_id)===String(req.player.telegram_id)}))});
 });
 app.get('/api/players/:id', auth, async (req,res)=>{
-  const r=await pool.query('SELECT telegram_id,username,display_name,avatar,balance,total,created_at FROM players WHERE telegram_id=$1',[req.params.id]);
+  const r=await pool.query('SELECT telegram_id,username,display_name,avatar,balance,total,clicks_count,click_multiplier,created_at FROM players WHERE telegram_id=$1',[req.params.id]);
   if(!r.rowCount)return res.status(404).json({error:'Игрок не найден.'});
   const p=r.rows[0]; res.json({player:{...publicPlayer(p),createdAt:p.created_at}});
 });
