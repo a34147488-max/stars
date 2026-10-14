@@ -493,7 +493,7 @@ app.post('/api/roulette/bet', auth, async (req,res)=>{
   const id=String(req.player.telegram_id);
   const bet=Number(req.body&&req.body.bet);
   const picks=Array.isArray(req.body&&req.body.picks)?[...new Set(req.body.picks.map(String))]:[];
-  const validPick=/^(red|black|even|odd|number:(?:[0-9]|[12][0-9]|3[0-6]))$/;
+  const validPick=/^(red|black|even|odd|range:(?:13-24|25-36)|number:(?:[0-9]|[12][0-9]|3[0-6]))$/;
   if(picks.length>41||picks.some(p=>!validPick.test(p)))return res.status(400).json({error:'Выбери корректные исходы.'});
   if(picks.length&&(!Number.isFinite(bet)||bet<0.1||bet>5||(!Number.isInteger(bet*10)&&Math.abs(bet-0.25)>1e-8)))return res.status(400).json({error:'Ставка должна быть от 0.1 до 5.'});
   const client=await pool.connect();
@@ -555,7 +555,7 @@ app.post('/api/roulette/spin', auth, async (req,res)=>{
     if(!Number.isFinite(requestedBet)||Math.abs(requestedBet-bet)>1e-8||JSON.stringify(requestedPicks.slice().sort())!==JSON.stringify(picks.slice().sort()))throw new Error('Ставка изменилась. Выбери исходы заново.');
     const cost=Number(pending.rows[0].reserved_amount);
     const number=crypto.randomInt(37),color=number===0?'green':red.has(number)?'red':'black';
-    const results=picks.map(p=>{const won=p==='red'?color==='red':p==='black'?color==='black':p==='even'?number!==0&&number%2===0:p==='odd'?number%2===1:p.startsWith('number:')&&number===Number(p.slice(7));const multiplier=p.startsWith('number:')?36:2;return {pick:p,win:won?Number((bet*multiplier).toFixed(8)):0,multiplier:won?multiplier:0,won}});
+    const results=picks.map(p=>{const won=p==='red'?color==='red':p==='black'?color==='black':p==='even'?number!==0&&number%2===0:p==='odd'?number%2===1:p==='range:13-24'?number>=13&&number<=24:p==='range:25-36'?number>=25&&number<=36:p.startsWith('number:')&&number===Number(p.slice(7));const multiplier=p.startsWith('number:')?36:p.startsWith('range:')?3:2;return {pick:p,win:won?Number((bet*multiplier).toFixed(8)):0,multiplier:won?multiplier:0,won}});
     const win=Number(results.reduce((sum,r)=>sum+r.win,0).toFixed(8));
     const balance=Number((Number(locked.rows[0].balance)+win).toFixed(8));
     await client.query('UPDATE players SET balance=$2,total=total+$3,updated_at=NOW() WHERE telegram_id=$1',[id,balance,win]);
