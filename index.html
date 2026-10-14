@@ -104,7 +104,7 @@ button:active{transform:none!important}
 
 
 /* Panels open as centered modal windows, never inserted into the page flow */
-.menu-placeholder,.profile-panel.star-shop-panel{
+.menu-placeholder,.profile-panel.star-shop-panel,#leaderboardPanel,#profilePanel{
  position:fixed!important;z-index:10000;left:50%!important;top:50%!important;
  transform:translate(-50%,-50%)!important;width:min(92vw,520px)!important;
  max-width:520px;max-height:82dvh;overflow-y:auto;overscroll-behavior:contain;
@@ -151,7 +151,7 @@ html{overscroll-behavior:none;overflow-x:hidden}
 <div class="tap-hint">Нажимай на звезду, чтобы добывать звёзды</div>
 </section>
 
-<section class="profile-panel" id="profilePanel">
+<section class="profile-panel" id="profilePanel" hidden>
 <h2>👤 Профиль игрока</h2>
 <div class="profile-row"><div class="profile-avatar" id="profileAvatar">⭐</div><div class="profile-input" id="profileName" aria-live="polite">Загрузка профиля…</div></div>
 <div class="profile-message" id="profileMessage" role="status">Имя и аватар можно изменить только в Telegram-боте: /name Новое имя или отправь боту фотографию.</div>
@@ -373,7 +373,7 @@ async function buyStarProduct(button,id){button.disabled=true;button.textContent
 
 function refresh(){renderStats()}
 $('tap').addEventListener('click',async e=>{if(!serverMode||!profileReady)return;const button=$('tap');button.disabled=true;try{const d=await api('/api/click','POST',{});state.balance=Number(d.balance);state.total=Number(d.total);const f=document.createElement('span');f.className='gain-float';f.textContent='+'+fmt(d.gain);f.style.left=(e.offsetX||110)+'px';f.style.top=(e.offsetY||100)+'px';button.appendChild(f);setTimeout(()=>f.remove(),850);refresh();}catch(err){$('profileMessage').textContent='Клик не сохранён: '+err.message;}finally{button.disabled=false;}});
-$('toggleShop').addEventListener('click',()=>{const panel=$('shopPanel');panel.hidden=!panel.hidden;$('toggleShop').setAttribute('aria-expanded',String(!panel.hidden));if(!panel.hidden){loadStarShop();}});
+
 $('shop').addEventListener('click',e=>{const b=e.target.closest('[data-product]');if(b)buyStarProduct(b,b.dataset.product);});
 // Магазин реальных Telegram Stars загружается с сервера.
 // Баланс меняется только сервером. Локальная авто-добыча отключена, чтобы не рассинхронизировать приложение и бота.
