@@ -388,10 +388,10 @@ body{overflow-anchor:none}
 <style>.game-back-hub{position:sticky;top:calc(env(safe-area-inset-top,0px) + 8px);z-index:10040;display:block;margin:calc(env(safe-area-inset-top,0px) + 8px) auto 10px 12px;padding:10px 15px;border:1px solid #6bba9b;border-radius:12px;background:#102820ee;color:#cffff0;font-weight:900;font-size:13px;box-shadow:0 4px 15px #0005;backdrop-filter:blur(8px)}#olympusGameView .game-back-hub{position:fixed;top:calc(env(safe-area-inset-top,0px) + 8px);left:10px;margin:0}#olympusGameView .olympus-game{padding-top:44px}</style>
 <style>
 /* Game cover images: show the entire supplied artwork without cropping. */
-.image-game-cover{position:relative;background:#09090d!important;isolation:isolate}
-.image-game-cover .cover-art{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center;padding:0!important;margin:0;border-radius:inherit;z-index:0;max-width:none;max-height:none}
-.image-game-cover:before{z-index:1;inset:58% 0 0!important;background:linear-gradient(transparent,#000d)!important}
-.image-game-cover .cover-play{position:relative;z-index:2;margin-top:auto!important;flex-shrink:0}
+.image-game-cover{position:relative!important;isolation:isolate;overflow:hidden!important;padding:0!important;min-height:290px!important;justify-content:flex-end!important;gap:0!important;background:#09090d!important}
+.image-game-cover .cover-art{position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;object-fit:fill!important;object-position:center!important;padding:0!important;margin:0!important;border:0!important;border-radius:inherit!important;z-index:0!important;max-width:none!important;max-height:none!important;transform:none}
+.image-game-cover:before{content:"";position:absolute!important;z-index:1!important;inset:58% 0 0!important;background:linear-gradient(transparent,#000d)!important;pointer-events:none}
+.image-game-cover .cover-play{position:relative!important;z-index:2!important;width:100%;margin-top:auto!important;flex-shrink:0}
 </style>
 </head>
 <body>
