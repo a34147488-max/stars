@@ -51,6 +51,7 @@ async function initDb() {
     );
     ALTER TABLE players ADD COLUMN IF NOT EXISTS click_multiplier NUMERIC(8,2) NOT NULL DEFAULT 1;
     ALTER TABLE players ADD COLUMN IF NOT EXISTS clicks_count BIGINT NOT NULL DEFAULT 0;
+    ALTER TABLE promo_codes ADD COLUMN IF NOT EXISTS wagering_multiplier INTEGER NOT NULL DEFAULT 1;
     CREATE TABLE IF NOT EXISTS star_orders (
       id UUID PRIMARY KEY,
       telegram_id BIGINT NOT NULL REFERENCES players(telegram_id),
@@ -76,6 +77,18 @@ async function initDb() {
       active BOOLEAN NOT NULL DEFAULT TRUE,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
+    CREATE TABLE IF NOT EXISTS promo_wagers (
+      code TEXT NOT NULL REFERENCES promo_codes(code),
+      telegram_id BIGINT NOT NULL REFERENCES players(telegram_id),
+      reward NUMERIC(24,8) NOT NULL,
+      target NUMERIC(24,8) NOT NULL,
+      wagered NUMERIC(24,8) NOT NULL DEFAULT 0,
+      status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','completed')),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      completed_at TIMESTAMPTZ,
+      PRIMARY KEY(code,telegram_id)
+    );
+    CREATE INDEX IF NOT EXISTS promo_wagers_player_idx ON promo_wagers(telegram_id,status);
     CREATE TABLE IF NOT EXISTS promo_redemptions (
       code TEXT NOT NULL REFERENCES promo_codes(code),
       telegram_id BIGINT NOT NULL REFERENCES players(telegram_id),
@@ -95,11 +108,18 @@ async function initDb() {
     CREATE INDEX IF NOT EXISTS withdrawal_requests_player_idx ON withdrawal_requests(telegram_id,created_at DESC);
     CREATE INDEX IF NOT EXISTS players_username_lower_idx ON players (LOWER(username));
   `);
-  // One-time promo code: +10,000 coins, single activation.
+  // Existing one-time code.
   await pool.query(
     "INSERT INTO promo_codes(code,amount,max_uses) VALUES($1,$2,$3) ON CONFLICT(code) DO NOTHING",
     ['MONETY10000',10000,1]
   );
+  // Ten single-use Olympus wagering promos: 150 Stars each, x20 wagering (3,000 Stars).
+  for (const code of ['OLYMPUS150A','OLYMPUS150B','OLYMPUS150C','OLYMPUS150D','OLYMPUS150E','OLYMPUS150F','OLYMPUS150G','OLYMPUS150H','OLYMPUS150I','OLYMPUS150J']) {
+    await pool.query(
+      "INSERT INTO promo_codes(code,amount,max_uses,wagering_multiplier) VALUES($1,150,1,20) ON CONFLICT(code) DO NOTHING",
+      [code]
+    );
+  }
 }
 
 function verifyInitData(initData) {
@@ -140,7 +160,7 @@ async function upsertPlayer(user, startParam) {
         [id, username, displayName, telegramAvatar, validRef]
       );
       if (inserted.rowCount && validRef) {
-        await client.query('UPDATE players SET balance=balance+2,total=total+2,updated_at=NOW() WHERE telegram_id=$1', [validRef]);
+        await client.query('UPDATE players SET balance=balance+15,total=total+15,updated_at=NOW() WHERE telegram_id=$1', [validRef]);
       }
     } else {
       await client.query('UPDATE players SET username=$2, avatar=CASE WHEN avatar=\'⭐\' AND $3::text IS NOT NULL THEN $3 ELSE avatar END, updated_at=NOW() WHERE telegram_id=$1', [id, username, telegramAvatar]);
@@ -384,13 +404,15 @@ app.post('/api/olympus/spin', auth, async (req,res)=>{
     let session=(await client.query('SELECT free_spins,multiplier FROM olympus_sessions WHERE telegram_id=$1 FOR UPDATE',[id])).rows[0];
     if(!session){await client.query('INSERT INTO olympus_sessions(telegram_id) VALUES($1) ON CONFLICT DO NOTHING',[id]);session={free_spins:0,multiplier:1};}
     let freeSpins=Number(session.free_spins)||0, multiplier=Number(session.multiplier)||1;
-    let balance=Number(locked.rows[0].balance), total=Number(locked.rows[0].total);
+    let balance=Number(locked.rows[0].balance), total=Number(locked.rows[0].total), wagerAmount=0;
     if(buyBonus&&freeSpins===0){
       const cost=Number((bet*100).toFixed(8));
+      wagerAmount=cost;
       if(balance+1e-9<cost){await client.query('ROLLBACK');return res.status(400).json({error:'Недостаточно монет для покупки 15 фриспинов. Нужно '+cost.toFixed(4)+'.'});}
       balance-=cost;freeSpins=15;multiplier=1;
     } else if(freeSpins===0){
       const cost=Number((bet*(ante?1.25:1)).toFixed(8));
+      wagerAmount=cost;
       if(balance+1e-9<cost){await client.query('ROLLBACK');return res.status(400).json({error:'Недостаточно монет для ставки '+cost.toFixed(4)+'. Пополни баланс кликами.'});}
       balance-=cost;
     }
@@ -422,10 +444,28 @@ app.post('/api/olympus/spin', auth, async (req,res)=>{
     win=Math.max(0,Math.min(Number(win.toFixed(8)),bet*5000));
     balance+=win;total+=win;
     await client.query('UPDATE players SET balance=$2,total=$3,updated_at=NOW() WHERE telegram_id=$1',[id,balance,total]);
+    const completedPromos=[];
+    if(wagerAmount>0){
+      const activePromos=await client.query("SELECT code,reward,target,wagered FROM promo_wagers WHERE telegram_id=$1 AND status='pending' FOR UPDATE",[id]);
+      for(const promo of activePromos.rows){
+        const nextWagered=Number(promo.wagered)+wagerAmount;
+        if(nextWagered+1e-8>=Number(promo.target)){
+          balance+=Number(promo.reward);total+=Number(promo.reward);
+          await client.query("UPDATE promo_wagers SET wagered=$3,status='completed',completed_at=NOW() WHERE code=$1 AND telegram_id=$2",[promo.code,id,nextWagered]);
+          completedPromos.push({code:promo.code,reward:Number(promo.reward)});
+        }else{
+          await client.query("UPDATE promo_wagers SET wagered=$3 WHERE code=$1 AND telegram_id=$2",[promo.code,id,nextWagered]);
+        }
+      }
+      if(completedPromos.length){
+        await client.query('UPDATE players SET balance=$2,total=$3,updated_at=NOW() WHERE telegram_id=$1',[id,balance,total]);
+      }
+    }
+    const promoProgress=await client.query("SELECT code,reward,target,wagered,status FROM promo_wagers WHERE telegram_id=$1 ORDER BY created_at DESC LIMIT 10",[id]);
     await client.query('INSERT INTO olympus_sessions(telegram_id,free_spins,multiplier,updated_at) VALUES($1,$2,$3,NOW()) ON CONFLICT(telegram_id) DO UPDATE SET free_spins=EXCLUDED.free_spins,multiplier=EXCLUDED.multiplier,updated_at=NOW()',[id,freeSpins,multiplier]);
     await client.query('COMMIT');
     res.setHeader('Cache-Control','no-store');
-    res.json({balance,total,win,freeSpins,multiplier,cascades,scatter,orbSum,orbValues,board:displayBoard});
+    res.json({balance,total,win,freeSpins,multiplier,cascades,scatter,orbSum,orbValues,board:displayBoard,completedPromos,promoProgress:promoProgress.rows.map(p=>({code:p.code,reward:Number(p.reward),target:Number(p.target),wagered:Number(p.wagered),status:p.status}))});
   }catch(e){await client.query('ROLLBACK');console.error('Olympus spin error:',e.stack||e.message);res.status(500).json({error:'Не удалось провести спин. Баланс не изменён.'});}
   finally{client.release();}
 });
@@ -538,17 +578,34 @@ app.post('/api/promo/activate', auth, async (req,res)=>{
   const client=await pool.connect();
   try{
     await client.query('BEGIN');
-    const p=await client.query('SELECT amount,max_uses,uses,active FROM promo_codes WHERE code=$1 FOR UPDATE',[code]);
+    const p=await client.query('SELECT amount,max_uses,uses,active,wagering_multiplier FROM promo_codes WHERE code=$1 FOR UPDATE',[code]);
     if(!p.rowCount||!p.rows[0].active) throw new Error('Промокод не найден или отключён.');
     if(Number(p.rows[0].uses)>=Number(p.rows[0].max_uses)) throw new Error('Активации этого промокода закончились.');
     await client.query('INSERT INTO promo_redemptions(code,telegram_id) VALUES($1,$2)',[code,String(req.player.telegram_id)]);
-    const amount=Number(p.rows[0].amount);
+    const amount=Number(p.rows[0].amount), wageringMultiplier=Number(p.rows[0].wagering_multiplier||1);
     await client.query('UPDATE promo_codes SET uses=uses+1 WHERE code=$1',[code]);
-    const bal=await client.query('UPDATE players SET balance=balance+$2,total=total+$2,updated_at=NOW() WHERE telegram_id=$1 RETURNING balance,total',[String(req.player.telegram_id),amount]);
+    let balance,total,wagering=null;
+    if(wageringMultiplier>1){
+      const target=amount*wageringMultiplier;
+      await client.query('INSERT INTO promo_wagers(code,telegram_id,reward,target,wagered,status) VALUES($1,$2,$3,$4,0,\'pending\')',[code,String(req.player.telegram_id),amount,target]);
+      const pNow=await client.query('SELECT balance,total FROM players WHERE telegram_id=$1',[String(req.player.telegram_id)]);
+      balance=Number(pNow.rows[0].balance);total=Number(pNow.rows[0].total);
+      wagering={target,wagered:0,remaining:target,reward:amount,status:'pending'};
+    }else{
+      const bal=await client.query('UPDATE players SET balance=balance+$2,total=total+$2,updated_at=NOW() WHERE telegram_id=$1 RETURNING balance,total',[String(req.player.telegram_id),amount]);
+      balance=Number(bal.rows[0].balance);total=Number(bal.rows[0].total);
+    }
     await client.query('COMMIT');
-    res.json({code,amount,balance:Number(bal.rows[0].balance),total:Number(bal.rows[0].total)});
+    res.json({code,amount,balance,total,wageringMultiplier,wagering});
   }catch(e){await client.query('ROLLBACK').catch(()=>{});res.status(400).json({error:e.code==='23505'?'Ты уже активировал этот промокод.':e.message||'Не удалось активировать промокод.'});}
   finally{client.release();}
+});
+app.get('/api/promo/progress', auth, async (req,res)=>{
+  try{
+    const r=await pool.query("SELECT code,reward,target,wagered,status,created_at FROM promo_wagers WHERE telegram_id=$1 ORDER BY created_at DESC LIMIT 10",[String(req.player.telegram_id)]);
+    res.setHeader('Cache-Control','no-store');
+    res.json({promos:r.rows.map(p=>({code:p.code,reward:Number(p.reward),target:Number(p.target),wagered:Number(p.wagered),remaining:Math.max(0,Number(p.target)-Number(p.wagered)),status:p.status,createdAt:p.created_at}))});
+  }catch(e){console.error('Promo progress error:',e.message);res.status(500).json({error:'Не удалось загрузить прогресс промокодов.'});}
 });
 app.get('/api/leaderboard', auth, async (req,res)=>{
   const r=await pool.query('SELECT telegram_id,username,display_name,avatar,balance,total,clicks_count,click_multiplier FROM players ORDER BY balance DESC,total DESC,created_at ASC LIMIT 100');
