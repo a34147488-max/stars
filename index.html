@@ -334,6 +334,9 @@ body{overflow-anchor:none}
 @keyframes spLoading{from{width:0}to{width:100%}}
 
 </style>
+<style>
+.mines-cover{min-height:190px;border:1px solid #4bd9a0!important;background:radial-gradient(ellipse at 50% 25%,#164c42,#101a25 55%,#080d16)!important;color:#effff9!important}.mines-cover-art{font-size:52px;filter:drop-shadow(0 0 15px #54ffc3aa);animation:minesFloat 2.5s ease-in-out infinite}.mines-cover-title{font-weight:1000;font-size:22px;letter-spacing:2px;color:#83ffd1}.mines-cover-sub{font-size:10px;letter-spacing:2px;color:#b4d6d2;margin:7px 0 12px}@keyframes minesFloat{50%{transform:translateY(-5px) rotate(-4deg)}}
+</style>
 </head>
 <body>
 <div id="starsPlayLoader" aria-live="polite" aria-label="Загрузка StarsPlay"><div class="sp-title">StarsPlay</div><div class="sp-track"><div class="sp-fill"></div></div><div class="sp-caption">ЗАГРУЗКА ИГРЫ</div></div>
@@ -353,6 +356,7 @@ body{overflow-anchor:none}
    <img src="https://raw.githubusercontent.com/a34147488-max/stars/main/roulette-villa-cover.png" alt="Roulette Villa" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit">
    <span class="cover-play" style="position:relative;z-index:2;margin-top:auto">ROULETTE VILLA <b>›</b></span>
   </button>
+  <button class="game-cover mines-cover" id="openMinesGame" type="button"><span class="mines-cover-art">💣</span><span class="mines-cover-title">MINES</span><span class="mines-cover-sub">CLASSIC · 25 CELLS</span><span class="cover-play">МИНЫ <b>›</b></span></button>
   <div class="games-coming-soon"><span class="coming-icon">＋</span><span><b>Новые игры</b><small>Скоро появятся здесь</small></span><span class="coming-tag">СКОРО</span></div>
  </div>
  <div id="olympusGameView" hidden>
