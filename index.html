@@ -785,6 +785,7 @@ async function rouletteSyncServerBet(){
  }
 }
 function rouletteChoose(p){
+ if(rouletteBusy){$('rouletteResult').textContent='Подожди, пока колесо завершит вращение.';return;}
  if(rouletteBusy)return;
  if(rouletteRoundRunning&&Date.now()>=rouletteRoundEnds)return;
  const wasSelected=roulettePicks.has(p);
