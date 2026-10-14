@@ -237,10 +237,11 @@ function registerBot() {
   bot.on('callback_query', async q => {
     try {
       if (q.data === 'click') {
-        const p=await upsertPlayer(q.from,'');
-        const r=await pool.query('UPDATE players SET balance=balance+0.0001,total=total+0.0001,updated_at=NOW() WHERE telegram_id=$1 RETURNING balance',[String(q.from.id)]);
-        await bot.answerCallbackQuery(q.id,{text:'+0.0001 звезды'});
-        await bot.sendMessage(q.message.chat.id,`⭐ +0.0001 звезды! Баланс: ${Number(r.rows[0].balance).toFixed(4)}`,{reply_markup:mainKeyboard(q.from.id)});
+        await upsertPlayer(q.from,'');
+        const r=await pool.query('UPDATE players SET balance=balance+(0.0001*click_multiplier),total=total+(0.0001*click_multiplier),updated_at=NOW() WHERE telegram_id=$1 RETURNING balance,click_multiplier',[String(q.from.id)]);
+        const gain=0.0001*Number(r.rows[0].click_multiplier);
+        await bot.answerCallbackQuery(q.id,{text:'+'+gain.toFixed(4)+' звезды'});
+        await bot.sendMessage(q.message.chat.id,`⭐ +${gain.toFixed(4)} звезды! Баланс: ${Number(r.rows[0].balance).toFixed(4)}`,{reply_markup:mainKeyboard(q.from.id)});
       } else if(q.data==='star_shop') {
         await bot.answerCallbackQuery(q.id);
         const rows = [];
