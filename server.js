@@ -433,9 +433,19 @@ app.post('/api/olympus/spin', auth, async (req,res)=>{
       if(!hits.length)break;
       const removed=board.map((x,i)=>hits.includes(x)?i:-1).filter(i=>i>=0);
       for(const sym of hits){const data=symbols.find(x=>x[0]===sym);win+=effectiveBet*data[1]*(counts[sym]/8);}
-      board=board.filter(x=>!hits.includes(x));
-      while(board.length<30)board.unshift(pick());
-      board=board.slice(-30);cascades++;
+      // Apply gravity independently in each of the 6 columns so symbols outside
+      // winning positions never jump sideways into another column.
+      const nextBoard=Array(30);
+      for(let col=0;col<6;col++){
+        const kept=[];
+        for(let row=4;row>=0;row--){
+          const value=board[row*6+col];
+          if(!hits.includes(value))kept.push(value);
+        }
+        while(kept.length<5)kept.push(pick());
+        for(let row=4;row>=0;row--)nextBoard[row*6+col]=kept[4-row];
+      }
+      board=nextBoard;cascades++;
       cascadeSteps.push({removed,board:[...board]});
     }
     const orbSum=orbValues.reduce((sum,value)=>sum+value,0);
