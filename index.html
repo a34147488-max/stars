@@ -349,9 +349,10 @@ async function loadServerProfile(){
   state.balance=Number(d.player.balance)||0;state.total=Number(d.player.total)||0;if($('walletBalance'))$('walletBalance').textContent=fmt(state.balance);
   selectedAvatar=d.player.avatar||'⭐';
   $('profileName').textContent=d.player.name||'Игрок';setAvatar($('profileAvatar'),selectedAvatar);
-  $('profileMessage').textContent='Имя и аватар меняются через Telegram-бота.';
-  tapButton.disabled=false;refresh();await loadLeaderboard();
- }catch(e){$('profileMessage').textContent='Клики отключены: '+e.message+' Открой актуальную ссылку приложения через Telegram-бота и обнови страницу.';tapButton.disabled=true;}
+  $('profileMessage').textContent='Баланс подключён. Нажимай на звезду, чтобы получать звёзды.';
+  tapButton.disabled=false;refresh();
+  loadLeaderboard().catch(err=>console.error('Не удалось загрузить топ игроков:',err));
+ }catch(e){serverMode=false;profileReady=false;$('profileMessage').textContent='Не удалось подключить баланс: '+e.message+' Закрой приложение и открой его через Telegram-бота.';tapButton.disabled=false;}
 }
 
 
@@ -381,18 +382,19 @@ async function buyStarProduct(button,id){button.disabled=true;button.textContent
 
 function refresh(){renderStats()}
 $('tap').addEventListener('click',async e=>{
+ e.preventDefault();
  const button=$('tap');
- if(!serverMode||!profileReady){$('profileMessage').textContent='Баланс пока не подключён. Закрой приложение и открой его через кнопку меню в Telegram-боте.';return;}
+ if(!serverMode||!profileReady){$('profileMessage').textContent='Баланс ещё подключается. Убедись, что приложение открыто через Telegram-бота.';return;}
  if(button.dataset.busy==='1')return;
- button.dataset.busy='1';button.disabled=true;
+ button.dataset.busy='1';
  try{
   const d=await api('/api/click','POST',{});
   state.balance=Number(d.balance);state.total=Number(d.total);
   const f=document.createElement('span');f.className='gain-float';f.textContent='+'+fmt(d.gain);
-  f.style.left=(e.offsetX||110)+'px';f.style.top=(e.offsetY||100)+'px';button.appendChild(f);
+  const rect=button.getBoundingClientRect();f.style.left=(e.clientX?e.clientX-rect.left:rect.width/2)+'px';f.style.top=(e.clientY?e.clientY-rect.top:rect.height/2)+'px';button.appendChild(f);
   window.setTimeout(()=>f.remove(),850);refresh();
- }catch(err){$('profileMessage').textContent='Клик не сохранён: '+err.message;}
- finally{button.dataset.busy='0';button.disabled=false;}
+ }catch(err){$('profileMessage').textContent='Клик не сохранён: '+err.message;console.error('Click API error:',err);}
+ finally{button.dataset.busy='0';}
 });
 
 $('shop').addEventListener('click',e=>{const b=e.target.closest('[data-product]');if(b)buyStarProduct(b,b.dataset.product);});
