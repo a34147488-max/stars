@@ -495,10 +495,10 @@ app.post('/api/roulette/spin', auth, async (req,res)=>{
     await client.query('BEGIN');
     const locked=await client.query('SELECT balance,total FROM players WHERE telegram_id=$1 FOR UPDATE',[String(req.player.telegram_id)]);
     if(!locked.rowCount){await client.query('ROLLBACK');return res.status(404).json({error:'Игрок не найден.'});}
-    const cost=Number((bet*100*picks.length).toFixed(8)),balanceNow=Number(locked.rows[0].balance);
+    const cost=Number((bet*picks.length).toFixed(8)),balanceNow=Number(locked.rows[0].balance);
     if(balanceNow+1e-9<cost){await client.query('ROLLBACK');return res.status(400).json({error:'Недостаточно монет для всех выбранных исходов. Нужно '+cost.toFixed(4)+'.'});}
     const number=crypto.randomInt(37),color=number===0?'green':red.has(number)?'red':'black';
-    const results=picks.map(p=>{const won=p==='red'?color==='red':p==='black'?color==='black':p==='even'?number!==0&&number%2===0:p==='odd'?number%2===1:p.startsWith('number:')&&number===Number(p.slice(7));const multiplier=p.startsWith('number:')?36:2;return {pick:p,win:won?Number((bet*100*multiplier).toFixed(8)):0,multiplier:won?multiplier:0,won}});
+    const results=picks.map(p=>{const won=p==='red'?color==='red':p==='black'?color==='black':p==='even'?number!==0&&number%2===0:p==='odd'?number%2===1:p.startsWith('number:')&&number===Number(p.slice(7));const multiplier=p.startsWith('number:')?36:2;return {pick:p,win:won?Number((bet*multiplier).toFixed(8)):0,multiplier:won?multiplier:0,won}});
     const win=Number(results.reduce((sum,r)=>sum+r.win,0).toFixed(8));
     const balance=Number((balanceNow-cost+win).toFixed(8));
     await client.query('UPDATE players SET balance=$2,total=total+$3,updated_at=NOW() WHERE telegram_id=$1',[String(req.player.telegram_id),balance,win]);
