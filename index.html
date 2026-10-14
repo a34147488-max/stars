@@ -454,10 +454,14 @@ const olympusSymbols=[
 ];
 // Olympus audio: synthesized spin/cluster effects and an ancient-Greek-inspired lyre loop.
 let olympusAudioCtx=null,olympusMusicOn=false,olympusMusicTimer=null,olympusMusicStep=0;
+let olympusCongratsTimer=null;
 function olympusAudio(){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;if(!olympusAudioCtx)olympusAudioCtx=new AC();if(olympusAudioCtx.state==='suspended')olympusAudioCtx.resume().catch(()=>{});return olympusAudioCtx}
 function olympusTone(freq,duration=.12,wave='sine',volume=.035,delay=0){const c=olympusAudio();if(!c)return;const t=c.currentTime+delay,o=c.createOscillator(),g=c.createGain();o.type=wave;o.frequency.setValueAtTime(freq,t);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(volume,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+duration);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+duration+.03)}
 function olympusSpinSound(){const c=olympusAudio();if(!c)return;const t=c.currentTime,o=c.createOscillator(),g=c.createGain();o.type='sawtooth';o.frequency.setValueAtTime(180,t);o.frequency.exponentialRampToValueAtTime(720,t+.28);o.frequency.exponentialRampToValueAtTime(240,t+.72);g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(.035,t+.04);g.gain.exponentialRampToValueAtTime(.0001,t+.74);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+.76)}
 function olympusMatchSound(){[523.25,659.25,783.99,1046.5].forEach((f,i)=>olympusTone(f,.24,'triangle',.045,i*.065))}
+function olympusCongratsSound(){[659.25,783.99,987.77,1318.51,1567.98].forEach((f,i)=>olympusTone(f,.48,'triangle',.055,i*.11));olympusTone(523.25,.75,'sine',.035,.58)}
+function olympusStartCongratsSound(){if(olympusCongratsTimer)clearTimeout(olympusCongratsTimer);const tick=()=>{const a=$('olympusSuperWin')?.classList.contains('open'),b=$('olympusFreeSpinModal')?.classList.contains('open');if(!a&&!b){olympusCongratsTimer=null;return}olympusCongratsSound();olympusCongratsTimer=setTimeout(tick,1800)};tick()}
+function olympusStopCongratsSound(){if(olympusCongratsTimer){clearTimeout(olympusCongratsTimer);olympusCongratsTimer=null}}
 function olympusMusicTick(){if(!olympusMusicOn)return;const melody=[293.66,349.23,440,523.25,587.33,523.25,440,349.23,392,493.88,587.33,659.25,587.33,493.88,392,349.23],bass=[146.83,146.83,174.61,174.61,130.81,130.81,196,196],i=olympusMusicStep++;olympusTone(melody[i%melody.length],.48,'triangle',.018);if(i%2===0)olympusTone(melody[(i+3)%melody.length]*2,.22,'sine',.008,.12);if(i%4===0)olympusTone(bass[Math.floor(i/2)%bass.length],.65,'sine',.018);olympusMusicTimer=setTimeout(olympusMusicTick,360)}
 function olympusToggleMusic(){olympusAudio();olympusMusicOn=!olympusMusicOn;const b=$('olympusMusic');if(b){b.textContent=olympusMusicOn?'♫ Музыка: ВКЛ':'♫ Музыка: ВЫКЛ';b.classList.toggle('active',olympusMusicOn)}if(olympusMusicTimer){clearTimeout(olympusMusicTimer);olympusMusicTimer=null}if(olympusMusicOn)olympusMusicTick()}
 function olympusStopMusic(){olympusMusicOn=false;if(olympusMusicTimer){clearTimeout(olympusMusicTimer);olympusMusicTimer=null}if(olympusAudioCtx){const ctx=olympusAudioCtx;olympusAudioCtx=null;ctx.close().catch(()=>{})}olympusMusicStep=0;const b=$('olympusMusic');if(b){b.textContent='♫ Музыка: ВЫКЛ';b.classList.remove('active')}}
@@ -497,12 +501,12 @@ function showOlympusSuperWin(amount,bet){
  if(!modal)return;
  $('olympusSuperWinAmount').textContent='+'+Number(amount).toLocaleString('ru-RU',{minimumFractionDigits:4,maximumFractionDigits:4})+' монет';
  $('olympusSuperWinMult').textContent='×'+(bet>0?(Number(amount)/bet).toFixed(1):'10')+' от ставки';
- modal.classList.add('open');
+ modal.classList.add('open');olympusStartCongratsSound();
 }
-function closeOlympusFreeSpinModal(){$('olympusFreeSpinModal')?.classList.remove('open')}
+function closeOlympusFreeSpinModal(){$('olympusFreeSpinModal')?.classList.remove('open');if(!$('olympusSuperWin')?.classList.contains('open'))olympusStopCongratsSound()}
 $('olympusFreeSpinClose')?.addEventListener('click',closeOlympusFreeSpinModal);
 $('olympusFreeSpinModal')?.addEventListener('click',e=>{if(e.target===$('olympusFreeSpinModal'))closeOlympusFreeSpinModal()});
-function closeOlympusSuperWin(){$('olympusSuperWin')?.classList.remove('open')}
+function closeOlympusSuperWin(){$('olympusSuperWin')?.classList.remove('open');if(!$('olympusFreeSpinModal')?.classList.contains('open'))olympusStopCongratsSound()}
 $('olympusSuperWinClose')?.addEventListener('click',closeOlympusSuperWin);
 $('olympusSuperWin')?.addEventListener('click',e=>{if(e.target===$('olympusSuperWin'))closeOlympusSuperWin()});
 async function olympusPlay(buyBonus=false){
@@ -570,7 +574,7 @@ async function olympusPlay(buyBonus=false){
    $('olympusMode').textContent=olympusFreeSpins?'FREE SPINS':'ОБЫЧНАЯ ИГРА';
    $('olympusBonus').hidden=olympusFreeSpins===0;$('olympusFree').textContent=olympusFreeSpins;$('olympusMult').textContent='×'+olympusGlobalMult;$('olympusMultiplierPanel')?.classList.toggle('active',olympusFreeSpins>0);if($('olympusMultiplierValue'))$('olympusMultiplierValue').textContent='×'+olympusGlobalMult;
    if(orbSum&&totalWin===0)result.textContent+=' · Сфера ×'+orbSum+' выпала без выигрыша';
-   if(gotFreeSpins)$('olympusFreeSpinModal')?.classList.add('open');
+   if(gotFreeSpins){$('olympusFreeSpinModal')?.classList.add('open');olympusStartCongratsSound();}
    if(showSuperWin)showOlympusSuperWin(serverSpin.win,bet);
    button.disabled=false;$('olympusBuy').disabled=false;button.classList.remove('busy');olympusBusy=false;
   }
@@ -578,6 +582,8 @@ async function olympusPlay(buyBonus=false){
 }
 $('olympusMusic')?.addEventListener('click',olympusToggleMusic);
 $('olympusSpin')?.addEventListener('click',()=>olympusPlay(false));
+function olympusUpdateBuyPrice(){const b=$('olympusBuy'),bet=Number($('olympusBet')?.value)||0;if(b)b.textContent='КУПИТЬ FREE SPINS · '+(bet*100).toLocaleString('ru-RU',{maximumFractionDigits:2})+' МОНЕТ';}
+$('olympusBet')?.addEventListener('change',olympusUpdateBuyPrice);olympusUpdateBuyPrice();
 $('olympusBuy')?.addEventListener('click',()=>olympusPlay(true));
 $('closeOlympus')?.addEventListener('click',()=>closeAllMenus());
 async function refreshDailyWheel(){
