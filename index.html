@@ -306,8 +306,20 @@ $('menuMusicToggle')?.addEventListener('click',async()=>{if(musicCtx){stopMusic(
 
 document.getElementById('makeReferral').addEventListener('click',async()=>{
  const out=document.getElementById('referralResult');
- try{const d=await api('/api/referral');out.textContent=d.url;if(tg&&tg.HapticFeedback)tg.HapticFeedback.notificationOccurred('success');}
- catch(e){out.textContent=initData?e.message:'Открой приложение через Telegram-бота, чтобы получить свою ссылку.';}
+ try{
+  const d=await api('/api/referral');
+  out.textContent='Твоя ссылка: '+d.url+'\\nНаграда за каждого нового друга: +2 монеты.';
+  out.dataset.url=d.url;
+  if(!document.getElementById('copyReferralProfile')){
+   const copy=document.createElement('button');copy.id='copyReferralProfile';copy.type='button';copy.className='action-button';copy.textContent='📋 Скопировать ссылку';
+   copy.addEventListener('click',async()=>{
+    try{if(navigator.clipboard?.writeText)await navigator.clipboard.writeText(out.dataset.url);else{const x=document.createElement('textarea');x.value=out.dataset.url;document.body.appendChild(x);x.select();document.execCommand('copy');x.remove();}copy.textContent='✅ Скопировано';}
+    catch(e){out.textContent='Скопируй ссылку вручную: '+out.dataset.url;}
+   });
+   out.after(copy);
+  }
+  if(tg&&tg.HapticFeedback)tg.HapticFeedback.notificationOccurred('success');
+ }catch(e){out.textContent=initData?e.message:'Открой приложение через Telegram-бота, чтобы получить свою ссылку.';}
 });
 document.getElementById('showTransfer').addEventListener('click',()=>{const p=document.getElementById('transferPanel');p.hidden=!p.hidden;});
 document.getElementById('sendTransfer').addEventListener('click',async()=>{
