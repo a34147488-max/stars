@@ -545,7 +545,19 @@ function olympusMatchSound(){[523.25,659.25,783.99,1046.5].forEach((f,i)=>olympu
 function olympusCongratsSound(){[659.25,783.99,987.77,1318.51,1567.98].forEach((f,i)=>olympusTone(f,.48,'triangle',.055,i*.11));olympusTone(523.25,.75,'sine',.035,.58)}
 function olympusStartCongratsSound(){if(olympusCongratsTimer)clearTimeout(olympusCongratsTimer);const tick=()=>{const a=$('olympusSuperWin')?.classList.contains('open'),b=$('olympusFreeSpinModal')?.classList.contains('open');if(!a&&!b){olympusCongratsTimer=null;return}olympusCongratsSound();olympusCongratsTimer=setTimeout(tick,1800)};tick()}
 function olympusStopCongratsSound(){if(olympusCongratsTimer){clearTimeout(olympusCongratsTimer);olympusCongratsTimer=null}}
-function olympusMusicTick(){if(!olympusMusicOn)return;const melody=[293.66,349.23,440,523.25,587.33,523.25,440,349.23,392,493.88,587.33,659.25,587.33,493.88,392,349.23],bass=[146.83,146.83,174.61,174.61,130.81,130.81,196,196],i=olympusMusicStep++;olympusTone(melody[i%melody.length],.48,'triangle',.018);if(i%2===0)olympusTone(melody[(i+3)%melody.length]*2,.22,'sine',.008,.12);if(i%4===0)olympusTone(bass[Math.floor(i/2)%bass.length],.65,'sine',.018);olympusMusicTimer=setTimeout(olympusMusicTick,360)}
+function olympusChoirVoice(freq,duration,volume,delay=0){
+ const ctx=olympusAudio();if(!ctx)return;const t=ctx.currentTime+delay;
+ [1,1.003,.997,2.01].forEach((ratio,index)=>{const osc=ctx.createOscillator(),gain=ctx.createGain(),filter=ctx.createBiquadFilter();osc.type=index===3?'sine':'sawtooth';osc.frequency.setValueAtTime(freq*ratio,t);filter.type='lowpass';filter.frequency.setValueAtTime(index===3?1500:850,t);filter.Q.value=.7;const level=volume/(index===3?2.5:3.2);gain.gain.setValueAtTime(.0001,t);gain.gain.linearRampToValueAtTime(level,t+.45);gain.gain.setValueAtTime(level,t+Math.max(.46,duration-.5));gain.gain.exponentialRampToValueAtTime(.0001,t+duration);osc.connect(filter);filter.connect(gain);gain.connect(ctx.destination);osc.start(t);osc.stop(t+duration+.03)});
+}
+function olympusMusicTick(){
+ if(!olympusMusicOn)return;
+ const melody=[293.66,349.23,392,440,392,349.23,329.63,392,440,523.25,493.88,440,392,349.23,293.66,261.63],harmony=[146.83,174.61,196,220,196,174.61,164.81,196],bass=[73.42,87.31,98,82.41,65.41,73.42,58.27,65.41],i=olympusMusicStep++;
+ olympusChoirVoice(melody[i%melody.length],1.65,.023);
+ if(i%2===0)olympusChoirVoice(harmony[Math.floor(i/2)%harmony.length],2.25,.018,.05);
+ if(i%4===0)olympusTone(bass[Math.floor(i/4)%bass.length],2.8,'sine',.022);
+ if(i%8===0){olympusChoirVoice(587.33,2.1,.009,.18);olympusTone(110,3.2,'sine',.012,.1)}
+ olympusMusicTimer=setTimeout(olympusMusicTick,1050);
+}
 function olympusToggleMusic(){olympusAudio();olympusMusicOn=!olympusMusicOn;const b=$('olympusMusic');if(b){b.textContent=olympusMusicOn?'✧ Музыка: ВКЛ':'✧ Музыка: ВЫКЛ';b.classList.toggle('active',olympusMusicOn)}if(olympusMusicTimer){clearTimeout(olympusMusicTimer);olympusMusicTimer=null}if(olympusMusicOn)olympusMusicTick()}
 function olympusStopMusic(){olympusMusicOn=false;if(olympusMusicTimer){clearTimeout(olympusMusicTimer);olympusMusicTimer=null}if(olympusAudioCtx){const ctx=olympusAudioCtx;olympusAudioCtx=null;ctx.close().catch(()=>{})}olympusMusicStep=0;const b=$('olympusMusic');if(b){b.textContent='✧ Музыка: ВЫКЛ';b.classList.remove('active')}}
 function olympusSvg(sym){
