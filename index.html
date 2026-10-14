@@ -273,6 +273,17 @@ document.addEventListener('click',e=>{
 },true);
 
 
+$('menuReferral')?.addEventListener('click',async()=>{
+ const out=$('menuReferralResult'),copy=$('copyReferral'),button=$('menuReferral');
+ button.disabled=true;button.textContent='⏳ Создаём ссылку…';out.textContent='Получаем персональную ссылку…';
+ try{
+  const d=await api('/api/referral');
+  if(!d||!d.url||!/^https:\/\/t\.me\//.test(d.url))throw new Error('Сервер не вернул корректную ссылку.');
+  out.textContent=d.url;out.dataset.url=d.url;
+  copy.disabled=false;copy.textContent='📋 Скопировать ссылку';
+ }catch(e){out.textContent='Не удалось создать ссылку: '+e.message;out.dataset.url='';copy.disabled=true;console.error('Referral link error:',e);}
+ finally{button.disabled=false;button.textContent='🔗 Получить ссылку';}
+});
 $('copyReferral')?.addEventListener('click',async()=>{
  const url=$('menuReferralResult').dataset.url||'';
  if(!url)return;
