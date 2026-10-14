@@ -258,11 +258,12 @@ const initial={balance:0,total:0,clickLevel:Array(10).fill(0),autoLevel:Array(5)
 let state;try{state={...initial,...JSON.parse(localStorage.getItem('stars-clicker-save')||'{}')};if(!Array.isArray(state.clickLevel)||state.clickLevel.length!==10)state.clickLevel=Array(10).fill(0);if(!Array.isArray(state.autoLevel)||state.autoLevel.length!==5)state.autoLevel=Array(5).fill(0)}catch(e){state={...initial,clickLevel:[...initial.clickLevel],autoLevel:[...initial.autoLevel]}}
 let tab='click',lastSave=0;
 const tg=window.Telegram&&window.Telegram.WebApp?window.Telegram.WebApp:null;
-const initData=tg?tg.initData:'';
+let initData=tg?tg.initData:'';
 if(tg){tg.ready();tg.expand();if(typeof tg.disableVerticalSwipes==='function')tg.disableVerticalSwipes();}
 let selectedAvatar='⭐',serverMode=false,profileReady=false;
 async function api(path,method='GET',body){
- const res=await fetch(path,{method,headers:{'Content-Type':'application/json','X-Telegram-Init-Data':initData},body:body?JSON.stringify(body):undefined});
+ if(tg&&tg.initData)initData=tg.initData;
+ const res=await fetch(path,{method,cache:'no-store',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':initData},body:body?JSON.stringify(body):undefined});
  const data=await res.json().catch(()=>({error:'Ошибка ответа сервера'}));
  if(!res.ok)throw new Error(data.error||'Ошибка запроса');
  return data;
@@ -468,7 +469,8 @@ $('tap').addEventListener('click',async e=>{
  e.preventDefault();e.stopPropagation();
  const button=$('tap');
  if(button.dataset.busy==='1')return;
- if(!initData){const message='Баланс доступен только при запуске через кнопку «Открыть приложение» в Telegram-боте.';if(tg&&tg.showAlert)tg.showAlert(message);else alert(message);return;}
+ if(tg&&tg.initData)initData=tg.initData;
+ if(!initData){const message='Telegram не передал данные авторизации. Закрой это окно и открой приложение через кнопку в боте, а не по обычной ссылке.';$('profileMessage').textContent=message;if(tg&&tg.showAlert)tg.showAlert(message);return;}
  button.dataset.busy='1';button.setAttribute('aria-busy','true');
  try{
   const d=await api('/api/click','POST',{});
@@ -479,7 +481,8 @@ $('tap').addEventListener('click',async e=>{
  }catch(err){
   console.error('Click API error:',err);
   const message='Не удалось начислить звёзды: '+err.message;
-  if(tg&&tg.showAlert)tg.showAlert(message);else alert(message);
+  $('profileMessage').textContent=message;
+  if(tg&&tg.showAlert)tg.showAlert(message);
  }finally{button.dataset.busy='0';button.removeAttribute('aria-busy');}
 });
 
