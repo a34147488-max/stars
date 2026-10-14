@@ -333,6 +333,40 @@ body{overflow-anchor:none}
 #starsPlayLoader .sp-caption{margin-top:13px;color:#b7b0a0;font-size:12px;letter-spacing:2px}
 @keyframes spLoading{from{width:0}to{width:100%}}
 
+
+/* Sweet Bananza cascade slot */
+.sweet-cover{background:radial-gradient(circle at 50% 35%,#ffbc4a,#d43c83 48%,#43135d)!important;border-color:#ffb3e6!important;justify-content:center!important;gap:10px!important}
+.sweet-cover-fruit{font-size:clamp(26px,8vw,42px);filter:drop-shadow(0 5px 5px #320b3d99);letter-spacing:-8px}
+.sweet-cover-title{font-size:clamp(17px,4vw,23px);font-weight:1000;letter-spacing:1px;text-shadow:0 3px 8px #590b4c}
+.sweet-shell{max-width:520px;margin:auto;display:flex;flex-direction:column;gap:12px}
+.sweet-top{display:flex;align-items:center;justify-content:space-between;gap:7px;font-size:11px;font-weight:900}
+.sweet-top button,.sweet-actions button{border:1px solid #ffb8e9;border-radius:12px;padding:10px 12px;background:#4b185c;color:white;font-weight:900}
+.sweet-brand{font-size:clamp(11px,3vw,15px);letter-spacing:.5px;color:#ffe0ff}
+.sweet-balance{white-space:nowrap;color:#ffe6a0}
+.sweet-banner{text-align:center;padding:8px 0 2px;text-shadow:0 3px 12px #ff319b88}
+.sweet-banner>div{font-size:10px;letter-spacing:4px;color:#ffcbef;font-weight:900}
+.sweet-banner h1{font-size:clamp(34px,10vw,52px);line-height:.84;font-weight:1000;font-style:italic;letter-spacing:-2px;margin:8px 0;color:#ffe35c;-webkit-text-stroke:1px #ff82c9;text-shadow:0 4px 0 #b8329c,0 8px 18px #0008}
+.sweet-banner p{font-size:10px;letter-spacing:1.5px;color:#ffc9f0;font-weight:900}
+.sweet-controls{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sweet-controls label{font-size:10px;font-weight:900;letter-spacing:.5px;color:#ffd5f3;display:flex;flex-direction:column;gap:6px}
+.sweet-controls input[type=number]{width:100%;min-width:0;border:1px solid #a64f9b;border-radius:10px;background:#210e31;color:#fff;padding:11px;font:inherit;font-size:14px}
+.sweet-ante{flex-direction:row!important;align-items:center;gap:8px!important;border:1px solid #8d3e83;border-radius:12px;padding:8px;background:#35113f}
+.sweet-ante input{accent-color:#ff79c9;width:19px;height:19px}
+.sweet-ante small{display:block;margin-top:4px;color:#ffb4e8;font-size:9px}
+.sweet-board-wrap{padding:9px;border:1px solid #b94c9d;border-radius:17px;background:linear-gradient(145deg,#481354,#241039);box-shadow:inset 0 0 25px #ff8fd51a,0 8px 25px #0005}
+.sweet-status{text-align:center;font-size:11px;font-weight:800;color:#ffd4f4;min-height:18px;margin-bottom:7px}
+.sweet-board{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));grid-template-rows:repeat(5,minmax(42px,1fr));gap:4px;aspect-ratio:6/5}
+.sweet-cell{display:grid;place-items:center;min-width:0;border:1px solid #ffffff2c;border-radius:9px;background:linear-gradient(145deg,#fff3ff,#f2a6e7);font-size:clamp(20px,6vw,32px);box-shadow:inset 0 -4px 0 #a63a8a38;transition:transform .2s,opacity .2s}
+.sweet-cell.hit{animation:sweet-pop .32s ease-in forwards}
+.sweet-cell.bomb{background:linear-gradient(145deg,#b6fbff,#5c88ff)}
+@keyframes sweet-pop{to{transform:scale(.15) rotate(25deg);opacity:.15}}
+.sweet-win{text-align:center;font-size:clamp(23px,6vw,31px);font-weight:1000;color:#ffe56b;margin-top:7px;text-shadow:0 0 15px #ffcf4d66}
+.sweet-actions{display:grid;grid-template-columns:1.15fr 1fr;gap:8px}
+.sweet-actions button{min-height:50px;font-size:11px;background:linear-gradient(120deg,#ff4db4,#a52fe1);box-shadow:0 5px 16px #0003}
+.sweet-actions button:disabled,.sweet-top button:disabled{opacity:.5}
+.sweet-free{text-align:center;font-size:12px;color:#ffd5f3;font-weight:900}
+.sweet-note{text-align:center;font-size:10px;line-height:1.5;color:#c9a6d1;margin:0}
+@media(max-width:360px){.sweet-board{gap:3px;grid-template-rows:repeat(5,minmax(36px,1fr))}.sweet-cell{border-radius:6px}.sweet-top{gap:4px}.sweet-top button{padding:9px 7px}}
 </style>
 <style>
 .mines-cover{min-height:190px;border:1px solid #4bd9a0!important;background:radial-gradient(ellipse at 50% 25%,#164c42,#101a25 55%,#080d16)!important;color:#effff9!important}.mines-cover-art{font-size:52px;filter:drop-shadow(0 0 15px #54ffc3aa);animation:minesFloat 2.5s ease-in-out infinite}.mines-cover-title{font-weight:1000;font-size:22px;letter-spacing:2px;color:#83ffd1}.mines-cover-sub{font-size:10px;letter-spacing:2px;color:#b4d6d2;margin:7px 0 12px}@keyframes minesFloat{50%{transform:translateY(-5px) rotate(-4deg)}}
@@ -359,6 +393,7 @@ body{overflow-anchor:none}
    <span class="cover-play" style="position:relative;z-index:2;margin-top:auto">ROULETTE VILLA <b>›</b></span>
   </button>
   <button class="game-cover mines-cover" id="openMinesGame" type="button"><span class="mines-cover-art">💣</span><span class="mines-cover-title">MINES</span><span class="mines-cover-sub">CLASSIC · 25 CELLS</span><span class="cover-play">МИНЫ <b>›</b></span></button>
+  <button class="game-cover sweet-cover" id="openSweetBananza" type="button" aria-label="Открыть Sweet Bananza"><span class="sweet-cover-fruit">🍭🍌🍉</span><span class="sweet-cover-title">SWEET BANANZA</span><span class="cover-play">SWEET BANANZA <b>›</b></span></button>
   <div class="games-coming-soon"><span class="coming-icon">＋</span><span><b>Новые игры</b><small>Скоро появятся здесь</small></span><span class="coming-tag">СКОРО</span></div>
  </div>
  <div id="olympusGameView" hidden>
@@ -396,6 +431,17 @@ body{overflow-anchor:none}
  </div>
  </div>
 <div id="minesGameView" hidden style="position:fixed;inset:0;z-index:10010;overflow:auto;background:radial-gradient(ellipse at 50% -10%,#164c43,#0a101b 52%,#070a12);color:#f2fff9;padding:calc(env(safe-area-inset-top,0px) + 15px) 14px 25px;box-sizing:border-box"><div style="max-width:520px;margin:auto;display:flex;flex-direction:column;gap:12px"><div style="display:flex;justify-content:space-between;align-items:center"><button id="minesBack" class="mines-main-btn" style="padding:10px">‹ ИГРЫ</button><b>⭐ <span id="minesBalance">—</span></b></div><header class="mines-heading"><small>CLASSIC ARCADE</small><h1>💣 MINES</h1><p>Открывай безопасные клетки и забирай выигрыш до взрыва</p></header><div class="mines-config"><div class="mines-field"><label for="minesStake">СТАВКА ⭐</label><input id="minesStake" type="number" min=".1" max="1000000" step=".1" value="1"><div class="mines-quick"><button data-mines-add=".5">+0.5</button><button data-mines-add="1">+1</button><button data-mines-add="5">+5</button></div></div><div class="mines-field"><label>КОЛИЧЕСТВО МИН</label><div class="mines-difficulty"><button data-mines-count="3" class="active">3</button><button data-mines-count="5">5</button><button data-mines-count="10">10</button><button data-mines-count="15">15</button></div></div></div><div class="mines-meter"><div class="mines-stat"><small>ОТКРЫТО</small><strong id="minesOpened">0 / 22</strong></div><div class="mines-stat"><small>МНОЖИТЕЛЬ</small><strong id="minesMultiplier">×1.00</strong></div><div class="mines-stat"><small>ВОЗМОЖНЫЙ ВЫИГРЫШ</small><strong id="minesPotential">1.00 ⭐</strong></div></div><div class="mines-board" id="minesBoard"></div><div class="mines-message" id="minesMessage">Выбери ставку и сложность, затем начни игру.</div><div class="mines-actions"><button class="mines-main-btn" id="minesStart">▶ НАЧАТЬ ИГРУ</button><button class="mines-main-btn cashout" id="minesCashout" disabled>ЗАБРАТЬ 0 ⭐</button></div><div class="mines-note">Ставка списывается при старте. Выигрыш подтверждается сервером.</div></div></div>
+<div id="sweetBananzaView" hidden style="position:fixed;inset:0;z-index:10025;overflow:auto;background:radial-gradient(ellipse at 50% 0%,#6b1d71,#210b35 48%,#10091b);color:#fff6ff;padding:calc(env(safe-area-inset-top,0px) + 12px) 10px 24px;box-sizing:border-box">
+ <div class="sweet-shell">
+  <div class="sweet-top"><button id="sweetBack" type="button">‹ ИГРЫ</button><div class="sweet-brand">🍭 SWEET BANANZA</div><div class="sweet-balance">⭐ <span id="sweetBalance">—</span></div></div>
+  <div class="sweet-banner"><div>FRUIT PARTY</div><h1>SWEET<br>BANANZA</h1><p>6 БАРАБАНОВ · 5 РЯДОВ · КАСКАДЫ</p></div>
+  <div class="sweet-controls"><label>СТАВКА ⭐<input id="sweetStake" type="number" min="0.1" max="1000000" step="0.1" value="1"></label><label class="sweet-ante"><input id="sweetAnte" type="checkbox"><span>ДВОЙНОЙ ШАНС <small>+25% к ставке</small></span></label></div>
+  <div class="sweet-board-wrap"><div id="sweetStatus" class="sweet-status">8+ одинаковых символов — выигрыш!</div><div id="sweetBoard" class="sweet-board" aria-label="Игровое поле 6 на 5"></div><div id="sweetWin" class="sweet-win">0.00 ⭐</div></div>
+  <div class="sweet-actions"><button id="sweetSpin" type="button">КРУТИТЬ · 1.00 ⭐</button><button id="sweetBuy" type="button">КУПИТЬ БОНУС · ×100</button></div>
+  <div class="sweet-free" id="sweetFree">Бесплатные вращения: 0</div>
+  <p class="sweet-note">Демо-режим. Результат и баланс рассчитываются сервером; RTP не гарантируется в отдельной сессии.</p>
+ </div>
+</div>
 </section>
 <div class="olympus-superwin" id="olympusSuperWin" role="dialog" aria-modal="true" aria-labelledby="olympusSuperWinTitle">
  <div class="olympus-superwin-card"><div class="olympus-superwin-content">
@@ -842,6 +888,17 @@ let minesGame=null,minesBusy=false,minesCount=3;
 function minesRender(){const el=$('minesBoard');if(!el)return;const rev=new Set(minesGame?.revealed||[]),ended=!!minesGame&&minesGame.status!=='active';el.innerHTML=Array.from({length:25},(_,i)=>{const mine=!!minesGame?.mines?.includes(i),open=rev.has(i),show=ended&&mine;return '<button type="button" class="mines-tile '+(open&&!mine?'safe':show?'bomb':'')+'" style="--i:'+i+'" data-mines-cell="'+i+'" '+(!minesGame||minesGame.status!=='active'||open||minesBusy?'disabled':'')+'>'+(show?'💣':open?'💎':ended?'·':'?')+'</button>'}).join('');const n=rev.size,m=Number(minesGame?.multiplier||1),stake=Number($('minesStake').value||0);$('minesOpened').textContent=n+' / '+(25-minesCount);$('minesMultiplier').textContent='×'+m.toFixed(2);$('minesPotential').textContent=(Number(minesGame?.potential??stake*m)).toFixed(2)+' ⭐';$('minesStart').disabled=minesBusy||minesGame?.status==='active';$('minesCashout').disabled=minesBusy||minesGame?.status!=='active'||!n;$('minesCashout').textContent='ЗАБРАТЬ '+Number(minesGame?.potential||0).toFixed(2)+' ⭐';$('minesBalance').textContent=fmt(state.balance);document.querySelectorAll('[data-mines-count]').forEach(b=>{b.classList.toggle('active',+b.dataset.minesCount===minesCount);b.disabled=minesBusy||minesGame?.status==='active'});$('minesStake').disabled=minesBusy||minesGame?.status==='active';}
 function minesMsg(t,err=false){$('minesMessage').textContent=t;$('minesMessage').style.color=err?'#ff9eaa':'#b4d4c8'}
 async function minesAction(data){const out=await api('/api/mines/action','POST',data);minesGame=out.game;if(Number.isFinite(Number(out.balance))){state.balance=Number(out.balance);renderStats()}minesRender();return out}
+let sweetBusy=false,sweetFreeSpins=0;
+const sweetSymbols=['🍌','🍇','🍉','🍓','🍍','🍏','🍬','🍭'];
+function sweetBoardRender(cells){const board=$('sweetBoard');if(!board)return;board.innerHTML=cells.map((x,i)=>'<div class="sweet-cell '+(x==='💣'?'bomb':'')+'" data-sweet-cell="'+i+'">'+x+'</div>').join('')}
+function sweetUpdate(out){if(Number.isFinite(Number(out.balance))){state.balance=Number(out.balance);renderStats()}$('sweetBalance').textContent=fmt(state.balance);sweetFreeSpins=Number(out.freeSpins||0);$('sweetFree').textContent='Бесплатные вращения: '+sweetFreeSpins;$('sweetWin').textContent=Number(out.win||0).toFixed(2)+' ⭐';$('sweetStatus').textContent=out.message||'Удачи!';sweetBoardRender(out.board||Array.from({length:30},()=>sweetSymbols[Math.floor(Math.random()*sweetSymbols.length)]))}
+async function sweetPlay(action){if(sweetBusy)return;if(!initData){$('sweetStatus').textContent='Открой приложение через Telegram-бота.';return}const stake=Number($('sweetStake').value);if(!Number.isFinite(stake)||stake<.1||stake>1000000){$('sweetStatus').textContent='Ставка должна быть от 0.1 до 1 000 000 ⭐';return}sweetBusy=true;$('sweetSpin').disabled=$('sweetBuy').disabled=true;try{const out=await api('/api/sweet-bananza/action','POST',{action,stake,ante:$('sweetAnte').checked});sweetUpdate(out)}catch(e){$('sweetStatus').textContent=e.message||'Ошибка вращения'}finally{sweetBusy=false;$('sweetSpin').disabled=$('sweetBuy').disabled=false;$('sweetSpin').textContent='КРУТИТЬ · '+(Number($('sweetStake').value)*( $('sweetAnte').checked?1.25:1)).toFixed(2)+' ⭐'}}
+$('openSweetBananza')?.addEventListener('click',()=>{$('gamesHub').hidden=true;$('olympusGameView').hidden=true;$('gamesPanel')?.classList.add('olympus-fullscreen');$('sweetBananzaView').hidden=false;$('sweetBananzaView').scrollTop=0;$('sweetBalance').textContent=fmt(state.balance);sweetBoardRender(Array.from({length:30},()=>sweetSymbols[Math.floor(Math.random()*sweetSymbols.length)]))});
+$('sweetBack')?.addEventListener('click',()=>{$('sweetBananzaView').hidden=true;$('gamesHub').hidden=false;$('gamesPanel')?.classList.remove('olympus-fullscreen')});
+$('sweetSpin')?.addEventListener('click',()=>sweetPlay('spin'));
+$('sweetBuy')?.addEventListener('click',()=>{if(confirm('Купить бонусный раунд за 100× ставку?'))sweetPlay('buyBonus')});
+$('sweetStake')?.addEventListener('input',()=>{$('sweetSpin').textContent='КРУТИТЬ · '+(Math.max(0,Number($('sweetStake').value)||0)*($('sweetAnte').checked?1.25:1)).toFixed(2)+' ⭐'});
+$('sweetAnte')?.addEventListener('change',()=>{$('sweetSpin').textContent='КРУТИТЬ · '+(Math.max(0,Number($('sweetStake').value)||0)*($('sweetAnte').checked?1.25:1)).toFixed(2)+' ⭐'});
 $('openMinesGame')?.addEventListener('click',()=>{const panel=$('gamesPanel');$('gamesHub').hidden=true;$('olympusGameView').hidden=true;panel?.classList.add('olympus-fullscreen');$('minesGameView').hidden=false;$('minesGameView').scrollTop=0;minesRender()});
 $('minesBack')?.addEventListener('click',()=>{if(minesGame?.status==='active'&&!confirm('Выйти? Раунд останется активным.'))return;$('minesGameView').hidden=true;$('gamesHub').hidden=false;$('gamesPanel')?.classList.remove('olympus-fullscreen')});
 document.querySelectorAll('[data-mines-count]').forEach(b=>b.addEventListener('click',()=>{if(!minesBusy&&minesGame?.status!=='active'){minesCount=+b.dataset.minesCount;minesRender()}}));
