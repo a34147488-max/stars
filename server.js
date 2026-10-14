@@ -100,7 +100,7 @@ function mainKeyboard(id) {
   return {
     inline_keyboard: [
       [{ text: '⭐ Открыть кликер', web_app: { url: APP_URL } }],
-      [{ text: '👤 Профиль и аватар', web_app: { url: APP_URL + '#profile' } }],
+      [{ text: '👤 Профиль и аватар', web_app: { url: APP_URL + '#profilePanel' } }],
       [{ text: '✨ Кликнуть +0.0001', callback_data: 'click' }, { text: '💰 Баланс', callback_data: 'balance' }],
       [{ text: '🔗 Реферальная ссылка', callback_data: 'referral' }],
       [{ text: '💸 Перевод звёзд', callback_data: 'transfer_help' }]
