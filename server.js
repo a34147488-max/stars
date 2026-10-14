@@ -342,8 +342,8 @@ app.post('/api/olympus/spin', auth, async (req,res)=>{
     }
     const freeAtStart=freeSpins>0;
     let board=makeBoard();
-    if(crypto.randomInt(100)<(ante?18:9)){for(let n=0;n<4;n++)board[n]='zeus';}
-    else if(crypto.randomInt(100)<2){for(let n=0;n<3;n++)board[n]='zeus';}
+    if(crypto.randomInt(10000)<(ante?250:80)){for(let n=0;n<4;n++)board[n]='zeus';}
+    else if(crypto.randomInt(10000)<30){for(let n=0;n<3;n++)board[n]='zeus';}
     if(crypto.randomInt(100)<18){const sym=pick();for(let n=0;n<8;n++)board[n]=sym;}
     const scatter=board.filter(x=>x==='zeus').length;
     const displayBoard=[...board];
