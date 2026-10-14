@@ -400,6 +400,24 @@ body{overflow-anchor:none}
 .games-hub>.mines-cover .cover-play{background:linear-gradient(90deg,#073f35,#087e68,#26c99a)!important;color:#eafff8!important;border:1px solid #62f5c4;box-shadow:0 3px 14px #20d6a066!important}
 .games-hub>.olympus-cover .cover-play{background:linear-gradient(90deg,#47266f,#b84d95,#ffc65d)!important;color:#fff5c8!important;border:1px solid #ffe08a;box-shadow:0 3px 14px #ffb84b55!important}
 .games-hub>.roulette-cover .cover-play{background:linear-gradient(90deg,#111b16,#17613d,#b38a37)!important;color:#fff0b0!important;border:1px solid #d5ad58;box-shadow:0 3px 14px #3a9a6255!important}
+/* Compact matching action buttons and subtle motion for all game covers */
+.games-hub>.game-cover>.cover-play{align-self:center!important;width:calc(100% - 24px)!important;min-height:42px!important;box-sizing:border-box!important;margin:0 12px 12px!important;padding:10px 8px!important;border-radius:12px!important;font-size:12px!important;letter-spacing:1px!important;line-height:1.2!important;flex:0 0 auto!important}
+.games-hub>.image-game-cover>.cover-play{width:calc(100% - 24px)!important}
+.games-hub>.game-cover{transform:translateZ(0);animation:gameCoverFloat 4s ease-in-out infinite;transition:transform .25s ease,box-shadow .25s ease,filter .25s ease}
+.games-hub>.game-cover:nth-of-type(2){animation-delay:-.7s}
+.games-hub>.game-cover:nth-of-type(3){animation-delay:-1.4s}
+.games-hub>.game-cover:nth-of-type(4){animation-delay:-2.1s}
+.games-hub>.game-cover:nth-of-type(5){animation-delay:-2.8s}
+.games-hub>.game-cover:hover{transform:translateY(-4px) scale(1.015);filter:brightness(1.08);box-shadow:0 14px 32px #0009,0 0 18px #ffffff16}
+.games-hub>.image-game-cover .cover-art{animation:gameCoverImage 7s ease-in-out infinite;transform-origin:center}
+.games-hub>.olympus-cover:before{animation:gameCoverShimmer 5s ease-in-out infinite}
+.games-hub>.roulette-cover .roulette-cover-wheel{animation:gameWheelTurn 18s linear infinite}
+@keyframes gameCoverFloat{0%,100%{translate:0 0}50%{translate:0 -3px}}
+@keyframes gameCoverImage{0%,100%{scale:1}50%{scale:1.045}}
+@keyframes gameCoverShimmer{0%,100%{opacity:.65}50%{opacity:1}}
+@keyframes gameWheelTurn{to{rotate:346deg}}
+@media(prefers-reduced-motion:reduce){.games-hub>.game-cover,.games-hub>.image-game-cover .cover-art,.games-hub>.olympus-cover:before,.games-hub>.roulette-cover .roulette-cover-wheel{animation:none!important;transition:none!important}}
+
 </style>
 </head>
 <body>
