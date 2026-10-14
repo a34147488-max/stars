@@ -102,6 +102,28 @@ button:active{transform:none!important}
 .referral-link-text{overflow-wrap:anywhere;user-select:text;padding:8px 0}
 .menu-placeholder[hidden],.profile-panel[hidden]{display:none!important}
 
+
+/* Panels open as centered modal windows, never inserted into the page flow */
+.menu-placeholder,.profile-panel.star-shop-panel{
+ position:fixed!important;z-index:10000;left:50%!important;top:50%!important;
+ transform:translate(-50%,-50%)!important;width:min(92vw,520px)!important;
+ max-width:520px;max-height:82dvh;overflow-y:auto;overscroll-behavior:contain;
+ margin:0!important;padding:20px!important;box-sizing:border-box;
+ border:1px solid #343440!important;border-radius:24px!important;
+ background:linear-gradient(160deg,#15151d,#0b0b11)!important;
+ box-shadow:0 24px 90px #000c,0 0 0 100vmax #0009!important;
+ animation:modalIn .16s ease-out
+}
+.menu-placeholder[hidden],.profile-panel[hidden],.star-shop-panel[hidden]{display:none!important}
+@keyframes modalIn{from{opacity:0;scale:.97}to{opacity:1;scale:1}}
+.modal-close{position:sticky;float:right;top:0;margin:-6px -5px 8px 8px;width:36px;height:36px;border-radius:12px;border:1px solid #343440;background:#20202a;color:#fff;font-size:22px;z-index:2}
+.modal-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:10px 0 15px}
+.modal-stats .stat{min-width:0;padding:10px 4px;border-radius:13px}
+.modal-stats .stat strong{font-size:clamp(13px,3.5vw,18px);overflow-wrap:anywhere}
+.modal-stats .stat span{font-size:9px}
+body.modal-open{overflow:hidden;position:fixed;width:100%;touch-action:pan-y}
+html{overscroll-behavior:none;overflow-x:hidden}
+
 </style>
 </head>
 <body>
@@ -119,7 +141,7 @@ button:active{transform:none!important}
 </nav>
 <section class="menu-placeholder" id="gamesPanel" hidden><h2>🎮 Ежедневное колесо</h2><p>Крути раз в день и получай от 1 до 5 звёзд на игровой баланс.</p><div class="wheel-stage"><div id="dailyWheel" class="daily-wheel"><span>⭐</span><span>2 ⭐</span><span>3 ⭐</span><span>4 ⭐</span><span>5 ⭐</span><span>1 ⭐</span></div></div><button type="button" class="action-button primary" id="spinWheel">🎡 Крутить колесо</button><div id="wheelMessage" class="profile-message" role="status"></div></section>
 <section class="menu-placeholder" id="walletPanel" hidden><h2>👛 Кошелёк</h2><p>Переводи звёзды игрового баланса другим игрокам по их Telegram @username.</p><div class="wallet-balance">Текущий баланс: <strong id="walletBalance">—</strong></div><label class="profile-field">Юзернейм получателя<input class="profile-input" id="menuTransferUsername" placeholder="@username" maxlength="33"></label><label class="profile-field">Сумма перевода<input class="profile-input" id="menuTransferAmount" type="number" min="0.0001" step="0.0001" placeholder="1.0000"></label><button type="button" class="action-button primary" id="menuSendTransfer">💸 Перевести звёзды</button><div id="walletMessage" class="profile-message" role="status"></div></section>
-<section class="menu-placeholder" id="morePanel" hidden><h2>💠 Прочее</h2><a class="action-button channel-link" href="https://t.me/+39Jby9TgJps0Y2Ni" target="_blank" rel="noopener noreferrer">📣 Подписаться на Telegram-канал</a><div class="promo-box"><h3>🎟 Промокод</h3><p>Введи промокод, чтобы получить награду. Каждый код активируется один раз на аккаунт.</p><input class="profile-input" id="promoCodeInput" placeholder="ВВЕДИ ПРОМОКОД" maxlength="32" autocapitalize="characters"><button type="button" class="action-button primary" id="activatePromo">Активировать</button><div id="promoMessage" class="profile-message" role="status"></div></div><div class="settings-box"><h3>🎵 Новогодняя музыка</h3><p>Включай или выключай мелодию приложения.</p><button class="music-toggle" id="menuMusicToggle" type="button" aria-pressed="false"><span id="menuMusicLabel">Включить музыку</span></button></div></section>
+<section class="menu-placeholder" id="morePanel" hidden><h2>💠 Прочее</h2><div class="stats modal-stats"><div class="stat"><strong id="perTapModal">0.0001</strong><span>ЗА КЛИК</span></div><div class="stat"><strong id="perSecModal">0.0000</strong><span>В СЕКУНДУ</span></div><div class="stat"><strong id="totalModal">0.0000</strong><span>ВСЕГО ДОБЫТО</span></div></div><a class="action-button channel-link" href="https://t.me/+39Jby9TgJps0Y2Ni" target="_blank" rel="noopener noreferrer">📣 Подписаться на Telegram-канал</a><div class="promo-box"><h3>🎟 Промокод</h3><p>Введи промокод, чтобы получить награду. Каждый код активируется один раз на аккаунт.</p><input class="profile-input" id="promoCodeInput" placeholder="ВВЕДИ ПРОМОКОД" maxlength="32" autocapitalize="characters"><button type="button" class="action-button primary" id="activatePromo">Активировать</button><div id="promoMessage" class="profile-message" role="status"></div></div><div class="settings-box"><h3>🎵 Новогодняя музыка</h3><p>Включай или выключай мелодию приложения.</p><button class="music-toggle" id="menuMusicToggle" type="button" aria-pressed="false"><span id="menuMusicLabel">Включить музыку</span></button></div></section>
 <section class="menu-placeholder" id="friendsPanel" hidden><h2>👥 Друзья</h2><p>Приглашай друзей и делись персональной ссылкой.</p><div id="menuReferralResult" class="profile-message referral-link-text">Ссылка ещё не загружена.</div><button type="button" class="action-button primary" id="menuReferral">🔗 Получить ссылку</button><button type="button" class="action-button" id="copyReferral" disabled>📋 Скопировать ссылку</button></section>
 <div class="winter-row"><svg class="tree" viewBox="0 0 60 80" aria-hidden="true"><path d="M30 4 13 29h9L7 47h16L10 63h40L37 47h16L38 29h9Z" fill="#1ba879" stroke="#72f5c1" stroke-width="1.5"/><path d="M26 63h8v12h-8z" fill="#a9784c"/><path d="M30 1l2.5 5 5.5.8-4 3.8 1 5.4-5-2.6-5 2.6 1-5.4-4-3.8 5.5-.8Z" fill="#ffe77a"/><circle cx="21" cy="35" r="2.5" fill="#ff637d"/><circle cx="37" cy="43" r="2.5" fill="#ffe77a"/><circle cx="26" cy="54" r="2.5" fill="#8bd8ff"/></svg><span>Зимняя звёздная ночь</span><svg class="tree" viewBox="0 0 60 80" aria-hidden="true"><path d="M30 4 13 29h9L7 47h16L10 63h40L37 47h16L38 29h9Z" fill="#1ba879" stroke="#72f5c1" stroke-width="1.5"/><path d="M26 63h8v12h-8z" fill="#a9784c"/><path d="M30 1l2.5 5 5.5.8-4 3.8 1 5.4-5-2.6-5 2.6 1-5.4-4-3.8 5.5-.8Z" fill="#ffe77a"/><circle cx="21" cy="35" r="2.5" fill="#ff637d"/><circle cx="37" cy="43" r="2.5" fill="#ffe77a"/><circle cx="26" cy="54" r="2.5" fill="#8bd8ff"/></svg></div>
 <section class="hero">
@@ -128,7 +150,7 @@ button:active{transform:none!important}
 <button class="star-button" id="tap" aria-label="Получить звёзды нажатием"><svg viewBox="0 0 120 120" aria-hidden="true"><defs><linearGradient id="starGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fffde0"/><stop offset=".32" stop-color="#fff07a"/><stop offset=".68" stop-color="#ffc32d"/><stop offset="1" stop-color="#ff8c20"/></linearGradient></defs><path class="main-star" d="M60 5 73 42 113 44 82 69 93 109 60 85 27 109 38 69 7 44 47 42Z"/><path class="star-inner" d="M60 17 70 46 101 48 77 67 85 96 60 78 35 96 43 67 19 48 50 46Z"/><path class="spark" d="M30 28 33 37 42 40 33 43 30 52 27 43 18 40 27 37Z"/><circle class="spark" cx="86" cy="30" r="3"/><circle class="spark" cx="89" cy="81" r="2.5"/></svg></button>
 <div class="tap-hint">Нажимай на звезду, чтобы добывать звёзды</div>
 </section>
-<div class="stats"><div class="stat"><strong id="perTap">0.0001</strong><span>ЗА КЛИК</span></div><div class="stat"><strong id="perSec">0.0000</strong><span>В СЕКУНДУ</span></div><div class="stat"><strong id="total">0.0000</strong><span>ВСЕГО ДОБЫТО</span></div></div>
+
 <section class="profile-panel" id="profilePanel">
 <h2>👤 Профиль игрока</h2>
 <div class="profile-row"><div class="profile-avatar" id="profileAvatar">⭐</div><div class="profile-input" id="profileName" aria-live="polite">Загрузка профиля…</div></div>
@@ -142,7 +164,7 @@ button:active{transform:none!important}
 <div class="profile-message" id="transferMessage" role="status"></div>
 </div>
 </section>
-<button class="action-button primary shop-open" id="toggleShop" type="button" aria-expanded="false"><span>✨</span><span>Магазин улучшений<small>Усиления за Telegram Stars</small></span><b>ОТКРЫТЬ　›</b></button>
+
 <section class="profile-panel star-shop-panel" id="shopPanel" hidden><div class="shop-title-row"><div><div class="shop-eyebrow">STARS STORE</div><h2>✨ Улучшения</h2></div><span class="shop-live">● ОПЛАТА TELEGRAM</span></div><p class="shop-intro">Выбери усиление — оплата откроется прямо в Telegram. Множитель действует постоянно.</p><div id="shopMessage" class="shop-message" role="status"></div><div id="shop" class="shop star-shop-grid"><div class="shop-loading">Загружаем улучшения…</div></div><div class="shop-footnote">Безопасная оплата Telegram Stars · 10 уровней усиления</div></section>
 <button class="action-button primary" id="toggleLeaderboard" type="button" aria-expanded="false" style="width:100%;margin:12px 0">🏆 Открыть топ игроков</button>
 <section class="profile-panel leaderboard-panel" id="leaderboardPanel" hidden>
@@ -200,20 +222,37 @@ function setAvatar(el,value){
 const $=id=>document.getElementById(id);
 // Редактирование аватара в приложении отключено: менять его можно только через Telegram-бота.
 
+function closeAllMenus(){
+ document.querySelectorAll('.menu-placeholder,.star-shop-panel,#profilePanel').forEach(p=>p.hidden=true);
+ document.body.classList.remove('modal-open');
+}
+function openModal(panel){
+ if(!panel)return;
+ closeAllMenus();
+ panel.hidden=false;document.body.classList.add('modal-open');
+ if(!panel.querySelector('.modal-close')){
+  const close=document.createElement('button');close.type='button';close.className='modal-close';close.textContent='×';close.setAttribute('aria-label','Закрыть окно');
+  close.addEventListener('click',closeAllMenus);panel.prepend(close);
+ }
+}
 document.querySelectorAll('[data-open]').forEach(btn=>btn.addEventListener('click',async()=>{
  const id=btn.getAttribute('data-open');
- const panel=document.getElementById(id);
- if(!panel)return;
- if(id==='profilePanel'){panel.scrollIntoView({behavior:'auto',block:'nearest'});return;}
- panel.hidden=!panel.hidden;
- if(id==='leaderboardPanel'&&!panel.hidden) await loadLeaderboard();
- if(id==='shopPanel'&&!panel.hidden) { $('toggleShop').setAttribute('aria-expanded','true'); loadStarShop();  }
+ if(id==='profilePanel'){openModal(document.getElementById(id));return;}
+ const panel=document.getElementById(id);if(!panel)return;
+ if(!panel.hidden){closeAllMenus();return;}
+ openModal(panel);
+ if(id==='leaderboardPanel')await loadLeaderboard();
+ if(id==='shopPanel'){ $('toggleShop')?.setAttribute('aria-expanded','true'); await loadStarShop(); }
+ if(id==='gamesPanel')await refreshDailyWheel();
+ if(id==='walletPanel')$('walletBalance').textContent=fmt(state.balance);
 }));
-document.getElementById('menuReferral')?.addEventListener('click',async()=>{
- const out=$('menuReferralResult'),copy=$('copyReferral');
- try{const d=await api('/api/referral');out.textContent=d.url;out.dataset.url=d.url;if(copy)copy.disabled=false;}
- catch(e){out.textContent=e.message;out.dataset.url='';if(copy)copy.disabled=true;}
+document.getElementById('toggleShop')?.addEventListener('click',async()=>{
+ const panel=$('shopPanel');if(!panel)return;
+ if(!panel.hidden){closeAllMenus();return;}
+ openModal(panel);await loadStarShop();
 });
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAllMenus()});
+
 $('copyReferral')?.addEventListener('click',async()=>{
  const url=$('menuReferralResult').dataset.url||'';
  if(!url)return;
