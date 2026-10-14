@@ -186,6 +186,7 @@ body{overflow-anchor:none}
 .olympus-reel-top{display:flex;justify-content:space-between;padding:2px 4px 7px;color:#ffe99a;font-weight:900;font-size:10px;letter-spacing:1px}
 .olympus-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:2px;padding:3px;background:#18091f;border:2px solid #a86e2e}
 .olympus-cell{display:grid;place-items:center;aspect-ratio:.88;background:linear-gradient(145deg,#4a1e59,#24102d 65%,#391547);border:1px solid #8f5a9c;font-size:clamp(22px,7vw,38px);text-shadow:0 3px 3px #000;box-shadow:inset 0 0 8px #e8a6ff18;min-width:0}
+.olympus-audio-row{display:flex;justify-content:center;margin:8px 0 12px}.olympus-music{border:1px solid #d7a83b;border-radius:999px;padding:9px 15px;background:#24152d;color:#ffe8a2;font-weight:800}.olympus-music.active{background:#493018;box-shadow:0 0 15px #e8bd4c66}
 .olympus-cell.win{border:2px solid #ffe575;box-shadow:inset 0 0 15px #ffb500,0 0 12px #ffd34e;animation:olympusWin .55s ease-in-out infinite alternate}
 .olympus-grid.spinning .olympus-cell{animation:olympusReel .12s linear infinite alternate;filter:brightness(1.2)}
 @keyframes olympusReel{to{transform:translateY(3px);filter:brightness(1.7)}}
@@ -255,6 +256,7 @@ body{overflow-anchor:none}
   <button type="button" class="olympus-back" id="closeOlympus">‹ Назад</button>
   <header class="olympus-title"><div class="olympus-laurel">ANCIENT GREECE · DIVINE REELS</div><h1>OLYMPUS</h1><div class="olympus-subtitle">GATES OF ZEUS</div></header>
   <div class="olympus-status"><span id="olympusSpinCount">СПИНОВ: 0</span><span id="olympusMode">ОБЫЧНАЯ ИГРА</span></div>
+  <div class="olympus-audio-row"><button id="olympusMusic" class="olympus-music" type="button">♫ Музыка: ВЫКЛ</button></div>
   <div class="olympus-frame"><div class="olympus-grid" id="olympusReels" aria-label="Поле 6 на 5"></div></div>
   <div class="olympus-win" id="olympusWin">СОБЕРИ 8 ОДИНАКОВЫХ СИМВОЛОВ</div>
   <div class="olympus-result" id="olympusResult" role="status">Каскады · Pay Anywhere · Без Wild</div>
@@ -446,6 +448,14 @@ const olympusSymbols=[
  {id:'zeus',name:'Зевс Scatter',type:'scatter',color:'#fff0bb',shape:'zeus',pay:0},
  {id:'orb',name:'Сфера-множитель',type:'orb',color:'#8ce6ff',shape:'orb',pay:0}
 ];
+// Olympus audio: synthesized spin/cluster effects and an ancient-Greek-inspired lyre loop.
+let olympusAudioCtx=null,olympusMusicOn=false,olympusMusicTimer=null,olympusMusicStep=0;
+function olympusAudio(){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;if(!olympusAudioCtx)olympusAudioCtx=new AC();if(olympusAudioCtx.state==='suspended')olympusAudioCtx.resume().catch(()=>{});return olympusAudioCtx}
+function olympusTone(freq,duration=.12,wave='sine',volume=.035,delay=0){const c=olympusAudio();if(!c)return;const t=c.currentTime+delay,o=c.createOscillator(),g=c.createGain();o.type=wave;o.frequency.setValueAtTime(freq,t);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(volume,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+duration);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+duration+.03)}
+function olympusSpinSound(){const c=olympusAudio();if(!c)return;const t=c.currentTime,o=c.createOscillator(),g=c.createGain();o.type='sawtooth';o.frequency.setValueAtTime(180,t);o.frequency.exponentialRampToValueAtTime(720,t+.28);o.frequency.exponentialRampToValueAtTime(240,t+.72);g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(.035,t+.04);g.gain.exponentialRampToValueAtTime(.0001,t+.74);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+.76)}
+function olympusMatchSound(){[523.25,659.25,783.99,1046.5].forEach((f,i)=>olympusTone(f,.24,'triangle',.045,i*.065))}
+function olympusMusicTick(){if(!olympusMusicOn)return;const melody=[293.66,349.23,440,523.25,587.33,523.25,440,349.23,392,493.88,587.33,659.25,587.33,493.88,392,349.23],bass=[146.83,146.83,174.61,174.61,130.81,130.81,196,196],i=olympusMusicStep++;olympusTone(melody[i%melody.length],.48,'triangle',.018);if(i%2===0)olympusTone(melody[(i+3)%melody.length]*2,.22,'sine',.008,.12);if(i%4===0)olympusTone(bass[Math.floor(i/2)%bass.length],.65,'sine',.018);olympusMusicTimer=setTimeout(olympusMusicTick,360)}
+function olympusToggleMusic(){olympusAudio();olympusMusicOn=!olympusMusicOn;const b=$('olympusMusic');if(b){b.textContent=olympusMusicOn?'♫ Музыка: ВКЛ':'♫ Музыка: ВЫКЛ';b.classList.toggle('active',olympusMusicOn)}if(olympusMusicTimer){clearTimeout(olympusMusicTimer);olympusMusicTimer=null}if(olympusMusicOn)olympusMusicTick()}
 function olympusSvg(sym){
  const c=sym.color;
  const common='stroke="#fff4d2" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round"';
@@ -503,6 +513,7 @@ async function olympusPlay(buyBonus=false){
  const button=$('olympusSpin'),grid=$('olympusReels'),result=$('olympusResult');
  button.disabled=true;$('olympusBuy').disabled=true;button.classList.add('busy');$('olympusWin').textContent='БАРАБАНЫ ВРАЩАЮТСЯ';result.textContent='Символы падают с небес…';grid.classList.add('spinning');
  let ticks=0;
+ olympusSpinSound();
  const timer=setInterval(async()=>{
   const random=olympusMakeBoard();grid.innerHTML=random.map((id,i)=>olympusCell(id,i)).join('');ticks++;
   if(ticks>=12){
@@ -522,6 +533,7 @@ async function olympusPlay(buyBonus=false){
     if(!clusters.length)break;
     const removed=[];
     clusters.forEach(cl=>{const sym=olympusSymbol(cl.id);totalWin+=effectiveBet*sym.pay*(cl.count/8);});
+    olympusMatchSound();
     board.forEach((id,i)=>{if(clusters.some(cl=>cl.id===id)){removed.push(i);cells[i]?.classList.add('win','vanish')}});
     cascades++;
     await new Promise(r=>setTimeout(r,330));
@@ -554,6 +566,7 @@ async function olympusPlay(buyBonus=false){
   }
  },90);
 }
+$('olympusMusic')?.addEventListener('click',olympusToggleMusic);
 $('olympusSpin')?.addEventListener('click',()=>olympusPlay(false));
 $('olympusBuy')?.addEventListener('click',()=>olympusPlay(true));
 $('closeOlympus')?.addEventListener('click',()=>closeAllMenus());
