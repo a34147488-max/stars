@@ -210,10 +210,48 @@ document.querySelectorAll('[data-open]').forEach(btn=>btn.addEventListener('clic
  if(id==='shopPanel'&&!panel.hidden) { $('toggleShop').setAttribute('aria-expanded','true'); loadStarShop(); $('shopPanel').scrollIntoView({behavior:'smooth',block:'start'}); }
 }));
 document.getElementById('menuReferral')?.addEventListener('click',async()=>{
- const out=$('menuReferralResult');
- try{const d=await api('/api/referral');out.textContent=d.url;if(tg&&tg.HapticFeedback)tg.HapticFeedback.notificationOccurred('success');}
- catch(e){out.textContent=initData?e.message:'Открой приложение через Telegram-бота, чтобы получить ссылку.';}
+ const out=$('menuReferralResult'),copy=$('copyReferral');
+ try{const d=await api('/api/referral');out.textContent=d.url;out.dataset.url=d.url;if(copy)copy.disabled=false;}
+ catch(e){out.textContent=e.message;out.dataset.url='';if(copy)copy.disabled=true;}
 });
+$('copyReferral')?.addEventListener('click',async()=>{
+ const url=$('menuReferralResult').dataset.url||'';
+ if(!url)return;
+ try{if(navigator.clipboard&&navigator.clipboard.writeText)await navigator.clipboard.writeText(url);else{const x=document.createElement('textarea');x.value=url;document.body.appendChild(x);x.select();document.execCommand('copy');x.remove();} $('copyReferral').textContent='✅ Ссылка скопирована';}
+ catch(e){$('menuReferralResult').textContent=url;}
+});
+$('spinWheel')?.addEventListener('click',async()=>{
+ const b=$('spinWheel'),wheel=$('dailyWheel'),msg=$('wheelMessage');
+ b.disabled=true;msg.textContent='Колесо вращается…';
+ try{
+  const d=await api('/api/daily-wheel/spin','POST',{});
+  wheel.style.transform='rotate('+(360*5+Math.floor(Math.random()*360))+'deg)';
+  state.balance=Number(d.balance);state.total=Number(d.total);refresh();
+  setTimeout(()=>{msg.textContent='🎉 Выпало '+d.reward+' '+(d.reward===1?'звезда':'звёзд')+'! Приходи завтра.';b.textContent='Уже использовано сегодня';},3200);
+ }catch(e){msg.textContent=e.message; b.disabled=false;}
+});
+async function refreshDailyWheel(){
+ try{const d=await api('/api/daily-wheel');$('spinWheel').disabled=!d.canSpin;$('spinWheel').textContent=d.canSpin?'🎡 Крутить колесо':'Уже использовано сегодня';if(!d.canSpin)$('wheelMessage').textContent='Сегодняшняя награда: '+d.lastReward+' ⭐. Возвращайся завтра.';}
+ catch(e){$('wheelMessage').textContent=e.message;}
+}
+$('menuSendTransfer')?.addEventListener('click',async()=>{
+ const msg=$('walletMessage'),username=$('menuTransferUsername').value.trim(),amount=Number($('menuTransferAmount').value);
+ if(!username||!Number.isFinite(amount)||amount<=0){msg.textContent='Укажи @username и сумму больше нуля.';return;}
+ const b=$('menuSendTransfer');b.disabled=true;
+ try{const d=await api('/api/transfer','POST',{username,amount});state.balance=d.balance;$('walletBalance').textContent=fmt(state.balance);msg.textContent='Переведено '+Number(d.amount).toFixed(4)+' звёзд игроку '+d.recipient+'.';$('menuTransferAmount').value='';refresh();}
+ catch(e){msg.textContent=e.message;}
+ finally{b.disabled=false;}
+});
+$('activatePromo')?.addEventListener('click',async()=>{
+ const b=$('activatePromo'),msg=$('promoMessage'),code=$('promoCodeInput').value.trim();
+ if(!code){msg.textContent='Введи промокод.';return;}
+ b.disabled=true;
+ try{const d=await api('/api/promo/activate','POST',{code});state.balance=d.balance;state.total=d.total;refresh();$('walletBalance').textContent=fmt(state.balance);msg.textContent='🎉 Промокод активирован! Начислено '+fmt(d.amount)+' звёзд.';$('promoCodeInput').value='';}
+ catch(e){msg.textContent=e.message;}
+ finally{b.disabled=false;}
+});
+$('menuMusicToggle')?.addEventListener('click',async()=>{if(musicCtx){stopMusic();}else{await startMusic();}});
+
 
 document.getElementById('makeReferral').addEventListener('click',async()=>{
  const out=document.getElementById('referralResult');
@@ -274,14 +312,11 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')withdrawModal.hidden
 let musicCtx=null,musicTimer=null,musicStep=0;
 const melody=[523.25,659.25,783.99,659.25,587.33,698.46,880,698.46,523.25,587.33,659.25,523.25,392,493.88,523.25,0];
 function playNote(){if(!musicCtx)return;const f=melody[musicStep++%melody.length];if(f){const o=musicCtx.createOscillator(),g=musicCtx.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(.0001,musicCtx.currentTime);g.gain.exponentialRampToValueAtTime(.045,musicCtx.currentTime+.035);g.gain.exponentialRampToValueAtTime(.0001,musicCtx.currentTime+.28);o.connect(g);g.connect(musicCtx.destination);o.start();o.stop(musicCtx.currentTime+.3)}}
-function stopMusic(){if(musicTimer)clearInterval(musicTimer);musicTimer=null;if(musicCtx){musicCtx.close().catch(()=>{});musicCtx=null}const b=document.getElementById('musicToggle');if(b){b.classList.remove('playing');b.setAttribute('aria-pressed','false');document.getElementById('musicLabel').textContent='Включить музыку'}}
-async function startMusic(){if(musicCtx)return true;try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC){document.getElementById('musicLabel').textContent='Музыка недоступна';return false}musicCtx=new AC();await musicCtx.resume();if(musicCtx.state!=='running'){await musicCtx.close();musicCtx=null;return false}musicStep=0;playNote();musicTimer=setInterval(playNote,330);document.getElementById('musicToggle').classList.add('playing');document.getElementById('musicToggle').setAttribute('aria-pressed','true');document.getElementById('musicLabel').textContent='Выключить музыку';return true}catch(e){if(musicCtx){musicCtx.close().catch(()=>{});musicCtx=null}return false}}
+function syncMusicButtons(playing){[['musicToggle','musicLabel'],['menuMusicToggle','menuMusicLabel']].forEach(([bid,lid])=>{const b=document.getElementById(bid),l=document.getElementById(lid);if(b){b.classList.toggle('playing',playing);b.setAttribute('aria-pressed',String(playing))}if(l)l.textContent=playing?'Выключить музыку':'Включить музыку'})}
+function stopMusic(){if(musicTimer)clearInterval(musicTimer);musicTimer=null;if(musicCtx){musicCtx.close().catch(()=>{});musicCtx=null}syncMusicButtons(false)}
+async function startMusic(){if(musicCtx)return true;try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC){document.getElementById('musicLabel').textContent='Музыка недоступна';return false}musicCtx=new AC();await musicCtx.resume();if(musicCtx.state!=='running'){await musicCtx.close();musicCtx=null;return false}musicStep=0;playNote();musicTimer=setInterval(playNote,330);syncMusicButtons(true);return true}catch(e){if(musicCtx){musicCtx.close().catch(()=>{});musicCtx=null}return false}}
 document.getElementById('musicToggle').addEventListener('click',async()=>{if(musicCtx){stopMusic();return}await startMusic()});
-// Сначала пробуем включить музыку при загрузке. Если браузер запрещает автозапуск,
-// запускаем её при первом касании, клике или нажатии клавиши.
-startMusic().then(ok=>{if(!ok){document.getElementById('musicLabel').textContent='Коснись экрана для музыки'}});
-const unlockMusic=()=>{if(!musicCtx)startMusic();};
-['pointerdown','touchstart','keydown'].forEach(ev=>document.addEventListener(ev,unlockMusic,{once:true,passive:true}));
+// Музыка включается только по нажатию кнопки в разделе «Прочее».
 const snow=document.getElementById('snowLayer');for(let i=0;i<65;i++){const fl=document.createElement('i');fl.className='snowflake';fl.style.setProperty('--x',(Math.random()*100)+'%');fl.style.setProperty('--size',(2+Math.random()*4)+'px');fl.style.setProperty('--opacity',(.25+Math.random()*.65).toFixed(2));fl.style.setProperty('--duration',(7+Math.random()*13)+'s');fl.style.setProperty('--delay',(-Math.random()*18)+'s');fl.style.setProperty('--drift',(-45+Math.random()*90)+'px');snow.appendChild(fl)}
 
 function fmt(n){if(!Number.isFinite(n))return '∞';if(Math.abs(n)<1000)return n.toFixed(4);return n.toLocaleString('ru-RU',{maximumFractionDigits:2})}
@@ -303,7 +338,7 @@ $('toggleShop').addEventListener('click',()=>{const panel=$('shopPanel');panel.h
 $('shop').addEventListener('click',e=>{const b=e.target.closest('[data-product]');if(b)buyStarProduct(b,b.dataset.product);});
 // Магазин реальных Telegram Stars загружается с сервера.
 // Баланс меняется только сервером. Локальная авто-добыча отключена, чтобы не рассинхронизировать приложение и бота.
-window.addEventListener('pagehide',()=>{save();stopMusic()});refresh();loadServerProfile();
+window.addEventListener('pagehide',()=>{save();stopMusic()});refresh();loadServerProfile();refreshDailyWheel();
 })();
 </script>
 </body>
