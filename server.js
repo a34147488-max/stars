@@ -14,11 +14,16 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: process
 let bot = null;
 let dbReady = false;
 const STAR_PRODUCTS = {
-  boost_50: { title: 'Усиление x2', description: 'Удвоение награды за клик', stars: 50, multiplier: 2 },
-  boost_100: { title: 'Усиление x3', description: 'Утроение награды за клик', stars: 100, multiplier: 3 },
-  boost_200: { title: 'Усиление x5', description: 'Увеличение награды за клик в 5 раз', stars: 200, multiplier: 5 },
-  boost_350: { title: 'Усиление x7', description: 'Увеличение награды за клик в 7 раз', stars: 350, multiplier: 7 },
-  boost_500: { title: 'Усиление x10', description: 'Увеличение награды за клик в 10 раз', stars: 500, multiplier: 10 }
+  boost_50: { title: 'Искра x2', description: 'Постоянный множитель клика x2', stars: 50, multiplier: 2 },
+  boost_75: { title: 'Импульс x2.5', description: 'Постоянный множитель клика x2.5', stars: 75, multiplier: 2.5 },
+  boost_100: { title: 'Сияние x3', description: 'Постоянный множитель клика x3', stars: 100, multiplier: 3 },
+  boost_150: { title: 'Пульсар x4', description: 'Постоянный множитель клика x4', stars: 150, multiplier: 4 },
+  boost_200: { title: 'Сверхновая x5', description: 'Постоянный множитель клика x5', stars: 200, multiplier: 5 },
+  boost_250: { title: 'Квант x6', description: 'Постоянный множитель клика x6', stars: 250, multiplier: 6 },
+  boost_300: { title: 'Галактика x7', description: 'Постоянный множитель клика x7', stars: 300, multiplier: 7 },
+  boost_350: { title: 'Космос x8', description: 'Постоянный множитель клика x8', stars: 350, multiplier: 8 },
+  boost_400: { title: 'Вселенная x9', description: 'Постоянный множитель клика x9', stars: 400, multiplier: 9 },
+  boost_500: { title: 'Бог звёзд x10', description: 'Постоянный множитель клика x10', stars: 500, multiplier: 10 }
 };
 
 async function initDb() {
