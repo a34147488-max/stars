@@ -119,12 +119,6 @@ function setAvatar(el,value){
    const img=document.createElement('img');img.src=value;img.alt='Аватар игрока';el.appendChild(img);
  }else el.textContent=value||'⭐';
 }
-async function api(path,method='GET',body){
- const res=await fetch(path,{method,headers:{'Content-Type':'application/json','X-Telegram-Init-Data':initData},body:body?JSON.stringify(body):undefined});
- const data=await res.json().catch(()=>({error:'Ошибка ответа сервера'}));
- if(!res.ok)throw new Error(data.error||'Ошибка запроса');
- return data;
-}
 const $=id=>document.getElementById(id);
 // Редактирование аватара в приложении отключено: менять его можно только через Telegram-бота.
 document.getElementById('makeReferral').addEventListener('click',async()=>{
