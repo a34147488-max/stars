@@ -577,9 +577,10 @@ app.post('/api/sweet-bananza/action', auth, async (req,res)=>{
   const pr=await db.query('SELECT balance,total FROM players WHERE telegram_id=$1 FOR UPDATE',[id]);
   if(!pr.rowCount)throw Error('Игрок не найден');
   let balance=Number(pr.rows[0].balance),total=Number(pr.rows[0].total);
-  const stake=Number(req.body?.stake),ante=!!req.body?.ante;
-  if(!Number.isFinite(stake)||stake<.1||stake>1000000)throw Error('Ставка должна быть от 0.1 до 1 000 000 звёзд');
+  const requestedStake=Number(req.body?.stake),ante=!!req.body?.ante;
+  if(!Number.isFinite(requestedStake)||requestedStake<.1||requestedStake>1000000)throw Error('Ставка должна быть от 0.1 до 1 000 000 звёзд');
   let sr=await db.query('SELECT * FROM sweet_bananza_sessions WHERE telegram_id=$1 FOR UPDATE',[id]),session=sr.rows[0]||{free_spins:0,bonus_stake:0};
+  const stake=Number(session.free_spins)>0?Number(session.bonus_stake):requestedStake;
   if(action==='buyBonus'){
    if(Number(session.free_spins)>0)throw Error('Сначала используй текущие бесплатные вращения');
    const cost=stake*100;
