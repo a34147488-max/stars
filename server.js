@@ -12,6 +12,7 @@ const BOT_TOKEN = process.env.BOT_TOKEN;
 const APP_URL = (process.env.APP_URL || 'https://mainap-production.up.railway.app').replace(/\/$/, '');
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: process.env.DATABASE_URL && !/localhost|127\.0\.0\.1/.test(process.env.DATABASE_URL) ? { rejectUnauthorized: false } : false });
 let bot = null;
+let dbReady = false;
 
 async function initDb() {
   await pool.query(`
@@ -172,7 +173,7 @@ function registerBot() {
   });
   bot.on('polling_error', e => console.error('Telegram polling error:', e.message));
 }
-app.get('/health', (_req,res)=>res.json({ok:true,botEnabled:Boolean(BOT_TOKEN)}));
+app.get('/health', (_req,res)=>res.status(200).json({ok:true,dbReady,botEnabled:Boolean(bot),message:dbReady?(bot?'Stars is ready':'Database ready; BOT_TOKEN is not configured'):'PostgreSQL is not ready; check DATABASE_URL and Railway database logs'}));
 app.get('/api/me', auth, async (req,res)=>res.json({player:publicPlayer(await getPlayer(req.player.telegram_id))}));
 app.post('/api/click', auth, async (req,res)=>{const amount=0.0001;const r=await pool.query('UPDATE players SET balance=balance+$2,total=total+$2,updated_at=NOW() WHERE telegram_id=$1 RETURNING balance,total',[String(req.player.telegram_id),amount]);res.json({balance:Number(r.rows[0].balance),total:Number(r.rows[0].total),gain:amount});});
 app.post('/api/profile', auth, async (req,res)=>{
@@ -200,4 +201,15 @@ app.get('/api/transfers', auth, async (req,res)=>{
   res.json({transfers:r.rows.map(x=>({...x,amount:Number(x.amount)}))});
 });
 app.get('*', (_req,res)=>res.sendFile(path.join(__dirname,'index.html')));
-initDb().then(()=>{registerBot();app.listen(PORT,()=>console.log('Stars server listening on '+PORT));}).catch(e=>{console.error('Database initialization failed:',e);process.exit(1);});
+app.listen(PORT,()=>console.log('Stars web server listening on '+PORT));
+(async()=>{
+  try {
+    if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is not configured');
+    await initDb();
+    dbReady = true;
+    registerBot();
+    console.log('PostgreSQL connected; database ready.');
+  } catch(e) {
+    console.error('PostgreSQL initialization failed. Web page remains available, but bot and synchronized balance need a working DATABASE_URL:',e.message);
+  }
+})();
