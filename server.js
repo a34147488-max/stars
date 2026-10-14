@@ -346,6 +346,7 @@ app.post('/api/olympus/spin', auth, async (req,res)=>{
     else if(crypto.randomInt(100)<2){for(let n=0;n<3;n++)board[n]='zeus';}
     if(crypto.randomInt(100)<18){const sym=pick();for(let n=0;n<8;n++)board[n]=sym;}
     const scatter=board.filter(x=>x==='zeus').length;
+    const displayBoard=[...board];
     const effectiveBet=bet*(ante?1.25:1);
     let win=0,cascades=0;
     for(let step=0;step<8;step++){
@@ -372,7 +373,7 @@ app.post('/api/olympus/spin', auth, async (req,res)=>{
     await client.query('INSERT INTO olympus_sessions(telegram_id,free_spins,multiplier,updated_at) VALUES($1,$2,$3,NOW()) ON CONFLICT(telegram_id) DO UPDATE SET free_spins=EXCLUDED.free_spins,multiplier=EXCLUDED.multiplier,updated_at=NOW()',[id,freeSpins,multiplier]);
     await client.query('COMMIT');
     res.setHeader('Cache-Control','no-store');
-    res.json({balance,total,win,freeSpins,multiplier,cascades,scatter,orbSum,board});
+    res.json({balance,total,win,freeSpins,multiplier,cascades,scatter,orbSum,board:displayBoard});
   }catch(e){await client.query('ROLLBACK');console.error('Olympus spin error:',e.stack||e.message);res.status(500).json({error:'Не удалось провести спин. Баланс не изменён.'});}
   finally{client.release();}
 });
