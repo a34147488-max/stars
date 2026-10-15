@@ -808,7 +808,8 @@ function olympusSvg(sym){
 }
 function olympusSymbol(id){return olympusSymbols.find(s=>s.id===id)||olympusSymbols[0]}
 function olympusPick(){const pool=olympusSymbols.filter(s=>s.type!=='scatter'&&s.type!=='orb');return pool[Math.floor(Math.random()*pool.length)]}
-function olympusCell(id,i,multiplier){const s=olympusSymbol(id),label=s.id==='orb'&&Number(multiplier)>0?'<b class="olympus-mult-label">×'+Number(multiplier)+'</b>':'';return '<span class="olympus-cell" data-symbol="'+s.id+'" style="animation-delay:'+((i%6)*25)+'ms" title="'+s.name+(label?' ×'+Number(multiplier):'')+'">'+olympusSvg(s)+label+'</span>'}
+const olympusPngSymbols={ruby:'tile_r1_c2.png',amethyst:'tile_r1_c3.png',topaz:'tile_r1_c4.png',emerald:'tile_r1_c5.png',sapphire:'tile_r1_c6.png',cup:'tile_r2_c3.png',ring:'tile_r2_c5.png',hourglass:'tile_r3_c2.png',crown:'tile_r3_c3.png',zeus:'tile_r3_c4.png',orb:'tile_r3_c5.png'};
+function olympusCell(id,i,multiplier){const s=olympusSymbol(id),asset=olympusPngSymbols[s.id],image=asset?'<img class="olympus-symbol-image" src="'+asset+'" alt="'+s.name+'" draggable="false">':olympusSvg(s),label=s.id==='orb'&&Number(multiplier)>0?'<b class="olympus-mult-label">×'+Number(multiplier)+'</b>':'';return '<span class="olympus-cell" data-symbol="'+s.id+'" style="animation-delay:'+((i%6)*25)+'ms" title="'+s.name+(label?' ×'+Number(multiplier):'')+'">'+image+label+'</span>'}
 function olympusMakeBoard(){return Array.from({length:30},()=>{const r=Math.random();return r<.003?'orb':r<.011?'zeus':olympusPick().id})}
 function olympusRender(board,orbValues=[]){$('olympusReels').innerHTML=board.map((id,i)=>olympusCell(id,i,orbValues[i])).join('')}
 function olympusUpdateChanged(board,orbValues=[],forceIndices=[]){const grid=$('olympusReels'),cells=[...grid.querySelectorAll('.olympus-cell')],force=new Set(forceIndices);const changed=[];board.forEach((id,i)=>{const el=cells[i];if(!el)return;const symbol=olympusSymbol(id).id;if(force.has(i)||el.dataset.symbol!==symbol){const holder=document.createElement('div');holder.innerHTML=olympusCell(id,i,orbValues[i]);const next=holder.firstElementChild;el.replaceWith(next);changed.push({el:next,i});}});return changed;}
@@ -1337,4 +1338,10 @@ window.addEventListener('pagehide',()=>{save();stopMusic()});refresh();loadServe
 @media(min-width:600px){#olympusGameView .olympus-game{max-width:540px;margin:0 auto!important}#olympusGameView .olympus-cell{aspect-ratio:.9!important}}
 @media(prefers-reduced-motion:reduce){#olympusGameView .olympus-cell[data-symbol="orb"]:after{animation:none!important}}
 
+</style>
+
+<style id="olympus-png-symbols">
+/* Use the uploaded PNG crops as the actual Olympus reel symbols. */
+#olympusGameView .olympus-cell .olympus-symbol-image{position:relative;z-index:2;display:block;width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;pointer-events:none;user-select:none;filter:drop-shadow(0 2px 2px #0009)}
+#olympusGameView .olympus-cell[data-symbol="zeus"] .olympus-symbol-image,#olympusGameView .olympus-cell[data-symbol="orb"] .olympus-symbol-image{filter:drop-shadow(0 0 5px #ffe58a) drop-shadow(0 2px 2px #000b)}
 </style>
