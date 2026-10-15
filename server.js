@@ -385,14 +385,23 @@ app.get('/api/me', auth, async (req,res)=>res.json({player:publicPlayer(await ge
 app.get('/api/shop/products', (_req,res)=>{res.setHeader('Cache-Control','no-store');res.json({products:Object.entries(STAR_PRODUCTS).map(([id,p])=>({id,title:p.title,description:p.description,stars:p.stars,multiplier:p.multiplier}))});});
 app.post('/api/shop/invoice', auth, async (req,res)=>{
   try {
-    if (!bot) return res.status(503).json({error:'Telegram-бот сейчас недоступен.'});
-    const product = STAR_PRODUCTS[String(req.body && req.body.productId || '')];
+    if (!bot) return res.status(503).json({error:'Telegram-бот сейчас недоступен. Проверь BOT_TOKEN на сервере.'});
+    const productId = String(req.body && req.body.productId || '');
+    const product = STAR_PRODUCTS[productId];
     if (!product) return res.status(400).json({error:'Неизвестное улучшение.'});
     const orderId = crypto.randomUUID();
-    await pool.query('INSERT INTO star_orders(id,telegram_id,product_id,stars,status) VALUES($1,$2,$3,$4,\'pending\')', [orderId,String(req.player.telegram_id),String(req.body.productId),product.stars]);
-    const invoiceUrl = await bot.createInvoiceLink(product.title, product.description, orderId, '', 'XTR', [{label:product.title,amount:product.stars}]);
+    await pool.query('INSERT INTO star_orders(id,telegram_id,product_id,stars,status) VALUES($1,$2,$3,$4,\'pending\')', [orderId,String(req.player.telegram_id),productId,product.stars]);
+    const invoiceUrl = await Promise.race([
+      bot.createInvoiceLink(product.title, product.description, orderId, '', 'XTR', [{label:product.title,amount:product.stars}]),
+      new Promise((_,reject)=>setTimeout(()=>reject(new Error('Telegram API timeout while creating invoice')),12000))
+    ]);
+    if (typeof invoiceUrl !== 'string' || !invoiceUrl.startsWith('https://')) throw new Error('Telegram returned an invalid invoice URL');
+    res.setHeader('Cache-Control','no-store');
     res.json({url:invoiceUrl,stars:product.stars});
-  } catch(e) { console.error('Не удалось создать Stars invoice:',e.message); res.status(500).json({error:'Не удалось создать окно оплаты. Попробуй ещё раз.'}); }
+  } catch(e) {
+    console.error('Не удалось создать Stars invoice:',e.message);
+    if (!res.headersSent) res.status(500).json({error:/timeout/i.test(e.message)?'Telegram не ответил при создании оплаты. Проверь BOT_TOKEN и доступность Telegram API на сервере.':'Не удалось создать оплату: '+e.message});
+  }
 });
 app.post('/api/olympus/spin', auth, async (req,res)=>{
   const bet=Number(req.body && req.body.bet);
