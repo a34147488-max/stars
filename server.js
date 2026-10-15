@@ -24,7 +24,11 @@ async function ensureDb() {
     CREATE TABLE IF NOT EXISTS stars_admins (telegram_id BIGINT PRIMARY KEY, username TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
     CREATE TABLE IF NOT EXISTS stars_withdrawals (id BIGSERIAL PRIMARY KEY, telegram_id BIGINT NOT NULL, username TEXT, first_name TEXT, target_username TEXT NOT NULL, amount BIGINT NOT NULL CHECK (amount >= 1000), payout_stars BIGINT NOT NULL, status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','paid','rejected')), created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
     CREATE TABLE IF NOT EXISTS stars_payments (telegram_payment_charge_id TEXT PRIMARY KEY, telegram_id BIGINT NOT NULL, package_stars INTEGER NOT NULL, coins BIGINT NOT NULL, currency TEXT NOT NULL, total_amount INTEGER NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
+    CREATE TABLE IF NOT EXISTS stars_promocodes (code TEXT PRIMARY KEY, reward BIGINT NOT NULL CHECK (reward > 0), max_activations INTEGER NOT NULL CHECK (max_activations > 0), activations INTEGER NOT NULL DEFAULT 0 CHECK (activations >= 0 AND activations <= max_activations));
+    CREATE TABLE IF NOT EXISTS stars_promocode_uses (code TEXT NOT NULL REFERENCES stars_promocodes(code), telegram_id BIGINT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), PRIMARY KEY (code, telegram_id));
   `);
+  const promoCodes = ['STARS10-A7K2', 'STARS10-M4Q9', 'STARS10-P8D3', 'STARS10-R6X1', 'STARS10-Z2N5'];
+  for (const code of promoCodes) await pool.query('INSERT INTO stars_promocodes (code,reward,max_activations) VALUES ($1,10,10) ON CONFLICT (code) DO NOTHING', [code]);
   dbReady = true;
 }
 function validateTelegramInitData(initData, botToken) {
@@ -145,6 +149,35 @@ app.post('/api/withdrawals/:id/status', async (req, res) => {
     try { await telegramApi('sendMessage',{chat_id:String(result.telegram_id),text:'Заявка на вывод #'+id+': '+(status==='paid'?'выплачено. Получено: '+result.payout_stars+' Telegram Stars.':'отказано. Сумма возвращена на игровой баланс.')}); } catch(e) { console.error('User withdrawal status notification failed:',e.message); }
     return res.json({ok:true,id,status});
   } catch(e) { console.error('Withdrawal status error:',e.message); return res.status(503).json({ok:false,error:'Не удалось изменить статус заявки.'}); }
+});
+
+
+app.post('/api/promocodes/activate', async (req, res) => {
+  const client = await (async () => { try { await ensureDb(); return await pool.connect(); } catch (e) { throw e; } })().catch(e => { throw e; });
+  try {
+    const user = authUser(req);
+    if (!user) return res.status(401).json({ok:false,error:'Открой приложение через Telegram-бота.'});
+    const code = String(req.body && req.body.code || '').trim().toUpperCase();
+    if (!/^[A-Z0-9-]{4,32}$/.test(code)) return res.status(400).json({ok:false,error:'Введи корректный промокод.'});
+    await client.query('BEGIN');
+    const promo = await client.query('SELECT code,reward,max_activations,activations FROM stars_promocodes WHERE code=$1 FOR UPDATE',[code]);
+    if (!promo.rowCount) { await client.query('ROLLBACK'); return res.status(404).json({ok:false,error:'Такого промокода не существует.'}); }
+    const row = promo.rows[0];
+    const used = await client.query('SELECT 1 FROM stars_promocode_uses WHERE code=$1 AND telegram_id=$2',[code,String(user.id)]);
+    if (used.rowCount) { await client.query('ROLLBACK'); return res.status(409).json({ok:false,error:'Ты уже активировал этот промокод.'}); }
+    if (Number(row.activations) >= Number(row.max_activations)) { await client.query('ROLLBACK'); return res.status(409).json({ok:false,error:'Лимит активаций этого промокода исчерпан.'}); }
+    await client.query('INSERT INTO stars_users (telegram_id,username,first_name) VALUES ($1,$2,$3) ON CONFLICT (telegram_id) DO NOTHING',[String(user.id),user.username||null,user.first_name||null]);
+    await client.query('INSERT INTO stars_promocode_uses (code,telegram_id) VALUES ($1,$2)',[code,String(user.id)]);
+    await client.query('UPDATE stars_promocodes SET activations=activations+1 WHERE code=$1',[code]);
+    await client.query('UPDATE stars_users SET balance=balance+$2,username=$3,first_name=$4,updated_at=NOW() WHERE telegram_id=$1',[String(user.id),Number(row.reward),user.username||null,user.first_name||null]);
+    const balance = await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1',[String(user.id)]);
+    await client.query('COMMIT');
+    return res.json({ok:true,reward:Number(row.reward),balance:Number(balance.rows[0].balance),message:'Промокод активирован! Начислено '+Number(row.reward)+' наших звёзд.'});
+  } catch(e) {
+    try { await client.query('ROLLBACK'); } catch (_) {}
+    console.error('Promocode activation error:',e.message);
+    return res.status(503).json({ok:false,error:'Не удалось активировать промокод. Попробуй ещё раз.'});
+  } finally { client.release(); }
 });
 
 
