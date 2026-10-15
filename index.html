@@ -382,7 +382,7 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
   try{const r=await fetch('/api/balance',{headers:{'X-Telegram-Init-Data':tg.initData}});const d=await r.json();if(r.ok&&d.ok){const n=Number(d.balance)||0;document.getElementById('balance').textContent=n.toLocaleString('ru-RU');wheelBalance.textContent=n.toLocaleString('ru-RU');}}catch(_){ }
  }
  function paintSlots(symbols,spinning){const nodes=[...wheelSlots.children];nodes.forEach((node,i)=>{node.classList.toggle('spinning',Boolean(spinning));node.innerHTML=symbolSvg(symbols[i]||'blue');});}
- const randomColors=()=>['blue','yellow','green','cyan'][Math.floor(Math.random()*4)];
+ const randomColors=()=>{const n=Math.random();return n<.85?'cyan':n<.96?'blue':n<.99?'yellow':'green';};
  paintSlots(['blue','yellow','green'],false);
  wheelSpin?.addEventListener('click',async()=>{
   const tg=window.Telegram&&window.Telegram.WebApp;if(!tg?.initData){wheelResult.textContent='Открой приложение через Telegram-бота, чтобы играть.';return;}
