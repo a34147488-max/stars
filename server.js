@@ -18,6 +18,9 @@ const BOT_TOKEN = process.env.BOT_TOKEN;
 const APP_URL = (process.env.APP_URL || 'https://stars-production-0668.up.railway.app').replace(/\/$/, '');
 const pool = new Pool({ connectionString: process.env.DATABASE_URL, ssl: process.env.DATABASE_URL && !/localhost|127\.0\.0\.1/.test(process.env.DATABASE_URL) ? { rejectUnauthorized: false } : false });
 let bot = null;
+// A non-polling client is available on every Railway replica for invoice creation.
+// Only the replica holding the advisory lock runs Telegram polling and handles updates.
+let invoiceBot = BOT_TOKEN ? new TelegramBot(BOT_TOKEN, { polling: false }) : null;
 let dbReady = false;
 const STAR_PRODUCTS = {
   stars_1: { title: 'Stars 1', description: 'Постоянная награда за клик: +0.005 звезды', stars: 25, multiplier: 50 },
@@ -385,14 +388,14 @@ app.get('/api/me', auth, async (req,res)=>res.json({player:publicPlayer(await ge
 app.get('/api/shop/products', (_req,res)=>{res.setHeader('Cache-Control','no-store');res.json({products:Object.entries(STAR_PRODUCTS).map(([id,p])=>({id,title:p.title,description:p.description,stars:p.stars,multiplier:p.multiplier}))});});
 app.post('/api/shop/invoice', auth, async (req,res)=>{
   try {
-    if (!bot) return res.status(503).json({error:'Telegram-бот сейчас недоступен. Проверь BOT_TOKEN на сервере.'});
+    if (!invoiceBot) return res.status(503).json({error:'На сервере не задан BOT_TOKEN. Проверь Variables в Railway и перезапусти сервис.'});
     const productId = String(req.body && req.body.productId || '');
     const product = STAR_PRODUCTS[productId];
     if (!product) return res.status(400).json({error:'Неизвестное улучшение.'});
     const orderId = crypto.randomUUID();
     await pool.query('INSERT INTO star_orders(id,telegram_id,product_id,stars,status) VALUES($1,$2,$3,$4,\'pending\')', [orderId,String(req.player.telegram_id),productId,product.stars]);
     const invoiceUrl = await Promise.race([
-      bot.createInvoiceLink(product.title, product.description, orderId, '', 'XTR', [{label:product.title,amount:product.stars}]),
+      invoiceBot.createInvoiceLink(product.title, product.description, orderId, '', 'XTR', [{label:product.title,amount:product.stars}]),
       new Promise((_,reject)=>setTimeout(()=>reject(new Error('Telegram API timeout while creating invoice')),12000))
     ]);
     if (typeof invoiceUrl !== 'string' || !invoiceUrl.startsWith('https://')) throw new Error('Telegram returned an invalid invoice URL');
