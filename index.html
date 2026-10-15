@@ -91,6 +91,7 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
 .action-row .withdraw-open{margin:0;min-width:76px}
 .game-open{padding:6px 13px;border:1px solid #ffffffb8;border-radius:999px;background:#fff;color:#161720;font-size:11px;font-weight:800;letter-spacing:.01em;cursor:pointer;box-shadow:0 3px 14px #ffffff12;transition:transform .15s}
 .game-open:active{transform:scale(.96)}
+.promo-backdrop{position:fixed;inset:0;z-index:40;display:none;align-items:flex-end;justify-content:center;padding:14px;background:#05060bdc;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}.promo-backdrop.open{display:flex}.promo-modal{width:100%;max-width:480px;border:1px solid #ffffff30;border-radius:27px;background:linear-gradient(150deg,#242633,#11121b 75%);padding:21px 18px calc(20px + env(safe-area-inset-bottom));box-shadow:0 22px 80px #0009}.promo-input{width:100%;border:1px solid #ffffff28;border-radius:14px;background:#ffffff0b;color:#fff;padding:14px 13px;font:inherit;font-size:15px;text-transform:uppercase;outline:none}.promo-input:focus{border-color:#ffffff85}.promo-submit{width:100%;margin-top:12px;padding:15px;border:0;border-radius:15px;background:#fff;color:#151620;font:inherit;font-size:14px;font-weight:850;cursor:pointer}.promo-submit:disabled{opacity:.5}.promo-message{min-height:20px;margin-top:12px;text-align:center;color:#c4c7d4;font-size:12px;line-height:1.45}.promo-note{font-size:12px;line-height:1.5;color:#aeb2c3;margin:5px 0 16px}
 .game-backdrop{position:fixed;inset:0;z-index:30;display:none;align-items:flex-end;justify-content:center;padding:12px;background:#05060bdc;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
 .game-backdrop.open{display:flex}
 .game-modal{width:100%;max-width:480px;max-height:91svh;overflow:auto;border:1px solid #ffffff35;border-radius:30px;background:linear-gradient(155deg,rgba(54,57,75,.97),rgba(17,18,28,.98) 68%);padding:19px 16px calc(20px + env(safe-area-inset-bottom));box-shadow:0 25px 90px #000a,inset 0 1px #ffffff20}
@@ -154,7 +155,7 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
 </div>
 </div>
 <div class="caption">звёзд на вашем балансе</div>
-<div class="action-row"><button class="withdraw-open" id="withdrawOpen" type="button">вывести</button><button class="game-open" id="gameOpen" type="button">Играть</button></div>
+<div class="action-row"><button class="withdraw-open" id="withdrawOpen" type="button">вывести</button><button class="game-open" id="gameOpen" type="button">Играть</button><button class="game-open" id="promoOpen" type="button">Промокоды</button></div>
 </div>
 <div class="status-pill"><span class="status-dot"></span>Баланс отображается в реальном времени</div>
 </section>
@@ -213,6 +214,7 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
   </div>
  </section>
 </div>
+<div class="promo-backdrop" id="promoBackdrop" aria-hidden="true"><section class="promo-modal" role="dialog" aria-modal="true" aria-labelledby="promoTitle"><div class="modal-head"><div class="modal-title" id="promoTitle">Промокоды</div><button class="modal-close" id="promoClose" type="button" aria-label="Закрыть">×</button></div><div class="promo-note">Введи промокод и получи 10 наших звёзд. У каждого кода ограниченное число активаций.</div><form id="promoForm"><label class="withdraw-label" for="promoCode">Промокод</label><input class="promo-input" id="promoCode" name="code" maxlength="32" autocomplete="off" autocapitalize="characters" placeholder="ВВЕДИ ПРОМОКОД" required><button class="promo-submit" id="promoSubmit" type="submit">Активировать</button></form><div class="promo-message" id="promoMessage" aria-live="polite"></div></section></div>
 <div class="big-win-backdrop" id="bigWinBackdrop" aria-hidden="true"><section class="big-win-modal" role="dialog" aria-modal="true"><svg class="big-win-star" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 2.8c2.2 0 3.4 2.7 4.7 7.6 1.2 4.5 2.4 5.7 6.9 6.9 4.9 1.3 7.6 2.5 7.6 4.7s-2.7 3.4-7.6 4.7c-4.5 1.2-5.7 2.4-6.9 6.9-1.3 4.9-2.5 7.6-4.7 7.6s-3.4-2.7-4.7-7.6c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 25.4 4.8 24.2 4.8 22s2.7-3.4 7.6-4.7c4.5-1.2 5.7-2.4 6.9-6.9C20.6 5.5 21.8 2.8 24 2.8Z" fill="#fff"/></svg><div class="big-win-title">Поздравляем!</div><div class="big-win-copy" id="bigWinCopy">Крупный выигрыш в StarsSlots.</div><div class="big-win-amount"><span id="bigWinAmount">0</span><svg class="mini-star" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 3c2 0 3.5 3 4.8 7.8 1.2 4.5 2.4 5.7 6.9 6.9C40.5 19 43 20.3 43 22.5s-2.5 3.5-7.3 4.8c-4.5 1.2-5.7 2.4-6.9 6.9C27.5 39 26 42 24 42s-3.5-3-4.8-7.8c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 26 5 25.4 5 22.5s2.5-3.5 7.3-4.8c4.5-1.2 5.7-2.4 6.9-6.9C20.5 6 22 3 24 3Z" fill="#fff"/></svg></div><button class="withdraw-submit" id="bigWinClose" type="button">Продолжить</button></section></div>
 </main>
 <script>
@@ -399,6 +401,30 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
   }catch(e){if(ticker)clearInterval(ticker);wheelResult.textContent=e.message||'Ошибка спина. Попробуй ещё раз.';await refreshWheelBalance();}
   finally{wheelSpin.disabled=false;wheelSpin.classList.remove('spinning');[...wheelSlots.children].forEach(node=>node.classList.remove('spinning'));}
  });
+</script>
+<script>
+(function(){
+ const open=document.getElementById('promoOpen'),backdrop=document.getElementById('promoBackdrop'),close=document.getElementById('promoClose'),form=document.getElementById('promoForm'),input=document.getElementById('promoCode'),submit=document.getElementById('promoSubmit'),message=document.getElementById('promoMessage');
+ function hide(){backdrop.classList.remove('open');backdrop.setAttribute('aria-hidden','true');}
+ open?.addEventListener('click',()=>{backdrop.classList.add('open');backdrop.setAttribute('aria-hidden','false');message.textContent='';});
+ close?.addEventListener('click',hide);
+ backdrop?.addEventListener('click',e=>{if(e.target===backdrop)hide();});
+ input?.addEventListener('input',()=>{input.value=input.value.toUpperCase().replace(/[^A-Z0-9-]/g,'');});
+ form?.addEventListener('submit',async e=>{
+  e.preventDefault();const tg=window.Telegram&&window.Telegram.WebApp;
+  if(!tg?.initData){message.textContent='Открой приложение через Telegram-бота.';return;}
+  const code=input.value.trim();if(!code){message.textContent='Введи промокод.';return;}
+  submit.disabled=true;message.textContent='Проверяем промокод…';
+  try{
+   const response=await fetch('/api/promocodes/activate',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':tg.initData},body:JSON.stringify({code})});
+   const data=await response.json();if(!response.ok||!data.ok)throw new Error(data.error||'Не удалось активировать промокод.');
+   const balance=Number(data.balance)||0;const balanceNode=document.getElementById('balance');if(balanceNode)balanceNode.textContent=balance.toLocaleString('ru-RU');
+   const wheelBalance=document.getElementById('wheelBalance');if(wheelBalance)wheelBalance.textContent=balance.toLocaleString('ru-RU');
+   message.textContent='Успешно! Начислено '+Number(data.reward).toLocaleString('ru-RU')+' наших звёзд.';input.value='';
+  }catch(err){message.textContent=err.message||'Ошибка активации промокода.';}
+  finally{submit.disabled=false;}
+ });
+})();
 </script>
 </body>
 </html>
