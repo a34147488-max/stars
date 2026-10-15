@@ -747,11 +747,11 @@ $('spinWheel')?.addEventListener('click',async()=>{
 });
 let olympusSpins=0,olympusBusy=false,olympusFreeSpins=0,olympusGlobalMult=1,olympusAnte=false,olympusBonusTotal=0;
 const olympusSymbols=[
- {id:'ruby',name:'Рубин',type:'gem',color:'#f34b64',shape:'gem',pay:0.25},
- {id:'amethyst',name:'Аметист',type:'gem',color:'#c16bff',shape:'gem',pay:0.2},
- {id:'topaz',name:'Топаз',type:'gem',color:'#ffd447',shape:'diamond',pay:0.18},
- {id:'emerald',name:'Изумруд',type:'gem',color:'#4de09b',shape:'gem',pay:0.22},
- {id:'sapphire',name:'Сапфир',type:'gem',color:'#58b9ff',shape:'diamond',pay:0.2},
+ {id:'ruby',name:'10',type:'card',rank:'10',color:'#f34b64',shape:'card',pay:0.25},
+ {id:'amethyst',name:'J',type:'card',rank:'J',color:'#c16bff',shape:'card',pay:0.2},
+ {id:'topaz',name:'Q',type:'card',rank:'Q',color:'#ffd447',shape:'card',pay:0.18},
+ {id:'emerald',name:'K',type:'card',rank:'K',color:'#4de09b',shape:'card',pay:0.22},
+ {id:'sapphire',name:'A',type:'card',rank:'A',color:'#58b9ff',shape:'card',pay:0.2},
  {id:'cup',name:'Кубок',type:'artifact',color:'#e6bb67',shape:'cup',pay:0.5},
  {id:'ring',name:'Кольцо с рубином',type:'artifact',color:'#ff7b75',shape:'ring',pay:0.7},
  {id:'hourglass',name:'Песочные часы',type:'artifact',color:'#e7d4a3',shape:'hourglass',pay:1},
@@ -792,6 +792,10 @@ function olympusSvg(sym){
  const c=sym.color;
  const common='stroke="#f8e5b4" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"';
  let shape='';
+ if(sym.shape==='card'){
+  const rank=sym.rank||sym.name;
+  shape='<defs><linearGradient id="card'+sym.id+'" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff" stop-opacity=".96"/><stop offset=".22" stop-color="'+c+'"/><stop offset=".72" stop-color="'+c+'"/><stop offset="1" stop-color="#140a2b"/></linearGradient></defs><path d="M20 2 36 12 33 33 20 44 7 33 4 12Z" fill="#05030b" opacity=".8" transform="translate(0 2)"/><path d="M20 2 36 12 33 33 20 44 7 33 4 12Z" fill="url(#card'+sym.id+')" stroke="#f8e5b4" stroke-width="1.5"/><path d="M4 12 16 15 20 2 24 15 36 12 26 24 33 33 20 29 7 33 14 24Z" fill="#fff" opacity=".2"/><path d="M8 12 20 5 32 12" fill="none" stroke="#fff" stroke-width="1.1" opacity=".8"/><text x="20" y="28" text-anchor="middle" font-family="Georgia,serif" font-size="'+(rank==='10'?'14':'21')+'" font-weight="900" fill="#fff9e9" stroke="#4b163e" stroke-width="1.1" paint-order="stroke" filter="drop-shadow(0 1px 1px #000)">'+rank+'</text><path d="M13 35h14" stroke="#fff" stroke-opacity=".55" stroke-width="1"/>';
+ }
  if(sym.shape==='gem')shape='<defs><linearGradient id="g'+sym.id+'" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff" stop-opacity=".95"/><stop offset=".28" stop-color="'+c+'"/><stop offset="1" stop-color="#170d35"/></linearGradient></defs><path d="M20 3 36 13 33 32 20 43 7 32 4 13Z" fill="#10091e" opacity=".65" transform="translate(0 1)"/><path d="M20 3 36 13 33 32 20 43 7 32 4 13Z" fill="url(#g'+sym.id+')" '+common+'/><path d="M4 13 15 15 20 3 25 15 36 13 26 24 33 32 20 28 7 32 14 24Z" fill="#fff" opacity=".24"/><path d="M15 15 20 28 14 24 4 13M25 15 20 28 26 24 36 13M20 28v15" fill="none" stroke="#fff" stroke-opacity=".58" stroke-width=".8"/><path d="M8 13 20 5 31 13" fill="none" stroke="#fff" stroke-width="1.2" opacity=".8"/>';
  if(sym.shape==='diamond')shape='<defs><linearGradient id="d'+sym.id+'" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff9d4"/><stop offset=".25" stop-color="'+c+'"/><stop offset=".72" stop-color="'+c+'"/><stop offset="1" stop-color="#11152d"/></linearGradient></defs><path d="m20 2 18 18-18 24L2 20Z" fill="#050814" opacity=".75" transform="translate(0 1)"/><path d="m20 2 18 18-18 24L2 20Z" fill="url(#d'+sym.id+')" '+common+'/><path d="m20 2 0 22L2 20Z" fill="#fff" opacity=".48"/><path d="m20 2 18 18-18 4Z" fill="#fff" opacity=".22"/><path d="M2 20h36M20 2v42M2 20l18 4 18-4M20 24 8 35M20 24l12 11" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width=".8"/>';
  if(sym.shape==='cup')shape='<defs><linearGradient id="c'+sym.id+'" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff4ba"/><stop offset=".22" stop-color="#e7b64c"/><stop offset=".52" stop-color="#95601c"/><stop offset=".76" stop-color="#ffe08a"/><stop offset="1" stop-color="#533014"/></linearGradient></defs><ellipse cx="20" cy="40" rx="12" ry="2.5" fill="#000" opacity=".45"/><path d="M8 8h24l-2 13q-2 8-10 10-8-2-10-10Z" fill="url(#c'+sym.id+')" '+common+'/><path d="M10 11h20l-2 9q-2 5-8 7-6-2-8-7Z" fill="#fff" opacity=".17"/><path d="M8 12H3v5q1 7 9 8M32 12h5v5q-1 7-9 8" fill="none" stroke="#e9bd63" stroke-width="3"/><path d="M20 31v6m-9 3h18l-2 3H13Z" fill="url(#c'+sym.id+')" stroke="#fff0b8" stroke-width="1.2"/><path d="M11 10h18" stroke="#fff7d2" stroke-width="1.5"/><path d="M20 13v10" stroke="#fff" stroke-opacity=".45" stroke-width="1"/>';
