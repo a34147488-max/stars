@@ -137,9 +137,18 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
    const response=await fetch('/api/payments/create-invoice',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':tg.initData},body:JSON.stringify({stars:selected.stars})});
    const data=await response.json();
    if(!response.ok||!data.ok||!data.url)throw new Error(data.error||'Не удалось создать счёт.');
-   tg.openInvoice(data.url,status=>{
-    if(status==='paid'){message.textContent='Оплата прошла. Проверяем начисление…';setTimeout(()=>{message.textContent='Платёж подтверждён Telegram. Если баланс не обновился, обнови приложение.';},1800);}
-    else if(status==='cancelled')message.textContent='Оплата отменена.';
+   tg.openInvoice(data.url,async status=>{
+    if(status==='paid'){
+     message.textContent='Оплата подтверждена. Обновляем баланс…';
+     try{
+      const balanceResponse=await fetch('/api/balance',{headers:{'X-Telegram-Init-Data':tg.initData}});
+      const balanceData=await balanceResponse.json();
+      if(!balanceResponse.ok||!balanceData.ok)throw new Error('Баланс пока недоступен.');
+      const balanceNode=document.getElementById('balance');
+      if(balanceNode)balanceNode.textContent=Number(balanceData.balance).toLocaleString('ru-RU');
+      message.textContent='Оплата подтверждена! Баланс: '+Number(balanceData.balance).toLocaleString('ru-RU')+'.';
+     }catch(e){message.textContent='Оплата прошла. Баланс обновится после подтверждения платежа; перезапусти приложение через несколько секунд.';}
+    }else if(status==='cancelled')message.textContent='Оплата отменена.';
     else message.textContent='Счёт закрыт. Можно попробовать ещё раз.';
    });
   }catch(e){message.textContent=e.message||'Ошибка создания счёта.';}
