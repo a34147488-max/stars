@@ -279,6 +279,22 @@ body{overflow-anchor:none}
 
 
 .olympus-live-balance{width:min(100%,330px);display:flex;align-items:center;justify-content:center;gap:9px;padding:11px 15px;border:1px solid #8b6b38;border-radius:13px;background:linear-gradient(135deg,#21132e,#100a18);box-shadow:inset 0 0 14px #eac45d12;color:#c8b7d7;font-size:11px;font-weight:800;letter-spacing:1px}.olympus-live-balance strong{font-size:20px;letter-spacing:0;color:#fff4cf;font-variant-numeric:tabular-nums}.olympus-live-star{font-size:22px;color:#fff}
+/* Olympus polish: stronger cascades, lightning orbs and bonus presentation */
+.olympus-cell[data-symbol="orb"]{isolation:isolate;animation:olympusOrbPulse 1.15s ease-in-out infinite alternate}
+.olympus-cell[data-symbol="orb"]::after{content:"";position:absolute;inset:-35%;z-index:0;pointer-events:none;background:conic-gradient(from 0deg,transparent,#8deaffaa,transparent,#fff3a6aa,transparent);animation:olympusLightningSpin 2.2s linear infinite;opacity:.55}
+.olympus-mult-label{position:absolute;z-index:4;left:50%;bottom:4px;transform:translateX(-50%);padding:2px 5px;border:1px solid #fff0a8;border-radius:999px;background:linear-gradient(180deg,#fff2a2,#e48a16 55%,#6c2c12);color:#fff;font:1000 clamp(9px,2.6vw,13px)/1.1 system-ui;text-shadow:0 1px 2px #5c1d05;box-shadow:0 0 8px #ffe66c;white-space:nowrap}
+.olympus-grid.cascade-impact{animation:olympusGridImpact .36s ease-out}
+.olympus-cell.vanish{filter:brightness(2.1) saturate(1.5)}
+.olympus-multiplier-panel.active{animation:olympusPanelGlow 1.6s ease-in-out infinite alternate}
+.olympus-multiplier-value.bump{animation:olympusMultBump .65s cubic-bezier(.2,.8,.2,1)}
+.olympus-superwin-card{position:relative;overflow:hidden}
+.olympus-superwin-card::before{content:"";position:absolute;inset:-60%;pointer-events:none;background:conic-gradient(from 0deg,transparent 0 70%,#ffe78b33 80%,transparent 90%);animation:olympusLightningSpin 5s linear infinite}
+@keyframes olympusOrbPulse{from{filter:brightness(1);box-shadow:inset 2px 2px 4px #fff9,0 0 8px #a86aff88}to{filter:brightness(1.45);box-shadow:inset 2px 2px 7px #fff,0 0 20px #55dcff,0 0 30px #bc77ff}}
+@keyframes olympusLightningSpin{to{transform:rotate(360deg)}}
+@keyframes olympusGridImpact{0%{transform:scale(1)}35%{transform:scale(1.012);filter:brightness(1.5)}100%{transform:scale(1);filter:brightness(1)}}
+@keyframes olympusPanelGlow{to{box-shadow:0 0 25px #45cfff88;border-color:#e5fdff}}
+@keyframes olympusMultBump{0%{transform:scale(1)}35%{transform:scale(1.24);color:#fff}100%{transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){.olympus-cell[data-symbol="orb"],.olympus-cell[data-symbol="orb"]::after,.olympus-multiplier-panel.active,.olympus-superwin-card::before{animation:none!important}}
 /* Olympus slot redesign */
 #gamesPanel.olympus-fullscreen{position:fixed!important;inset:0!important;left:0!important;top:0!important;transform:none!important;width:100vw!important;max-width:none!important;height:100dvh!important;max-height:100dvh!important;overflow:auto!important;padding:0!important;margin:0!important;border:0!important;border-radius:0!important;background:#09050d!important;z-index:10020!important;box-shadow:0 0 0 100vmax #000!important}
 .olympus-game{min-height:100%;padding:calc(env(safe-area-inset-top,0px) + 14px) 12px calc(env(safe-area-inset-bottom,0px) + 20px);display:flex;flex-direction:column;align-items:center;gap:12px;color:#fff0c0;background:radial-gradient(ellipse at 50% 0%,#7e55b8 0,#321449 24%,#120a1a 55%,#07050b 100%);font-family:Georgia,serif}
@@ -869,9 +885,12 @@ async function olympusPlay(buyBonus=false){
     if(!removed.length)continue;
     olympusMatchSound();
     removed.forEach(i=>{if(cells[i])cells[i].classList.add('win','vanish')});
+    grid.classList.remove('cascade-impact');void grid.offsetWidth;grid.classList.add('cascade-impact');
     cascades++;
+    result.textContent='КАСКАД '+cascades+' · комбинация найдена';
     // Keep the exact server-confirmed winning symbols visible before clearing them.
     await new Promise(r=>setTimeout(r,850));
+    grid.classList.remove('cascade-impact');
     const previousBoard=[...board];
     board=Array.isArray(step.board)?[...step.board]:board;
     // Replace and animate only symbols that were removed or actually changed.
@@ -890,6 +909,9 @@ async function olympusPlay(buyBonus=false){
    // Не генерируем дополнительные случайные сферы на клиенте: визуал не должен
    // расходиться с результатом, который уже рассчитан и зачислен сервером.
    totalWin=Number(serverSpin.win)||0; const finalBoard=Array.isArray(serverSpin.finalBoard)?serverSpin.finalBoard:(serverSpin.board||board); const finalChanged=olympusUpdateChanged(finalBoard,serverSpin.orbValues||[]); finalChanged.forEach(({el,i})=>{el.classList.add('falling');el.style.animationDelay=(Math.floor(i/6)*135+(i%6)*35)+'ms';}); if(finalChanged.length)await new Promise(r=>setTimeout(r,1650)); finalChanged.forEach(({el})=>{el.classList.remove('falling');el.style.animationDelay='';}); board=[...finalBoard]; orbSum=Number(serverSpin.orbSum)||0; olympusFreeSpins=Number(serverSpin.freeSpins)||0; olympusGlobalMult=Number(serverSpin.multiplier)||1; renderStats();
+   // Display only server-confirmed multiplier totals; the client never rolls bonus values.
+   const multValue=$('olympusMultiplierValue');if(multValue){multValue.textContent='×'+olympusGlobalMult;if(orbSum>0){multValue.classList.remove('bump');void multValue.offsetWidth;multValue.classList.add('bump');}}
+   if(orbSum>0){result.textContent='МОЛНИИ СОБРАНЫ · СУММА МНОЖИТЕЛЕЙ ×'+orbSum;grid.classList.remove('cascade-impact');void grid.offsetWidth;grid.classList.add('cascade-impact');await new Promise(r=>setTimeout(r,450));grid.classList.remove('cascade-impact');}
    if(totalWin>0){$('olympusWin').textContent='ВЫИГРЫШ '+totalWin.toFixed(2);result.textContent='Каскадов: '+cascades+(orbSum?' · Сферы: ×'+orbSum:'')+(scatter>=4?' · Зевс активировал 15 фриспинов':'');}
    else{$('olympusWin').textContent='БЕЗ ВЫИГРЫША';result.textContent='Спин завершён. Попробуй ещё раз.'}
    if(scatter>=4&&!freeAtStart&&!buyBonus)result.textContent+=' · Бонусный режим открыт';
