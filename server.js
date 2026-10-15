@@ -190,7 +190,7 @@ app.post('/api/starsslots/spin', async (req, res) => {
     if (!user) return res.status(401).json({ ok:false, error:'Открой приложение через Telegram-бота.' });
     const bet = Number(req.body && req.body.bet);
     if (!Number.isSafeInteger(bet) || bet < 1 || bet > 1000000000) return res.status(400).json({ ok:false, error:'Ставка должна быть целым числом от 1.' });
-    const palette = [...Array(85).fill('blue'), ...Array(11).fill('cyan'), ...Array(3).fill('yellow'), 'green'];
+    const palette = [...Array(85).fill('cyan'), ...Array(11).fill('blue'), ...Array(3).fill('yellow'), 'green'];
     const symbols = [palette[crypto.randomInt(0,palette.length)],palette[crypto.randomInt(0,palette.length)],palette[crypto.randomInt(0,palette.length)]];
     const counts = symbols.reduce((m,c)=>(m[c]=(m[c]||0)+1,m),{});
     const match = Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
