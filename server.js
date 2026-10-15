@@ -75,7 +75,6 @@ app.get('/api/balance', async (req, res) => {
 app.post('/api/telegram/webhook', async (req, res) => {
   const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
   if (!secret || req.get('X-Telegram-Bot-Api-Secret-Token') !== secret) return res.sendStatus(403);
-  res.sendStatus(200);
   const update = req.body || {};
   try {
     await ensureDb();
@@ -84,12 +83,12 @@ app.post('/api/telegram/webhook', async (req, res) => {
       let valid = false;
       try { const payload = JSON.parse(q.invoice_payload || '{}'), pack = PACKAGES[Number(payload.stars)]; valid = Boolean(pack && String(q.from?.id) === String(payload.userId) && q.currency === 'XTR' && q.total_amount === pack.stars && Number(payload.coins) === pack.coins); } catch (_) {}
       await telegramApi('answerPreCheckoutQuery', { pre_checkout_query_id: q.id, ok: valid, ...(!valid ? { error_message: 'Счёт недействителен. Создай новый счёт.' } : {}) });
-      return;
+      return res.sendStatus(200);
     }
     const payment = update.message?.successful_payment;
-    if (!payment) return;
+    if (!payment) return res.sendStatus(200);
     const sender = update.message.from, payload = JSON.parse(payment.invoice_payload || '{}'), pack = PACKAGES[Number(payload.stars)];
-    if (!pack || String(sender?.id) !== String(payload.userId) || payment.currency !== 'XTR' || payment.total_amount !== pack.stars || Number(payload.coins) !== pack.coins || !payment.telegram_payment_charge_id) { console.error('Rejected mismatched successful_payment update'); return; }
+    if (!pack || String(sender?.id) !== String(payload.userId) || payment.currency !== 'XTR' || payment.total_amount !== pack.stars || Number(payload.coins) !== pack.coins || !payment.telegram_payment_charge_id) { console.error('Rejected mismatched successful_payment update'); return res.sendStatus(200); }
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
@@ -98,7 +97,11 @@ app.post('/api/telegram/webhook', async (req, res) => {
       if (inserted.rowCount) await client.query('UPDATE stars_users SET balance=balance+$2, username=$3, first_name=$4, updated_at=NOW() WHERE telegram_id=$1', [String(sender.id), pack.coins, sender.username || null, sender.first_name || null]);
       await client.query('COMMIT');
     } catch (e) { await client.query('ROLLBACK'); throw e; } finally { client.release(); }
-  } catch (e) { console.error('Telegram webhook processing error:', e.message); }
+    res.sendStatus(200);
+  } catch (e) {
+    console.error('Telegram webhook processing error:', e.message);
+    if (!res.headersSent) res.sendStatus(500);
+  }
 });
 app.get('*', (_req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 app.listen(PORT, '0.0.0.0', async () => {
