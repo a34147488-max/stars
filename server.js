@@ -78,6 +78,19 @@ app.post('/api/telegram/webhook', async (req, res) => {
   const update = req.body || {};
   try {
     await ensureDb();
+    if (update.message && /^\/start(?:@\w+)?(?:\s|$)/i.test(String(update.message.text || ''))) {
+      const chatId = update.message.chat?.id;
+      if (chatId) {
+        const appUrl = (process.env.WEB_APP_URL || process.env.WEBHOOK_URL || '').replace(/\/$/, '');
+        if (!appUrl || !/^https:\/\//i.test(appUrl)) throw new Error('WEB_APP_URL must be an HTTPS URL');
+        await telegramApi('sendMessage', {
+          chat_id: chatId,
+          text: 'Добро пожаловать в Stars! Открой приложение, чтобы посмотреть баланс, копить игровые звёзды и пополнять его настоящими Telegram Stars.',
+          reply_markup: { inline_keyboard: [[{ text: 'Открыть приложение', web_app: { url: appUrl } }]] }
+        });
+      }
+      return res.sendStatus(200);
+    }
     if (update.pre_checkout_query) {
       const q = update.pre_checkout_query;
       let valid = false;
