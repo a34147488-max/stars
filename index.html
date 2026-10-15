@@ -886,14 +886,9 @@ async function olympusPlay(buyBonus=false){
    }
    board=Array.isArray(serverSpin.finalBoard)?[...serverSpin.finalBoard]:board;
    board=board.map(id=>id==='orb'?id:id);
-   const sphereCount=Math.random()<.25?1:Math.random()<.08?2:0;
-   for(let i=0;i<sphereCount;i++)orbSum += [2,3,5,10,25,50,100,250,500][Math.floor(Math.random()*9)];
-   if(freeAtStart&&totalWin>0)olympusGlobalMult=Math.min(5000,olympusGlobalMult+orbSum);
-   if(freeAtStart)olympusFreeSpins=Math.max(0,olympusFreeSpins-1);
-   if(freeAtStart&&scatter>=3)olympusFreeSpins+=5;
-   if(scatter>=4&&!freeAtStart&&!buyBonus){olympusFreeSpins+=15;olympusGlobalMult=1}
-   if(freeAtStart)totalWin*=olympusGlobalMult;
-   else if(orbSum)totalWin*=orbSum;
+   // Баланс, выигрыш, фриспины и накопленный множитель берём только с сервера.
+   // Не генерируем дополнительные случайные сферы на клиенте: визуал не должен
+   // расходиться с результатом, который уже рассчитан и зачислен сервером.
    totalWin=Number(serverSpin.win)||0; const finalBoard=Array.isArray(serverSpin.finalBoard)?serverSpin.finalBoard:(serverSpin.board||board); const finalChanged=olympusUpdateChanged(finalBoard,serverSpin.orbValues||[]); finalChanged.forEach(({el,i})=>{el.classList.add('falling');el.style.animationDelay=(Math.floor(i/6)*135+(i%6)*35)+'ms';}); if(finalChanged.length)await new Promise(r=>setTimeout(r,1650)); finalChanged.forEach(({el})=>{el.classList.remove('falling');el.style.animationDelay='';}); board=[...finalBoard]; orbSum=Number(serverSpin.orbSum)||0; olympusFreeSpins=Number(serverSpin.freeSpins)||0; olympusGlobalMult=Number(serverSpin.multiplier)||1; renderStats();
    if(totalWin>0){$('olympusWin').textContent='ВЫИГРЫШ '+totalWin.toFixed(2);result.textContent='Каскадов: '+cascades+(orbSum?' · Сферы: ×'+orbSum:'')+(scatter>=4?' · Зевс активировал 15 фриспинов':'');}
    else{$('olympusWin').textContent='БЕЗ ВЫИГРЫША';result.textContent='Спин завершён. Попробуй ещё раз.'}
