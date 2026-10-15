@@ -159,6 +159,88 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
    if(user.photo_url){avatar.style.backgroundImage='url('+JSON.stringify(user.photo_url)+')';avatar.textContent='';}
    else avatar.textContent=(user.first_name||user.username||'U').trim().charAt(0).toUpperCase();
  }
+
+ // Withdrawal modal: wire every control after the DOM has loaded.
+ const withdrawOpen=document.getElementById('withdrawOpen');
+ const withdrawBackdrop=document.getElementById('withdrawBackdrop');
+ const withdrawClose=document.getElementById('withdrawClose');
+ const withdrawTarget=document.getElementById('withdrawTarget');
+ const withdrawAmount=document.getElementById('withdrawAmount');
+ const withdrawPayout=document.getElementById('withdrawPayout');
+ const withdrawSubmit=document.getElementById('withdrawSubmit');
+ const withdrawMessage=document.getElementById('withdrawMessage');
+ const withdrawRequests=document.getElementById('withdrawRequests');
+ const withdrawalTg=window.Telegram&&window.Telegram.WebApp;
+ const escapeHtml=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+ function updatePayout(){
+  const amount=Math.floor(Number(withdrawAmount?.value)||0);
+  if(withdrawPayout)withdrawPayout.textContent=amount>=0?Math.floor(amount*30/500).toLocaleString('ru-RU'):'0';
+ }
+ async function loadWithdrawals(){
+  if(!withdrawRequests)return;
+  if(!withdrawalTg||!withdrawalTg.initData){withdrawRequests.innerHTML='<div class="no-requests">Открой приложение через Telegram-бота, чтобы видеть заявки.</div>';return;}
+  try{
+   const response=await fetch('/api/withdrawals',{headers:{'X-Telegram-Init-Data':withdrawalTg.initData}});
+   const data=await response.json();
+   if(!response.ok||!data.ok)throw new Error(data.error||'Не удалось загрузить заявки.');
+   if(!data.requests||!data.requests.length){withdrawRequests.innerHTML='<div class="no-requests">Заявок пока нет.</div>';return;}
+   const statusText={pending:'ожидание',paid:'выплачено',rejected:'отказано'};
+   withdrawRequests.innerHTML=data.requests.map(r=>{
+    const adminLine=data.isAdmin?'<div class="request-meta">Заявитель: '+escapeHtml((r.username?'@'+r.username+' · ':'')+(r.first_name||'')+' · ID '+r.telegram_id)+'</div>':'';
+    const actions=data.isAdmin&&r.status==='pending'?'<div class="admin-actions"><button type="button" data-withdraw-status="paid" data-withdraw-id="'+Number(r.id)+'">Выплачено</button><button type="button" data-withdraw-status="rejected" data-withdraw-id="'+Number(r.id)+'">Отказать</button></div>':'';
+    const date=r.created_at?new Date(r.created_at).toLocaleString('ru-RU'):'';
+    return '<article class="request-card"><div class="request-top"><div class="request-name">#'+Number(r.id)+' · '+escapeHtml(r.target_username)+'</div><span class="request-status '+escapeHtml(r.status)+'">'+escapeHtml(statusText[r.status]||r.status)+'</span></div><div class="request-meta">Списано: '+Number(r.amount).toLocaleString('ru-RU')+' наших звёзд · К выплате: '+Number(r.payout_stars).toLocaleString('ru-RU')+' Telegram Stars<br>'+escapeHtml(date)+'</div>'+adminLine+actions+'</article>';
+   }).join('');
+  }catch(e){withdrawRequests.innerHTML='<div class="no-requests">'+escapeHtml(e.message||'Не удалось загрузить заявки.')+'</div>';}
+ }
+ function openWithdraw(){
+  if(!withdrawBackdrop)return;
+  withdrawBackdrop.classList.add('open');withdrawBackdrop.setAttribute('aria-hidden','false');
+  if(withdrawalTg&&typeof withdrawalTg.expand==='function')withdrawalTg.expand();
+  loadWithdrawals();
+ }
+ function closeWithdraw(){
+  if(!withdrawBackdrop)return;
+  withdrawBackdrop.classList.remove('open');withdrawBackdrop.setAttribute('aria-hidden','true');
+ }
+ if(withdrawOpen)withdrawOpen.addEventListener('click',openWithdraw);
+ if(withdrawClose)withdrawClose.addEventListener('click',closeWithdraw);
+ if(withdrawBackdrop)withdrawBackdrop.addEventListener('click',event=>{if(event.target===withdrawBackdrop)closeWithdraw();});
+ if(withdrawAmount)withdrawAmount.addEventListener('input',updatePayout);
+ if(withdrawSubmit)withdrawSubmit.addEventListener('click',async()=>{
+  if(!withdrawalTg||!withdrawalTg.initData){withdrawMessage.textContent='Открой приложение через Telegram-бота.';return;}
+  const target=String(withdrawTarget.value||'').trim();
+  const amount=Number(withdrawAmount.value);
+  if(!target){withdrawMessage.textContent='Укажи Telegram username получателя.';return;}
+  if(!Number.isSafeInteger(amount)||amount<1000){withdrawMessage.textContent='Минимальная сумма вывода — 1000 наших звёзд.';return;}
+  withdrawSubmit.disabled=true;withdrawMessage.textContent='Создаём заявку…';
+  try{
+   const response=await fetch('/api/withdrawals',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':withdrawalTg.initData},body:JSON.stringify({targetUsername:target,amount})});
+   const data=await response.json();
+   if(!response.ok||!data.ok)throw new Error(data.error||'Не удалось создать заявку.');
+   withdrawMessage.textContent='Заявка #'+data.request.id+' создана. Статус: ожидание.';
+   if(data.balanceUpdated){
+    const balanceNode=document.getElementById('balance');
+    if(balanceNode){const responseBalance=await fetch('/api/balance',{headers:{'X-Telegram-Init-Data':withdrawalTg.initData}});const balanceData=await responseBalance.json();if(responseBalance.ok&&balanceData.ok)balanceNode.textContent=Number(balanceData.balance).toLocaleString('ru-RU');}
+   }
+   withdrawAmount.value='';updatePayout();await loadWithdrawals();
+  }catch(e){withdrawMessage.textContent=e.message||'Ошибка создания заявки.';}
+  finally{withdrawSubmit.disabled=false;}
+ });
+ if(withdrawRequests)withdrawRequests.addEventListener('click',async event=>{
+  const button=event.target.closest('button[data-withdraw-status]');
+  if(!button)return;
+  button.disabled=true;
+  try{
+   const response=await fetch('/api/withdrawals/'+encodeURIComponent(button.dataset.withdrawId)+'/status',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':withdrawalTg?.initData||''},body:JSON.stringify({status:button.dataset.withdrawStatus})});
+   const data=await response.json();
+   if(!response.ok||!data.ok)throw new Error(data.error||'Не удалось изменить статус.');
+   withdrawMessage.textContent=button.dataset.withdrawStatus==='paid'?'Заявка отмечена как выплаченная.':'Заявка отклонена, звёзды возвращены пользователю.';
+   await loadWithdrawals();
+  }catch(e){withdrawMessage.textContent=e.message||'Не удалось изменить статус.';button.disabled=false;}
+ });
+ updatePayout();
+
 })();
 </script>
 <script>
