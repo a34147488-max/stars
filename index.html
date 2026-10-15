@@ -279,6 +279,9 @@ body{overflow-anchor:none}
 
 
 .olympus-live-balance{width:min(100%,330px);display:flex;align-items:center;justify-content:center;gap:9px;padding:11px 15px;border:1px solid #8b6b38;border-radius:13px;background:linear-gradient(135deg,#21132e,#100a18);box-shadow:inset 0 0 14px #eac45d12;color:#c8b7d7;font-size:11px;font-weight:800;letter-spacing:1px}.olympus-live-balance strong{font-size:20px;letter-spacing:0;color:#fff4cf;font-variant-numeric:tabular-nums}.olympus-live-star{font-size:22px;color:#fff}
+.bonus-summary-overlay[data-game="olympus"] .bonus-summary-card{border-color:#e6c65e;background:radial-gradient(ellipse at 50% 0%,#70439b,#241033 62%,#100817);box-shadow:0 0 38px #f6c54f55,inset 0 0 0 2px #6b472a}
+.bonus-summary-overlay[data-game="olympus"] .bonus-summary-title{color:#ffe17a;text-shadow:0 0 18px #ffb52d}
+.bonus-summary-overlay[data-game="olympus"] .bonus-summary-total{color:#fff0a2;text-shadow:0 0 20px #ffc94b}
 /* Olympus polish: stronger cascades, lightning orbs and bonus presentation */
 .olympus-cell[data-symbol="orb"]{isolation:isolate;animation:olympusOrbPulse 1.15s ease-in-out infinite alternate}
 .olympus-cell[data-symbol="orb"]::after{content:"";position:absolute;inset:-35%;z-index:0;pointer-events:none;background:conic-gradient(from 0deg,transparent,#8deaffaa,transparent,#fff3a6aa,transparent);animation:olympusLightningSpin 2.2s linear infinite;opacity:.55}
@@ -817,7 +820,7 @@ function olympusDrop(board,removed){
 function initOlympusGrid(){olympusRender(olympusMakeBoard())}
 initOlympusGrid();
 $('olympusAnte')?.addEventListener('click',()=>{olympusAnte=!olympusAnte;$('olympusAnte').setAttribute('aria-pressed',String(olympusAnte));$('olympusAnte').classList.toggle('active',olympusAnte)});
-function showBonusSummary(total){$('bonusSummaryTotal').textContent='+'+Number(total||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:4})+' монет';$('bonusSummaryModal').classList.add('open')}
+function showBonusSummary(total,game='sweet'){$('bonusSummaryTotal').textContent='+'+Number(total||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:4})+' монет';const modal=$('bonusSummaryModal');modal.dataset.game=game;const title=$('bonusSummaryTitle'),copy=modal.querySelector('.bonus-summary-congrats');if(game==='olympus'){if(title)title.textContent='ОЛИМП ЗАВЕРШЁН';if(copy)copy.textContent='Поздравляем! Все бесплатные вращения завершены. Вот твой общий выигрыш за бонусную игру.';}else{if(title)title.textContent='БОНУС ЗАВЕРШЁН';if(copy)copy.textContent='Поздравляем! Все бонусные вращения завершены.';}modal.classList.add('open')}
 function showSweetFreeSpins(count){$('sweetFreeSpinsCount').textContent=String(count);$('sweetFreeSpinsModal')?.classList.add('open')}
 function closeSweetFreeSpins(){ $('sweetFreeSpinsModal')?.classList.remove('open') }
 $('sweetFreeSpinsClose')?.addEventListener('click',closeSweetFreeSpins);
@@ -919,7 +922,7 @@ async function olympusPlay(buyBonus=false){
    if(buyBonus&&!freeAtStart)result.textContent='Бонус куплен: 15 бесплатных вращений.';
    if(freeAtStart)olympusBonusTotal+=Number(serverSpin.win)||0;
    if(gotFreeSpins)olympusBonusTotal=0;
-   if(freeAtStart&&olympusFreeSpins===0){olympusGlobalMult=1;showBonusSummary(olympusBonusTotal);olympusBonusTotal=0;}
+   if(freeAtStart&&olympusFreeSpins===0){olympusGlobalMult=1;showBonusSummary(olympusBonusTotal,'olympus');olympusBonusTotal=0;}
    olympusSpins++;$('olympusSpinCount').textContent='СПИНОВ: '+olympusSpins;
    $('olympusMode').textContent=olympusFreeSpins?'FREE SPINS':'ОБЫЧНАЯ ИГРА';
    $('olympusBonus').hidden=olympusFreeSpins===0;$('olympusFree').textContent=olympusFreeSpins;$('olympusMult').textContent='×'+olympusGlobalMult;$('olympusMultiplierPanel')?.classList.toggle('active',olympusFreeSpins>0);if($('olympusMultiplierValue'))$('olympusMultiplierValue').textContent='×'+olympusGlobalMult;
