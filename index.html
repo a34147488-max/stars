@@ -764,38 +764,20 @@ let olympusAudioCtx=null,olympusMusicOn=false,olympusMusicTimer=null,olympusMusi
 let olympusCongratsTimer=null;
 function olympusAudio(){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;if(!olympusAudioCtx)olympusAudioCtx=new AC();if(olympusAudioCtx.state==='suspended')olympusAudioCtx.resume().catch(()=>{});return olympusAudioCtx}
 function olympusTone(freq,duration=.12,wave='sine',volume=.035,delay=0){const c=olympusAudio();if(!c)return;const t=c.currentTime+delay,o=c.createOscillator(),g=c.createGain();o.type=wave;o.frequency.setValueAtTime(freq,t);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(volume,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+duration);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+duration+.03)}
-function olympusSpinSound(){const c=olympusAudio();if(!c)return;const t=c.currentTime;
- // A quick angelic "ah" choir glide with a bright celestial chime.
- [1,1.006,.994].forEach((ratio,i)=>{const o=c.createOscillator(),g=c.createGain(),f=c.createBiquadFilter();o.type=i===2?'sine':'triangle';o.frequency.setValueAtTime(660*ratio,t);o.frequency.exponentialRampToValueAtTime(990*ratio,t+.13);o.frequency.exponentialRampToValueAtTime(784*ratio,t+.38);f.type='bandpass';f.frequency.setValueAtTime(1150+i*260,t);f.Q.value=.8;g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(i===2?.012:.018,t+.035);g.gain.setValueAtTime(i===2?.012:.018,t+.15);g.gain.exponentialRampToValueAtTime(.0001,t+.48);o.connect(f);f.connect(g);g.connect(c.destination);o.start(t);o.stop(t+.5)});
- olympusTone(1318.51,.26,'sine',.018,.07);olympusTone(1760,.22,'sine',.009,.16);
+function olympusSpinSound(){
+ const ctx=olympusAudio();if(!ctx)return;const t=ctx.currentTime;
+ // Reel motor: descending filtered rush, fast ticking, then a soft metallic release.
+ const noiseBuffer=ctx.createBuffer(1,Math.floor(ctx.sampleRate*1.7),ctx.sampleRate),data=noiseBuffer.getChannelData(0);
+ for(let i=0;i<data.length;i++)data[i]=(Math.random()*2-1)*(1-i/data.length)*.7;
+ const src=ctx.createBufferSource(),filter=ctx.createBiquadFilter(),gain=ctx.createGain();
+ src.buffer=noiseBuffer;filter.type='lowpass';filter.frequency.setValueAtTime(1800,t);filter.frequency.exponentialRampToValueAtTime(260,t+1.45);filter.Q.value=.7;
+ gain.gain.setValueAtTime(.0001,t);gain.gain.linearRampToValueAtTime(.055,t+.08);gain.gain.setValueAtTime(.04,t+.72);gain.gain.exponentialRampToValueAtTime(.0001,t+1.62);
+ src.connect(filter);filter.connect(gain);gain.connect(ctx.destination);src.start(t);src.stop(t+1.7);
+ // Rapid reel clicks slow down as the reels settle.
+ for(let i=0;i<17;i++){const d=i*.075+i*i*.0021;olympusTone(780+(i%3)*115,.035,'triangle',.014,d)}
+ const o=ctx.createOscillator(),g=ctx.createGain();o.type='sine';o.frequency.setValueAtTime(540,t+1.12);o.frequency.exponentialRampToValueAtTime(180,t+1.62);g.gain.setValueAtTime(.0001,t+1.12);g.gain.linearRampToValueAtTime(.045,t+1.16);g.gain.exponentialRampToValueAtTime(.0001,t+1.72);o.connect(g);g.connect(ctx.destination);o.start(t+1.12);o.stop(t+1.75);
+ olympusTone(1318.51,.22,'sine',.018,1.35);olympusTone(1760,.3,'sine',.012,1.48);
 }
-function olympusMatchSound(){[523.25,659.25,783.99,1046.5].forEach((f,i)=>olympusTone(f,.24,'triangle',.045,i*.065))}
-function olympusCongratsSound(){[659.25,783.99,987.77,1318.51,1567.98].forEach((f,i)=>olympusTone(f,.48,'triangle',.055,i*.11));olympusTone(523.25,.75,'sine',.035,.58)}
-function olympusStartCongratsSound(){if(olympusCongratsTimer)clearTimeout(olympusCongratsTimer);const tick=()=>{const a=$('olympusSuperWin')?.classList.contains('open'),b=$('olympusFreeSpinModal')?.classList.contains('open');if(!a&&!b){olympusCongratsTimer=null;return}olympusCongratsSound();olympusCongratsTimer=setTimeout(tick,1800)};tick()}
-function olympusStopCongratsSound(){if(olympusCongratsTimer){clearTimeout(olympusCongratsTimer);olympusCongratsTimer=null}}
-function olympusChoirVoice(freq,duration,volume,delay=0){
- const ctx=olympusAudio();if(!ctx)return;const t=ctx.currentTime+delay;
- [1,1.003,.997,2.01].forEach((ratio,index)=>{const osc=ctx.createOscillator(),gain=ctx.createGain(),filter=ctx.createBiquadFilter();osc.type=index===3?'sine':'sawtooth';osc.frequency.setValueAtTime(freq*ratio,t);filter.type='lowpass';filter.frequency.setValueAtTime(index===3?1500:850,t);filter.Q.value=.7;const level=volume/(index===3?2.5:3.2);gain.gain.setValueAtTime(.0001,t);gain.gain.linearRampToValueAtTime(level,t+.45);gain.gain.setValueAtTime(level,t+Math.max(.46,duration-.5));gain.gain.exponentialRampToValueAtTime(.0001,t+duration);osc.connect(filter);filter.connect(gain);gain.connect(ctx.destination);osc.start(t);osc.stop(t+duration+.03)});
-}
-function olympusMusicTick(){
- if(!olympusMusicOn)return;
- const melody=[293.66,349.23,392,440,392,349.23,329.63,392,440,523.25,493.88,440,392,349.23,293.66,261.63],harmony=[146.83,174.61,196,220,196,174.61,164.81,196],bass=[73.42,87.31,98,82.41,65.41,73.42,58.27,65.41],i=olympusMusicStep++;
- olympusChoirVoice(melody[i%melody.length],1.65,.023);
- if(i%2===0)olympusChoirVoice(harmony[Math.floor(i/2)%harmony.length],2.25,.018,.05);
- if(i%4===0)olympusTone(bass[Math.floor(i/4)%bass.length],2.8,'sine',.022);
- if(i%8===0){olympusChoirVoice(587.33,2.1,.009,.18);olympusTone(110,3.2,'sine',.012,.1)}
- olympusMusicTimer=setTimeout(olympusMusicTick,1050);
-}
-function olympusToggleMusic(){olympusAudio();olympusMusicOn=!olympusMusicOn;const b=$('olympusMusic');if(b){b.textContent=olympusMusicOn?'✧ Музыка: ВКЛ':'✧ Музыка: ВЫКЛ';b.classList.toggle('active',olympusMusicOn)}if(olympusMusicTimer){clearTimeout(olympusMusicTimer);olympusMusicTimer=null}if(olympusMusicOn)olympusMusicTick()}
-function olympusStopMusic(){olympusMusicOn=false;if(olympusMusicTimer){clearTimeout(olympusMusicTimer);olympusMusicTimer=null}if(olympusAudioCtx){const ctx=olympusAudioCtx;olympusAudioCtx=null;ctx.close().catch(()=>{})}olympusMusicStep=0;const b=$('olympusMusic');if(b){b.textContent='✧ Музыка: ВЫКЛ';b.classList.remove('active')}}
-function olympusSvg(sym){
- const c=sym.color;
- const common='stroke="#f8e5b4" stroke-width="1.2" stroke-linejoin="round" stroke-linecap="round"';
- let shape='';
- if(sym.shape==='card'){
-  const rank=sym.rank||sym.name;
-  shape='<defs><linearGradient id="card'+sym.id+'" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff" stop-opacity=".96"/><stop offset=".22" stop-color="'+c+'"/><stop offset=".72" stop-color="'+c+'"/><stop offset="1" stop-color="#140a2b"/></linearGradient></defs><path d="M20 2 36 12 33 33 20 44 7 33 4 12Z" fill="#05030b" opacity=".8" transform="translate(0 2)"/><path d="M20 2 36 12 33 33 20 44 7 33 4 12Z" fill="url(#card'+sym.id+')" stroke="#f8e5b4" stroke-width="1.5"/><path d="M4 12 16 15 20 2 24 15 36 12 26 24 33 33 20 29 7 33 14 24Z" fill="#fff" opacity=".2"/><path d="M8 12 20 5 32 12" fill="none" stroke="#fff" stroke-width="1.1" opacity=".8"/><text x="20" y="28" text-anchor="middle" font-family="Georgia,serif" font-size="'+(rank==='10'?'14':'21')+'" font-weight="900" fill="#fff9e9" stroke="#4b163e" stroke-width="1.1" paint-order="stroke" filter="drop-shadow(0 1px 1px #000)">'+rank+'</text><path d="M13 35h14" stroke="#fff" stroke-opacity=".55" stroke-width="1"/>';
- }
  if(sym.shape==='gem')shape='<defs><linearGradient id="g'+sym.id+'" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff" stop-opacity=".95"/><stop offset=".28" stop-color="'+c+'"/><stop offset="1" stop-color="#170d35"/></linearGradient></defs><path d="M20 3 36 13 33 32 20 43 7 32 4 13Z" fill="#10091e" opacity=".65" transform="translate(0 1)"/><path d="M20 3 36 13 33 32 20 43 7 32 4 13Z" fill="url(#g'+sym.id+')" '+common+'/><path d="M4 13 15 15 20 3 25 15 36 13 26 24 33 32 20 28 7 32 14 24Z" fill="#fff" opacity=".24"/><path d="M15 15 20 28 14 24 4 13M25 15 20 28 26 24 36 13M20 28v15" fill="none" stroke="#fff" stroke-opacity=".58" stroke-width=".8"/><path d="M8 13 20 5 31 13" fill="none" stroke="#fff" stroke-width="1.2" opacity=".8"/>';
  if(sym.shape==='diamond')shape='<defs><linearGradient id="d'+sym.id+'" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff9d4"/><stop offset=".25" stop-color="'+c+'"/><stop offset=".72" stop-color="'+c+'"/><stop offset="1" stop-color="#11152d"/></linearGradient></defs><path d="m20 2 18 18-18 24L2 20Z" fill="#050814" opacity=".75" transform="translate(0 1)"/><path d="m20 2 18 18-18 24L2 20Z" fill="url(#d'+sym.id+')" '+common+'/><path d="m20 2 0 22L2 20Z" fill="#fff" opacity=".48"/><path d="m20 2 18 18-18 4Z" fill="#fff" opacity=".22"/><path d="M2 20h36M20 2v42M2 20l18 4 18-4M20 24 8 35M20 24l12 11" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width=".8"/>';
  if(sym.shape==='cup')shape='<defs><linearGradient id="c'+sym.id+'" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff4ba"/><stop offset=".22" stop-color="#e7b64c"/><stop offset=".52" stop-color="#95601c"/><stop offset=".76" stop-color="#ffe08a"/><stop offset="1" stop-color="#533014"/></linearGradient></defs><ellipse cx="20" cy="40" rx="12" ry="2.5" fill="#000" opacity=".45"/><path d="M8 8h24l-2 13q-2 8-10 10-8-2-10-10Z" fill="url(#c'+sym.id+')" '+common+'/><path d="M10 11h20l-2 9q-2 5-8 7-6-2-8-7Z" fill="#fff" opacity=".17"/><path d="M8 12H3v5q1 7 9 8M32 12h5v5q-1 7-9 8" fill="none" stroke="#e9bd63" stroke-width="3"/><path d="M20 31v6m-9 3h18l-2 3H13Z" fill="url(#c'+sym.id+')" stroke="#fff0b8" stroke-width="1.2"/><path d="M11 10h18" stroke="#fff7d2" stroke-width="1.5"/><path d="M20 13v10" stroke="#fff" stroke-opacity=".45" stroke-width="1"/>';
