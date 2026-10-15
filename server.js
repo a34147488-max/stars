@@ -148,14 +148,14 @@ app.post('/api/withdrawals/:id/status', async (req, res) => {
 });
 
 
-app.post('/api/wheelslots/spin', async (req, res) => {
+app.post('/api/starsslots/spin', async (req, res) => {
   try {
     await ensureDb();
     const user = authUser(req);
     if (!user) return res.status(401).json({ ok:false, error:'Открой приложение через Telegram-бота.' });
     const bet = Number(req.body && req.body.bet);
     if (!Number.isSafeInteger(bet) || bet < 1 || bet > 1000000000) return res.status(400).json({ ok:false, error:'Ставка должна быть целым числом от 1.' });
-    const palette = ['blue','yellow','green','cyan'];
+    const palette = ['cyan','cyan','cyan','cyan','cyan','cyan','cyan','cyan','cyan','cyan','blue','blue','yellow','yellow','green'];
     const symbols = [palette[crypto.randomInt(0,palette.length)],palette[crypto.randomInt(0,palette.length)],palette[crypto.randomInt(0,palette.length)]];
     const counts = symbols.reduce((m,c)=>(m[c]=(m[c]||0)+1,m),{});
     const match = Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
@@ -180,7 +180,7 @@ app.post('/api/wheelslots/spin', async (req, res) => {
       await client.query('COMMIT');
     } catch(e) { await client.query('ROLLBACK'); throw e; } finally { client.release(); }
     return res.json({ok:true,symbols,multiplier,payout,bet,balance});
-  } catch(e) { console.error('WheelSlots spin error:',e.message); return res.status(503).json({ok:false,error:'Не удалось выполнить спин. Попробуй ещё раз.'}); }
+  } catch(e) { console.error('StarsSlots spin error:',e.message); return res.status(503).json({ok:false,error:'Не удалось выполнить спин. Попробуй ещё раз.'}); }
 });
 
 app.post('/api/telegram/webhook', async (req, res) => {
