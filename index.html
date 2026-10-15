@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#090a10">
+<title>Stars</title>
+<style>
+:root{color-scheme:dark;--bg:#090a10;--glass:rgba(255,255,255,.075);--line:rgba(255,255,255,.16);--muted:#9b9eae;--white:#fbfbff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#34364a 0%,#171824 35%,var(--bg) 72%);color:var(--white);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",system-ui,sans-serif;display:flex;justify-content:center;overflow-x:hidden}
+.app{width:100%;max-width:520px;min-height:100svh;padding:calc(env(safe-area-inset-top) + 22px) 22px calc(env(safe-area-inset-bottom) + 28px);display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:clamp(70px,15vh,140px)}
+.brand{display:flex;align-items:center;gap:11px;font-weight:750;letter-spacing:-.04em;font-size:22px}
+.brand-mark{width:35px;height:35px;border-radius:12px;background:linear-gradient(145deg,#fff,#bfc5d8);display:grid;place-items:center;color:#151622;box-shadow:0 4px 22px #ffffff18}
+.top-note{color:#a8aaba;font-size:13px;font-weight:600;letter-spacing:.02em}
+.center{display:flex;flex-direction:column;align-items:center;text-align:center}
+.eyebrow{color:#a6a9b8;font-size:13px;font-weight:650;letter-spacing:.15em;text-transform:uppercase;margin-bottom:18px}
+.balance-card{position:relative;width:100%;max-width:390px;padding:29px 20px 25px;border-radius:30px;background:linear-gradient(145deg,rgba(255,255,255,.13),rgba(255,255,255,.045));border:1px solid rgba(255,255,255,.27);box-shadow:inset 0 1px 0 #ffffff21,0 20px 65px #0005;backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);overflow:hidden}
+.balance-card:before{content:"";position:absolute;inset:-1px;background:linear-gradient(120deg,transparent 18%,#ffffff0b 42%,transparent 62%);pointer-events:none}
+.balance-label{font-size:14px;color:#b9bbca;font-weight:600;letter-spacing:.02em}
+.balance-row{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:12px}
+.balance{font-size:clamp(42px,12vw,60px);font-weight:850;letter-spacing:-.065em;line-height:1.05;font-variant-numeric:tabular-nums;text-shadow:0 2px 22px #fff2}
+.star-wrap{width:43px;height:43px;display:grid;place-items:center;flex:none;filter:drop-shadow(0 0 12px #fff7);animation:float 2.8s ease-in-out infinite}
+.premium-star{width:39px;height:39px;overflow:visible;animation:starshine 3.4s ease-in-out infinite;transform-origin:center}
+.star-glow{position:absolute;width:35px;height:35px;border-radius:50%;background:#fff;filter:blur(18px);opacity:.13;animation:glow 2.8s ease-in-out infinite}
+.caption{font-size:13px;color:#9da1b2;margin-top:15px}
+.status-pill{margin-top:24px;padding:9px 13px;border:1px solid #ffffff20;border-radius:999px;background:#ffffff08;color:#d9dbe5;font-size:12px;font-weight:650;display:flex;align-items:center;gap:8px}
+.status-dot{width:6px;height:6px;border-radius:50%;background:#9de8bf;box-shadow:0 0 10px #9de8bf}
+.bottom{margin-top:auto;padding-top:70px;text-align:center;color:#737789;font-size:12px}
+.bottom-line{width:34px;height:4px;border-radius:99px;background:#ffffff40;margin:0 auto 17px}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-5px) rotate(4deg)}}
+@keyframes starshine{0%,100%{transform:scale(1) rotate(0deg);filter:brightness(1)}45%{transform:scale(1.09) rotate(9deg);filter:brightness(1.16)}65%{transform:scale(.98) rotate(0deg);filter:brightness(1)}}
+@keyframes glow{0%,100%{opacity:.1;transform:scale(.8)}50%{opacity:.25;transform:scale(1.3)}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<main class="app">
+<header class="topbar">
+<div class="brand"><span class="brand-mark"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2.7 14.7 9.3 21.8 12l-7.1 2.7L12 21.3l-2.7-6.6L2.2 12l7.1-2.7L12 2.7Z" fill="currentColor"/></svg></span><span>Stars</span></div>
+<div class="top-note">ЛИЧНЫЙ БАЛАНС</div>
+</header>
+<section class="center" aria-label="Баланс">
+<div class="eyebrow">Ваш баланс</div>
+<div class="balance-card">
+<div class="balance-label">Всего накоплено</div>
+<div class="balance-row">
+<div class="balance" id="balance">0</div>
+<div class="star-wrap" aria-label="Telegram Premium Star">
+<div class="star-glow"></div>
+<svg class="premium-star" viewBox="0 0 48 48" role="img" aria-label="Белая звезда Telegram Premium">
+<path d="M24 2.8c2.2 0 3.4 2.7 4.7 7.6 1.2 4.5 2.4 5.7 6.9 6.9 4.9 1.3 7.6 2.5 7.6 4.7s-2.7 3.4-7.6 4.7c-4.5 1.2-5.7 2.4-6.9 6.9-1.3 4.9-2.5 7.6-4.7 7.6s-3.4-2.7-4.7-7.6c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 25.4 4.8 24.2 4.8 22s2.7-3.4 7.6-4.7c4.5-1.2 5.7-2.4 6.9-6.9C20.6 5.5 21.8 2.8 24 2.8Z" fill="#fff"/>
+<path d="M24 11.5 26.8 19l7.5 2.8-7.5 2.8-2.8 7.5-2.8-7.5-7.5-2.8 7.5-2.8 2.8-7.5Z" fill="#f1f2f7"/>
+</svg>
+</div>
+</div>
+<div class="caption">звёзд на вашем балансе</div>
+</div>
+<div class="status-pill"><span class="status-dot"></span>Баланс отображается в реальном времени</div>
+</section>
+<footer class="bottom"><div class="bottom-line"></div>Stars · Ваше пространство</footer>
+</main>
+</body>
+</html>
