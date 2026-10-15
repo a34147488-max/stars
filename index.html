@@ -34,6 +34,26 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
 @keyframes glow{0%,100%{opacity:.1;transform:scale(.8)}50%{opacity:.25;transform:scale(1.3)}}
 @media(max-width:370px){.app{padding-left:15px;padding-right:15px}.topbar{gap:10px}.profile-chip{gap:7px;padding-right:8px}.top-note{font-size:9px}.profile-name{max-width:90px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important}}
+.topbar{margin-bottom:clamp(42px,8vh,80px)}
+.deposit-section{width:100%;max-width:390px;margin:28px auto 0;text-align:left}
+.deposit-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:13px}
+.deposit-title{font-size:18px;font-weight:800;letter-spacing:-.035em}
+.deposit-subtitle{font-size:12px;color:#999eaf;margin-top:4px}
+.tg-badge{font-size:10px;font-weight:800;letter-spacing:.08em;color:#d8dbea;padding:7px 9px;border:1px solid #ffffff22;border-radius:999px;background:#ffffff08;white-space:nowrap}
+.packages{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.pack{position:relative;text-align:left;color:#fff;min-width:0;padding:15px 13px 13px;border-radius:20px;border:1px solid #ffffff20;background:linear-gradient(145deg,#ffffff12,#ffffff05);box-shadow:inset 0 1px 0 #ffffff0b;cursor:pointer;font:inherit;transition:transform .16s,border-color .16s,background .16s}
+.pack:active{transform:scale(.975)}.pack.selected{border-color:#e9eaf8a8;background:linear-gradient(145deg,#ffffff20,#ffffff0b);box-shadow:0 0 0 1px #ffffff12,0 8px 25px #0002}
+.pack-name{font-size:12px;color:#b7bbcc;font-weight:700;margin-bottom:11px}
+.pack-top{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.pack-star{width:25px;height:25px;flex:none;filter:drop-shadow(0 0 8px #ffffff55)}
+.pack-amount{font-size:25px;font-weight:850;letter-spacing:-.055em;font-variant-numeric:tabular-nums}
+.pack-convert{font-size:12px;color:#aeb2c3;line-height:1.4}
+.pack-convert b{color:#fff;font-weight:800}
+.pack-check{position:absolute;top:12px;right:12px;width:17px;height:17px;border:1px solid #ffffff45;border-radius:50%;display:grid;place-items:center;color:#14151d;font-size:10px}
+.pack.selected .pack-check{background:#fff;border-color:#fff}
+.deposit-button{width:100%;margin-top:13px;padding:16px 18px;border:0;border-radius:17px;background:linear-gradient(135deg,#fff,#d8dbea);color:#14151d;font:inherit;font-size:15px;font-weight:850;box-shadow:0 8px 28px #ffffff12;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px}
+.deposit-button:disabled{opacity:.55;cursor:wait}.deposit-message{min-height:18px;margin-top:10px;text-align:center;color:#aeb2c3;font-size:12px;line-height:1.45}
+@media(max-width:370px){.packages{gap:8px}.pack{padding:13px 10px}.pack-amount{font-size:22px}.deposit-title{font-size:16px}}
 </style>
 </head>
 <body>
@@ -64,6 +84,19 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
 </div>
 <div class="status-pill"><span class="status-dot"></span>Баланс отображается в реальном времени</div>
 </section>
+<section class="deposit-section" aria-label="Пополнение баланса">
+<div class="deposit-heading"><div><div class="deposit-title">Пополнить баланс</div><div class="deposit-subtitle">Оплата настоящими Telegram Stars</div></div><div class="tg-badge">XTR · TELEGRAM</div></div>
+<div class="packages" id="starPackages">
+<button class="pack" type="button" data-stars="50" data-coins="500"><span class="pack-check">✓</span><div class="pack-name">Стартовый</div><div class="pack-top"><svg class="pack-star" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 3c2 0 3.5 3 4.8 7.8 1.2 4.5 2.4 5.7 6.9 6.9C40.5 19 43 20.3 43 22.5s-2.5 3.5-7.3 4.8c-4.5 1.2-5.7 2.4-6.9 6.9C27.5 39 26 42 24 42s-3.5-3-4.8-7.8c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 26 5 24.7 5 22.5s2.5-3.5 7.3-4.8c4.5-1.2 5.7-2.4 6.9-6.9C20.5 6 22 3 24 3Z" fill="#fff"/></svg><span class="pack-amount">50</span></div><div class="pack-convert">Получишь <b>500</b> наших звёзд</div></button>
+<button class="pack" type="button" data-stars="75" data-coins="900"><span class="pack-check">✓</span><div class="pack-name">Бронзовый</div><div class="pack-top"><svg class="pack-star" viewBox="0 0 48 48"><path d="M24 3c2 0 3.5 3 4.8 7.8 1.2 4.5 2.4 5.7 6.9 6.9C40.5 19 43 20.3 43 22.5s-2.5 3.5-7.3 4.8c-4.5 1.2-5.7 2.4-6.9 6.9C27.5 39 26 42 24 42s-3.5-3-4.8-7.8c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 26 5 24.7 5 22.5s2.5-3.5 7.3-4.8c4.5-1.2 5.7-2.4 6.9-6.9C20.5 6 22 3 24 3Z" fill="#fff"/></svg><span class="pack-amount">75</span></div><div class="pack-convert">Получишь <b>900</b> наших звёзд</div></button>
+<button class="pack" type="button" data-stars="100" data-coins="1200"><span class="pack-check">✓</span><div class="pack-name">Серебряный</div><div class="pack-top"><svg class="pack-star" viewBox="0 0 48 48"><path d="M24 3c2 0 3.5 3 4.8 7.8 1.2 4.5 2.4 5.7 6.9 6.9C40.5 19 43 20.3 43 22.5s-2.5 3.5-7.3 4.8c-4.5 1.2-5.7 2.4-6.9 6.9C27.5 39 26 42 24 42s-3.5-3-4.8-7.8c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 26 5 24.7 5 22.5s2.5-3.5 7.3-4.8c4.5-1.2 5.7-2.4 6.9-6.9C20.5 6 22 3 24 3Z" fill="#fff"/></svg><span class="pack-amount">100</span></div><div class="pack-convert">Получишь <b>1 200</b> наших звёзд</div></button>
+<button class="pack" type="button" data-stars="159" data-coins="1459"><span class="pack-check">✓</span><div class="pack-name">Золотой</div><div class="pack-top"><svg class="pack-star" viewBox="0 0 48 48"><path d="M24 3c2 0 3.5 3 4.8 7.8 1.2 4.5 2.4 5.7 6.9 6.9C40.5 19 43 20.3 43 22.5s-2.5 3.5-7.3 4.8c-4.5 1.2-5.7 2.4-6.9 6.9C27.5 39 26 42 24 42s-3.5-3-4.8-7.8c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 26 5 24.7 5 22.5s2.5-3.5 7.3-4.8c4.5-1.2 5.7-2.4 6.9-6.9C20.5 6 22 3 24 3Z" fill="#fff"/></svg><span class="pack-amount">159</span></div><div class="pack-convert">Получишь <b>1 459</b> наших звёзд</div></button>
+<button class="pack" type="button" data-stars="200" data-coins="2199"><span class="pack-check">✓</span><div class="pack-name">Платиновый</div><div class="pack-top"><svg class="pack-star" viewBox="0 0 48 48"><path d="M24 3c2 0 3.5 3 4.8 7.8 1.2 4.5 2.4 5.7 6.9 6.9C40.5 19 43 20.3 43 22.5s-2.5 3.5-7.3 4.8c-4.5 1.2-5.7 2.4-6.9 6.9C27.5 39 26 42 24 42s-3.5-3-4.8-7.8c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 26 5 24.7 5 22.5s2.5-3.5 7.3-4.8c4.5-1.2 5.7-2.4 6.9-6.9C20.5 6 22 3 24 3Z" fill="#fff"/></svg><span class="pack-amount">200</span></div><div class="pack-convert">Получишь <b>2 199</b> наших звёзд</div></button>
+<button class="pack" type="button" data-stars="500" data-coins="8999"><span class="pack-check">✓</span><div class="pack-name">Алмазный</div><div class="pack-top"><svg class="pack-star" viewBox="0 0 48 48"><path d="M24 3c2 0 3.5 3 4.8 7.8 1.2 4.5 2.4 5.7 6.9 6.9C40.5 19 43 20.3 43 22.5s-2.5 3.5-7.3 4.8c-4.5 1.2-5.7 2.4-6.9 6.9C27.5 39 26 42 24 42s-3.5-3-4.8-7.8c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 26 5 24.7 5 22.5s2.5-3.5 7.3-4.8c4.5-1.2 5.7-2.4 6.9-6.9C20.5 6 22 3 24 3Z" fill="#fff"/></svg><span class="pack-amount">500</span></div><div class="pack-convert">Получишь <b>8 999</b> наших звёзд</div></button>
+</div>
+<button class="deposit-button" id="depositButton" type="button"><span>✦</span> Пополнить за 50 Telegram Stars</button>
+<div class="deposit-message" id="depositMessage">Выбери пакет и нажми «Пополнить».</div>
+</section>
 <footer class="bottom"><div class="bottom-line"></div>Stars · Ваше пространство</footer>
 </main>
 <script>
@@ -79,6 +112,39 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
    if(user.photo_url){avatar.style.backgroundImage='url('+JSON.stringify(user.photo_url)+')';avatar.textContent='';}
    else avatar.textContent=(user.first_name||user.username||'U').trim().charAt(0).toUpperCase();
  }
+})();
+</script>
+<script>
+(function(){
+ const packages=document.getElementById('starPackages');
+ const button=document.getElementById('depositButton');
+ const message=document.getElementById('depositMessage');
+ if(!packages||!button)return;
+ let selected={stars:50,coins:500};
+ function choose(card){
+  selected={stars:Number(card.dataset.stars),coins:Number(card.dataset.coins)};
+  packages.querySelectorAll('.pack').forEach(p=>p.classList.toggle('selected',p===card));
+  button.innerHTML='<span>✦</span> Пополнить за '+selected.stars+' Telegram Stars';
+  message.textContent='После успешной оплаты начислим '+selected.coins.toLocaleString('ru-RU')+' наших звёзд.';
+ }
+ packages.querySelectorAll('.pack').forEach(card=>card.addEventListener('click',()=>choose(card)));
+ choose(packages.querySelector('.pack'));
+ button.addEventListener('click',async()=>{
+  const tg=window.Telegram&&window.Telegram.WebApp;
+  if(!tg||!tg.initData){message.textContent='Для настоящей оплаты открой приложение внутри Telegram.';return;}
+  button.disabled=true;message.textContent='Создаём счёт Telegram Stars…';
+  try{
+   const response=await fetch('/api/payments/create-invoice',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':tg.initData},body:JSON.stringify({stars:selected.stars})});
+   const data=await response.json();
+   if(!response.ok||!data.ok||!data.url)throw new Error(data.error||'Не удалось создать счёт.');
+   tg.openInvoice(data.url,status=>{
+    if(status==='paid'){message.textContent='Оплата прошла. Проверяем начисление…';setTimeout(()=>{message.textContent='Платёж подтверждён Telegram. Если баланс не обновился, обнови приложение.';},1800);}
+    else if(status==='cancelled')message.textContent='Оплата отменена.';
+    else message.textContent='Счёт закрыт. Можно попробовать ещё раз.';
+   });
+  }catch(e){message.textContent=e.message||'Ошибка создания счёта.';}
+  finally{button.disabled=false;}
+ });
 })();
 </script>
 </body>
