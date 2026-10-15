@@ -509,7 +509,7 @@ body{overflow-anchor:none}
  <div id="olympusGameView" hidden>
  <div class="olympus-game">
   <div class="olympus-storm" aria-hidden="true"><div class="olympus-storm-flash"></div><svg class="olympus-bolt bolt-one" viewBox="0 0 120 420" preserveAspectRatio="none"><path d="M74 0 43 112 72 103 22 238 53 224 8 350 68 211 42 221 91 92 62 102Z"/><path class="bolt-core" d="M74 0 43 112 72 103 22 238 53 224 8 350"/></svg><svg class="olympus-bolt bolt-two" viewBox="0 0 120 420" preserveAspectRatio="none"><path d="M74 0 43 112 72 103 22 238 53 224 8 350 68 211 42 221 91 92 62 102Z"/><path class="bolt-core" d="M74 0 43 112 72 103 22 238 53 224 8 350"/></svg><svg class="olympus-bolt bolt-three" viewBox="0 0 120 420" preserveAspectRatio="none"><path d="M74 0 43 112 72 103 22 238 53 224 8 350 68 211 42 221 91 92 62 102Z"/></svg></div>
-  <header class="olympus-title"><div class="olympus-laurel">ANCIENT GREECE · DIVINE REELS</div><h1>OLYMPUS</h1><div class="olympus-subtitle">GATES OF ZEUS</div></header>
+  <header class="olympus-title"><div class="olympus-laurel">DIVINE WINS · CASCADE SLOT</div><h1>GATES OF</h1><div class="olympus-subtitle olympus-logo-subtitle">OLYMPUS</div></header>
 
   <div id="olympusWheelView" hidden>
    <div class="wheel-heading">EUROPEAN ROULETTE <small>ОДНО НУЛЕВОЕ · 0–36</small></div>
@@ -1290,4 +1290,51 @@ window.addEventListener('pagehide',()=>{save();stopMusic()});refresh();loadServe
 </script>
 </body>
 </html>
-<style id="game-fullscreen-fix">#gamesPanel.olympus-fullscreen{background:#100716!important}#gamesPanel.olympus-fullscreen #olympusGameView:not([hidden]),#gamesPanel.olympus-fullscreen .olympus-game:not([hidden]),#gamesPanel.olympus-fullscreen .olympus-sky{min-height:100dvh!important;background:#100716!important}#gamesPanel.olympus-fullscreen .olympus-sky{padding-top:env(safe-area-inset-top,0px)!important}#gamesPanel.olympus-fullscreen .game-back-hub{top:calc(env(safe-area-inset-top,0px) + 8px)!important}</style>
+<style id="game-fullscreen-fix">#gamesPanel.olympus-fullscreen{background:#100716!important}#gamesPanel.olympus-fullscreen #olympusGameView:not([hidden]),#gamesPanel.olympus-fullscreen .olympus-game:not([hidden]),#gamesPanel.olympus-fullscreen .olympus-sky{min-height:100dvh!important;background:#100716!important}#gamesPanel.olympus-fullscreen .olympus-sky{padding-top:env(safe-area-inset-top,0px)!important}#gamesPanel.olympus-fullscreen .game-back-hub{top:calc(env(safe-area-inset-top,0px) + 8px)!important}
+/* Complete Olympus visual pass: mobile-first temple, gold frame and jewel symbols */
+#olympusGameView{background:#10071d!important;color:#fff5d7!important}
+#olympusGameView .olympus-game{position:relative;isolation:isolate;overflow:hidden;padding:calc(env(safe-area-inset-top,0px) + 12px) 10px 28px!important;gap:11px!important;background:radial-gradient(ellipse at 50% 4%,#63318a 0,#301442 28%,#180b27 63%,#0b0612 100%)!important}
+#olympusGameView .olympus-game:before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;opacity:.3;background:repeating-linear-gradient(115deg,transparent 0 36px,#d5a94a0b 37px 38px),radial-gradient(ellipse at 50% 0,#ffe58a26,transparent 58%)}
+#olympusGameView .olympus-title{position:relative;padding:13px 8px 12px;border:2px solid #d8ad49;border-radius:12px;background:linear-gradient(180deg,#53266f 0%,#2a123b 72%,#170a24 100%);box-shadow:inset 0 0 0 2px #70421d,inset 0 0 24px #f8d36c1c,0 5px 0 #0b0612,0 0 24px #d99b3d30}
+#olympusGameView .olympus-title:before,#olympusGameView .olympus-title:after{content:"✦";position:absolute;top:50%;transform:translateY(-50%);font-size:22px;color:#ffe8a2;text-shadow:0 0 10px #ffcf56}
+#olympusGameView .olympus-title:before{left:12px}#olympusGameView .olympus-title:after{right:12px}
+#olympusGameView .olympus-laurel{font-size:8px;letter-spacing:2px;color:#f5dca0}
+#olympusGameView .olympus-title h1{font-family:Georgia,'Times New Roman',serif;font-size:clamp(27px,8vw,43px);letter-spacing:1px;color:#fff0a0;line-height:.98;text-shadow:0 1px #fff9c4,0 3px #9a601f,0 5px #3c174b,0 0 15px #ffc94b}
+#olympusGameView .olympus-logo-subtitle{font-family:Georgia,'Times New Roman',serif;font-size:clamp(19px,5.8vw,28px);letter-spacing:5px;font-weight:1000;color:#f5d37a;margin-top:5px;text-shadow:0 2px #4b1a53,0 0 12px #f9c85a66}
+#olympusGameView .olympus-status{padding:8px 10px;border:1px solid #9c7538;border-radius:6px;background:linear-gradient(90deg,#24102e,#48234f,#24102e);color:#f9e4a4}
+#olympusGameView .olympus-frame{max-width:none!important;padding:6px!important;border:3px solid #e5bd58!important;border-radius:7px!important;background:linear-gradient(135deg,#fff0a5 0%,#9b652b 8%,#4a2860 15%,#1b0c29 50%,#a9762c 91%,#ffeaa0 100%)!important;box-shadow:inset 0 0 0 2px #5b341f,0 0 0 1px #f8d877,0 8px 20px #0009,0 0 24px #e8b84722!important}
+#olympusGameView .olympus-grid{gap:3px!important;padding:4px!important;border:1px solid #b98b46!important;background:linear-gradient(180deg,#190b25,#090511)!important;box-shadow:inset 0 0 15px #000}
+#olympusGameView .olympus-cell{aspect-ratio:.83!important;border-radius:5px!important;border:1px solid #c6a0e4!important;background:radial-gradient(ellipse at 30% 16%,#8350a0 0%,#51256c 36%,#2a123e 72%,#13091e 100%)!important;box-shadow:inset 1px 2px 3px #fff4,inset -3px -5px 7px #0009,0 2px 2px #0009!important}
+#olympusGameView .olympus-cell:before{inset:2px!important;border:1px solid #fff2!important;border-radius:3px!important;background:linear-gradient(135deg,#fff3 0%,transparent 28%,transparent 70%,#0006 100%)!important}
+#olympusGameView .olympus-cell svg{width:94%!important;height:94%!important;filter:drop-shadow(0 2px 1px #000c) drop-shadow(0 0 3px #f6d8ff4d)!important}
+#olympusGameView .olympus-cell[data-symbol="ruby"]{background:radial-gradient(ellipse at 30% 18%,#ff8b9e,#a71f52 50%,#3b0b2a)!important;border-color:#ffb3c4!important}
+#olympusGameView .olympus-cell[data-symbol="amethyst"]{background:radial-gradient(ellipse at 30% 18%,#e3b3ff,#8433ba 50%,#2a0c4c)!important;border-color:#e8c0ff!important}
+#olympusGameView .olympus-cell[data-symbol="topaz"]{background:radial-gradient(ellipse at 30% 18%,#fff0a2,#d58a1e 50%,#4b200b)!important;border-color:#ffe8a1!important}
+#olympusGameView .olympus-cell[data-symbol="emerald"]{background:radial-gradient(ellipse at 30% 18%,#aaffcf,#15956d 50%,#063e3d)!important;border-color:#a4ffe0!important}
+#olympusGameView .olympus-cell[data-symbol="sapphire"]{background:radial-gradient(ellipse at 30% 18%,#c0efff,#276bd3 50%,#101b60)!important;border-color:#b4eaff!important}
+#olympusGameView .olympus-cell[data-symbol="cup"],#olympusGameView .olympus-cell[data-symbol="ring"],#olympusGameView .olympus-cell[data-symbol="hourglass"],#olympusGameView .olympus-cell[data-symbol="crown"]{background:radial-gradient(ellipse at 30% 15%,#a779c0,#4c2466 50%,#1b0b2b)!important;border-color:#dfbd80!important}
+#olympusGameView .olympus-cell[data-symbol="zeus"]{background:radial-gradient(circle at 50% 35%,#fff7c7 0,#e8bd54 19%,#8051c0 51%,#211044 100%)!important;border:2px solid #fff0a1!important;box-shadow:inset 0 0 12px #fff8,0 0 10px #ffdc4e,0 0 22px #a65aff!important}
+#olympusGameView .olympus-cell[data-symbol="orb"]{background:radial-gradient(circle at 30% 18%,#fff,#80f1ff 24%,#3975df 54%,#1d0d49 100%)!important;border:2px solid #b9faff!important;box-shadow:inset 0 0 10px #fff,0 0 12px #49dfff,0 0 22px #784bff!important}
+#olympusGameView .olympus-cell[data-symbol="orb"]:after{content:"";position:absolute;inset:-35%;pointer-events:none;background:conic-gradient(transparent,#bafaff99,transparent,#fff0a099,transparent);animation:olympusStormTurn 2s linear infinite;z-index:1}
+#olympusGameView .olympus-mult-label{bottom:1px!important;right:1px!important;left:auto!important;transform:none!important;border:1px solid #fff2a3!important;border-radius:4px!important;padding:2px 3px!important;background:linear-gradient(#fff0a2,#c98222 48%,#673019)!important;color:#fff!important;font-size:clamp(8px,2.2vw,12px)!important;text-shadow:0 1px 2px #542009!important;box-shadow:0 0 8px #ffdf69!important}
+#olympusGameView .olympus-win{font-family:Georgia,serif;font-weight:900;color:#ffe68a;text-shadow:0 2px #552044,0 0 12px #ffc64b}
+#olympusGameView .olympus-result{min-height:24px;text-align:center;color:#f5dca0;font-size:11px;letter-spacing:.35px}
+#olympusGameView .olympus-controls{gap:8px}
+#olympusGameView .olympus-controls label{border:1px solid #8b6338;border-radius:7px;background:#24102f;color:#f8e2a0;padding:8px}
+#olympusGameView .olympus-controls select{background:#160b22;color:#fff0bd;border:1px solid #a97a3b;border-radius:5px}
+#olympusGameView .olympus-toggle{border:1px solid #9b753e;border-radius:7px;background:linear-gradient(180deg,#462354,#21102e);color:#ffe8a4}
+#olympusGameView .olympus-live-balance{border:1px solid #9b753e;border-radius:8px;background:linear-gradient(90deg,#24102e,#3d2048,#24102e);color:#f9e4a4;padding:11px}
+#olympusGameView .olympus-spin{position:relative;overflow:hidden;min-height:60px;border:3px solid #ffe9a0;border-radius:9px;background:linear-gradient(180deg,#fff0a1 0%,#e9b743 25%,#b87a20 55%,#7c4318 100%);box-shadow:inset 0 2px 0 #fff8,inset 0 -4px 0 #623313,0 5px 0 #180a25,0 0 18px #f4c54c44;color:#321437;font-family:Georgia,serif;font-size:20px;letter-spacing:3px;text-shadow:0 1px #fff6}
+#olympusGameView .olympus-spin:after{content:"";position:absolute;inset:4px;border:1px solid #fff7;border-radius:5px;pointer-events:none}
+#olympusGameView .olympus-buy{border:1px solid #d2a6ed;border-radius:7px;background:linear-gradient(180deg,#6d3984,#321542);color:#ffe7a1}
+#olympusGameView .olympus-bonus{border:2px solid #ffdf76;border-radius:7px;background:linear-gradient(90deg,#512d1b,#9a6223,#512d1b);color:#fff0aa;box-shadow:0 0 15px #ffc64c44}
+#olympusGameView .olympus-multiplier-panel{border:1px solid #e4c05c;border-radius:8px;background:linear-gradient(135deg,#4b2363,#21102f);color:#fff0ad;box-shadow:0 0 18px #e4b74722}
+#olympusGameView .olympus-multiplier-value{color:#fff0a0;text-shadow:0 0 12px #ffbf42}
+#olympusGameView .olympus-paytable div{border:1px solid #76522f;background:linear-gradient(135deg,#281332,#160a20)}
+#olympusGameView .olympus-paytable b{color:#ffdf7b}
+#olympusGameView .olympus-disclaimer{color:#a99ab6}
+@keyframes olympusStormTurn{to{transform:rotate(360deg)}}
+@media(min-width:600px){#olympusGameView .olympus-game{max-width:540px;margin:0 auto!important}#olympusGameView .olympus-cell{aspect-ratio:.9!important}}
+@media(prefers-reduced-motion:reduce){#olympusGameView .olympus-cell[data-symbol="orb"]:after{animation:none!important}}
+
+</style>
