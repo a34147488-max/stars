@@ -86,7 +86,7 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
 .deposit-button:disabled{opacity:.55;cursor:wait}.deposit-message{min-height:18px;margin-top:10px;text-align:center;color:#aeb2c3;font-size:12px;line-height:1.45}
 @media(max-width:370px){.packages{gap:8px}.pack{padding:13px 10px}.pack-amount{font-size:22px}.deposit-title{font-size:16px}}
 
-/* WheelSlots — iOS 26 glass interface */
+/* StarsSlots — iOS 26 glass interface */
 .action-row{display:flex;justify-content:center;align-items:center;gap:9px;margin-top:14px}
 .action-row .withdraw-open{margin:0;min-width:76px}
 .game-open{padding:6px 13px;border:1px solid #ffffffb8;border-radius:999px;background:#fff;color:#161720;font-size:11px;font-weight:800;letter-spacing:.01em;cursor:pointer;box-shadow:0 3px 14px #ffffff12;transition:transform .15s}
@@ -192,10 +192,10 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
  <section class="game-modal" role="dialog" aria-modal="true" aria-labelledby="gameTitle">
   <div class="modal-head"><div class="modal-title" id="gameTitle">Игры</div><button class="modal-close" id="gameClose" type="button" aria-label="Закрыть">×</button></div>
   <div id="gameMenu" class="game-menu-grid">
-   <button class="game-mode-card" id="openWheelSlots" type="button"><span class="game-mode-mark"><svg viewBox="0 0 48 48" width="37" height="37" aria-hidden="true"><circle cx="24" cy="24" r="20" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="2"/><path d="M24 4v40M4 24h40M10 10l28 28M38 10 10 38" stroke="#fff" stroke-opacity=".45" stroke-width="2"/><path d="M24 10c1.7 0 2.7 2.2 3.6 5.8.9 3.4 1.8 4.3 5.2 5.2 3.6.9 5.8 1.9 5.8 3.6s-2.2 2.7-5.8 3.6c-3.4.9-4.3 1.8-5.2 5.2-.9 3.6-1.9 5.8-3.6 5.8s-2.7-2.2-3.6-5.8c-.9-3.4-1.8-4.3-5.2-5.2-3.6-.9-5.8-1.9-5.8-3.6s2.2-2.7 5.8-3.6c3.4-.9 4.3-1.8 5.2-5.2.9-3.6 1.9-5.8 3.6-5.8Z" fill="#fff"/></svg></span><span><span class="game-mode-name">WheelSlots</span><span class="game-mode-desc">Три секции. Совпадения символов и множители до ×100.</span></span></button>
+   <button class="game-mode-card" id="openStarsSlots" type="button"><span class="game-mode-mark"><svg viewBox="0 0 48 48" width="37" height="37" aria-hidden="true"><circle cx="24" cy="24" r="20" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="2"/><path d="M24 4v40M4 24h40M10 10l28 28M38 10 10 38" stroke="#fff" stroke-opacity=".45" stroke-width="2"/><path d="M24 10c1.7 0 2.7 2.2 3.6 5.8.9 3.4 1.8 4.3 5.2 5.2 3.6.9 5.8 1.9 5.8 3.6s-2.2 2.7-5.8 3.6c-3.4.9-4.3 1.8-5.2 5.2-.9 3.6-1.9 5.8-3.6 5.8s-2.7-2.2-3.6-5.8c-.9-3.4-1.8-4.3-5.2-5.2-3.6-.9-5.8-1.9-5.8-3.6s2.2-2.7 5.8-3.6c3.4-.9 4.3-1.8 5.2-5.2.9-3.6 1.9-5.8 3.6-5.8Z" fill="#fff"/></svg></span><span><span class="game-mode-name">StarsSlots</span><span class="game-mode-desc">Три секции. Совпадения символов и множители до ×100.</span></span></button>
   </div>
   <div class="wheel-panel" id="wheelPanel">
-   <div class="modal-head" style="margin-top:12px"><div><div class="game-mode-name">WheelSlots</div><div class="game-mode-desc">Совпадение двух или трёх символов приносит выигрыш.</div></div><button class="modal-close" id="wheelBack" type="button" aria-label="Назад">‹</button></div>
+   <div class="modal-head" style="margin-top:12px"><div><div class="game-mode-name">StarsSlots</div><div class="game-mode-desc">Совпадение двух или трёх символов приносит выигрыш.</div></div><button class="modal-close" id="wheelBack" type="button" aria-label="Назад">‹</button></div>
    <div class="wheel-topline"><span>БАЛАНС</span><span class="wheel-pill" id="wheelBalance">0</span></div>
    <div class="wheel-machine"><div class="wheel-slots" id="wheelSlots"><div class="wheel-slot"></div><div class="wheel-slot"></div><div class="wheel-slot"></div></div></div>
    <div class="wheel-controls"><button class="wheel-spin" id="wheelSpin" type="button" aria-label="Крутить"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 2.8c2.2 0 3.4 2.7 4.7 7.6 1.2 4.5 2.4 5.7 6.9 6.9 4.9 1.3 7.6 2.5 7.6 4.7s-2.7 3.4-7.6 4.7c-4.5 1.2-5.7 2.4-6.9 6.9-1.3 4.9-2.5 7.6-4.7 7.6s-3.4-2.7-4.7-7.6c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 25.4 4.8 24.2 4.8 22s2.7-3.4 7.6-4.7c4.5-1.2 5.7-2.4 6.9-6.9C20.6 5.5 21.8 2.8 24 2.8Z" fill="#fff"/></svg></button><div><label class="wheel-bet-label" for="wheelBet">СТАВКА В НАШИХ ЗВЁЗДАХ</label><input class="wheel-bet" id="wheelBet" type="number" inputmode="numeric" min="1" step="1" value="100"><div class="wheel-bet-hint">Ставка списывается перед вращением.</div></div></div>
@@ -213,7 +213,7 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
   </div>
  </section>
 </div>
-<div class="big-win-backdrop" id="bigWinBackdrop" aria-hidden="true"><section class="big-win-modal" role="dialog" aria-modal="true"><svg class="big-win-star" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 2.8c2.2 0 3.4 2.7 4.7 7.6 1.2 4.5 2.4 5.7 6.9 6.9 4.9 1.3 7.6 2.5 7.6 4.7s-2.7 3.4-7.6 4.7c-4.5 1.2-5.7 2.4-6.9 6.9-1.3 4.9-2.5 7.6-4.7 7.6s-3.4-2.7-4.7-7.6c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 25.4 4.8 24.2 4.8 22s2.7-3.4 7.6-4.7c4.5-1.2 5.7-2.4 6.9-6.9C20.6 5.5 21.8 2.8 24 2.8Z" fill="#fff"/></svg><div class="big-win-title">Поздравляем!</div><div class="big-win-copy" id="bigWinCopy">Крупный выигрыш в WheelSlots.</div><div class="big-win-amount"><span id="bigWinAmount">0</span><svg class="mini-star" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 3c2 0 3.5 3 4.8 7.8 1.2 4.5 2.4 5.7 6.9 6.9C40.5 19 43 20.3 43 22.5s-2.5 3.5-7.3 4.8c-4.5 1.2-5.7 2.4-6.9 6.9C27.5 39 26 42 24 42s-3.5-3-4.8-7.8c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 26 5 25.4 5 22.5s2.5-3.5 7.3-4.8c4.5-1.2 5.7-2.4 6.9-6.9C20.5 6 22 3 24 3Z" fill="#fff"/></svg></div><button class="withdraw-submit" id="bigWinClose" type="button">Продолжить</button></section></div>
+<div class="big-win-backdrop" id="bigWinBackdrop" aria-hidden="true"><section class="big-win-modal" role="dialog" aria-modal="true"><svg class="big-win-star" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 2.8c2.2 0 3.4 2.7 4.7 7.6 1.2 4.5 2.4 5.7 6.9 6.9 4.9 1.3 7.6 2.5 7.6 4.7s-2.7 3.4-7.6 4.7c-4.5 1.2-5.7 2.4-6.9 6.9-1.3 4.9-2.5 7.6-4.7 7.6s-3.4-2.7-4.7-7.6c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 25.4 4.8 24.2 4.8 22s2.7-3.4 7.6-4.7c4.5-1.2 5.7-2.4 6.9-6.9C20.6 5.5 21.8 2.8 24 2.8Z" fill="#fff"/></svg><div class="big-win-title">Поздравляем!</div><div class="big-win-copy" id="bigWinCopy">Крупный выигрыш в StarsSlots.</div><div class="big-win-amount"><span id="bigWinAmount">0</span><svg class="mini-star" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 3c2 0 3.5 3 4.8 7.8 1.2 4.5 2.4 5.7 6.9 6.9C40.5 19 43 20.3 43 22.5s-2.5 3.5-7.3 4.8c-4.5 1.2-5.7 2.4-6.9 6.9C27.5 39 26 42 24 42s-3.5-3-4.8-7.8c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 26 5 25.4 5 22.5s2.5-3.5 7.3-4.8c4.5-1.2 5.7-2.4 6.9-6.9C20.5 6 22 3 24 3Z" fill="#fff"/></svg></div><button class="withdraw-submit" id="bigWinClose" type="button">Продолжить</button></section></div>
 </main>
 <script>
 (function(){
@@ -359,9 +359,9 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
  });
 })();
 
- // WheelSlots game UI. Outcomes and balance are calculated by the server.
+ // StarsSlots game UI. Outcomes and balance are calculated by the server.
  const gameOpen=document.getElementById('gameOpen'),gameBackdrop=document.getElementById('gameBackdrop'),gameClose=document.getElementById('gameClose');
- const gameMenu=document.getElementById('gameMenu'),openWheelSlots=document.getElementById('openWheelSlots'),wheelPanel=document.getElementById('wheelPanel'),wheelBack=document.getElementById('wheelBack');
+ const gameMenu=document.getElementById('gameMenu'),openStarsSlots=document.getElementById('openStarsSlots'),wheelPanel=document.getElementById('wheelPanel'),wheelBack=document.getElementById('wheelBack');
  const wheelSpin=document.getElementById('wheelSpin'),wheelBet=document.getElementById('wheelBet'),wheelSlots=document.getElementById('wheelSlots'),wheelResult=document.getElementById('wheelResult'),wheelBalance=document.getElementById('wheelBalance');
  const bigWinBackdrop=document.getElementById('bigWinBackdrop'),bigWinClose=document.getElementById('bigWinClose');
  const starPath='M24 3c2 0 3.5 3 4.8 7.8 1.2 4.5 2.4 5.7 6.9 6.9C40.5 19 43 20.3 43 22.5s-2.5 3.5-7.3 4.8c-4.5 1.2-5.7 2.4-6.9 6.9C27.5 39 26 42 24 42s-3.5-3-4.8-7.8c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 26 5 24.7 5 22.5s2.5-3.5 7.3-4.8c4.5-1.2 5.7-2.4 6.9-6.9C20.5 6 22 3 24 3Z';
@@ -371,7 +371,7 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
  function hideGame(){if(wheelSpin.disabled)return;gameBackdrop.classList.remove('open');gameBackdrop.setAttribute('aria-hidden','true');}
  gameOpen?.addEventListener('click',showGame);gameClose?.addEventListener('click',hideGame);
  gameBackdrop?.addEventListener('click',e=>{if(e.target===gameBackdrop)hideGame();});
- openWheelSlots?.addEventListener('click',()=>{gameMenu.style.display='none';wheelPanel.classList.add('active');refreshWheelBalance();});
+ openStarsSlots?.addEventListener('click',()=>{gameMenu.style.display='none';wheelPanel.classList.add('active');refreshWheelBalance();});
  wheelBack?.addEventListener('click',()=>{if(wheelSpin.disabled)return;wheelPanel.classList.remove('active');gameMenu.style.display='grid';});
  bigWinClose?.addEventListener('click',()=>{bigWinBackdrop.classList.remove('open');bigWinBackdrop.setAttribute('aria-hidden','true');});
  bigWinBackdrop?.addEventListener('click',e=>{if(e.target===bigWinBackdrop){bigWinBackdrop.classList.remove('open');bigWinBackdrop.setAttribute('aria-hidden','true');}});
@@ -388,7 +388,7 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
   wheelSpin.disabled=true;wheelSpin.classList.add('spinning');wheelResult.textContent='Барабан вращается…';
   const start=Date.now();let ticker=setInterval(()=>paintSlots([randomColors(),randomColors(),randomColors()],true),95);
   try{
-   const responsePromise=fetch('/api/wheelslots/spin',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':tg.initData},body:JSON.stringify({bet})});
+   const responsePromise=fetch('/api/starsslots/spin',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':tg.initData},body:JSON.stringify({bet})});
    const response=await responsePromise;const data=await response.json();if(!response.ok||!data.ok)throw new Error(data.error||'Не удалось выполнить спин.');
    await new Promise(resolve=>setTimeout(resolve,Math.max(0,1550-(Date.now()-start))));clearInterval(ticker);ticker=null;
    paintSlots(data.symbols,false);
