@@ -609,9 +609,17 @@ if(tg){tg.ready();tg.expand();if(typeof tg.disableVerticalSwipes==='function')tg
 let selectedAvatar='⭐',serverMode=false,profileReady=false;
 async function api(path,method='GET',body){
  if(tg&&tg.initData)initData=tg.initData;
- const res=await fetch(path,{method,cache:'no-store',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':initData},body:body?JSON.stringify(body):undefined});
- const data=await res.json().catch(()=>({error:'Ошибка ответа сервера'}));
- if(!res.ok)throw new Error(data.error||'Ошибка запроса');
+ const controller=new AbortController();
+ const timeout=window.setTimeout(()=>controller.abort(),15000);
+ let res;
+ try{
+  res=await fetch(path,{method,cache:'no-store',signal:controller.signal,headers:{'Content-Type':'application/json','X-Telegram-Init-Data':initData},body:body?JSON.stringify(body):undefined});
+ }catch(e){
+  if(e&&e.name==='AbortError')throw new Error('Сервер не ответил за 15 секунд. Оплата не создана — проверь сервер и попробуй ещё раз.');
+  throw new Error('Не удалось связаться с сервером. Проверь подключение и попробуй ещё раз.');
+ }finally{window.clearTimeout(timeout);}
+ const data=await res.json().catch(()=>({error:'Сервер вернул некорректный ответ'}));
+ if(!res.ok)throw new Error(data.error||('Ошибка запроса ('+res.status+')'));
  return data;
 }
 function setAvatar(el,value){
