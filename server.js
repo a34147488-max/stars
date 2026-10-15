@@ -147,6 +147,42 @@ app.post('/api/withdrawals/:id/status', async (req, res) => {
   } catch(e) { console.error('Withdrawal status error:',e.message); return res.status(503).json({ok:false,error:'Не удалось изменить статус заявки.'}); }
 });
 
+
+app.post('/api/wheelslots/spin', async (req, res) => {
+  try {
+    await ensureDb();
+    const user = authUser(req);
+    if (!user) return res.status(401).json({ ok:false, error:'Открой приложение через Telegram-бота.' });
+    const bet = Number(req.body && req.body.bet);
+    if (!Number.isSafeInteger(bet) || bet < 1 || bet > 1000000000) return res.status(400).json({ ok:false, error:'Ставка должна быть целым числом от 1.' });
+    const palette = ['blue','yellow','green','cyan'];
+    const symbols = [palette[crypto.randomInt(0,palette.length)],palette[crypto.randomInt(0,palette.length)],palette[crypto.randomInt(0,palette.length)]];
+    const counts = symbols.reduce((m,c)=>(m[c]=(m[c]||0)+1,m),{});
+    const match = Object.entries(counts).sort((a,b)=>b[1]-a[1])[0];
+    const count = match[1];
+    let multiplier = 0;
+    if (count >= 2) {
+      const [color, n] = match;
+      const table = { blue:{2:1.2,3:2}, yellow:{2:3,3:2}, green:{2:25,3:100}, cyan:{2:0,3:0} };
+      multiplier = table[color][n] || 0;
+    }
+    const payout = Math.floor(bet * multiplier);
+    const client = await pool.connect();
+    let balance;
+    try {
+      await client.query('BEGIN');
+      const row = await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1 FOR UPDATE',[String(user.id)]);
+      const current = Number(row.rows[0]?.balance || 0);
+      if (current < bet) { await client.query('ROLLBACK'); return res.status(400).json({ok:false,error:'Недостаточно звёзд на балансе для этой ставки.'}); }
+      await client.query('UPDATE stars_users SET balance=balance-$2+$3, updated_at=NOW() WHERE telegram_id=$1',[String(user.id),bet,payout]);
+      const updated = await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1',[String(user.id)]);
+      balance = Number(updated.rows[0]?.balance || 0);
+      await client.query('COMMIT');
+    } catch(e) { await client.query('ROLLBACK'); throw e; } finally { client.release(); }
+    return res.json({ok:true,symbols,multiplier,payout,bet,balance});
+  } catch(e) { console.error('WheelSlots spin error:',e.message); return res.status(503).json({ok:false,error:'Не удалось выполнить спин. Попробуй ещё раз.'}); }
+});
+
 app.post('/api/telegram/webhook', async (req, res) => {
   const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
   if (!secret || req.get('X-Telegram-Bot-Api-Secret-Token') !== secret) return res.sendStatus(403);
