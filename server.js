@@ -153,10 +153,12 @@ app.post('/api/withdrawals/:id/status', async (req, res) => {
 
 
 app.post('/api/promocodes/activate', async (req, res) => {
-  const client = await (async () => { try { await ensureDb(); return await pool.connect(); } catch (e) { throw e; } })().catch(e => { throw e; });
+  let client;
   try {
+    await ensureDb();
     const user = authUser(req);
     if (!user) return res.status(401).json({ok:false,error:'Открой приложение через Telegram-бота.'});
+    client = await pool.connect();
     const code = String(req.body && req.body.code || '').trim().toUpperCase();
     if (!/^[A-Z0-9-]{4,32}$/.test(code)) return res.status(400).json({ok:false,error:'Введи корректный промокод.'});
     await client.query('BEGIN');
@@ -177,7 +179,7 @@ app.post('/api/promocodes/activate', async (req, res) => {
     try { await client.query('ROLLBACK'); } catch (_) {}
     console.error('Promocode activation error:',e.message);
     return res.status(503).json({ok:false,error:'Не удалось активировать промокод. Попробуй ещё раз.'});
-  } finally { client.release(); }
+  } finally { if (client) client.release(); }
 });
 
 
