@@ -1185,21 +1185,24 @@ $('leaderboard').addEventListener('click',async e=>{
 
 async function loadServerProfile(){
  const tapButton=$('tap');
- tapButton.disabled=true;
+ if(tapButton)tapButton.disabled=true;
  if(tg&&tg.initData)initData=tg.initData;
  if(!initData){
-  $('profileMessage').textContent='Подключаем Telegram…';
-  await new Promise(resolve=>setTimeout(resolve,650));
-  if(tg&&tg.initData)initData=tg.initData;
+  if($('profileMessage'))$('profileMessage').textContent='Подключаем Telegram…';
+  // Telegram WebApp initData can arrive after the page script starts on slower mobile devices.
+  for(let attempt=0;attempt<10&&!initData;attempt++){
+   await new Promise(resolve=>setTimeout(resolve,500));
+   if(tg&&tg.initData)initData=tg.initData;
+  }
  }
- if(!initData){$('profileMessage').textContent='Telegram не передал авторизацию. Открой Mini App кнопкой внутри бота.';tapButton.disabled=false;return;}
+ if(!initData){if($('profileMessage'))$('profileMessage').textContent='Telegram не передал авторизацию. Открой Mini App кнопкой внутри бота.';if(tapButton)tapButton.disabled=false;return;}
  try{
   const d=await api('/api/me');serverMode=true;profileReady=true;
   state.balance=Number(d.player.balance)||0;state.total=Number(d.player.total)||0;if($('walletBalance'))$('walletBalance').textContent=fmt(state.balance);if($('rouletteUserBalance'))$('rouletteUserBalance').textContent=fmt(state.balance);if($('rouletteUserBalance'))$('rouletteUserBalance').textContent=fmt(state.balance);
   selectedAvatar=d.player.avatar||'⭐';
   $('profileName').textContent=d.player.name||'Игрок';setAvatar($('profileAvatar'),selectedAvatar);
   $('profileMessage').textContent='Баланс подключён. Нажимай на звезду, чтобы получать звёзды.';
-  tapButton.disabled=false;refresh();
+  if(tapButton)tapButton.disabled=false;refresh();
   loadLeaderboard().catch(err=>console.error('Не удалось загрузить топ игроков:',err));
  }catch(e){serverMode=false;profileReady=false;$('profileMessage').textContent='Не удалось подключить баланс: '+e.message+' Закрой приложение и открой его через Telegram-бота.';tapButton.disabled=false;}
 }
@@ -1236,7 +1239,7 @@ $('tap').addEventListener('click',async e=>{
  if(button.dataset.busy==='1')return;
  if(tg&&tg.initData)initData=tg.initData;
  if(!initData){await loadServerProfile();if(tg&&tg.initData)initData=tg.initData;}
- if(!initData){const message='Открой приложение через кнопку в Telegram-боте — без Telegram-авторизации начисление невозможно.';if($('profileMessage'))$('profileMessage').textContent=message;if(tg&&tg.showAlert)tg.showAlert(message);return;}
+ if(!initData){const message='Telegram не передал авторизацию. Закрой Mini App и открой её кнопкой внутри бота.';if($('profileMessage'))$('profileMessage').textContent=message;if(tg&&tg.showAlert)tg.showAlert(message);return;}
  button.dataset.busy='1';button.setAttribute('aria-busy','true');
  try{
   const d=await api('/api/click','POST',{});
