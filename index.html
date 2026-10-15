@@ -26,6 +26,36 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
 .premium-star{width:39px;height:39px;overflow:visible;animation:starshine 3.4s ease-in-out infinite;transform-origin:center}
 .star-glow{position:absolute;width:35px;height:35px;border-radius:50%;background:#fff;filter:blur(18px);opacity:.13;animation:glow 2.8s ease-in-out infinite}
 .caption{font-size:13px;color:#9da1b2;margin-top:15px}
+.withdraw-open{margin:14px auto 0;padding:6px 13px;border:1px solid #ffffffb8;border-radius:999px;background:#fff;color:#161720;font-size:11px;font-weight:800;letter-spacing:.01em;cursor:pointer;box-shadow:0 3px 14px #ffffff12;transition:transform .15s}
+.withdraw-open:active{transform:scale(.96)}
+.modal-backdrop{position:fixed;inset:0;z-index:20;display:none;align-items:flex-end;justify-content:center;padding:14px;background:#05060bd9;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.modal-backdrop.open{display:flex}
+.withdraw-modal{width:100%;max-width:480px;max-height:86svh;overflow:auto;border:1px solid #ffffff28;border-radius:27px;background:linear-gradient(150deg,#242633,#11121b 75%);padding:21px 18px calc(20px + env(safe-area-inset-bottom));box-shadow:0 22px 80px #0009}
+.modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
+.modal-title{font-size:21px;font-weight:850;letter-spacing:-.04em}
+.modal-close{width:33px;height:33px;border:1px solid #ffffff25;border-radius:50%;background:#ffffff0d;color:#fff;font-size:20px;cursor:pointer}
+.modal-description{font-size:12px;line-height:1.5;color:#aeb2c3;margin-bottom:17px}
+.withdraw-label{display:block;color:#c6c9d6;font-size:12px;font-weight:700;margin:13px 0 7px}
+.withdraw-input{width:100%;border:1px solid #ffffff25;border-radius:14px;background:#ffffff0a;color:#fff;padding:14px 13px;font:inherit;font-size:15px;outline:none}
+.withdraw-input:focus{border-color:#ffffff85}
+.payout-preview{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;padding:14px;border:1px solid #ffffff20;border-radius:15px;background:#ffffff08;font-size:12px;color:#aeb2c3}
+.payout-number{display:flex;align-items:center;gap:7px;color:#fff;font-size:20px;font-weight:850}
+.mini-star{width:19px;height:19px;filter:drop-shadow(0 0 7px #ffffff5c);animation:starshine 3.4s ease-in-out infinite}
+.withdraw-submit{width:100%;margin-top:14px;padding:15px;border:0;border-radius:15px;background:#fff;color:#151620;font:inherit;font-size:14px;font-weight:850;cursor:pointer}
+.withdraw-submit:disabled{opacity:.5}
+.withdraw-message{min-height:18px;margin-top:10px;text-align:center;color:#c4c7d4;font-size:12px;line-height:1.45}
+.request-list{display:flex;flex-direction:column;gap:9px;margin-top:15px}
+.request-card{padding:13px;border:1px solid #ffffff1c;border-radius:16px;background:#ffffff07}
+.request-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.request-name{font-size:13px;font-weight:800;overflow-wrap:anywhere}
+.request-meta{margin-top:6px;color:#aeb2c3;font-size:11px;line-height:1.55}
+.request-status{flex:none;padding:5px 8px;border-radius:999px;background:#ffffff12;color:#e6e7ee;font-size:10px;font-weight:800}
+.request-status.pending{color:#fff;border:1px solid #ffffff38}.request-status.paid{color:#d8f9e5;border:1px solid #82d7a877}.request-status.rejected{color:#ffcaca;border:1px solid #ff9b9b66}
+.admin-actions{display:flex;gap:8px;margin-top:10px}
+.admin-actions button{flex:1;padding:10px 8px;border:1px solid #ffffff28;border-radius:11px;background:#ffffff10;color:#fff;font:inherit;font-size:11px;font-weight:800}
+.admin-actions button:first-child{background:#fff;color:#171821}
+.request-section-title{margin-top:22px;font-size:14px;font-weight:850}
+.no-requests{padding:16px 8px;text-align:center;color:#969bad;font-size:12px}
 .status-pill{margin-top:24px;padding:9px 13px;border:1px solid #ffffff20;border-radius:999px;background:#ffffff08;color:#d9dbe5;font-size:12px;font-weight:650;display:flex;align-items:center;gap:8px}
 .status-dot{width:6px;height:6px;border-radius:50%;background:#9de8bf;box-shadow:0 0 10px #9de8bf}
 .bottom{margin-top:auto;padding-top:70px;text-align:center;color:#737789;font-size:12px}
@@ -82,6 +112,7 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
 </div>
 </div>
 <div class="caption">звёзд на вашем балансе</div>
+<button class="withdraw-open" id="withdrawOpen" type="button">вывести</button>
 </div>
 <div class="status-pill"><span class="status-dot"></span>Баланс отображается в реальном времени</div>
 </section>
@@ -99,6 +130,21 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
 <div class="deposit-message" id="depositMessage">Выбери пакет и нажми «Пополнить».</div>
 </section>
 <footer class="bottom"><div class="bottom-line"></div>Stars · Ваше пространство</footer>
+<div class="modal-backdrop" id="withdrawBackdrop" aria-hidden="true">
+ <section class="withdraw-modal" role="dialog" aria-modal="true" aria-labelledby="withdrawTitle">
+  <div class="modal-head"><div class="modal-title" id="withdrawTitle">Вывод звёзд</div><button class="modal-close" id="withdrawClose" type="button" aria-label="Закрыть">×</button></div>
+  <div class="modal-description">Минимальный вывод — 1000 наших звёзд. Курс: 500 наших звёзд = 30 Telegram Stars. Заявка отправится на проверку.</div>
+  <label class="withdraw-label" for="withdrawTarget">Telegram username получателя</label>
+  <input class="withdraw-input" id="withdrawTarget" type="text" autocomplete="off" autocapitalize="off" placeholder="@username">
+  <label class="withdraw-label" for="withdrawAmount">Сколько наших звёзд вывести</label>
+  <input class="withdraw-input" id="withdrawAmount" type="number" inputmode="numeric" min="1000" step="1" placeholder="От 1000">
+  <div class="payout-preview"><span>Получишь настоящих Telegram Stars</span><span class="payout-number"><svg class="mini-star" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 3c2 0 3.5 3 4.8 7.8 1.2 4.5 2.4 5.7 6.9 6.9C40.5 19 43 20.3 43 22.5s-2.5 3.5-7.3 4.8c-4.5 1.2-5.7 2.4-6.9 6.9C27.5 39 26 42 24 42s-3.5-3-4.8-7.8c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 26 5 24.7 5 22.5s2.5-3.5 7.3-4.8c4.5-1.2 5.7-2.4 6.9-6.9C20.5 6 22 3 24 3Z" fill="#fff"/></svg><span id="withdrawPayout">0</span></span></div>
+  <button class="withdraw-submit" id="withdrawSubmit" type="button">Создать заявку</button>
+  <div class="withdraw-message" id="withdrawMessage">Звёзды будут зарезервированы до решения по заявке.</div>
+  <div class="request-section-title">Мои заявки</div>
+  <div class="request-list" id="withdrawRequests"><div class="no-requests">Загрузка заявок…</div></div>
+ </section>
+</div>
 </main>
 <script>
 (function(){
