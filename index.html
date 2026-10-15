@@ -85,6 +85,48 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
 .deposit-button{width:100%;margin-top:13px;padding:16px 18px;border:0;border-radius:17px;background:linear-gradient(135deg,#fff,#d8dbea);color:#14151d;font:inherit;font-size:15px;font-weight:850;box-shadow:0 8px 28px #ffffff12;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px}
 .deposit-button:disabled{opacity:.55;cursor:wait}.deposit-message{min-height:18px;margin-top:10px;text-align:center;color:#aeb2c3;font-size:12px;line-height:1.45}
 @media(max-width:370px){.packages{gap:8px}.pack{padding:13px 10px}.pack-amount{font-size:22px}.deposit-title{font-size:16px}}
+
+/* WheelSlots — iOS 26 glass interface */
+.action-row{display:flex;justify-content:center;align-items:center;gap:9px;margin-top:14px}
+.action-row .withdraw-open{margin:0;min-width:76px}
+.game-open{padding:6px 13px;border:1px solid #ffffffb8;border-radius:999px;background:#fff;color:#161720;font-size:11px;font-weight:800;letter-spacing:.01em;cursor:pointer;box-shadow:0 3px 14px #ffffff12;transition:transform .15s}
+.game-open:active{transform:scale(.96)}
+.game-backdrop{position:fixed;inset:0;z-index:30;display:none;align-items:flex-end;justify-content:center;padding:12px;background:#05060bdc;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.game-backdrop.open{display:flex}
+.game-modal{width:100%;max-width:480px;max-height:91svh;overflow:auto;border:1px solid #ffffff35;border-radius:30px;background:linear-gradient(155deg,rgba(54,57,75,.97),rgba(17,18,28,.98) 68%);padding:19px 16px calc(20px + env(safe-area-inset-bottom));box-shadow:0 25px 90px #000a,inset 0 1px #ffffff20}
+.game-menu-grid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:18px}
+.game-mode-card{display:flex;align-items:center;gap:13px;width:100%;padding:16px;border:1px solid #ffffff25;border-radius:21px;background:linear-gradient(140deg,#ffffff16,#ffffff06);color:#fff;text-align:left;cursor:pointer;font:inherit}
+.game-mode-mark{width:54px;height:54px;display:grid;place-items:center;flex:none;border-radius:17px;background:linear-gradient(145deg,#ffffff20,#ffffff07);border:1px solid #ffffff20}
+.game-mode-name{font-size:16px;font-weight:850;letter-spacing:-.03em}.game-mode-desc{font-size:11px;line-height:1.45;color:#b5b8c8;margin-top:5px}
+.wheel-panel{display:none}.wheel-panel.active{display:block}
+.wheel-topline{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:15px 0 12px;color:#b9bdcd;font-size:11px}
+.wheel-pill{padding:7px 10px;border:1px solid #ffffff20;border-radius:999px;background:#ffffff08;color:#f7f7fb;font-weight:750}
+.wheel-machine{position:relative;padding:15px 12px 17px;border-radius:27px;border:1px solid #ffffff35;background:linear-gradient(145deg,#ffffff18,#ffffff05);box-shadow:inset 0 1px 0 #ffffff1b,0 15px 40px #0003}
+.wheel-machine:before{content:"";position:absolute;inset:5px;border-radius:22px;border:1px solid #ffffff0b;pointer-events:none}
+.wheel-slots{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;position:relative}
+.wheel-slot{height:100px;display:grid;place-items:center;border-radius:18px;border:1px solid #ffffff25;background:linear-gradient(180deg,#10111b,#292b3b);box-shadow:inset 0 5px 15px #0005,inset 0 1px 0 #ffffff0d;transition:transform .15s}
+.wheel-slot svg{width:43px;height:43px;filter:drop-shadow(0 0 10px currentColor)}
+.wheel-slot.spinning{animation:slotBounce .17s ease-in-out infinite alternate}
+@keyframes slotBounce{from{transform:translateY(-3px);filter:brightness(1)}to{transform:translateY(3px);filter:brightness(1.35)}}
+.wheel-controls{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:13px;margin-top:15px}
+.wheel-spin{width:84px;height:84px;justify-self:center;display:grid;place-items:center;border:1px solid #ffffffb8;border-radius:50%;background:radial-gradient(circle at 32% 25%,#fff,#d9dbea 72%);box-shadow:0 0 0 7px #ffffff0b,0 10px 30px #0005,inset 0 1px 0 #fff;color:#161720;cursor:pointer;transition:transform .15s}
+.wheel-spin:active{transform:scale(.94)}.wheel-spin:disabled{opacity:.5;cursor:wait}
+.wheel-spin svg{width:39px;height:39px;animation:starshine 2.7s ease-in-out infinite}
+.wheel-spin.spinning svg{animation:spinStar .55s linear infinite}
+@keyframes spinStar{to{transform:rotate(360deg)}}
+.wheel-bet-label{display:block;color:#b8bbca;font-size:11px;font-weight:750;margin-bottom:7px}
+.wheel-bet{width:100%;padding:13px 12px;border:1px solid #ffffff29;border-radius:14px;background:#ffffff0b;color:#fff;font:inherit;font-size:16px;font-weight:800;outline:none}
+.wheel-bet:focus{border-color:#ffffff80}.wheel-bet-hint{font-size:10px;color:#9398ab;margin-top:6px}
+.wheel-result{min-height:36px;margin-top:13px;padding:10px 12px;border-radius:14px;background:#ffffff08;border:1px solid #ffffff16;text-align:center;color:#c4c7d5;font-size:12px;line-height:1.45}
+.wheel-paytable{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:14px}
+.wheel-payrow{display:flex;align-items:center;gap:7px;padding:9px;border-radius:12px;border:1px solid #ffffff14;background:#ffffff05;font-size:10px;color:#d4d6e0}
+.wheel-payrow svg{width:17px;height:17px;flex:none}.wheel-payrow b{margin-left:auto;color:#fff;font-size:11px}
+.big-win-backdrop{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;padding:22px;background:#05060bdc;backdrop-filter:blur(16px)}
+.big-win-backdrop.open{display:flex}.big-win-modal{width:100%;max-width:340px;padding:26px 20px;border:1px solid #ffffff45;border-radius:30px;background:linear-gradient(145deg,#33364a,#12131e);box-shadow:0 25px 90px #0009;text-align:center;animation:winPop .35s cubic-bezier(.2,.8,.2,1)}
+@keyframes winPop{from{transform:scale(.84) translateY(12px);opacity:0}to{transform:scale(1);opacity:1}}
+.big-win-star{width:66px;height:66px;filter:drop-shadow(0 0 19px #fff8);animation:float 2s ease-in-out infinite}
+.big-win-title{font-size:25px;font-weight:900;letter-spacing:-.05em;margin-top:14px}.big-win-copy{font-size:12px;color:#bfc2d0;line-height:1.5;margin-top:7px}.big-win-amount{display:flex;align-items:center;justify-content:center;gap:9px;font-size:34px;font-weight:900;letter-spacing:-.05em;margin:17px 0}
+@media(max-width:370px){.wheel-slot{height:82px}.wheel-slot svg{width:36px;height:36px}.wheel-controls{gap:8px}.wheel-spin{width:74px;height:74px}}
 </style>
 </head>
 <body>
@@ -112,7 +154,7 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
 </div>
 </div>
 <div class="caption">звёзд на вашем балансе</div>
-<button class="withdraw-open" id="withdrawOpen" type="button">вывести</button>
+<div class="action-row"><button class="withdraw-open" id="withdrawOpen" type="button">вывести</button><button class="game-open" id="gameOpen" type="button">Играть</button></div>
 </div>
 <div class="status-pill"><span class="status-dot"></span>Баланс отображается в реальном времени</div>
 </section>
@@ -145,6 +187,33 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
   <div class="request-list" id="withdrawRequests"><div class="no-requests">Загрузка заявок…</div></div>
  </section>
 </div>
+
+<div class="game-backdrop" id="gameBackdrop" aria-hidden="true">
+ <section class="game-modal" role="dialog" aria-modal="true" aria-labelledby="gameTitle">
+  <div class="modal-head"><div class="modal-title" id="gameTitle">Игры</div><button class="modal-close" id="gameClose" type="button" aria-label="Закрыть">×</button></div>
+  <div id="gameMenu" class="game-menu-grid">
+   <button class="game-mode-card" id="openWheelSlots" type="button"><span class="game-mode-mark"><svg viewBox="0 0 48 48" width="37" height="37" aria-hidden="true"><circle cx="24" cy="24" r="20" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="2"/><path d="M24 4v40M4 24h40M10 10l28 28M38 10 10 38" stroke="#fff" stroke-opacity=".45" stroke-width="2"/><path d="M24 10c1.7 0 2.7 2.2 3.6 5.8.9 3.4 1.8 4.3 5.2 5.2 3.6.9 5.8 1.9 5.8 3.6s-2.2 2.7-5.8 3.6c-3.4.9-4.3 1.8-5.2 5.2-.9 3.6-1.9 5.8-3.6 5.8s-2.7-2.2-3.6-5.8c-.9-3.4-1.8-4.3-5.2-5.2-3.6-.9-5.8-1.9-5.8-3.6s2.2-2.7 5.8-3.6c3.4-.9 4.3-1.8 5.2-5.2.9-3.6 1.9-5.8 3.6-5.8Z" fill="#fff"/></svg></span><span><span class="game-mode-name">WheelSlots</span><span class="game-mode-desc">Три секции. Совпадения символов и множители до ×100.</span></span></button>
+  </div>
+  <div class="wheel-panel" id="wheelPanel">
+   <div class="modal-head" style="margin-top:12px"><div><div class="game-mode-name">WheelSlots</div><div class="game-mode-desc">Совпадение двух или трёх символов приносит выигрыш.</div></div><button class="modal-close" id="wheelBack" type="button" aria-label="Назад">‹</button></div>
+   <div class="wheel-topline"><span>БАЛАНС</span><span class="wheel-pill" id="wheelBalance">0</span></div>
+   <div class="wheel-machine"><div class="wheel-slots" id="wheelSlots"><div class="wheel-slot"></div><div class="wheel-slot"></div><div class="wheel-slot"></div></div></div>
+   <div class="wheel-controls"><button class="wheel-spin" id="wheelSpin" type="button" aria-label="Крутить"><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 2.8c2.2 0 3.4 2.7 4.7 7.6 1.2 4.5 2.4 5.7 6.9 6.9 4.9 1.3 7.6 2.5 7.6 4.7s-2.7 3.4-7.6 4.7c-4.5 1.2-5.7 2.4-6.9 6.9-1.3 4.9-2.5 7.6-4.7 7.6s-3.4-2.7-4.7-7.6c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 25.4 4.8 24.2 4.8 22s2.7-3.4 7.6-4.7c4.5-1.2 5.7-2.4 6.9-6.9C20.6 5.5 21.8 2.8 24 2.8Z" fill="#fff"/></svg></button><div><label class="wheel-bet-label" for="wheelBet">СТАВКА В НАШИХ ЗВЁЗДАХ</label><input class="wheel-bet" id="wheelBet" type="number" inputmode="numeric" min="1" step="1" value="100"><div class="wheel-bet-hint">Ставка списывается перед вращением.</div></div></div>
+   <div class="wheel-result" id="wheelResult">Укажи ставку и нажми на звезду.</div>
+   <div class="wheel-paytable">
+    <div class="wheel-payrow"><svg viewBox="0 0 48 48"><path d="M24 3c2 0 3.5 3 4.8 7.8 1.2 4.5 2.4 5.7 6.9 6.9C40.5 19 43 20.3 43 22.5s-2.5 3.5-7.3 4.8c-4.5 1.2-5.7 2.4-6.9 6.9C27.5 39 26 42 24 42s-3.5-3-4.8-7.8c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 26 5 24.7 5 22.5s2.5-3.5 7.3-4.8c4.5-1.2 5.7-2.4 6.9-6.9C20.5 6 22 3 24 3Z" fill="#4098ff"/></svg>Синие ×3 <b>×2</b></div>
+    <div class="wheel-payrow"><svg viewBox="0 0 48 48"><path d="M24 3c2 0 3.5 3 4.8 7.8 1.2 4.5 2.4 5.7 6.9 6.9C40.5 19 43 20.3 43 22.5s-2.5 3.5-7.3 4.8c-4.5 1.2-5.7 2.4-6.9 6.9C27.5 39 26 42 24 42s-3.5-3-4.8-7.8c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 26 5 24.7 5 22.5s2.5-3.5 7.3-4.8c4.5-1.2 5.7-2.4 6.9-6.9C20.5 6 22 3 24 3Z" fill="#4098ff"/></svg>Синие ×2 <b>×1.2</b></div>
+    <div class="wheel-payrow"><svg viewBox="0 0 48 48"><path d="M24 3c2 0 3.5 3 4.8 7.8 1.2 4.5 2.4 5.7 6.9 6.9C40.5 19 43 20.3 43 22.5s-2.5 3.5-7.3 4.8c-4.5 1.2-5.7 2.4-6.9 6.9C27.5 39 26 42 24 42s-3.5-3-4.8-7.8c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 26 5 24.7 5 22.5s2.5-3.5 7.3-4.8c4.5-1.2 5.7-2.4 6.9-6.9C20.5 6 22 3 24 3Z" fill="#ffd24a"/></svg>Жёлтые ×3 <b>×2</b></div>
+    <div class="wheel-payrow"><svg viewBox="0 0 48 48"><path d="M24 3c2 0 3.5 3 4.8 7.8 1.2 4.5 2.4 5.7 6.9 6.9C40.5 19 43 20.3 43 22.5s-2.5 3.5-7.3 4.8c-4.5 1.2-5.7 2.4-6.9 6.9C27.5 39 26 42 24 42s-3.5-3-4.8-7.8c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 26 5 24.7 5 22.5s2.5-3.5 7.3-4.8c4.5-1.2 5.7-2.4 6.9-6.9C20.5 6 22 3 24 3Z" fill="#ffd24a"/></svg>Жёлтые ×2 <b>×3</b></div>
+    <div class="wheel-payrow"><svg viewBox="0 0 48 48"><path d="M24 3c2 0 3.5 3 4.8 7.8 1.2 4.5 2.4 5.7 6.9 6.9C40.5 19 43 20.3 43 22.5s-2.5 3.5-7.3 4.8c-4.5 1.2-5.7 2.4-6.9 6.9C27.5 39 26 42 24 42s-3.5-3-4.8-7.8c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 26 5 24.7 5 22.5s2.5-3.5 7.3-4.8c4.5-1.2 5.7-2.4 6.9-6.9C20.5 6 22 3 24 3Z" fill="#53db8c"/></svg>Зелёные ×3 <b>×100</b></div>
+    <div class="wheel-payrow"><svg viewBox="0 0 48 48"><path d="M24 3c2 0 3.5 3 4.8 7.8 1.2 4.5 2.4 5.7 6.9 6.9C40.5 19 43 20.3 43 22.5s-2.5 3.5-7.3 4.8c-4.5 1.2-5.7 2.4-6.9 6.9C27.5 39 26 42 24 42s-3.5-3-4.8-7.8c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 26 5 24.7 5 22.5s2.5-3.5 7.3-4.8c4.5-1.2 5.7-2.4 6.9-6.9C20.5 6 22 3 24 3Z" fill="#53db8c"/></svg>Зелёные ×2 <b>×25</b></div>
+    <div class="wheel-payrow"><svg viewBox="0 0 48 48"><path d="M24 3c2 0 3.5 3 4.8 7.8 1.2 4.5 2.4 5.7 6.9 6.9C40.5 19 43 20.3 43 22.5s-2.5 3.5-7.3 4.8c-4.5 1.2-5.7 2.4-6.9 6.9C27.5 39 26 42 24 42s-3.5-3-4.8-7.8c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 26 5 24.7 5 22.5s2.5-3.5 7.3-4.8c4.5-1.2 5.7-2.4 6.9-6.9C20.5 6 22 3 24 3Z" fill="#53d9ff"/></svg>Голубые ×3 <b>×0</b></div>
+    <div class="wheel-payrow"><svg viewBox="0 0 48 48"><path d="M24 3c2 0 3.5 3 4.8 7.8 1.2 4.5 2.4 5.7 6.9 6.9C40.5 19 43 20.3 43 22.5s-2.5 3.5-7.3 4.8c-4.5 1.2-5.7 2.4-6.9 6.9C27.5 39 26 42 24 42s-3.5-3-4.8-7.8c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 26 5 24.7 5 22.5s2.5-3.5 7.3-4.8c4.5-1.2 5.7-2.4 6.9-6.9C20.5 6 22 3 24 3Z" fill="#53d9ff"/></svg>Голубые ×2 <b>×0</b></div>
+   </div>
+  </div>
+ </section>
+</div>
+<div class="big-win-backdrop" id="bigWinBackdrop" aria-hidden="true"><section class="big-win-modal" role="dialog" aria-modal="true"><svg class="big-win-star" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 2.8c2.2 0 3.4 2.7 4.7 7.6 1.2 4.5 2.4 5.7 6.9 6.9 4.9 1.3 7.6 2.5 7.6 4.7s-2.7 3.4-7.6 4.7c-4.5 1.2-5.7 2.4-6.9 6.9-1.3 4.9-2.5 7.6-4.7 7.6s-3.4-2.7-4.7-7.6c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 25.4 4.8 24.2 4.8 22s2.7-3.4 7.6-4.7c4.5-1.2 5.7-2.4 6.9-6.9C20.6 5.5 21.8 2.8 24 2.8Z" fill="#fff"/></svg><div class="big-win-title">Поздравляем!</div><div class="big-win-copy" id="bigWinCopy">Крупный выигрыш в WheelSlots.</div><div class="big-win-amount"><span id="bigWinAmount">0</span><svg class="mini-star" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 3c2 0 3.5 3 4.8 7.8 1.2 4.5 2.4 5.7 6.9 6.9C40.5 19 43 20.3 43 22.5s-2.5 3.5-7.3 4.8c-4.5 1.2-5.7 2.4-6.9 6.9C27.5 39 26 42 24 42s-3.5-3-4.8-7.8c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 26 5 25.4 5 22.5s2.5-3.5 7.3-4.8c4.5-1.2 5.7-2.4 6.9-6.9C20.5 6 22 3 24 3Z" fill="#fff"/></svg></div><button class="withdraw-submit" id="bigWinClose" type="button">Продолжить</button></section></div>
 </main>
 <script>
 (function(){
@@ -289,6 +358,47 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
   finally{button.disabled=false;}
  });
 })();
+
+ // WheelSlots game UI. Outcomes and balance are calculated by the server.
+ const gameOpen=document.getElementById('gameOpen'),gameBackdrop=document.getElementById('gameBackdrop'),gameClose=document.getElementById('gameClose');
+ const gameMenu=document.getElementById('gameMenu'),openWheelSlots=document.getElementById('openWheelSlots'),wheelPanel=document.getElementById('wheelPanel'),wheelBack=document.getElementById('wheelBack');
+ const wheelSpin=document.getElementById('wheelSpin'),wheelBet=document.getElementById('wheelBet'),wheelSlots=document.getElementById('wheelSlots'),wheelResult=document.getElementById('wheelResult'),wheelBalance=document.getElementById('wheelBalance');
+ const bigWinBackdrop=document.getElementById('bigWinBackdrop'),bigWinClose=document.getElementById('bigWinClose');
+ const starPath='M24 3c2 0 3.5 3 4.8 7.8 1.2 4.5 2.4 5.7 6.9 6.9C40.5 19 43 20.3 43 22.5s-2.5 3.5-7.3 4.8c-4.5 1.2-5.7 2.4-6.9 6.9C27.5 39 26 42 24 42s-3.5-3-4.8-7.8c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 26 5 24.7 5 22.5s2.5-3.5 7.3-4.8c4.5-1.2 5.7-2.4 6.9-6.9C20.5 6 22 3 24 3Z';
+ const colors={blue:'#4098ff',yellow:'#ffd24a',green:'#53db8c',cyan:'#53d9ff'};
+ function symbolSvg(color){return '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="'+starPath+'" fill="'+(colors[color]||'#fff')+'"/></svg>';}
+ function showGame(){gameBackdrop.classList.add('open');gameBackdrop.setAttribute('aria-hidden','false');gameMenu.style.display='grid';wheelPanel.classList.remove('active');}
+ function hideGame(){if(wheelSpin.disabled)return;gameBackdrop.classList.remove('open');gameBackdrop.setAttribute('aria-hidden','true');}
+ gameOpen?.addEventListener('click',showGame);gameClose?.addEventListener('click',hideGame);
+ gameBackdrop?.addEventListener('click',e=>{if(e.target===gameBackdrop)hideGame();});
+ openWheelSlots?.addEventListener('click',()=>{gameMenu.style.display='none';wheelPanel.classList.add('active');refreshWheelBalance();});
+ wheelBack?.addEventListener('click',()=>{if(wheelSpin.disabled)return;wheelPanel.classList.remove('active');gameMenu.style.display='grid';});
+ bigWinClose?.addEventListener('click',()=>{bigWinBackdrop.classList.remove('open');bigWinBackdrop.setAttribute('aria-hidden','true');});
+ bigWinBackdrop?.addEventListener('click',e=>{if(e.target===bigWinBackdrop){bigWinBackdrop.classList.remove('open');bigWinBackdrop.setAttribute('aria-hidden','true');}});
+ async function refreshWheelBalance(){
+  const tg=window.Telegram&&window.Telegram.WebApp;if(!tg?.initData){wheelResult.textContent='Открой приложение через Telegram-бота, чтобы играть на баланс.';return;}
+  try{const r=await fetch('/api/balance',{headers:{'X-Telegram-Init-Data':tg.initData}});const d=await r.json();if(r.ok&&d.ok){const n=Number(d.balance)||0;document.getElementById('balance').textContent=n.toLocaleString('ru-RU');wheelBalance.textContent=n.toLocaleString('ru-RU');}}catch(_){ }
+ }
+ function paintSlots(symbols,spinning){const nodes=[...wheelSlots.children];nodes.forEach((node,i)=>{node.classList.toggle('spinning',Boolean(spinning));node.innerHTML=symbolSvg(symbols[i]||'blue');});}
+ const randomColors=()=>['blue','yellow','green','cyan'][Math.floor(Math.random()*4)];
+ paintSlots(['blue','yellow','green'],false);
+ wheelSpin?.addEventListener('click',async()=>{
+  const tg=window.Telegram&&window.Telegram.WebApp;if(!tg?.initData){wheelResult.textContent='Открой приложение через Telegram-бота, чтобы играть.';return;}
+  const bet=Number(wheelBet.value);if(!Number.isSafeInteger(bet)||bet<1){wheelResult.textContent='Ставка должна быть целым числом от 1.';return;}
+  wheelSpin.disabled=true;wheelSpin.classList.add('spinning');wheelResult.textContent='Барабан вращается…';
+  const start=Date.now();let ticker=setInterval(()=>paintSlots([randomColors(),randomColors(),randomColors()],true),95);
+  try{
+   const responsePromise=fetch('/api/wheelslots/spin',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':tg.initData},body:JSON.stringify({bet})});
+   const response=await responsePromise;const data=await response.json();if(!response.ok||!data.ok)throw new Error(data.error||'Не удалось выполнить спин.');
+   await new Promise(resolve=>setTimeout(resolve,Math.max(0,1550-(Date.now()-start))));clearInterval(ticker);ticker=null;
+   paintSlots(data.symbols,false);
+   const balance=Number(data.balance)||0;document.getElementById('balance').textContent=balance.toLocaleString('ru-RU');wheelBalance.textContent=balance.toLocaleString('ru-RU');
+   if(data.multiplier>0){wheelResult.textContent='Совпадение ×'+data.multiplier+' — выигрыш '+Number(data.payout).toLocaleString('ru-RU')+' наших звёзд.';}
+   else wheelResult.textContent='В этот раз без выигрыша. Попробуй ещё раз.';
+   if(Number(data.multiplier)>=25&&Number(data.payout)>0){document.getElementById('bigWinAmount').textContent=Number(data.payout).toLocaleString('ru-RU');document.getElementById('bigWinCopy').textContent='Выпало ×'+data.multiplier+'. Выигрыш начислен на баланс.';bigWinBackdrop.classList.add('open');bigWinBackdrop.setAttribute('aria-hidden','false');}
+  }catch(e){if(ticker)clearInterval(ticker);wheelResult.textContent=e.message||'Ошибка спина. Попробуй ещё раз.';await refreshWheelBalance();}
+  finally{wheelSpin.disabled=false;wheelSpin.classList.remove('spinning');[...wheelSlots.children].forEach(node=>node.classList.remove('spinning'));}
+ });
 </script>
 </body>
 </html>
