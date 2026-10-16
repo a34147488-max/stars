@@ -312,6 +312,23 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
  });
  updatePayout();
 
+ // Keep the app balance synchronized with rewards credited by the Telegram bot.
+ async function syncAppBalance(){
+  if(!withdrawalTg||!withdrawalTg.initData)return;
+  try{
+   const response=await fetch('/api/balance',{headers:{'X-Telegram-Init-Data':withdrawalTg.initData},cache:'no-store'});
+   const data=await response.json();
+   if(!response.ok||!data.ok)return;
+   const value=Number(data.balance)||0;
+   const balanceNode=document.getElementById('balance');
+   const wheelBalanceNode=document.getElementById('wheelBalance');
+   if(balanceNode)balanceNode.textContent=value.toLocaleString('ru-RU');
+   if(wheelBalanceNode)wheelBalanceNode.textContent=value.toLocaleString('ru-RU');
+  }catch(_){}
+ }
+ syncAppBalance();
+ setInterval(syncAppBalance,5000);
+
 })();
 </script>
 <script>
