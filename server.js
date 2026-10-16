@@ -226,6 +226,33 @@ app.post('/api/starsslots/spin', async (req, res) => {
 
 
 
+
+app.post('/api/starsdouble/spin', async (req, res) => {
+  try {
+    await ensureDb();
+    const user = authUser(req);
+    if (!user) return res.status(401).json({ok:false,error:'Открой приложение через Telegram-бота.'});
+    const bet = Number(req.body && req.body.bet), color = String(req.body && req.body.color || '');
+    const multipliers = {blue:2,red:5,yellow:3,green:50};
+    if (!Number.isSafeInteger(bet) || bet < 1 || bet > 1000000000) return res.status(400).json({ok:false,error:'Ставка должна быть целым числом от 1.'});
+    if (!Object.prototype.hasOwnProperty.call(multipliers,color)) return res.status(400).json({ok:false,error:'Выбери цвет ставки.'});
+    const weights = [...Array(40).fill('blue'),...Array(30).fill('red'),...Array(25).fill('yellow'),...Array(5).fill('green')];
+    const resultColor = weights[crypto.randomInt(0,weights.length)], multiplier = multipliers[resultColor], won = resultColor === color, payout = won ? Math.floor(bet * multiplier) : 0;
+    const client = await pool.connect(); let balance;
+    try {
+      await client.query('BEGIN');
+      const row = await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1 FOR UPDATE',[String(user.id)]);
+      const current = Number(row.rows[0]?.balance || 0);
+      if (current < bet) { await client.query('ROLLBACK'); return res.status(400).json({ok:false,error:'Недостаточно звёзд на балансе.'}); }
+      await client.query('UPDATE stars_users SET balance=balance-$2+$3,updated_at=NOW() WHERE telegram_id=$1',[String(user.id),bet,payout]);
+      const updated = await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1',[String(user.id)]);
+      balance = Number(updated.rows[0]?.balance || 0);
+      await client.query('COMMIT');
+    } catch(e) { await client.query('ROLLBACK'); throw e; } finally { client.release(); }
+    return res.json({ok:true,color:resultColor,multiplier,won,payout,bet,balance});
+  } catch(e) { console.error('StarsDouble spin error:',e.message); return res.status(503).json({ok:false,error:'Не удалось выполнить вращение.'}); }
+});
+
 app.post('/api/telegram/webhook', async (req, res) => {
   const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
   if (!secret || req.get('X-Telegram-Bot-Api-Secret-Token') !== secret) return res.sendStatus(403);
