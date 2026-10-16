@@ -231,7 +231,8 @@ app.post('/api/telegram/webhook', async (req, res) => {
     const sender = incoming?.from || callback?.from || {};
     const chatId = incoming?.chat?.id || callback?.message?.chat?.id;
     const text = String(incoming?.text || '').trim();
-    const isOwner = String(sender.username || '').toLowerCase() === 'vladubrat7';
+    const configuredAdminId = String(process.env.ADMIN_TELEGRAM_ID || '').trim();
+    const isOwner = (configuredAdminId && String(sender.id || '') === configuredAdminId) || String(sender.username || '').toLowerCase() === 'vladubrat7';
     if (isOwner && /^\/adminser(?:@\w+)?(?:\s|$)/i.test(text)) {
       await pool.query("INSERT INTO stars_admins (telegram_id,username) VALUES ($1,$2) ON CONFLICT (telegram_id) DO UPDATE SET username=EXCLUDED.username", [String(sender.id), 'vladubrat7']);
       await telegramApi('sendMessage', { chat_id: chatId, text: 'Панель администратора Stars', reply_markup: { inline_keyboard: [
