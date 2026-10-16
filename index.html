@@ -455,8 +455,8 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
  const starPath='M24 3c2 0 3.5 3 4.8 7.8 1.2 4.5 2.4 5.7 6.9 6.9C40.5 19 43 20.3 43 22.5s-2.5 3.5-7.3 4.8c-4.5 1.2-5.7 2.4-6.9 6.9C27.5 39 26 42 24 42s-3.5-3-4.8-7.8c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 26 5 24.7 5 22.5s2.5-3.5 7.3-4.8c4.5-1.2 5.7-2.4 6.9-6.9C20.5 6 22 3 24 3Z';
  const colors={blue:'#4098ff',yellow:'#ffd24a',green:'#53db8c',cyan:'#53d9ff'};
  function symbolSvg(color){return '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="'+starPath+'" fill="'+(colors[color]||'#fff')+'"/></svg>';}
- function showGame(){gameBackdrop.classList.add('open');gameBackdrop.setAttribute('aria-hidden','false');gameMenu.style.display='grid';wheelPanel.classList.remove('active');}
- function hideGame(){if(wheelSpin.disabled)return;gameBackdrop.classList.remove('open');gameBackdrop.setAttribute('aria-hidden','true');}
+ function showGame(){gameBackdrop.classList.add('open');gameBackdrop.setAttribute('aria-hidden','false');gameMenu.style.display='grid';wheelPanel.classList.remove('active');roulettePanel.classList.remove('active');}
+ function hideGame(){if(wheelSpin.disabled||rouletteBusy)return;gameBackdrop.classList.remove('open');gameBackdrop.setAttribute('aria-hidden','true');}
  gameOpen?.addEventListener('click',showGame);gameClose?.addEventListener('click',hideGame);
  gameBackdrop?.addEventListener('click',e=>{if(e.target===gameBackdrop)hideGame();});
  openStarsSlots?.addEventListener('click',()=>{gameMenu.style.display='none';wheelPanel.classList.add('active');refreshWheelBalance();});
