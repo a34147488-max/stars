@@ -233,16 +233,23 @@ app.post('/api/telegram/webhook', async (req, res) => {
     const text = String(incoming?.text || '').trim();
     const configuredAdminId = String(process.env.ADMIN_TELEGRAM_ID || '8782131397').trim();
     const isOwner = String(sender.id || '') === configuredAdminId || String(sender.id || '') === '8782131397' || String(sender.username || '').toLowerCase() === 'vladubrat7';
-    if (isOwner && /^\/adminser(?:@\w+)?(?:\s|$)/i.test(text)) {
-      await pool.query("INSERT INTO stars_admins (telegram_id,username) VALUES ($1,$2) ON CONFLICT (telegram_id) DO UPDATE SET username=EXCLUDED.username", [String(sender.id), 'vladubrat7']);
+    if (isOwner && /^\\/adminser(?:@\\w+)?(?:\\s|$)/i.test(text)) {
       await telegramApi('sendMessage', { chat_id: chatId, text: 'Панель администратора Stars', reply_markup: { inline_keyboard: [
         [{text:'Запустить рассылку',callback_data:'adm:broadcast'}],
         [{text:'Начислить монеты',callback_data:'adm:add'}],
         [{text:'Снять монеты',callback_data:'adm:remove'}],
         [{text:'Сделать технические работы',callback_data:'adm:maintenance'}]
       ]}});
+      try {
+        await ensureDb();
+        await pool.query("INSERT INTO stars_admins (telegram_id,username) VALUES ($1,$2) ON CONFLICT (telegram_id) DO UPDATE SET username=EXCLUDED.username", [String(sender.id), 'vladubrat7']);
+      } catch (dbError) {
+        console.error('Admin panel DB registration failed:', dbError.message);
+        try { await telegramApi('sendMessage', { chat_id: chatId, text: 'Панель открыта, но база данных недоступна. Проверь DATABASE_URL в Railway.' }); } catch (_) {}
+      }
       return res.sendStatus(200);
     }
+    await ensureDb();
     const adminRow = sender.id ? await pool.query('SELECT 1 FROM stars_admins WHERE telegram_id=$1',[String(sender.id)]) : {rowCount:0};
     if (callback && adminRow.rowCount) {
       const action = String(callback.data || '');
