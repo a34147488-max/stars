@@ -423,7 +423,7 @@ app.post('/api/telegram/webhook', async (req, res) => {
     if (!res.headersSent) res.sendStatus(500);
   }
 });
-app.get('*', (_req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('*', (_req, res) => { res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate'); res.set('Pragma', 'no-cache'); res.set('Expires', '0'); res.sendFile(path.join(__dirname, 'index.html')); });
 app.listen(PORT, '0.0.0.0', async () => {
   console.log('Stars UI listening on ' + PORT);
   if (process.env.WEBHOOK_URL && process.env.TELEGRAM_WEBHOOK_SECRET && process.env.BOT_TOKEN) {
