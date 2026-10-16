@@ -6,6 +6,20 @@ const app = express();
 const PORT = process.env.PORT || 8080;
 app.disable('x-powered-by');
 app.use(express.json({ limit: '64kb' }));
+app.use('/api', async (req, res, next) => {
+  if (req.path === '/telegram/webhook' || req.path === '/health') return next();
+  try {
+    const user = validateTelegramInitData(req.get('X-Telegram-Init-Data'), process.env.BOT_TOKEN);
+    if (!user) return next();
+    await ensureDb();
+    const status = await pool.query('SELECT is_blocked FROM stars_users WHERE telegram_id=$1', [String(user.id)]);
+    if (status.rows[0]?.is_blocked) return res.status(403).json({ok:false,error:'Доступ к Stars ограничен администрацией.'});
+    return next();
+  } catch (e) {
+    console.error('Player access check failed:', e.message);
+    return res.status(503).json({ok:false,error:'Не удалось проверить доступ к приложению.'});
+  }
+});
 const PACKAGES = {
   50: { coins: 500, title: 'Стартовый пакет — 500 звёзд', stars: 50 },
   75: { coins: 900, title: 'Бронзовый пакет — 900 звёзд', stars: 75 },
