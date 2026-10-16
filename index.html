@@ -129,6 +129,22 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
 .big-win-title{font-size:25px;font-weight:900;letter-spacing:-.05em;margin-top:14px}.big-win-copy{font-size:12px;color:#bfc2d0;line-height:1.5;margin-top:7px}.big-win-amount{display:flex;align-items:center;justify-content:center;gap:9px;font-size:34px;font-weight:900;letter-spacing:-.05em;margin:17px 0}
 @media(max-width:370px){.wheel-slot{height:82px}.wheel-slot svg{width:36px;height:36px}.wheel-controls{gap:8px}.wheel-spin{width:74px;height:74px}}
 
+
+.double-wheel-wrap{position:relative;width:min(76vw,300px);aspect-ratio:1;margin:23px auto 20px;padding:10px}
+.double-wheel{position:relative;width:100%;height:100%;border-radius:50%;border:7px solid #ffffffd9;box-shadow:0 0 0 5px #ffffff12,0 16px 42px #0008,inset 0 0 0 2px #0005;background:conic-gradient(from -11.25deg,#4098ff 0deg 45deg,#e74b58 45deg 90deg,#ffd24a 90deg 135deg,#53db8c 135deg 180deg,#4098ff 180deg 225deg,#e74b58 225deg 270deg,#ffd24a 270deg 315deg,#53db8c 315deg 360deg);transition:transform 3.8s cubic-bezier(.09,.72,.12,1);overflow:hidden}
+.double-wheel:after{content:"";position:absolute;inset:0;border-radius:50%;background:repeating-conic-gradient(from -22.5deg,transparent 0deg 44deg,#fff8 44deg 45deg);pointer-events:none}
+.double-pointer{position:absolute;z-index:3;top:0;left:50%;transform:translateX(-50%);width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;border-top:27px solid #fff;filter:drop-shadow(0 3px 4px #0008)}
+.double-wheel-center{position:absolute;z-index:2;left:50%;top:50%;transform:translate(-50%,-50%);width:34%;aspect-ratio:1;display:grid;place-items:center;border:4px solid #ffffffd9;border-radius:50%;background:radial-gradient(circle at 35% 25%,#414455,#10111a 75%);box-shadow:0 0 0 5px #0004,0 4px 20px #0008;color:#fff;font-size:clamp(21px,6vw,29px);font-weight:900;letter-spacing:-.05em}
+.double-bets{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.double-bet{min-width:0;padding:12px 3px 10px;border-radius:14px;border:1px solid #ffffff2b;color:#fff;display:flex;flex-direction:column;align-items:center;gap:4px;font:inherit;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.double-bet span{font-size:20px;font-weight:900;letter-spacing:-.04em}.double-bet small{font-size:8px;font-weight:850;letter-spacing:.04em}
+.double-bet.blue{background:#2477d8}.double-bet.red{background:#c93445}.double-bet.yellow{background:#c89c16;color:#17130a}.double-bet.green{background:#16844b}
+.double-bet.selected{box-shadow:0 0 0 2px #fff,0 0 18px #ffffff40;transform:translateY(-2px)}
+.double-amount-row{margin-top:16px}.double-amount-frame{padding:7px;border:1px solid #ffffff45;border-radius:18px;background:linear-gradient(145deg,#ffffff14,#ffffff05);box-shadow:inset 0 1px 0 #ffffff18}.double-amount-frame .wheel-bet{border:0;background:transparent}
+.double-amount-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.double-amount-actions button{padding:9px 3px;border:1px solid #ffffff1c;border-radius:10px;background:#ffffff0b;color:#fff;font:inherit;font-size:10px;font-weight:800}
+.double-spin{width:100%;margin-top:12px;padding:15px;border:1px solid #ffffffb8;border-radius:15px;background:#fff;color:#171821;font:inherit;font-size:14px;font-weight:900;cursor:pointer}.double-spin:disabled{opacity:.5}
+@media(max-width:370px){.double-bet span{font-size:17px}.double-bet small{font-size:7px}.double-wheel-wrap{width:min(72vw,260px)}}
+
 </style>
 </head>
 <body>
@@ -195,6 +211,21 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
   <div class="modal-head"><div class="modal-title" id="gameTitle">Игры</div><button class="modal-close" id="gameClose" type="button" aria-label="Закрыть">×</button></div>
   <div id="gameMenu" class="game-menu-grid">
    <button class="game-mode-card" id="openStarsSlots" type="button"><span class="game-mode-mark"><svg viewBox="0 0 48 48" width="37" height="37" aria-hidden="true"><circle cx="24" cy="24" r="20" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="2"/><path d="M24 4v40M4 24h40M10 10l28 28M38 10 10 38" stroke="#fff" stroke-opacity=".45" stroke-width="2"/><path d="M24 10c1.7 0 2.7 2.2 3.6 5.8.9 3.4 1.8 4.3 5.2 5.2 3.6.9 5.8 1.9 5.8 3.6s-2.2 2.7-5.8 3.6c-3.4.9-4.3 1.8-5.2 5.2-.9 3.6-1.9 5.8-3.6 5.8s-2.7-2.2-3.6-5.8c-.9-3.4-1.8-4.3-5.2-5.2-3.6-.9-5.8-1.9-5.8-3.6s2.2-2.7 5.8-3.6c3.4-.9 4.3-1.8 5.2-5.2.9-3.6 1.9-5.8 3.6-5.8Z" fill="#fff"/></svg></span><span><span class="game-mode-name">StarsSlots</span><span class="game-mode-desc">Три секции. Совпадения символов и множители до ×100.</span></span></button>
+   <button class="game-mode-card" id="openStarsDouble" type="button"><span class="game-mode-mark"><svg viewBox="0 0 48 48" width="37" height="37" aria-hidden="true"><circle cx="24" cy="24" r="19" fill="none" stroke="#fff" stroke-opacity=".4" stroke-width="2"/><path d="M24 5v38M5 24h38M10.5 10.5l27 27M37.5 10.5l-27 27" stroke="#fff" stroke-opacity=".35" stroke-width="2"/><circle cx="24" cy="24" r="7" fill="#fff"/></svg></span><span><span class="game-mode-name">StarsDouble</span><span class="game-mode-desc">Колесо цветов и множителей.</span></span></button>
+  </div>
+  <div class="wheel-panel" id="doublePanel">
+   <div class="modal-head" style="margin-top:12px"><div><div class="game-mode-name">StarsDouble</div><div class="game-mode-desc">Выбери цвет и сумму ставки.</div></div><button class="modal-close" id="doubleBack" type="button" aria-label="Назад">‹</button></div>
+   <div class="wheel-topline"><span>БАЛАНС</span><span class="wheel-pill" id="doubleBalance">0</span></div>
+   <div class="double-wheel-wrap"><div class="double-pointer"></div><div class="double-wheel" id="doubleWheel"><div class="double-wheel-center"><span id="doubleMultiplier">×?</span></div></div></div>
+   <div class="double-bets">
+    <button type="button" class="double-bet blue" data-color="blue" data-multiplier="2"><span>×2</span><small>СИНИЙ</small></button>
+    <button type="button" class="double-bet red" data-color="red" data-multiplier="5"><span>×5</span><small>КРАСНЫЙ</small></button>
+    <button type="button" class="double-bet yellow" data-color="yellow" data-multiplier="3"><span>×3</span><small>ЖЁЛТЫЙ</small></button>
+    <button type="button" class="double-bet green" data-color="green" data-multiplier="50"><span>×50</span><small>ЗЕЛЁНЫЙ</small></button>
+   </div>
+   <div class="double-amount-row"><label class="wheel-bet-label" for="doubleBet">СУММА СТАВКИ</label><div class="double-amount-frame"><input class="wheel-bet" id="doubleBet" type="number" inputmode="numeric" min="1" step="1" value="100"><div class="double-amount-actions"><button type="button" id="doubleHalf">Разделить</button><button type="button" id="doubleDouble">Умножить</button><button type="button" id="doubleRepeat">Повторить</button></div></div></div>
+   <button type="button" class="double-spin" id="doubleSpin">Крутить колесо</button>
+   <div class="wheel-result" id="doubleResult">Выбери цвет ставки и запусти колесо.</div>
   </div>
   <div class="wheel-panel" id="wheelPanel">
    <div class="modal-head" style="margin-top:12px"><div><div class="game-mode-name">StarsSlots</div><div class="game-mode-desc">Совпадение двух или трёх символов приносит выигрыш.</div></div><button class="modal-close" id="wheelBack" type="button" aria-label="Назад">‹</button></div>
@@ -382,20 +413,32 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
  
  // StarsSlots game UI. Outcomes and balance are calculated by the server.
  const gameOpen=document.getElementById('gameOpen'),gameBackdrop=document.getElementById('gameBackdrop'),gameClose=document.getElementById('gameClose');
- const gameMenu=document.getElementById('gameMenu'),openStarsSlots=document.getElementById('openStarsSlots'),wheelPanel=document.getElementById('wheelPanel'),wheelBack=document.getElementById('wheelBack');
+ const gameMenu=document.getElementById('gameMenu'),openStarsSlots=document.getElementById('openStarsSlots'),wheelPanel=document.getElementById('wheelPanel'),wheelBack=document.getElementById('wheelBack'),openStarsDouble=document.getElementById('openStarsDouble'),doublePanel=document.getElementById('doublePanel'),doubleBack=document.getElementById('doubleBack');
  const wheelSpin=document.getElementById('wheelSpin'),wheelBet=document.getElementById('wheelBet'),wheelSlots=document.getElementById('wheelSlots'),wheelResult=document.getElementById('wheelResult'),wheelBalance=document.getElementById('wheelBalance');
  const bigWinBackdrop=document.getElementById('bigWinBackdrop'),bigWinClose=document.getElementById('bigWinClose');
  const starPath='M24 3c2 0 3.5 3 4.8 7.8 1.2 4.5 2.4 5.7 6.9 6.9C40.5 19 43 20.3 43 22.5s-2.5 3.5-7.3 4.8c-4.5 1.2-5.7 2.4-6.9 6.9C27.5 39 26 42 24 42s-3.5-3-4.8-7.8c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 26 5 24.7 5 22.5s2.5-3.5 7.3-4.8c4.5-1.2 5.7-2.4 6.9-6.9C20.5 6 22 3 24 3Z';
  const colors={blue:'#4098ff',yellow:'#ffd24a',green:'#53db8c',cyan:'#53d9ff'};
  function symbolSvg(color){return '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="'+starPath+'" fill="'+(colors[color]||'#fff')+'"/></svg>';}
- function showGame(){gameBackdrop.classList.add('open');gameBackdrop.setAttribute('aria-hidden','false');gameMenu.style.display='grid';wheelPanel.classList.remove('active');roulettePanel.classList.remove('active');}
- function hideGame(){if(wheelSpin.disabled||rouletteBusy)return;gameBackdrop.classList.remove('open');gameBackdrop.setAttribute('aria-hidden','true');}
+ function showGame(){gameBackdrop.classList.add('open');gameBackdrop.setAttribute('aria-hidden','false');gameMenu.style.display='grid';wheelPanel.classList.remove('active');doublePanel.classList.remove('active');}
+ function hideGame(){if(wheelSpin.disabled||(typeof doubleSpin!=='undefined'&&doubleSpin.disabled))return;gameBackdrop.classList.remove('open');gameBackdrop.setAttribute('aria-hidden','true');}
  gameOpen?.addEventListener('click',showGame);gameClose?.addEventListener('click',hideGame);
  gameBackdrop?.addEventListener('click',e=>{if(e.target===gameBackdrop)hideGame();});
  openStarsSlots?.addEventListener('click',()=>{gameMenu.style.display='none';wheelPanel.classList.add('active');refreshWheelBalance();});
  wheelBack?.addEventListener('click',()=>{if(wheelSpin.disabled)return;wheelPanel.classList.remove('active');gameMenu.style.display='grid';});
+ openStarsDouble?.addEventListener('click',()=>{gameMenu.style.display='none';doublePanel.classList.add('active');refreshDoubleBalance();});
+ doubleBack?.addEventListener('click',()=>{if(doubleSpin.disabled)return;doublePanel.classList.remove('active');gameMenu.style.display='grid';});
  bigWinClose?.addEventListener('click',()=>{bigWinBackdrop.classList.remove('open');bigWinBackdrop.setAttribute('aria-hidden','true');});
  bigWinBackdrop?.addEventListener('click',e=>{if(e.target===bigWinBackdrop){bigWinBackdrop.classList.remove('open');bigWinBackdrop.setAttribute('aria-hidden','true');}});
+
+ const doubleWheel=document.getElementById('doubleWheel'),doubleBet=document.getElementById('doubleBet'),doubleSpin=document.getElementById('doubleSpin'),doubleResult=document.getElementById('doubleResult'),doubleBalance=document.getElementById('doubleBalance'),doubleMultiplier=document.getElementById('doubleMultiplier');
+ let doubleChoice='',doubleLastBet=100,doubleRotation=0;
+ document.querySelectorAll('.double-bet').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.double-bet').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');doubleChoice=btn.dataset.color;}));
+ document.getElementById('doubleHalf').addEventListener('click',()=>{doubleBet.value=Math.max(1,Math.floor((Number(doubleBet.value)||1)/2));});
+ document.getElementById('doubleDouble').addEventListener('click',()=>{doubleBet.value=Math.min(1000000000,Math.max(1,Number(doubleBet.value)||1)*2);});
+ document.getElementById('doubleRepeat').addEventListener('click',()=>{doubleBet.value=doubleLastBet;});
+ async function refreshDoubleBalance(){const tg=window.Telegram&&window.Telegram.WebApp;if(!tg?.initData){doubleResult.textContent='Открой приложение через Telegram-бота, чтобы играть.';return;}try{const r=await fetch('/api/balance',{headers:{'X-Telegram-Init-Data':tg.initData}});const d=await r.json();if(r.ok&&d.ok){const n=Number(d.balance)||0;doubleBalance.textContent=n.toLocaleString('ru-RU');document.getElementById('balance').textContent=n.toLocaleString('ru-RU');}}catch(_){}}
+ doubleSpin.addEventListener('click',async()=>{const tg=window.Telegram&&window.Telegram.WebApp;if(!tg?.initData){doubleResult.textContent='Открой приложение через Telegram-бота, чтобы играть.';return;}const bet=Number(doubleBet.value);if(!doubleChoice){doubleResult.textContent='Сначала выбери цвет ставки.';return;}if(!Number.isSafeInteger(bet)||bet<1){doubleResult.textContent='Ставка должна быть целым числом от 1.';return;}doubleLastBet=bet;doubleSpin.disabled=true;doubleResult.textContent='Колесо вращается…';doubleMultiplier.textContent='…';try{const resp=await fetch('/api/starsdouble/spin',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':tg.initData},body:JSON.stringify({bet,color:doubleChoice})});const d=await resp.json();if(!resp.ok||!d.ok)throw new Error(d.error||'Не удалось запустить колесо.');const segmentColors=['blue','red','yellow','green','blue','red','yellow','green'];const targetIndex=segmentColors.indexOf(d.color);const targetAngle=(targetIndex*45)+22.5;doubleRotation+=1440+((360-targetAngle-(doubleRotation%360)+360)%360);doubleWheel.style.transform='rotate('+doubleRotation+'deg)';await new Promise(resolve=>setTimeout(resolve,3900));doubleMultiplier.textContent='×'+d.multiplier;doubleBalance.textContent=Number(d.balance).toLocaleString('ru-RU');document.getElementById('balance').textContent=Number(d.balance).toLocaleString('ru-RU');doubleResult.textContent=d.won?'Выпало '+({blue:'синий',red:'красный',yellow:'жёлтый',green:'зелёный'}[d.color])+' ×'+d.multiplier+'. Выигрыш '+Number(d.payout).toLocaleString('ru-RU')+' звёзд.':'Выпало '+({blue:'синий',red:'красный',yellow:'жёлтый',green:'зелёный'}[d.color])+' ×'+d.multiplier+'. Ставка не сыграла.';}catch(e){doubleResult.textContent=e.message||'Ошибка вращения.';await refreshDoubleBalance();}finally{doubleSpin.disabled=false;}});
+
  async function refreshWheelBalance(){
   const tg=window.Telegram&&window.Telegram.WebApp;if(!tg?.initData){wheelResult.textContent='Открой приложение через Telegram-бота, чтобы играть на баланс.';return;}
   try{const r=await fetch('/api/balance',{headers:{'X-Telegram-Init-Data':tg.initData}});const d=await r.json();if(r.ok&&d.ok){const n=Number(d.balance)||0;document.getElementById('balance').textContent=n.toLocaleString('ru-RU');wheelBalance.textContent=n.toLocaleString('ru-RU');}}catch(_){ }
