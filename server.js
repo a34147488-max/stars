@@ -246,7 +246,21 @@ app.post('/api/telegram/webhook', async (req, res) => {
     if (callback && adminRow.rowCount) {
       const action = String(callback.data || '');
       await telegramApi('answerCallbackQuery',{callback_query_id:callback.id});
-      if (action === 'adm:broadcast') {
+      if (action === 'adm:broadcast:confirm') {
+        const state = adminStates.get(String(sender.id));
+        if (!state || state.mode !== 'broadcast_confirm') {
+          await telegramApi('sendMessage',{chat_id:chatId,text:'Рассылка не найдена или уже обработана.'});
+        } else {
+          adminStates.delete(String(sender.id));
+          const users = await pool.query('SELECT telegram_id FROM stars_users');
+          let sent = 0, failed = 0;
+          for (const u of users.rows) {
+            try { await telegramApi('sendMessage',{chat_id:u.telegram_id,text:state.text}); sent++; }
+            catch (_) { failed++; }
+          }
+          await telegramApi('sendMessage',{chat_id:chatId,text:'Рассылка завершена. Успешно: '+sent+'. Не доставлено: '+failed+'.'});
+        }
+      } else if (action === 'adm:broadcast') {
         await pool.query("INSERT INTO stars_admins (telegram_id,username) VALUES ($1,$2) ON CONFLICT (telegram_id) DO NOTHING",[String(sender.id),String(sender.username||'admin')]);
         adminStates.set(String(sender.id), {mode:'broadcast'});
         await telegramApi('sendMessage',{chat_id:chatId,text:'Отправь следующим сообщением текст рассылки. Оно пока никому не отправится.'});
