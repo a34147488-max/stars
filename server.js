@@ -249,7 +249,6 @@ app.post('/api/telegram/webhook', async (req, res) => {
       return res.sendStatus(200);
     }
     await ensureDb();
-    await ensureDb();
     const adminRow = sender.id ? await pool.query('SELECT 1 FROM stars_admins WHERE telegram_id=$1',[String(sender.id)]) : {rowCount:0};
     if (callback && adminRow.rowCount) {
       const action = String(callback.data || '');
