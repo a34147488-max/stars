@@ -224,6 +224,48 @@ app.post('/api/starsslots/spin', async (req, res) => {
 });
 
 
+app.post('/api/wheel/round', async (req, res) => {
+  let client;
+  try {
+    await ensureDb();
+    const user = authUser(req);
+    if (!user) return res.status(401).json({ok:false,error:'Открой приложение через Telegram-бота.'});
+    const bets = req.body && req.body.bets;
+    if (!Array.isArray(bets) || bets.length < 1 || bets.length > 40) return res.status(400).json({ok:false,error:'Добавь хотя бы одну ставку.'});
+    const validBet = b => {
+      const kind=String(b && b.kind || ''), value=String(b && b.value || ''), bet=Number(b && b.bet);
+      const valid=(kind==='color'&&['red','black'].includes(value))||(kind==='parity'&&['even','odd'].includes(value))||(kind==='range'&&['low','high'].includes(value))||(kind==='dozen'&&['1','2','3'].includes(value))||(kind==='number'&&value==='0');
+      return valid && Number.isSafeInteger(bet) && bet>0 && bet<=1000000000;
+    };
+    if (!bets.every(validBet)) return res.status(400).json({ok:false,error:'Одна из ставок указана неверно.'});
+    const totalBet=bets.reduce((sum,b)=>sum+Number(b.bet),0);
+    if (!Number.isSafeInteger(totalBet) || totalBet>1000000000) return res.status(400).json({ok:false,error:'Общая сумма ставок слишком велика.'});
+    const result=crypto.randomInt(0,37), reds=new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
+    let payout=0;
+    const outcomes=bets.map(b=>{
+      const kind=String(b.kind),value=String(b.value),bet=Number(b.bet);let won=false,multiplier=0;
+      if(kind==='color'){won=result!==0&&(reds.has(result)?'red':'black')===value;multiplier=2;}
+      else if(kind==='parity'){won=result!==0&&(result%2===0?'even':'odd')===value;multiplier=2;}
+      else if(kind==='range'){won=result!==0&&(result<=18?'low':'high')===value;multiplier=2;}
+      else if(kind==='dozen'){const d=result>=1&&result<=12?1:result>=13&&result<=24?2:result>=25&&result<=36?3:0;won=d===Number(value);multiplier=3;}
+      else if(kind==='number'){won=result===0;multiplier=36;}
+      const paid=won?bet*multiplier:0;payout+=paid;return{kind,value,bet,multiplier,payout:paid,won};
+    });
+    if(!Number.isSafeInteger(payout)||payout>9000000000000000) return res.status(400).json({ok:false,error:'Выигрыш слишком велик.'});
+    client=await pool.connect();let balance;
+    try{
+      await client.query('BEGIN');
+      const row=await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1 FOR UPDATE',[String(user.id)]);
+      const current=Number(row.rows[0]?.balance||0);
+      if(current<totalBet){await client.query('ROLLBACK');return res.status(400).json({ok:false,error:'Недостаточно звёзд для всех ставок. Доступно: '+current+'.'});}
+      await client.query('UPDATE stars_users SET balance=balance-$2+$3,updated_at=NOW() WHERE telegram_id=$1',[String(user.id),totalBet,payout]);
+      const updated=await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1',[String(user.id)]);balance=Number(updated.rows[0]?.balance||0);
+      await client.query('COMMIT');
+    }catch(e){await client.query('ROLLBACK');throw e;}finally{client.release();client=null;}
+    return res.json({ok:true,result,totalBet,payout,balance,outcomes});
+  }catch(e){if(client)client.release();console.error('Wheel roulette round error:',e.message);return res.status(503).json({ok:false,error:'Не удалось выполнить раунд. Попробуй ещё раз.'});}
+});
+
 app.post('/api/wheel/spin', async (req, res) => {
   let client;
   try {
