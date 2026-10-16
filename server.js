@@ -292,7 +292,8 @@ app.post('/api/telegram/webhook', async (req, res) => {
         [{text:'Начислить монеты',callback_data:'adm:add'}],
         [{text:'Снять монеты',callback_data:'adm:remove'}],
         [{text:'Сделать технические работы',callback_data:'adm:maintenance'}],
-        [{text:'Инфо об игроке',callback_data:'adm:info'}]
+        [{text:'Инфо об игроке',callback_data:'adm:info'}],
+        [{text:'Вывести звезды с бота',callback_data:'adm:botstars'}]
       ]}});
       try {
         await ensureDb();
@@ -315,7 +316,11 @@ app.post('/api/telegram/webhook', async (req, res) => {
     if (callback && adminRow.rowCount) {
       const action = String(callback.data || '');
       await telegramApi('answerCallbackQuery',{callback_query_id:callback.id});
-      if (action === 'adm:broadcast:confirm') {
+      if (action === 'adm:botstars') {
+        const balance = await telegramApi('getMyStarBalance', {});
+        const amount = Number(balance?.amount || 0);
+        await telegramApi('sendMessage', {chat_id:chatId, text:'Баланс Telegram Stars бота: '+amount.toLocaleString('ru-RU')+' ⭐️\\n\\nАвтоматически перевести Stars с бота на личный аккаунт через Bot API нельзя. Вывод доступен владельцу бота через Fragment при соблюдении условий Telegram.', reply_markup:{inline_keyboard:[[{text:'Открыть Fragment для вывода',url:'https://fragment.com/'}],[{text:'Обновить баланс',callback_data:'adm:botstars'}]]}});
+      } else if (action === 'adm:broadcast:confirm') {
         const state = adminStates.get(String(sender.id));
         if (!state || state.mode !== 'broadcast_confirm') {
           await telegramApi('sendMessage',{chat_id:chatId,text:'Рассылка не найдена или уже обработана.'});
