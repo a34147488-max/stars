@@ -291,7 +291,8 @@ app.post('/api/telegram/webhook', async (req, res) => {
         [{text:'Запустить рассылку',callback_data:'adm:broadcast'}],
         [{text:'Начислить монеты',callback_data:'adm:add'}],
         [{text:'Снять монеты',callback_data:'adm:remove'}],
-        [{text:'Сделать технические работы',callback_data:'adm:maintenance'}],\n        [{text:'Инфо об игроке',callback_data:'adm:info'}]
+        [{text:'Сделать технические работы',callback_data:'adm:maintenance'}],
+        [{text:'Инфо об игроке',callback_data:'adm:info'}]
       ]}});
       try {
         await ensureDb();
