@@ -237,7 +237,13 @@ app.post('/api/starsdouble/spin', async (req, res) => {
     if (!Number.isSafeInteger(bet) || bet < 1 || bet > 1000000000) return res.status(400).json({ok:false,error:'Ставка должна быть целым числом от 1.'});
     if (!Object.prototype.hasOwnProperty.call(multipliers,color)) return res.status(400).json({ok:false,error:'Выбери цвет ставки.'});
     const wheelSectors = ['blue','red','yellow','blue','red','yellow','blue','red','yellow','blue','red','yellow','blue','red','yellow','blue','red','yellow','blue','red','yellow','blue','red','yellow','blue','red','yellow','green'];
-    const segmentIndex = crypto.randomInt(0, wheelSectors.length), resultColor = wheelSectors[segmentIndex], multiplier = multipliers[resultColor], won = resultColor === color, payout = won ? Math.floor(bet * multiplier) : 0;
+    const matchingSegments = wheelSectors.map((c, i) => c === color ? i : -1).filter(i => i >= 0);
+    const losingSegments = wheelSectors.map((c, i) => c !== color ? i : -1).filter(i => i >= 0);
+    const won = crypto.randomInt(0, 100) < 10;
+    const segmentIndex = won
+      ? matchingSegments[crypto.randomInt(0, matchingSegments.length)]
+      : losingSegments[crypto.randomInt(0, losingSegments.length)];
+    const resultColor = wheelSectors[segmentIndex], multiplier = multipliers[resultColor], payout = won ? Math.floor(bet * multiplier) : 0;
     const client = await pool.connect(); let balance;
     try {
       await client.query('BEGIN');
