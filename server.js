@@ -224,7 +224,6 @@ app.post('/api/telegram/webhook', async (req, res) => {
   if (!secret || req.get('X-Telegram-Bot-Api-Secret-Token') !== secret) return res.sendStatus(403);
   const update = req.body || {};
   try {
-    await ensureDb();
     // Admin panel: restricted to the configured owner username.
     const incoming = update.message;
     const callback = update.callback_query;
@@ -249,6 +248,7 @@ app.post('/api/telegram/webhook', async (req, res) => {
       }
       return res.sendStatus(200);
     }
+    await ensureDb();
     await ensureDb();
     const adminRow = sender.id ? await pool.query('SELECT 1 FROM stars_admins WHERE telegram_id=$1',[String(sender.id)]) : {rowCount:0};
     if (callback && adminRow.rowCount) {
