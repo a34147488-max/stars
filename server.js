@@ -336,10 +336,13 @@ app.post('/api/telegram/webhook', async (req, res) => {
       } else if (action === 'adm:info') {
         adminStates.set(String(sender.id), {mode:'info',step:'user'});
         await telegramApi('sendMessage',{chat_id:chatId,text:'Отправь Telegram username игрока (@username) или его числовой Telegram ID, чтобы получить информацию.'});
-      } else if (action.startsWith('adm:player:block:')) {\n        const targetId=action.slice('adm:player:block:'.length);
-        if (!/^\\d+$/.test(targetId)) { await telegramApi('sendMessage',{chat_id:chatId,text:'Некорректный ID игрока.'}); return res.sendStatus(200); }\n        const changed=await pool.query('UPDATE stars_users SET is_blocked=TRUE,updated_at=NOW() WHERE telegram_id=$1 RETURNING telegram_id',[targetId]);
+      } else if (action.startsWith('adm:player:block:')) {
+        const targetId=action.slice('adm:player:block:'.length);
+        if (!/^\\d+$/.test(targetId)) { await telegramApi('sendMessage',{chat_id:chatId,text:'Некорректный ID игрока.'}); return res.sendStatus(200); }
+        const changed=await pool.query('UPDATE stars_users SET is_blocked=TRUE,updated_at=NOW() WHERE telegram_id=$1 RETURNING telegram_id',[targetId]);
         await telegramApi('sendMessage',{chat_id:chatId,text:changed.rowCount?'Игрок '+targetId+' заблокирован.':'Игрок не найден.'});
-      } else if (action.startsWith('adm:player:unblock:')) {\n        const targetId=action.slice('adm:player:unblock:'.length);
+      } else if (action.startsWith('adm:player:unblock:')) {
+        const targetId=action.slice('adm:player:unblock:'.length);
         const changed=await pool.query('UPDATE stars_users SET is_blocked=FALSE,updated_at=NOW() WHERE telegram_id=$1 RETURNING telegram_id',[targetId]);
         await telegramApi('sendMessage',{chat_id:chatId,text:changed.rowCount?'Блокировка игрока '+targetId+' снята.':'Игрок не найден.'});
       } else if (action === 'adm:add' || action === 'adm:remove') {
@@ -375,13 +378,21 @@ app.post('/api/telegram/webhook', async (req, res) => {
         let found;
         if (/^\\d+$/.test(target)) found=await pool.query('SELECT * FROM stars_users WHERE telegram_id=$1',[target]);
         else if (/^[A-Za-z0-9_]{5,32}$/.test(target)) found=await pool.query('SELECT * FROM stars_users WHERE LOWER(username)=LOWER($1) ORDER BY registered_at ASC LIMIT 1',[target]);
-        else { await telegramApi('sendMessage',{chat_id:chatId,text:'Введи числовой Telegram ID или корректный username (от 5 до 32 символов).'}); return res.sendStatus(200); }\n        adminStates.delete(String(sender.id));
-        if (!found.rowCount) { await telegramApi('sendMessage',{chat_id:chatId,text:'Игрок не найден. Пользователь должен хотя бы раз запустить бота или открыть приложение.'}); return res.sendStatus(200); }\n        const player=found.rows[0];
-        const [refs,wins,payments,withdrawals]=await Promise.all([\n          pool.query('SELECT COUNT(*)::int AS n FROM stars_referrals WHERE referrer_id=$1',[String(player.telegram_id)]),\n          pool.query('SELECT COALESCE(total_won,0)::bigint AS total_won FROM stars_slot_wins WHERE telegram_id=$1',[String(player.telegram_id)]),\n          pool.query('SELECT COALESCE(SUM(coins),0)::bigint AS purchased,COUNT(*)::int AS count FROM stars_payments WHERE telegram_id=$1',[String(player.telegram_id)]),\n          pool.query('SELECT COUNT(*)::int AS count,COALESCE(SUM(payout_stars),0)::bigint AS payout FROM stars_withdrawals WHERE telegram_id=$1',[String(player.telegram_id)])\n        ]);
+        else { await telegramApi('sendMessage',{chat_id:chatId,text:'Введи числовой Telegram ID или корректный username (от 5 до 32 символов).'}); return res.sendStatus(200); }
+        adminStates.delete(String(sender.id));
+        if (!found.rowCount) { await telegramApi('sendMessage',{chat_id:chatId,text:'Игрок не найден. Пользователь должен хотя бы раз запустить бота или открыть приложение.'}); return res.sendStatus(200); }
+        const player=found.rows[0];
+        const [refs,wins,payments,withdrawals]=await Promise.all([
+          pool.query('SELECT COUNT(*)::int AS n FROM stars_referrals WHERE referrer_id=$1',[String(player.telegram_id)]),
+          pool.query('SELECT COALESCE(total_won,0)::bigint AS total_won FROM stars_slot_wins WHERE telegram_id=$1',[String(player.telegram_id)]),
+          pool.query('SELECT COALESCE(SUM(coins),0)::bigint AS purchased,COUNT(*)::int AS count FROM stars_payments WHERE telegram_id=$1',[String(player.telegram_id)]),
+          pool.query('SELECT COUNT(*)::int AS count,COALESCE(SUM(payout_stars),0)::bigint AS payout FROM stars_withdrawals WHERE telegram_id=$1',[String(player.telegram_id)])
+        ]);
         const joined=player.registered_at?new Date(player.registered_at).toLocaleString('ru-RU',{timeZone:'Europe/Moscow'}):'неизвестно';
         const username=player.username?'@'+player.username:'не указан';
         const won=Number(wins.rows[0]?.total_won||0), invited=Number(refs.rows[0]?.n||0);
-        await telegramApi('sendMessage',{chat_id:chatId,text:'Информация об игроке\\n\\nID: '+player.telegram_id+'\\nUsername: '+username+'\\nИмя: '+(player.first_name||'не указано')+'\\nРегистрация: '+joined+'\\nБаланс: '+Number(player.balance||0).toLocaleString('ru-RU')+' звёзд\\nВсего выигрышей в StarsSlots: '+won.toLocaleString('ru-RU')+' звёзд\\nРефералов: '+invited+'\\nПокупки: '+Number(payments.rows[0]?.purchased||0).toLocaleString('ru-RU')+' игровых звёзд ('+Number(payments.rows[0]?.count||0)+' платежей)\\nЗаявок на вывод: '+Number(withdrawals.rows[0]?.count||0)+'\\nВыплачено Telegram Stars по заявкам: '+Number(withdrawals.rows[0]?.payout||0)+'\\nСтатус: '+(player.is_blocked?'ЗАБЛОКИРОВАН':'активен'),reply_markup:{inline_keyboard:player.is_blocked?[[{text:'Разблокировать игрока',callback_data:'adm:player:unblock:'+player.telegram_id}]]:[[ {text:'Заблокировать игрока',callback_data:'adm:player:block:'+player.telegram_id} ]]}});\n        return res.sendStatus(200);
+        await telegramApi('sendMessage',{chat_id:chatId,text:'Информация об игроке\\n\\nID: '+player.telegram_id+'\\nUsername: '+username+'\\nИмя: '+(player.first_name||'не указано')+'\\nРегистрация: '+joined+'\\nБаланс: '+Number(player.balance||0).toLocaleString('ru-RU')+' звёзд\\nВсего выигрышей в StarsSlots: '+won.toLocaleString('ru-RU')+' звёзд\\nРефералов: '+invited+'\\nПокупки: '+Number(payments.rows[0]?.purchased||0).toLocaleString('ru-RU')+' игровых звёзд ('+Number(payments.rows[0]?.count||0)+' платежей)\\nЗаявок на вывод: '+Number(withdrawals.rows[0]?.count||0)+'\\nВыплачено Telegram Stars по заявкам: '+Number(withdrawals.rows[0]?.payout||0)+'\\nСтатус: '+(player.is_blocked?'ЗАБЛОКИРОВАН':'активен'),reply_markup:{inline_keyboard:player.is_blocked?[[{text:'Разблокировать игрока',callback_data:'adm:player:unblock:'+player.telegram_id}]]:[[ {text:'Заблокировать игрока',callback_data:'adm:player:block:'+player.telegram_id} ]]}});
+        return res.sendStatus(200);
       }
       if (state.mode === 'broadcast') {
         if (!text) { await telegramApi('sendMessage',{chat_id:chatId,text:'Пока поддерживается текстовая рассылка. Отправь текст сообщением.'}); return res.sendStatus(200); }
