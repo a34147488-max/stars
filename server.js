@@ -236,7 +236,7 @@ app.post('/api/starsdouble/spin', async (req, res) => {
     const multipliers = {blue:2,red:5,yellow:3,green:50};
     if (!Number.isSafeInteger(bet) || bet < 1 || bet > 1000000000) return res.status(400).json({ok:false,error:'Ставка должна быть целым числом от 1.'});
     if (!Object.prototype.hasOwnProperty.call(multipliers,color)) return res.status(400).json({ok:false,error:'Выбери цвет ставки.'});
-    const weights = [...Array(40).fill('blue'),...Array(30).fill('red'),...Array(25).fill('yellow'),...Array(5).fill('green')];
+    const weights = [...Array(48).fill('blue'),...Array(36).fill('red'),...Array(35).fill('yellow'), 'green'];
     const resultColor = weights[crypto.randomInt(0,weights.length)], multiplier = multipliers[resultColor], won = resultColor === color, payout = won ? Math.floor(bet * multiplier) : 0;
     const client = await pool.connect(); let balance;
     try {
