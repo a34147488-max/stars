@@ -354,7 +354,7 @@ app.post('/api/telegram/webhook', async (req, res) => {
         await telegramApi('sendMessage',{chat_id:chatId,text:'Отправь Telegram username игрока (@username) или его числовой Telegram ID, чтобы получить информацию.'});
       } else if (action.startsWith('adm:player:block:')) {
         const targetId=action.slice('adm:player:block:'.length);
-        if (!/^\\d+$/.test(targetId)) { await telegramApi('sendMessage',{chat_id:chatId,text:'Некорректный ID игрока.'}); return res.sendStatus(200); }
+        if (!/^\d+$/.test(targetId)) { await telegramApi('sendMessage',{chat_id:chatId,text:'Некорректный ID игрока.'}); return res.sendStatus(200); }
         const changed=await pool.query('UPDATE stars_users SET is_blocked=TRUE,updated_at=NOW() WHERE telegram_id=$1 RETURNING telegram_id',[targetId]);
         await telegramApi('sendMessage',{chat_id:chatId,text:changed.rowCount?'Игрок '+targetId+' заблокирован.':'Игрок не найден.'});
       } else if (action.startsWith('adm:player:unblock:')) {
@@ -392,7 +392,7 @@ app.post('/api/telegram/webhook', async (req, res) => {
       if (state.mode === 'promo_create') {
         if (state.step === 'activations') {
           const activations = Number(text);
-          if (!/^\\d+$/.test(text) || !Number.isSafeInteger(activations) || activations < 1 || activations > 1000000) {
+          if (!/^\d+$/.test(text) || !Number.isSafeInteger(activations) || activations < 1 || activations > 1000000) {
             await telegramApi('sendMessage',{chat_id:chatId,text:'Введи целое число активаций от 1 до 1000000. Или нажми «Отмена».'});
             return res.sendStatus(200);
           }
@@ -404,7 +404,7 @@ app.post('/api/telegram/webhook', async (req, res) => {
         }
         if (state.step === 'reward') {
           const reward = Number(text);
-          if (!/^\\d+$/.test(text) || !Number.isSafeInteger(reward) || reward < 1 || reward > 1000000000) {
+          if (!/^\d+$/.test(text) || !Number.isSafeInteger(reward) || reward < 1 || reward > 1000000000) {
             await telegramApi('sendMessage',{chat_id:chatId,text:'Введи целую сумму от 1 до 1000000000. Или нажми «Отмена».'});
             return res.sendStatus(200);
           }
@@ -418,7 +418,7 @@ app.post('/api/telegram/webhook', async (req, res) => {
           if (!inserted) {
             await telegramApi('sendMessage',{chat_id:chatId,text:'Не удалось создать уникальный промокод. Попробуй снова.'});
           } else {
-            await telegramApi('sendMessage',{chat_id:chatId,text:'Промокод создан: ' + code + '\\nНаграда: ' + reward.toLocaleString('ru-RU') + ' игровых звёзд каждому.\\nЛимит активаций: ' + state.maxActivations + '.\\nКод можно активировать в приложении Stars.',reply_markup:{inline_keyboard:[[{text:'Скопировать код',copy_text:{text:code}}],[{text:'Создать ещё',callback_data:'adm:promo:create'}]]}});
+            await telegramApi('sendMessage',{chat_id:chatId,text:'Промокод создан: ' + code + '\nНаграда: ' + reward.toLocaleString('ru-RU') + ' игровых звёзд каждому.\nЛимит активаций: ' + state.maxActivations + '.\nКод можно активировать в приложении Stars.',reply_markup:{inline_keyboard:[[{text:'Скопировать код',copy_text:{text:code}}],[{text:'Создать ещё',callback_data:'adm:promo:create'}]]}});
           }
           return res.sendStatus(200);
         }
@@ -426,7 +426,7 @@ app.post('/api/telegram/webhook', async (req, res) => {
       if (state.mode === 'info') {
         const target=text.replace(/^@/,'').trim();
         let found;
-        if (/^\\d+$/.test(target)) found=await pool.query('SELECT * FROM stars_users WHERE telegram_id=$1',[target]);
+        if (/^\d+$/.test(target)) found=await pool.query('SELECT * FROM stars_users WHERE telegram_id=$1',[target]);
         else if (/^[A-Za-z0-9_]{5,32}$/.test(target)) found=await pool.query('SELECT * FROM stars_users WHERE LOWER(username)=LOWER($1) ORDER BY registered_at ASC LIMIT 1',[target]);
         else { await telegramApi('sendMessage',{chat_id:chatId,text:'Введи числовой Telegram ID или корректный username (от 5 до 32 символов).'}); return res.sendStatus(200); }
         adminStates.delete(String(sender.id));
