@@ -293,6 +293,7 @@ app.post('/api/telegram/webhook', async (req, res) => {
         [{text:'Снять монеты',callback_data:'adm:remove'}],
         [{text:'Сделать технические работы',callback_data:'adm:maintenance'}],
         [{text:'Инфо об игроке',callback_data:'adm:info'}],
+        [{text:'Создать промокод',callback_data:'adm:promo:create'}],
         [{text:'Вывести звезды с бота',callback_data:'adm:botstars'}]
       ]}});
       try {
@@ -345,6 +346,9 @@ app.post('/api/telegram/webhook', async (req, res) => {
         await pool.query("INSERT INTO stars_admins (telegram_id,username) VALUES ($1,$2) ON CONFLICT (telegram_id) DO NOTHING",[String(sender.id),String(sender.username||'admin')]);
         adminStates.set(String(sender.id), {mode:'broadcast'});
         await telegramApi('sendMessage',{chat_id:chatId,text:'Отправь следующим сообщением текст рассылки. Оно пока никому не отправится.'});
+      } else if (action === 'adm:promo:create') {
+        adminStates.set(String(sender.id), {mode:'promo_create',step:'activations'});
+        await telegramApi('sendMessage',{chat_id:chatId,text:'Создание промокода. Сколько активаций разрешить? Введи целое число от 1 до 1000000.',reply_markup:{inline_keyboard:[[{text:'Отмена',callback_data:'adm:cancel'}]]}});
       } else if (action === 'adm:info') {
         adminStates.set(String(sender.id), {mode:'info',step:'user'});
         await telegramApi('sendMessage',{chat_id:chatId,text:'Отправь Telegram username игрока (@username) или его числовой Telegram ID, чтобы получить информацию.'});
@@ -385,6 +389,40 @@ app.post('/api/telegram/webhook', async (req, res) => {
     }
     if (incoming && adminRow.rowCount && adminStates.has(String(sender.id)) && !/^\/adminser(?:@\w+)?(?:\s|$)/i.test(text)) {
       const state = adminStates.get(String(sender.id));
+      if (state.mode === 'promo_create') {
+        if (state.step === 'activations') {
+          const activations = Number(text);
+          if (!/^\\d+$/.test(text) || !Number.isSafeInteger(activations) || activations < 1 || activations > 1000000) {
+            await telegramApi('sendMessage',{chat_id:chatId,text:'Введи целое число активаций от 1 до 1000000. Или нажми «Отмена».'});
+            return res.sendStatus(200);
+          }
+          state.maxActivations = activations;
+          state.step = 'reward';
+          adminStates.set(String(sender.id), state);
+          await telegramApi('sendMessage',{chat_id:chatId,text:'Теперь введи сумму игровых звёзд, которую получит каждый активировавший промокод. Целое число от 1 до 1000000000.'});
+          return res.sendStatus(200);
+        }
+        if (state.step === 'reward') {
+          const reward = Number(text);
+          if (!/^\\d+$/.test(text) || !Number.isSafeInteger(reward) || reward < 1 || reward > 1000000000) {
+            await telegramApi('sendMessage',{chat_id:chatId,text:'Введи целую сумму от 1 до 1000000000. Или нажми «Отмена».'});
+            return res.sendStatus(200);
+          }
+          let code, inserted = false;
+          for (let attempt = 0; attempt < 5 && !inserted; attempt++) {
+            code = 'STAR-' + crypto.randomBytes(5).toString('hex').toUpperCase();
+            const result = await pool.query('INSERT INTO stars_promocodes(code,reward,max_activations,activations) VALUES($1,$2,$3,0) ON CONFLICT(code) DO NOTHING RETURNING code',[code,reward,state.maxActivations]);
+            inserted = result.rowCount === 1;
+          }
+          adminStates.delete(String(sender.id));
+          if (!inserted) {
+            await telegramApi('sendMessage',{chat_id:chatId,text:'Не удалось создать уникальный промокод. Попробуй снова.'});
+          } else {
+            await telegramApi('sendMessage',{chat_id:chatId,text:'Промокод создан: ' + code + '\\nНаграда: ' + reward.toLocaleString('ru-RU') + ' игровых звёзд каждому.\\nЛимит активаций: ' + state.maxActivations + '.\\nКод можно активировать в приложении Stars.',reply_markup:{inline_keyboard:[[{text:'Скопировать код',copy_text:{text:code}}],[{text:'Создать ещё',callback_data:'adm:promo:create'}]]}});
+          }
+          return res.sendStatus(200);
+        }
+      }
       if (state.mode === 'info') {
         const target=text.replace(/^@/,'').trim();
         let found;
