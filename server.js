@@ -14,6 +14,7 @@ app.use('/api', async (req, res, next) => {
     await ensureDb();
     const status = await pool.query('SELECT is_blocked FROM stars_users WHERE telegram_id=$1', [String(user.id)]);
     if (status.rows[0]?.is_blocked) return res.status(403).json({ok:false,error:'Доступ к Stars ограничен администрацией.'});
+    if (req.method === 'POST') { const m=await pool.query(\"SELECT value FROM stars_settings WHERE key='maintenance'\"); const admin=await pool.query('SELECT 1 FROM stars_admins WHERE telegram_id=$1',[String(user.id)]); if(m.rows[0]?.value==='on'&&!admin.rowCount) return res.status(503).json({ok:false,error:'Ведутся технические работы. Действия в приложении временно ограничены.'}); }
     return next();
   } catch (e) {
     console.error('Player access check failed:', e.message);
@@ -31,6 +32,9 @@ const PACKAGES = {
 const pool = process.env.DATABASE_URL ? new Pool({ connectionString: process.env.DATABASE_URL, ssl: process.env.DATABASE_SSL === 'false' ? false : { rejectUnauthorized: false }, max: 5 }) : null;
 let dbReady = false;
 const adminStates = new Map();
+const activeAppUsers = new Map();
+app.post('/api/presence', async (req,res) => { const user=validateTelegramInitData(req.get('X-Telegram-Init-Data'),process.env.BOT_TOKEN); if(!user)return res.status(401).json({ok:false}); const now=Date.now(); for(const [id,t] of activeAppUsers)if(now-t>90000)activeAppUsers.delete(id); activeAppUsers.set(String(user.id),now); return res.json({ok:true,online:activeAppUsers.size}); });
+app.get('/api/status', async (req,res) => { try { await ensureDb(); const r=await pool.query(\"SELECT value FROM stars_settings WHERE key='maintenance'\"); const user=validateTelegramInitData(req.get('X-Telegram-Init-Data'),process.env.BOT_TOKEN); const admin=user?await pool.query('SELECT 1 FROM stars_admins WHERE telegram_id=$1',[String(user.id)]):{rowCount:0}; return res.json({ok:true,maintenance:r.rows[0]?.value==='on',isAdmin:Boolean(admin.rowCount),online:activeAppUsers.size}); } catch(e) { return res.json({ok:true,maintenance:false,isAdmin:false,online:activeAppUsers.size}); } });
 async function ensureDb() {
   if (!pool) throw new Error('DATABASE_URL is not configured');
   if (dbReady) return;
@@ -44,6 +48,9 @@ async function ensureDb() {
     CREATE TABLE IF NOT EXISTS stars_daily_games (telegram_id BIGINT NOT NULL, game TEXT NOT NULL CHECK (game IN ('dice','darts','slots')), played_on DATE NOT NULL DEFAULT CURRENT_DATE, choice TEXT, value INTEGER, won BOOLEAN NOT NULL DEFAULT FALSE, payout BIGINT NOT NULL DEFAULT 0, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), PRIMARY KEY (telegram_id,game,played_on));
     CREATE TABLE IF NOT EXISTS stars_referrals (referred_id BIGINT PRIMARY KEY, referrer_id BIGINT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), CHECK (referred_id <> referrer_id));
     CREATE TABLE IF NOT EXISTS stars_slot_wins (telegram_id BIGINT PRIMARY KEY, total_won BIGINT NOT NULL DEFAULT 0, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
+    CREATE TABLE IF NOT EXISTS stars_double_wins (telegram_id BIGINT PRIMARY KEY, total_won BIGINT NOT NULL DEFAULT 0, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
+    CREATE TABLE IF NOT EXISTS stars_cup_wins (telegram_id BIGINT PRIMARY KEY, total_won BIGINT NOT NULL DEFAULT 0, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
+    ALTER TABLE stars_withdrawals ADD COLUMN IF NOT EXISTS rejection_comment TEXT;
   `);
   const promoCodes = ['STAR200-K7Q4', 'STAR200-M9X2', 'STAR200-P5L8', 'STAR200-R3V6', 'STAR200-T8N4', 'STAR200-W2D7', 'STAR200-B6H9', 'STAR200-C4Z1', 'STAR200-F7J3', 'STAR200-Y5G8'];
   for (const code of promoCodes) await pool.query('INSERT INTO stars_promocodes (code,reward,max_activations) VALUES ($1,200,1) ON CONFLICT (code) DO NOTHING', [code]);
@@ -149,7 +156,7 @@ app.post('/api/withdrawals/:id/status', async (req, res) => {
     if (!user) return res.status(401).json({ok:false,error:'Telegram-профиль не подтверждён.'});
     const admin = await pool.query('SELECT 1 FROM stars_admins WHERE telegram_id=$1',[String(user.id)]);
     if (!admin.rowCount) return res.status(403).json({ok:false,error:'Нет прав администратора.'});
-    const id = Number(req.params.id), status = String(req.body && req.body.status);
+    const id = Number(req.params.id), status = String(req.body && req.body.status), comment = String(req.body && req.body.comment || '').trim().slice(0,500);
     if (!Number.isSafeInteger(id) || id < 1 || !['paid','rejected'].includes(status)) return res.status(400).json({ok:false,error:'Некорректный статус.'});
     const client = await pool.connect();
     let result;
@@ -159,12 +166,12 @@ app.post('/api/withdrawals/:id/status', async (req, res) => {
       if (!found.rowCount) { await client.query('ROLLBACK'); return res.status(404).json({ok:false,error:'Заявка не найдена.'}); }
       const row = found.rows[0];
       if (row.status !== 'pending') { await client.query('ROLLBACK'); return res.status(409).json({ok:false,error:'Статус этой заявки уже изменён.'}); }
-      await client.query('UPDATE stars_withdrawals SET status=$2,updated_at=NOW() WHERE id=$1',[id,status]);
+      await client.query('UPDATE stars_withdrawals SET status=$2,rejection_comment=$3,updated_at=NOW() WHERE id=$1',[id,status,status==='rejected'?(comment||'Причина отказа не указана.'):null]);
       if (status === 'rejected') await client.query('UPDATE stars_users SET balance=balance+$2,updated_at=NOW() WHERE telegram_id=$1',[String(row.telegram_id),row.amount]);
       result = {...row,status};
       await client.query('COMMIT');
     } catch(e) { await client.query('ROLLBACK'); throw e; } finally { client.release(); }
-    try { await telegramApi('sendMessage',{chat_id:String(result.telegram_id),text:'Заявка на вывод #'+id+': '+(status==='paid'?'выплачено. Получено: '+result.payout_stars+' Telegram Stars.':'отказано. Сумма возвращена на игровой баланс.')}); } catch(e) { console.error('User withdrawal status notification failed:',e.message); }
+    try { await telegramApi('sendMessage',{chat_id:String(result.telegram_id),text:'Заявка на вывод #'+id+': '+(status==='paid'?'выплачено. Получено: '+result.payout_stars+' Telegram Stars.':'отказано. Сумма возвращена на игровой баланс. Причина: '+(comment||'Причина отказа не указана.'))}); } catch(e) { console.error('User withdrawal status notification failed:',e.message); }
     return res.json({ok:true,id,status});
   } catch(e) { console.error('Withdrawal status error:',e.message); return res.status(503).json({ok:false,error:'Не удалось изменить статус заявки.'}); }
 });
@@ -241,6 +248,7 @@ app.post('/api/starsslots/spin', async (req, res) => {
 
 
 
+app.post('/api/cups/play', async (req,res) => { const client=await pool.connect(); try { await ensureDb(); const user=validateTelegramInitData(req.get('X-Telegram-Init-Data'),process.env.BOT_TOKEN); if(!user)return res.status(401).json({ok:false,error:'Открой приложение через Telegram-бота.'}); const bet=Number(req.body&&req.body.bet),choice=Number(req.body&&req.body.choice); if(!Number.isSafeInteger(bet)||bet<1||bet>1000000000)return res.status(400).json({ok:false,error:'Ставка должна быть целым числом от 1.'}); if(!Number.isInteger(choice)||choice<0||choice>4)return res.status(400).json({ok:false,error:'Выбери один из пяти стаканчиков.'}); await client.query('BEGIN'); const row=await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1 FOR UPDATE',[String(user.id)]); const current=Number(row.rows[0]?.balance||0); if(current<bet){await client.query('ROLLBACK');return res.status(400).json({ok:false,error:'Недостаточно звёзд на балансе.'});} const winningCup=crypto.randomInt(0,5),won=choice===winningCup,payout=won?bet*4:0; await client.query('UPDATE stars_users SET balance=balance-$2+$3,updated_at=NOW() WHERE telegram_id=$1',[String(user.id),bet,payout]); if(won)await client.query('INSERT INTO stars_cup_wins(telegram_id,total_won) VALUES($1,$2) ON CONFLICT(telegram_id) DO UPDATE SET total_won=stars_cup_wins.total_won+EXCLUDED.total_won,updated_at=NOW()',[String(user.id),payout]); const updated=await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1',[String(user.id)]); await client.query('COMMIT'); return res.json({ok:true,winningCup,won,payout,bet,balance:Number(updated.rows[0]?.balance||0)}); } catch(e){try{await client.query('ROLLBACK')}catch(_){} console.error('Cups game error:',e.message); return res.status(503).json({ok:false,error:'Не удалось сыграть.'});} finally{client.release();} });
 app.post('/api/starsdouble/spin', async (req, res) => {
   try {
     await ensureDb();
@@ -253,7 +261,7 @@ app.post('/api/starsdouble/spin', async (req, res) => {
     const wheelSectors = ['blue','red','yellow','blue','red','yellow','blue','red','yellow','blue','red','yellow','blue','red','yellow','blue','red','yellow','blue','red','yellow','blue','red','yellow','blue','red','yellow','green'];
     const matchingSegments = wheelSectors.map((c, i) => c === color ? i : -1).filter(i => i >= 0);
     const losingSegments = wheelSectors.map((c, i) => c !== color ? i : -1).filter(i => i >= 0);
-    const won = crypto.randomInt(0, 100) < 10;
+    const won = crypto.randomInt(0, 100) < 1;
     const segmentIndex = won
       ? matchingSegments[crypto.randomInt(0, matchingSegments.length)]
       : losingSegments[crypto.randomInt(0, losingSegments.length)];
@@ -269,6 +277,7 @@ app.post('/api/starsdouble/spin', async (req, res) => {
       balance = Number(updated.rows[0]?.balance || 0);
       await client.query('COMMIT');
     } catch(e) { await client.query('ROLLBACK'); throw e; } finally { client.release(); }
+    if (won && payout > 0) await pool.query('INSERT INTO stars_double_wins(telegram_id,total_won) VALUES($1,$2) ON CONFLICT(telegram_id) DO UPDATE SET total_won=stars_double_wins.total_won+EXCLUDED.total_won,updated_at=NOW()',[String(user.id),payout]);
     return res.json({ok:true,color:resultColor,segmentIndex,multiplier,won,payout,bet,balance});
   } catch(e) { console.error('StarsDouble spin error:',e.message); return res.status(503).json({ok:false,error:'Не удалось выполнить вращение.'}); }
 });
@@ -307,6 +316,8 @@ app.post('/api/telegram/webhook', async (req, res) => {
     }
     await ensureDb();
     const adminRow = sender.id ? await pool.query('SELECT 1 FROM stars_admins WHERE telegram_id=$1',[String(sender.id)]) : {rowCount:0};
+    const maintenanceSetting = await pool.query(\"SELECT value FROM stars_settings WHERE key='maintenance'\");
+    if (maintenanceSetting.rows[0]?.value === 'on' && !adminRow.rowCount && (incoming || callback)) { await telegramApi('sendMessage',{chat_id:chatId,text:'Ведутся технические работы. Действия в приложении временно ограничены.'}); return res.sendStatus(200); }
     if (callback && String(callback.data||'').startsWith('daily:')) {
       await telegramApi('answerCallbackQuery',{callback_query_id:callback.id}); const data=String(callback.data), id=String(sender.id);
       if(data==='daily:open'||data==='daily:dice'||data==='daily:darts') { const game=data.split(':')[1]; if(game==='dice'||game==='darts'){const used=await pool.query('SELECT 1 FROM stars_daily_games WHERE telegram_id=$1 AND game=$2 AND played_on=CURRENT_DATE',[id,game]);if(used.rowCount){await telegramApi('sendMessage',{chat_id:chatId,text:'Сегодня эта игра уже использована. Попробуй завтра.'});return res.sendStatus(200);}} await telegramApi('sendMessage',{chat_id:chatId,text:'Выбери игру. Одна бесплатная попытка в сутки; расчётная ставка 25 игровых звёзд не списывается.',reply_markup:{inline_keyboard:data==='daily:open'?[[{text:'🎲 Кубик',callback_data:'daily:dice'},{text:'🎯 Дартс',callback_data:'daily:darts'},{text:'🎰 Слоты',callback_data:'daily:slots'}]]:game==='dice'?[[{text:'Чётное',callback_data:'daily:dice:even'},{text:'Нечётное',callback_data:'daily:dice:odd'}]]:[[{text:'Красное',callback_data:'daily:darts:red'},{text:'Белое',callback_data:'daily:darts:white'}]]}}); }
@@ -484,7 +495,7 @@ app.post('/api/telegram/webhook', async (req, res) => {
       await telegramApi('sendMessage',{chat_id:chatId,text:'Рассылка завершена. Успешно: '+sent+'. Не доставлено: '+failed+'.'});
       return res.sendStatus(200);
     }
-    if (update.message && /^\/start(?:@\w+)?(?:\s|$)/i.test(String(update.message.text || ''))) { const raw=String(update.message.text||'').trim(),ref=raw.match(/^\/start(?:@\w+)?\s+ref_(\d+)/i),chat=update.message.chat?.id,u=update.message.from||{}; if(chat){await pool.query('INSERT INTO stars_users(telegram_id,username,first_name) VALUES($1,$2,$3) ON CONFLICT(telegram_id) DO UPDATE SET username=EXCLUDED.username,first_name=EXCLUDED.first_name,updated_at=NOW()',[String(u.id),u.username||null,u.first_name||null]);if(ref&&ref[1]!==String(u.id)){const c=await pool.connect();try{await c.query('BEGIN');const r=await c.query('INSERT INTO stars_referrals(referred_id,referrer_id) VALUES($1,$2) ON CONFLICT(referred_id) DO NOTHING RETURNING referrer_id',[String(u.id),ref[1]]);if(r.rowCount){await c.query('UPDATE stars_users SET balance=balance+100 WHERE telegram_id=$1',[ref[1]]);await c.query('UPDATE stars_users SET balance=balance+2 WHERE telegram_id=$1',[String(u.id)]);}await c.query('COMMIT');}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}}if(String(u.username||'').toLowerCase()==='vladubrat7')await pool.query('INSERT INTO stars_admins(telegram_id,username) VALUES($1,$2) ON CONFLICT(telegram_id) DO UPDATE SET username=EXCLUDED.username',[String(u.id),'vladubrat7']);await telegramApi('sendMessage',{chat_id:chat,text:'Добро пожаловать в Stars! Ежедневно доступны три бесплатные игры.',reply_markup:{keyboard:[[{text:'Ежедневный бонус'}],[{text:'Реф.ссылка'},{text:'Топ'}]],resize_keyboard:true,is_persistent:true}});const b=await pool.query('SELECT balance FROM stars_users WHERE telegram_id=$1',[String(u.id)]);if(Number(b.rows[0]?.balance||0)<10){const app=(process.env.WEB_APP_URL||process.env.APP_URL||'').replace(/\/$/,'');if(app&&/^https:\/\//i.test(app))await telegramApi('sendMessage',{chat_id:chat,text:'Баланс ниже 10 игровых звёзд. Пополни его настоящими Telegram Stars.',reply_markup:{inline_keyboard:[[{text:'Пополнить',web_app:{url:app}}]]}});}}return res.sendStatus(200);}
+    if (update.message && /^\/start(?:@\w+)?(?:\s|$)/i.test(String(update.message.text || ''))) { const raw=String(update.message.text||'').trim(),ref=raw.match(/^\/start(?:@\w+)?\s+ref_(\d+)/i),chat=update.message.chat?.id,u=update.message.from||{}; if(chat){await pool.query('INSERT INTO stars_users(telegram_id,username,first_name) VALUES($1,$2,$3) ON CONFLICT(telegram_id) DO UPDATE SET username=EXCLUDED.username,first_name=EXCLUDED.first_name,updated_at=NOW()',[String(u.id),u.username||null,u.first_name||null]);if(ref&&ref[1]!==String(u.id)){const c=await pool.connect();try{await c.query('BEGIN');const r=await c.query('INSERT INTO stars_referrals(referred_id,referrer_id) VALUES($1,$2) ON CONFLICT(referred_id) DO NOTHING RETURNING referrer_id',[String(u.id),ref[1]]);if(r.rowCount){await c.query('UPDATE stars_users SET balance=balance+25 WHERE telegram_id=$1',[ref[1]]);await c.query('UPDATE stars_users SET balance=balance+2 WHERE telegram_id=$1',[String(u.id)]);}await c.query('COMMIT');}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}}if(String(u.username||'').toLowerCase()==='vladubrat7')await pool.query('INSERT INTO stars_admins(telegram_id,username) VALUES($1,$2) ON CONFLICT(telegram_id) DO UPDATE SET username=EXCLUDED.username',[String(u.id),'vladubrat7']);await telegramApi('sendMessage',{chat_id:chat,text:'Добро пожаловать в Stars! Ежедневно доступны три бесплатные игры.',reply_markup:{keyboard:[[{text:'Ежедневный бонус'}],[{text:'Реф.ссылка'},{text:'Топ'}]],resize_keyboard:true,is_persistent:true}});const b=await pool.query('SELECT balance FROM stars_users WHERE telegram_id=$1',[String(u.id)]);if(Number(b.rows[0]?.balance||0)<10){const app=(process.env.WEB_APP_URL||process.env.APP_URL||'').replace(/\/$/,'');if(app&&/^https:\/\//i.test(app))await telegramApi('sendMessage',{chat_id:chat,text:'Баланс ниже 10 игровых звёзд. Пополни его настоящими Telegram Stars.',reply_markup:{inline_keyboard:[[{text:'Пополнить',web_app:{url:app}}]]}});}}return res.sendStatus(200);}
     if (update.pre_checkout_query) {
       const q = update.pre_checkout_query;
       let valid = false;
