@@ -334,10 +334,10 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
  if(withdrawRequests)withdrawRequests.addEventListener('click',async event=>{
   const button=event.target.closest('button[data-withdraw-status]');
   if(!button)return;
-  if(button.dataset.withdrawStatus==='rejected'&&!String(prompt('Укажи причину отказа заявки:')||'').trim()){return;}
+  const rejectionComment=button.dataset.withdrawStatus==='rejected'?String(prompt('Укажи причину отказа заявки:')||'').trim():'';if(button.dataset.withdrawStatus==='rejected'&&!rejectionComment){return;}
   button.disabled=true;
   try{
-   const response=await fetch('/api/withdrawals/'+encodeURIComponent(button.dataset.withdrawId)+'/status',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':withdrawalTg?.initData||''},body:JSON.stringify({status:button.dataset.withdrawStatus,comment:button.dataset.withdrawStatus==='rejected'?(String(prompt('Укажи причину отказа заявки:')||'').trim()):''})});
+   const response=await fetch('/api/withdrawals/'+encodeURIComponent(button.dataset.withdrawId)+'/status',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':withdrawalTg?.initData||''},body:JSON.stringify({status:button.dataset.withdrawStatus,comment:rejectionComment})});
    const data=await response.json();
    if(!response.ok||!data.ok)throw new Error(data.error||'Не удалось изменить статус.');
    withdrawMessage.textContent=button.dataset.withdrawStatus==='paid'?'Заявка отмечена как выплаченная.':'Заявка отклонена, звёзды возвращены пользователю.';
