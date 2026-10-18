@@ -14,7 +14,7 @@ app.use('/api', async (req, res, next) => {
     await ensureDb();
     const status = await pool.query('SELECT is_blocked FROM stars_users WHERE telegram_id=$1', [String(user.id)]);
     if (status.rows[0]?.is_blocked) return res.status(403).json({ok:false,error:'Доступ к Stars ограничен администрацией.'});
-    if (req.method === 'POST') { const m=await pool.query(\"SELECT value FROM stars_settings WHERE key='maintenance'\"); const admin=await pool.query('SELECT 1 FROM stars_admins WHERE telegram_id=$1',[String(user.id)]); if(m.rows[0]?.value==='on'&&!admin.rowCount) return res.status(503).json({ok:false,error:'Ведутся технические работы. Действия в приложении временно ограничены.'}); }
+    if (req.method === 'POST') { const m=await pool.query("SELECT value FROM stars_settings WHERE key='maintenance'"); const admin=await pool.query('SELECT 1 FROM stars_admins WHERE telegram_id=$1',[String(user.id)]); if(m.rows[0]?.value==='on'&&!admin.rowCount) return res.status(503).json({ok:false,error:'Ведутся технические работы. Действия в приложении временно ограничены.'}); }
     return next();
   } catch (e) {
     console.error('Player access check failed:', e.message);
@@ -34,7 +34,7 @@ let dbReady = false;
 const adminStates = new Map();
 const activeAppUsers = new Map();
 app.post('/api/presence', async (req,res) => { const user=validateTelegramInitData(req.get('X-Telegram-Init-Data'),process.env.BOT_TOKEN); if(!user)return res.status(401).json({ok:false}); const now=Date.now(); for(const [id,t] of activeAppUsers)if(now-t>90000)activeAppUsers.delete(id); activeAppUsers.set(String(user.id),now); return res.json({ok:true,online:activeAppUsers.size}); });
-app.get('/api/status', async (req,res) => { try { await ensureDb(); const r=await pool.query(\"SELECT value FROM stars_settings WHERE key='maintenance'\"); const user=validateTelegramInitData(req.get('X-Telegram-Init-Data'),process.env.BOT_TOKEN); const admin=user?await pool.query('SELECT 1 FROM stars_admins WHERE telegram_id=$1',[String(user.id)]):{rowCount:0}; return res.json({ok:true,maintenance:r.rows[0]?.value==='on',isAdmin:Boolean(admin.rowCount),online:activeAppUsers.size}); } catch(e) { return res.json({ok:true,maintenance:false,isAdmin:false,online:activeAppUsers.size}); } });
+app.get('/api/status', async (req,res) => { try { await ensureDb(); const r=await pool.query("SELECT value FROM stars_settings WHERE key='maintenance'"); const user=validateTelegramInitData(req.get('X-Telegram-Init-Data'),process.env.BOT_TOKEN); const admin=user?await pool.query('SELECT 1 FROM stars_admins WHERE telegram_id=$1',[String(user.id)]):{rowCount:0}; return res.json({ok:true,maintenance:r.rows[0]?.value==='on',isAdmin:Boolean(admin.rowCount),online:activeAppUsers.size}); } catch(e) { return res.json({ok:true,maintenance:false,isAdmin:false,online:activeAppUsers.size}); } });
 async function ensureDb() {
   if (!pool) throw new Error('DATABASE_URL is not configured');
   if (dbReady) return;
@@ -317,7 +317,7 @@ app.post('/api/telegram/webhook', async (req, res) => {
     }
     await ensureDb();
     const adminRow = sender.id ? await pool.query('SELECT 1 FROM stars_admins WHERE telegram_id=$1',[String(sender.id)]) : {rowCount:0};
-    const maintenanceSetting = await pool.query(\"SELECT value FROM stars_settings WHERE key='maintenance'\");
+    const maintenanceSetting = await pool.query("SELECT value FROM stars_settings WHERE key='maintenance'");
     if (maintenanceSetting.rows[0]?.value === 'on' && !adminRow.rowCount && (incoming || callback)) { await telegramApi('sendMessage',{chat_id:chatId,text:'Ведутся технические работы. Действия в приложении временно ограничены.'}); return res.sendStatus(200); }
     if (callback && String(callback.data||'').startsWith('daily:')) {
       await telegramApi('answerCallbackQuery',{callback_query_id:callback.id}); const data=String(callback.data), id=String(sender.id);
