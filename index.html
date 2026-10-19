@@ -83,7 +83,7 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
 .pack-check{position:absolute;top:12px;right:12px;width:17px;height:17px;border:1px solid #ffffff45;border-radius:50%;display:grid;place-items:center;color:#14151d;font-size:10px}
 .pack.selected .pack-check{background:#fff;border-color:#fff}
 .deposit-button{width:100%;margin-top:13px;padding:16px 18px;border:0;border-radius:17px;background:linear-gradient(135deg,#fff,#d8dbea);color:#14151d;font:inherit;font-size:15px;font-weight:850;box-shadow:0 8px 28px #ffffff12;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px}
-.deposit-button:disabled{opacity:.55;cursor:wait}.sbp-button{width:100%;margin-top:9px;padding:15px 18px;border:1px solid #58c99588;border-radius:17px;background:linear-gradient(135deg,#173d31,#10271f);color:#f3fff9;font:inherit;font-size:15px;font-weight:850;box-shadow:0 8px 28px #00a86b12;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}.sbp-button:active{transform:scale(.99)}.sbp-button b{font-variant-numeric:tabular-nums;color:#8de6b8}.sbp-mark{width:25px;height:25px;position:relative;display:inline-block;flex:none}.sbp-mark i{position:absolute;width:10px;height:10px;transform:rotate(45deg);border-radius:2px}.sbp-mark i:nth-child(1){left:2px;top:2px;background:#8de6b8}.sbp-mark i:nth-child(2){right:2px;top:2px;background:#e7fff2}.sbp-mark i:nth-child(3){left:2px;bottom:2px;background:#e7fff2}.sbp-mark i:nth-child(4){right:2px;bottom:2px;background:#8de6b8}.deposit-message{min-height:18px;margin-top:10px;text-align:center;color:#aeb2c3;font-size:12px;line-height:1.45}
+.deposit-button:disabled{opacity:.55;cursor:wait}.sbp-button{width:100%;margin-top:9px;padding:15px 18px;border:1px solid #58c99588;border-radius:17px;background:linear-gradient(135deg,#173d31,#10271f);color:#f3fff9;font:inherit;font-size:15px;font-weight:850;box-shadow:0 8px 28px #00a86b12;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}.sbp-button:active{transform:scale(.99)}.sbp-button b{font-variant-numeric:tabular-nums;color:#8de6b8}.sbp-mark{width:25px;height:25px;position:relative;display:inline-block;flex:none}.sbp-mark i{position:absolute;width:10px;height:10px;transform:rotate(45deg);border-radius:2px}.sbp-mark i:nth-child(1){left:2px;top:2px;background:#8de6b8}.sbp-mark i:nth-child(2){right:2px;top:2px;background:#e7fff2}.sbp-mark i:nth-child(3){left:2px;bottom:2px;background:#e7fff2}.sbp-mark i:nth-child(4){right:2px;bottom:2px;background:#8de6b8}.deposit-message{min-height:18px;margin-top:10px;text-align:center;color:#aeb2c3;font-size:12px;line-height:1.45}.sbp-modal-backdrop{position:fixed;inset:0;z-index:90;display:none;align-items:center;justify-content:center;padding:18px;background:#05060bdc;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}.sbp-modal-backdrop.open{display:flex}.sbp-modal{width:100%;max-width:420px;border:1px solid #ffffff28;border-radius:27px;background:linear-gradient(155deg,#252835,#11121b 78%);box-shadow:0 24px 80px #0008;padding:22px 19px;color:#f7f8ff}.sbp-modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:17px}.sbp-modal-title{font-size:20px;font-weight:850;letter-spacing:-.03em}.sbp-modal-close{width:34px;height:34px;border:1px solid #ffffff24;border-radius:50%;background:#ffffff0b;color:#fff;font-size:23px;cursor:pointer}.sbp-detail{padding:14px 15px;margin-top:10px;border:1px solid #ffffff18;border-radius:16px;background:#ffffff08}.sbp-detail-label{font-size:11px;color:#aeb2c3;margin-bottom:6px}.sbp-detail-value{font-size:18px;font-weight:850;letter-spacing:.01em;overflow-wrap:anywhere}.sbp-order-meta{display:flex;justify-content:space-between;gap:10px;margin-top:15px;color:#b8bdce;font-size:12px}.sbp-order-meta strong{color:#fff}.sbp-modal-note{margin-top:14px;color:#ffe2a0;font-size:12px;line-height:1.5}.sbp-modal-total{margin-top:14px;padding:14px;border-radius:16px;background:#153a2c;border:1px solid #62d6a044;display:flex;align-items:center;justify-content:space-between;gap:12px}.sbp-modal-total strong{font-size:24px;color:#9aefc2}.sbp-modal-copy{width:100%;margin-top:14px;padding:14px;border:0;border-radius:15px;background:#fff;color:#14151d;font:inherit;font-weight:850;cursor:pointer}
 @media(max-width:370px){.packages{gap:8px}.pack{padding:13px 10px}.pack-amount{font-size:22px}.deposit-title{font-size:16px}}
 
 /* StarsSlots — iOS 26 glass interface */
@@ -189,6 +189,18 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
 <button class="sbp-button" id="sbpButton" type="button"><span class="sbp-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>Оплатить СБП <b id="sbpPrice">94 ₽</b></span></button>
 <div class="deposit-message" id="depositMessage">Выбери пакет и нажми способ оплаты.</div>
 </section>
+<div class="sbp-modal-backdrop" id="sbpModalBackdrop" aria-hidden="true">
+ <section class="sbp-modal" role="dialog" aria-modal="true" aria-labelledby="sbpModalTitle">
+  <div class="sbp-modal-head"><div class="sbp-modal-title" id="sbpModalTitle">Оплата через СБП</div><button class="sbp-modal-close" id="sbpModalClose" type="button" aria-label="Закрыть">×</button></div>
+  <div class="sbp-detail"><div class="sbp-detail-label">НОМЕР</div><div class="sbp-detail-value" id="sbpRecipient">79531114790</div></div>
+  <div class="sbp-detail"><div class="sbp-detail-label">БАНК</div><div class="sbp-detail-value">Т-БАНК</div></div>
+  <div class="sbp-modal-total"><span><span class="sbp-detail-label">К оплате</span><br><strong id="sbpModalCoins">500 наших звёзд</strong></span><strong id="sbpModalPrice">94 ₽</strong></div>
+  <div class="sbp-order-meta"><span>Номер заявки</span><strong id="sbpOrderNumber">—</strong></div>
+  <div class="sbp-order-meta"><span>Время на оплату</span><strong id="sbpCountdown">15:00</strong></div>
+  <div class="sbp-modal-note">Оплатите в течение 15 минут. После перевода сохраните подтверждение платежа. Зачисление не происходит автоматически — платёж необходимо проверить.</div>
+  <button class="sbp-modal-copy" id="sbpCopyNumber" type="button">Скопировать номер</button>
+ </section>
+</div>
 <footer class="bottom"><div class="bottom-line"></div>Stars · Ваше пространство</footer>
 <div class="modal-backdrop" id="withdrawBackdrop" aria-hidden="true">
  <section class="withdraw-modal" role="dialog" aria-modal="true" aria-labelledby="withdrawTitle">
@@ -385,10 +397,30 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
  }
  packages.querySelectorAll('.pack').forEach(card=>card.addEventListener('click',()=>choose(card)));
  choose(packages.querySelector('.pack'));
+ const sbpBackdrop=document.getElementById('sbpModalBackdrop');
+ const sbpClose=document.getElementById('sbpModalClose');
+ const sbpOrder=document.getElementById('sbpOrderNumber');
+ const sbpCountdown=document.getElementById('sbpCountdown');
+ const sbpModalCoins=document.getElementById('sbpModalCoins');
+ const sbpModalPrice=document.getElementById('sbpModalPrice');
+ const sbpCopy=document.getElementById('sbpCopyNumber');
+ let sbpExpiry=0, sbpTimer=null;
+ function closeSbpModal(){if(sbpBackdrop){sbpBackdrop.classList.remove('open');sbpBackdrop.setAttribute('aria-hidden','true');}if(sbpTimer){clearInterval(sbpTimer);sbpTimer=null;}}
+ function updateSbpCountdown(){const left=Math.max(0,Math.ceil((sbpExpiry-Date.now())/1000));if(sbpCountdown)sbpCountdown.textContent=String(Math.floor(left/60)).padStart(2,'0')+':'+String(left%60).padStart(2,'0');if(left<=0){if(sbpCountdown)sbpCountdown.textContent='Время истекло';if(sbpTimer){clearInterval(sbpTimer);sbpTimer=null;}}}
  if(sbpButton)sbpButton.addEventListener('click',()=>{
-  const amount=sbpRubles(selected.coins).toLocaleString('ru-RU');
-  message.textContent='Пакет: '+selected.coins.toLocaleString('ru-RU')+' наших звёзд. К оплате: '+amount+' ₽ через СБП. Приём платежей СБП ещё не подключён: для создания платёжной ссылки нужен аккаунт и API-ключ платёжного провайдера.';
+  if(!sbpBackdrop)return;
+  const amount=sbpRubles(selected.coins);
+  if(sbpOrder)sbpOrder.textContent='SBP-'+Date.now().toString().slice(-9)+'-'+Math.floor(100+Math.random()*900);
+  if(sbpModalCoins)sbpModalCoins.textContent=selected.coins.toLocaleString('ru-RU')+' наших звёзд';
+  if(sbpModalPrice)sbpModalPrice.textContent=amount.toLocaleString('ru-RU')+' ₽';
+  sbpExpiry=Date.now()+15*60*1000;
+  sbpBackdrop.classList.add('open');sbpBackdrop.setAttribute('aria-hidden','false');
+  updateSbpCountdown();if(sbpTimer)clearInterval(sbpTimer);sbpTimer=setInterval(updateSbpCountdown,1000);
  });
+ if(sbpClose)sbpClose.addEventListener('click',closeSbpModal);
+ if(sbpBackdrop)sbpBackdrop.addEventListener('click',e=>{if(e.target===sbpBackdrop)closeSbpModal();});
+ if(sbpCopy)sbpCopy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText('79531114790');sbpCopy.textContent='Номер скопирован';}catch(_){sbpCopy.textContent='Номер: 79531114790';}});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSbpModal();});
  button.addEventListener('click',async()=>{
   const tg=window.Telegram&&window.Telegram.WebApp;
   if(!tg||!tg.initData){message.textContent='Для настоящей оплаты открой приложение внутри Telegram.';return;}
