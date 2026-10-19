@@ -83,7 +83,7 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
 .pack-check{position:absolute;top:12px;right:12px;width:17px;height:17px;border:1px solid #ffffff45;border-radius:50%;display:grid;place-items:center;color:#14151d;font-size:10px}
 .pack.selected .pack-check{background:#fff;border-color:#fff}
 .deposit-button{width:100%;margin-top:13px;padding:16px 18px;border:0;border-radius:17px;background:linear-gradient(135deg,#fff,#d8dbea);color:#14151d;font:inherit;font-size:15px;font-weight:850;box-shadow:0 8px 28px #ffffff12;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px}
-.deposit-button:disabled{opacity:.55;cursor:wait}.deposit-message{min-height:18px;margin-top:10px;text-align:center;color:#aeb2c3;font-size:12px;line-height:1.45}
+.deposit-button:disabled{opacity:.55;cursor:wait}.sbp-button{width:100%;margin-top:9px;padding:15px 18px;border:1px solid #58c99588;border-radius:17px;background:linear-gradient(135deg,#173d31,#10271f);color:#f3fff9;font:inherit;font-size:15px;font-weight:850;box-shadow:0 8px 28px #00a86b12;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px}.sbp-button:active{transform:scale(.99)}.sbp-button b{font-variant-numeric:tabular-nums;color:#8de6b8}.sbp-mark{width:25px;height:25px;position:relative;display:inline-block;flex:none}.sbp-mark i{position:absolute;width:10px;height:10px;transform:rotate(45deg);border-radius:2px}.sbp-mark i:nth-child(1){left:2px;top:2px;background:#8de6b8}.sbp-mark i:nth-child(2){right:2px;top:2px;background:#e7fff2}.sbp-mark i:nth-child(3){left:2px;bottom:2px;background:#e7fff2}.sbp-mark i:nth-child(4){right:2px;bottom:2px;background:#8de6b8}.deposit-message{min-height:18px;margin-top:10px;text-align:center;color:#aeb2c3;font-size:12px;line-height:1.45}
 @media(max-width:370px){.packages{gap:8px}.pack{padding:13px 10px}.pack-amount{font-size:22px}.deposit-title{font-size:16px}}
 
 /* StarsSlots — iOS 26 glass interface */
@@ -186,7 +186,8 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
 <button class="pack" type="button" data-stars="500" data-coins="8999"><span class="pack-check">✓</span><div class="pack-name">Алмазный</div><div class="pack-top"><svg class="pack-star" viewBox="0 0 48 48"><path d="M24 3c2 0 3.5 3 4.8 7.8 1.2 4.5 2.4 5.7 6.9 6.9C40.5 19 43 20.3 43 22.5s-2.5 3.5-7.3 4.8c-4.5 1.2-5.7 2.4-6.9 6.9C27.5 39 26 42 24 42s-3.5-3-4.8-7.8c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 26 5 24.7 5 22.5s2.5-3.5 7.3-4.8c4.5-1.2 5.7-2.4 6.9-6.9C20.5 6 22 3 24 3Z" fill="#fff"/></svg><span class="pack-amount">500</span></div><div class="pack-convert">Получишь <b>8 999</b> наших звёзд</div></button>
 </div>
 <button class="deposit-button" id="depositButton" type="button"><span>✦</span> Пополнить за 50 Telegram Stars</button>
-<div class="deposit-message" id="depositMessage">Выбери пакет и нажми «Пополнить».</div>
+<button class="sbp-button" id="sbpButton" type="button"><span class="sbp-mark" aria-hidden="true"><i></i><i></i><i></i><i></i></span><span>Оплатить СБП <b id="sbpPrice">94 ₽</b></span></button>
+<div class="deposit-message" id="depositMessage">Выбери пакет и нажми способ оплаты.</div>
 </section>
 <footer class="bottom"><div class="bottom-line"></div>Stars · Ваше пространство</footer>
 <div class="modal-backdrop" id="withdrawBackdrop" aria-hidden="true">
@@ -369,17 +370,25 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
 (function(){
  const packages=document.getElementById('starPackages');
  const button=document.getElementById('depositButton');
+ const sbpButton=document.getElementById('sbpButton');
+ const sbpPrice=document.getElementById('sbpPrice');
  const message=document.getElementById('depositMessage');
  if(!packages||!button)return;
  let selected={stars:50,coins:500};
+ const sbpRubles=coins=>Math.round(Number(coins)*94/500);
  function choose(card){
   selected={stars:Number(card.dataset.stars),coins:Number(card.dataset.coins)};
   packages.querySelectorAll('.pack').forEach(p=>p.classList.toggle('selected',p===card));
   button.innerHTML='<span>✦</span> Пополнить за '+selected.stars+' Telegram Stars';
+  if(sbpPrice)sbpPrice.textContent=sbpRubles(selected.coins).toLocaleString('ru-RU')+' ₽';
   message.textContent='После успешной оплаты начислим '+selected.coins.toLocaleString('ru-RU')+' наших звёзд.';
  }
  packages.querySelectorAll('.pack').forEach(card=>card.addEventListener('click',()=>choose(card)));
  choose(packages.querySelector('.pack'));
+ if(sbpButton)sbpButton.addEventListener('click',()=>{
+  const amount=sbpRubles(selected.coins).toLocaleString('ru-RU');
+  message.textContent='Пакет: '+selected.coins.toLocaleString('ru-RU')+' наших звёзд. К оплате: '+amount+' ₽ через СБП. Приём платежей СБП ещё не подключён: для создания платёжной ссылки нужен аккаунт и API-ключ платёжного провайдера.';
+ });
  button.addEventListener('click',async()=>{
   const tg=window.Telegram&&window.Telegram.WebApp;
   if(!tg||!tg.initData){message.textContent='Для настоящей оплаты открой приложение внутри Telegram.';return;}
