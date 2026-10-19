@@ -55,17 +55,13 @@ async function ensureDb() {
   `);
   const promoCodes = ['STAR200-K7Q4', 'STAR200-M9X2', 'STAR200-P5L8', 'STAR200-R3V6', 'STAR200-T8N4', 'STAR200-W2D7', 'STAR200-B6H9', 'STAR200-C4Z1', 'STAR200-F7J3', 'STAR200-Y5G8'];
   for (const code of promoCodes) await pool.query('INSERT INTO stars_promocodes (code,reward,max_activations) VALUES ($1,200,1) ON CONFLICT (code) DO NOTHING', [code]);
-  // One-time reset of @cladubrat7 leaderboard totals only; player balance is untouched.
-  const resetMarker = await pool.query("SELECT 1 FROM stars_settings WHERE key='leaderboard_reset_cladubrat7_v1'");
+  // One-time global leaderboard reset requested by the owner. Balances are not modified.
+  const resetMarker = await pool.query("SELECT 1 FROM stars_settings WHERE key='leaderboard_reset_all_v1'");
   if (!resetMarker.rowCount) {
-    const target = await pool.query('SELECT telegram_id FROM stars_users WHERE LOWER(username)=$1 LIMIT 1', ['cladubrat7']);
-    if (target.rowCount) {
-      const targetId = String(target.rows[0].telegram_id);
-      await pool.query('UPDATE stars_slot_wins SET total_won=0, updated_at=NOW() WHERE telegram_id=$1', [targetId]);
-      await pool.query('UPDATE stars_double_wins SET total_won=0, updated_at=NOW() WHERE telegram_id=$1', [targetId]);
-      await pool.query('UPDATE stars_cup_wins SET total_won=0, updated_at=NOW() WHERE telegram_id=$1', [targetId]);
-    }
-    await pool.query("INSERT INTO stars_settings (key,value) VALUES ('leaderboard_reset_cladubrat7_v1','done') ON CONFLICT (key) DO NOTHING");
+    await pool.query('UPDATE stars_slot_wins SET total_won=0, updated_at=NOW()');
+    await pool.query('UPDATE stars_double_wins SET total_won=0, updated_at=NOW()');
+    await pool.query('UPDATE stars_cup_wins SET total_won=0, updated_at=NOW()');
+    await pool.query("INSERT INTO stars_settings (key,value) VALUES ('leaderboard_reset_all_v1','done') ON CONFLICT (key) DO NOTHING");
   }
   dbReady = true;
 }
@@ -320,6 +316,7 @@ app.post('/api/telegram/webhook', async (req, res) => {
         [{text:'Снять монеты',callback_data:'adm:remove'}],
         [{text:'Сделать технические работы',callback_data:'adm:maintenance'}],
         [{text:'Инфо об игроке',callback_data:'adm:info'}],
+        [{text:'Сбросить все топы до 0',callback_data:'adm:leaderboard:reset'}],
         [{text:'Создать промокод',callback_data:'adm:promo:create'}],
         [{text:'Вывести звезды с бота',callback_data:'adm:botstars'}]
       ]}});
@@ -375,6 +372,24 @@ app.post('/api/telegram/webhook', async (req, res) => {
         await pool.query("INSERT INTO stars_admins (telegram_id,username) VALUES ($1,$2) ON CONFLICT (telegram_id) DO NOTHING",[String(sender.id),String(sender.username||'admin')]);
         adminStates.set(String(sender.id), {mode:'broadcast'});
         await telegramApi('sendMessage',{chat_id:chatId,text:'Отправь следующим сообщением текст рассылки. Оно пока никому не отправится.'});
+      } else if (action === 'adm:leaderboard:reset') {
+        await telegramApi('sendMessage',{chat_id:chatId,text:'Подтверди сброс всех топов выигрышей до 0. Игровые балансы пользователей останутся без изменений.',reply_markup:{inline_keyboard:[
+          [{text:'Да, сбросить все топы',callback_data:'adm:leaderboard:reset:confirm'}],
+          [{text:'Отмена',callback_data:'adm:cancel'}]
+        ]}});
+      } else if (action === 'adm:leaderboard:reset:confirm') {
+        const client=await pool.connect();
+        try {
+          await client.query('BEGIN');
+          const slots=await client.query('UPDATE stars_slot_wins SET total_won=0, updated_at=NOW()');
+          const doubles=await client.query('UPDATE stars_double_wins SET total_won=0, updated_at=NOW()');
+          const cups=await client.query('UPDATE stars_cup_wins SET total_won=0, updated_at=NOW()');
+          await client.query('COMMIT');
+          await telegramApi('sendMessage',{chat_id:chatId,text:'Все топы сброшены до 0. Обнулено записей — StarsSlots: '+slots.rowCount+', StarsDouble: '+doubles.rowCount+', стаканчики: '+cups.rowCount+'. Балансы игроков не затронуты.'});
+        } catch(e) {
+          try { await client.query('ROLLBACK'); } catch(_) {}
+          throw e;
+        } finally { client.release(); }
       } else if (action === 'adm:promo:create') {
         adminStates.set(String(sender.id), {mode:'promo_create',step:'activations'});
         await telegramApi('sendMessage',{chat_id:chatId,text:'Создание промокода. Сколько активаций разрешить? Введи целое число от 1 до 1000000.',reply_markup:{inline_keyboard:[[{text:'Отмена',callback_data:'adm:cancel'}]]}});
