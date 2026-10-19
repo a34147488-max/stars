@@ -284,9 +284,14 @@ app.post('/api/starsdouble/spin', async (req, res) => {
 });
 
 app.post('/api/telegram/webhook', async (req, res) => {
-  const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
-  if (!secret || req.get('X-Telegram-Bot-Api-Secret-Token') !== secret) return res.sendStatus(403);
+  const secret = String(process.env.TELEGRAM_WEBHOOK_SECRET || '').trim();
+  const suppliedSecret = String(req.get('X-Telegram-Bot-Api-Secret-Token') || '').trim();
+  if (!secret || suppliedSecret !== secret) {
+    console.error('Telegram webhook rejected: secret missing or does not match');
+    return res.sendStatus(403);
+  }
   const update = req.body || {};
+  console.log('Telegram webhook update received:', update.update_id, update.message ? 'message' : update.callback_query ? 'callback_query' : update.pre_checkout_query ? 'pre_checkout_query' : 'other');
   try {
     // Admin panel: restricted to the configured owner username.
     const incoming = update.message;
