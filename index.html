@@ -10,6 +10,17 @@
 :root{color-scheme:dark;--bg:#090a10;--glass:rgba(255,255,255,.075);--line:rgba(255,255,255,.16);--muted:#9b9eae;--white:#fbfbff}
 html,body{touch-action:manipulation;-ms-touch-action:manipulation}*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#34364a 0%,#171824 35%,var(--bg) 72%);color:var(--white);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",system-ui,sans-serif;display:flex;justify-content:center;overflow-x:hidden}
+/* Animated iridescent background with floating glass cubes */
+body{position:relative;isolation:isolate;background:#090a12}
+body:before{content:"";position:fixed;inset:-35%;z-index:-2;pointer-events:none;background:radial-gradient(ellipse at 20% 25%,#344ca866 0,transparent 32%),radial-gradient(ellipse at 75% 30%,#7137a855 0,transparent 31%),radial-gradient(ellipse at 60% 78%,#087e9b44 0,transparent 34%),radial-gradient(ellipse at 25% 80%,#4a3b9b44 0,transparent 30%),linear-gradient(125deg,#090a12,#171326,#0b1b2b,#171126,#090a12);background-size:140% 140%;animation:auroraDrift 22s ease-in-out infinite alternate}
+.cube-field{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;perspective:900px;contain:strict}
+.float-cube{position:absolute;bottom:-90px;width:var(--cube-size,34px);height:var(--cube-size,34px);border:1px solid #dbeaff50;border-radius:7px;background:linear-gradient(135deg,#ffffff14,#83aaff05 55%,#b6c9ff12);box-shadow:inset 0 0 18px #a7caff0b,0 0 22px #689bff0b;transform:rotateX(55deg) rotateZ(35deg);animation:cubeRise var(--cube-duration,24s) linear infinite;animation-delay:var(--cube-delay,0s);opacity:0}
+.float-cube:before,.float-cube:after{content:"";position:absolute;inset:0;border:1px solid #c6d9ff24;border-radius:inherit;transform:translate(7px,-7px)}
+.float-cube:after{transform:translate(14px,-14px);opacity:.55}
+@keyframes auroraDrift{0%{transform:translate3d(-2%,0,0) rotate(-3deg);filter:hue-rotate(0deg)}50%{transform:translate3d(2%,-1%,0) rotate(2deg);filter:hue-rotate(18deg)}100%{transform:translate3d(-1%,2%,0) rotate(-1deg);filter:hue-rotate(-12deg)}}
+@keyframes cubeRise{0%{transform:translate3d(0,0,0) rotateX(55deg) rotateZ(35deg) rotate(0deg);opacity:0}10%{opacity:.55}55%{transform:translate3d(var(--cube-drift,35px),-55vh,0) rotateX(65deg) rotateZ(155deg) rotate(70deg);opacity:.35}90%{opacity:.28}100%{transform:translate3d(calc(var(--cube-drift,35px) * -1),-115vh,0) rotateX(55deg) rotateZ(275deg) rotate(140deg);opacity:0}}
+@media(prefers-reduced-motion:reduce){body:before,.float-cube{animation:none!important}.float-cube{opacity:.16}}
+
 .app{width:100%;max-width:520px;min-height:100svh;padding:calc(env(safe-area-inset-top) + 22px) 22px calc(env(safe-area-inset-bottom) + 28px);display:flex;flex-direction:column}
 .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:clamp(70px,15vh,140px)}
 .profile-chip{display:flex;align-items:center;gap:10px;min-width:0;padding:7px 11px 7px 7px;border:1px solid rgba(255,255,255,.22);border-radius:17px;background:linear-gradient(145deg,rgba(255,255,255,.12),rgba(255,255,255,.045));box-shadow:inset 0 1px 0 #ffffff12,0 8px 24px #0002;backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
@@ -146,6 +157,16 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
 </style>
 </head>
 <body>
+<div class="cube-field" aria-hidden="true">
+<span class="float-cube" style="left:4%;--cube-size:27px;--cube-duration:26s;--cube-delay:-13s;--cube-drift:42px"></span>
+<span class="float-cube" style="left:15%;--cube-size:43px;--cube-duration:31s;--cube-delay:-24s;--cube-drift:-34px"></span>
+<span class="float-cube" style="left:29%;--cube-size:19px;--cube-duration:22s;--cube-delay:-8s;--cube-drift:28px"></span>
+<span class="float-cube" style="left:43%;--cube-size:34px;--cube-duration:29s;--cube-delay:-19s;--cube-drift:-48px"></span>
+<span class="float-cube" style="left:57%;--cube-size:23px;--cube-duration:24s;--cube-delay:-5s;--cube-drift:37px"></span>
+<span class="float-cube" style="left:69%;--cube-size:48px;--cube-duration:34s;--cube-delay:-27s;--cube-drift:-32px"></span>
+<span class="float-cube" style="left:82%;--cube-size:29px;--cube-duration:25s;--cube-delay:-15s;--cube-drift:45px"></span>
+<span class="float-cube" style="left:94%;--cube-size:20px;--cube-duration:28s;--cube-delay:-10s;--cube-drift:-25px"></span>
+</div>
 <main class="app">
 <header class="topbar">
 <div class="profile-chip" aria-label="Профиль пользователя">
