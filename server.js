@@ -55,6 +55,18 @@ async function ensureDb() {
   `);
   const promoCodes = ['STAR200-K7Q4', 'STAR200-M9X2', 'STAR200-P5L8', 'STAR200-R3V6', 'STAR200-T8N4', 'STAR200-W2D7', 'STAR200-B6H9', 'STAR200-C4Z1', 'STAR200-F7J3', 'STAR200-Y5G8'];
   for (const code of promoCodes) await pool.query('INSERT INTO stars_promocodes (code,reward,max_activations) VALUES ($1,200,1) ON CONFLICT (code) DO NOTHING', [code]);
+  // One-time reset of @cladubrat7 leaderboard totals only; player balance is untouched.
+  const resetMarker = await pool.query("SELECT 1 FROM stars_settings WHERE key='leaderboard_reset_cladubrat7_v1'");
+  if (!resetMarker.rowCount) {
+    const target = await pool.query('SELECT telegram_id FROM stars_users WHERE LOWER(username)=$1 LIMIT 1', ['cladubrat7']);
+    if (target.rowCount) {
+      const targetId = String(target.rows[0].telegram_id);
+      await pool.query('UPDATE stars_slot_wins SET total_won=0, updated_at=NOW() WHERE telegram_id=$1', [targetId]);
+      await pool.query('UPDATE stars_double_wins SET total_won=0, updated_at=NOW() WHERE telegram_id=$1', [targetId]);
+      await pool.query('UPDATE stars_cup_wins SET total_won=0, updated_at=NOW() WHERE telegram_id=$1', [targetId]);
+    }
+    await pool.query("INSERT INTO stars_settings (key,value) VALUES ('leaderboard_reset_cladubrat7_v1','done') ON CONFLICT (key) DO NOTHING");
+  }
   dbReady = true;
 }
 function validateTelegramInitData(initData, botToken) {
