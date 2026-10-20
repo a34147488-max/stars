@@ -344,24 +344,25 @@ app.post('/api/telegram/webhook', async (req, res) => {
       const match = configuredUrl.match(/^https:\/\/t\.me\/([A-Za-z0-9_]{5,32})(?:\?start=[A-Za-z0-9_-]+)?$/);
       if (!match) {
         await telegramApi('sendMessage', { chat_id: chatId, text: 'Меню генерации подготовлено, но в Railway не указана ссылка именно на твоего бота генерации. Установи VIDEO_BOT_URL=https://t.me/ИМЯ_ТВОЕГО_БОТА и перезапусти сервис.' });
-      } else {
-        const base = 'https://t.me/' + match[1];
+        return res.sendStatus(200);
+      }
+      const base = 'https://t.me/' + match[1];
       const currentBot = await telegramApi('getMe', {});
       if (String(currentBot.username || '').toLowerCase() === String(match[1] || '').toLowerCase()) {
         await telegramApi('sendMessage', {
           chat_id: chatId,
-          text: '⚠️ VIDEO_BOT_URL указывает на этот же бот Stars. Поэтому Telegram открывает его заново и отправляет /start вместо запуска генерации.\\n\\nДля работы нужен отдельный бот генерации, созданный через @BotFather, с отдельным BOT_TOKEN и запущенный сервис Railway из папки /video-bot. После запуска укажи VIDEO_BOT_URL со ссылкой на его @username. Один и тот же токен нельзя одновременно использовать для основного webhook-бота и отдельного polling-бота.'
+          text: '⚠️ VIDEO_BOT_URL указывает на этот же бот Stars. Поэтому Telegram открывает его заново и отправляет /start вместо запуска генерации.\n\nДля работы нужен отдельный бот генерации, созданный через @BotFather, с отдельным BOT_TOKEN и запущенный сервис Railway из папки /video-bot. После запуска укажи VIDEO_BOT_URL со ссылкой на его @username. Один и тот же токен нельзя одновременно использовать для основного webhook-бота и отдельного polling-бота.'
         });
         return res.sendStatus(200);
       }
       await telegramApi('sendMessage', {
         chat_id: chatId,
-        text: '🎬 ГЕНЕРАЦИЯ ВИДЕО\\n\\nСоздавай 3D-анимации по текстовому описанию или оживляй собственные фотографии. Новым пользователям доступны 3 бесплатные попытки.\\n\\nВыбери раздел ниже:',
+        text: '🎬 ГЕНЕРАЦИЯ ВИДЕО\n\nСоздавай 3D-анимации по текстовому описанию или оживляй собственные фотографии. Новым пользователям доступны 3 бесплатные попытки.\n\nВыбери раздел ниже:',
         reply_markup: { inline_keyboard: [
           [{text:'✍️ Создать по тексту', url:base+'?start=text'}],
           [{text:'🖼 Оживить фото', url:base+'?start=photo'}],
           [{text:'⭐ Тарифы и цены', url:base+'?start=buy'},{text:'Баланс генераций',url:base+'?start=balance'}],
-          [{text:'Примеры запросов',url:base+'?start=examples'}]
+          [{text:'Примеры запросов', url:base+'?start=examples'}]
         ] }
       });
       return res.sendStatus(200);
