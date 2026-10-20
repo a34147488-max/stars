@@ -346,17 +346,24 @@ app.post('/api/telegram/webhook', async (req, res) => {
         await telegramApi('sendMessage', { chat_id: chatId, text: 'Меню генерации подготовлено, но в Railway не указана ссылка именно на твоего бота генерации. Установи VIDEO_BOT_URL=https://t.me/ИМЯ_ТВОЕГО_БОТА и перезапусти сервис.' });
       } else {
         const base = 'https://t.me/' + match[1];
+      const currentBot = await telegramApi('getMe', {});
+      if (String(currentBot.username || '').toLowerCase() === String(match[1] || '').toLowerCase()) {
         await telegramApi('sendMessage', {
           chat_id: chatId,
-          text: '🎬 ГЕНЕРАЦИЯ ВИДЕО\n\nСоздавай 3D-анимации по текстовому описанию или оживляй собственные фотографии. Новым пользователям доступны 3 бесплатные попытки.\n\nВыбери раздел ниже:',
-          reply_markup: { inline_keyboard: [
-            [{text:'✍️ Создать по тексту', url:base+'?start=text'}],
-            [{text:'🖼 Оживить фото', url:base+'?start=photo'}],
-            [{text:'⭐ Тарифы и цены', url:base+'?start=buy'},{text:'Баланс генераций',url:base+'?start=balance'}],
-            [{text:'Примеры запросов',url:base+'?start=examples'}]
-          ] }
+          text: '⚠️ VIDEO_BOT_URL указывает на этот же бот Stars. Поэтому Telegram открывает его заново и отправляет /start вместо запуска генерации.\\n\\nДля работы нужен отдельный бот генерации, созданный через @BotFather, с отдельным BOT_TOKEN и запущенный сервис Railway из папки /video-bot. После запуска укажи VIDEO_BOT_URL со ссылкой на его @username. Один и тот же токен нельзя одновременно использовать для основного webhook-бота и отдельного polling-бота.'
         });
+        return res.sendStatus(200);
       }
+      await telegramApi('sendMessage', {
+        chat_id: chatId,
+        text: '🎬 ГЕНЕРАЦИЯ ВИДЕО\\n\\nСоздавай 3D-анимации по текстовому описанию или оживляй собственные фотографии. Новым пользователям доступны 3 бесплатные попытки.\\n\\nВыбери раздел ниже:',
+        reply_markup: { inline_keyboard: [
+          [{text:'✍️ Создать по тексту', url:base+'?start=text'}],
+          [{text:'🖼 Оживить фото', url:base+'?start=photo'}],
+          [{text:'⭐ Тарифы и цены', url:base+'?start=buy'},{text:'Баланс генераций',url:base+'?start=balance'}],
+          [{text:'Примеры запросов',url:base+'?start=examples'}]
+        ] }
+      });
       return res.sendStatus(200);
     }
     if (incoming && ['Ежедневный бонус','Реф.ссылка','Топ'].includes(text)) { if(text==='Ежедневный бонус') await telegramApi('sendMessage',{chat_id:chatId,text:'🔥Тебе доступен игровой ежедневный бонус, активируй их в игровых режимах 🎲 - икс 2 при выигрыше, 🎯 - икс 2 при выигрыше, 🎰 - икс 2 при выигрыше!\n\nТвоя бесплатная ставка : 25 звезд⭐️\nИспытай удачу :',reply_markup:{inline_keyboard:[[{text:'🎲 Кубик',callback_data:'daily:dice'},{text:'🎯 Дартс',callback_data:'daily:darts'},{text:'🎰 Слоты',callback_data:'daily:slots'}]]}}); if(text==='Реф.ссылка'){const me=await telegramApi('getMe',{}),link='https://t.me/'+me.username+'?start=ref_'+sender.id,stats=await pool.query('SELECT COUNT(*)::int AS n,COALESCE((SELECT SUM(100) FROM stars_referrals WHERE referrer_id=$1),0)::bigint AS earned FROM stars_referrals WHERE referrer_id=$1',[String(sender.id)]);const invited=Number(stats.rows[0]?.n||0),earned=Number(stats.rows[0]?.earned||0);await telegramApi('sendMessage',{chat_id:chatId,text:'🧸Твоя реферальная ссылка не просто начисляет тебе монеты в виде 100 наших звезд, но и выдает подарки :\n\nОт 20 человек : 🧸\nОт 30 человек : 💎\nОт 50 человек : Telegram Premium\n(Подарки дарит напрямую администратор проекта).\n🎗️Ты пригласил : '+invited+'\n🏵️Ты заработал : '+earned+' наших звезд\n\n🍷Твоя реферальная ссылка :\n'+link,reply_markup:{inline_keyboard:[[{text:'Поделиться ссылкой',url:'https://t.me/share/url?url='+encodeURIComponent(link)}]]}});} if(text==='Топ'){const rows=await pool.query('SELECT u.username,u.first_name,COALESCE(w.total_won,0) AS total_won,COALESCE(d.total_won,0) AS double_won FROM stars_users u LEFT JOIN stars_slot_wins w ON w.telegram_id=u.telegram_id LEFT JOIN stars_double_wins d ON d.telegram_id=u.telegram_id');const fmt=(arr,key)=>arr.sort((a,b)=>Number(b[key])-Number(a[key])).slice(0,10).map((r,i)=>(i+1)+'. '+(r.username?'@'+r.username:(r.first_name||'Игрок'))+' — '+Number(r[key]||0).toLocaleString('ru-RU')).join('\n');await telegramApi('sendMessage',{chat_id:chatId,text:'Топ по выигрышам в StarsSlots:\n\n'+(fmt(rows.rows,'total_won')||'Пока победителей нет.')+'\n\nТоп по выигрышам в StarsDouble:\n\n'+(fmt(rows.rows,'double_won')||'Пока победителей нет.')});}return res.sendStatus(200);}
