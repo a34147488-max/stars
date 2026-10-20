@@ -10,6 +10,7 @@ const DATABASE_URL = process.env.DATABASE_URL;
 const ADMINS = new Set((process.env.ADMIN_IDS || "").split(",").map(x => x.trim()).filter(Boolean));
 const FREE_LIMIT = Math.max(0, Number.parseInt(process.env.FREE_LIMIT || "3", 10));
 const MODEL = process.env.FAL_MODEL || "minimax/h3-max/text-to-video";
+const IMAGE_MODEL = process.env.FAL_IMAGE_MODEL || "minimax/h3-max/image-to-video";
 const RESOLUTION = process.env.VIDEO_RESOLUTION || "480P";
 const POLL_MS = Math.max(3000, Number(process.env.POLL_MS || "7000"));
 const MAX_PROMPT = 1800;
@@ -37,7 +38,9 @@ const admin = id => ADMINS.has(String(id));
 
 async function initDb() {
   await pool.query("CREATE TABLE IF NOT EXISTS video_bot_users (telegram_id BIGINT PRIMARY KEY, username TEXT, first_name TEXT, free_used INTEGER NOT NULL DEFAULT 0, paid_credits INTEGER NOT NULL DEFAULT 0, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW())");
-  await pool.query("CREATE TABLE IF NOT EXISTS video_bot_jobs (id BIGSERIAL PRIMARY KEY, telegram_id BIGINT NOT NULL REFERENCES video_bot_users(telegram_id), prompt TEXT NOT NULL, duration INTEGER NOT NULL, aspect_ratio TEXT NOT NULL DEFAULT '16:9', status TEXT NOT NULL DEFAULT 'submitting', request_id TEXT, video_url TEXT, error_text TEXT, credit_source TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW())");
+  await pool.query("CREATE TABLE IF NOT EXISTS video_bot_jobs (id BIGSERIAL PRIMARY KEY, telegram_id BIGINT NOT NULL REFERENCES video_bot_users(telegram_id), prompt TEXT NOT NULL, duration INTEGER NOT NULL, aspect_ratio TEXT NOT NULL DEFAULT '16:9', image_url TEXT, model_id TEXT NOT NULL DEFAULT 'minimax/h3-max/text-to-video', status TEXT NOT NULL DEFAULT 'submitting', request_id TEXT, video_url TEXT, error_text TEXT, credit_source TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW())");
+  await pool.query("ALTER TABLE video_bot_jobs ADD COLUMN IF NOT EXISTS image_url TEXT");
+  await pool.query("ALTER TABLE video_bot_jobs ADD COLUMN IF NOT EXISTS model_id TEXT NOT NULL DEFAULT 'minimax/h3-max/text-to-video'");
   await pool.query("CREATE INDEX IF NOT EXISTS video_bot_jobs_status_idx ON video_bot_jobs(status, created_at)");
   await pool.query("CREATE TABLE IF NOT EXISTS video_bot_payments (telegram_charge_id TEXT PRIMARY KEY, telegram_id BIGINT NOT NULL, payload TEXT NOT NULL, stars INTEGER NOT NULL, credits INTEGER NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW())");
 }
@@ -54,9 +57,9 @@ async function balanceText(id) {
   return "Баланс генераций\n\nБесплатных осталось: " + free + "\nКупленных доступно: " + Number(u?.paid_credits || 0) + "\nВсего доступно: " + (free + Number(u?.paid_credits || 0));
 }
 function mainKeyboard() {
-  return new InlineKeyboard().text("Создать видео", "make").row()
-    .text("Купить генерации", "buy").text("Мой баланс", "balance").row()
-    .text("Пример запроса", "prompt_help");
+  return new InlineKeyboard().text("По тексту", "make").text("По фото", "make_photo").row()
+    .text("Тарифы", "buy").text("Мой баланс", "balance").row()
+    .text("Примеры запросов", "prompt_help");
 }
 function buyKeyboard() {
   const kb = new InlineKeyboard();
@@ -69,7 +72,7 @@ function adminKeyboard() {
     .text("Сбросить бесплатные попытки всем", "adm:reset_confirm").row()
     .text("Команды", "adm:help");
 }
-async function reserve(from, prompt, duration) {
+async function reserve(from, prompt, duration, imageUrl = null, modelId = MODEL) {
   const c = await pool.connect();
   try {
     await c.query("BEGIN");
@@ -86,7 +89,7 @@ async function reserve(from, prompt, duration) {
       await c.query("ROLLBACK");
       return null;
     }
-    const j = await c.query("INSERT INTO video_bot_jobs (telegram_id,prompt,duration,status,credit_source) VALUES ($1,$2,$3,'submitting',$4) RETURNING id", [String(from.id), prompt, duration, source]);
+    const j = await c.query("INSERT INTO video_bot_jobs (telegram_id,prompt,duration,image_url,model_id,status,credit_source) VALUES ($1,$2,$3,$4,$5,'submitting',$6) RETURNING id", [String(from.id), prompt, duration, imageUrl, modelId, source]);
     await c.query("COMMIT");
     return { id: j.rows[0].id, source };
   } catch (e) {
@@ -109,23 +112,23 @@ async function refund(jobId, telegramId, source, error) {
     console.error("Refund failed", e);
   } finally { c.release(); }
 }
-async function generate(ctx, prompt, duration) {
+async function generate(ctx, prompt, duration, imageUrl = null) {
   const uid = String(ctx.from.id);
   if (busyUsers.has(uid)) return ctx.reply("У тебя уже есть активный запрос. Дождись результата.");
   busyUsers.add(uid);
   try {
-    const reserved = await reserve(ctx.from, prompt, duration);
+    const modelId = imageUrl ? IMAGE_MODEL : MODEL;
+    const reserved = await reserve(ctx.from, prompt, duration, imageUrl, modelId);
     if (!reserved) return ctx.reply("Бесплатные попытки закончились. Выбери пакет дополнительных генераций:", { reply_markup: buyKeyboard() });
     await ctx.reply("Запрос принят. Генерирую 3D-анимацию на " + duration + " секунд. Обычно это занимает несколько минут. Если API вернёт ошибку, попытка будет восстановлена.");
     try {
-      const submitted = await fal.queue.submit(MODEL, { input: {
+      const input = {
         prompt: "High-quality stylized 3D animated film, polished 3D character design, expressive characters, detailed materials, cinematic lighting, smooth natural motion, coherent camera movement, professional family animation, no subtitles, no on-screen text. Scene description: " + prompt,
-        duration: duration,
-        resolution: RESOLUTION,
-        aspect_ratio: "16:9",
-        enable_safety_checker: true,
-        prompt_expansion_mode: "balanced"
-      }});
+        enable_safety_checker: true
+      };
+      if (imageUrl) input.image_url = imageUrl;
+      else { input.duration = duration; input.resolution = RESOLUTION; input.aspect_ratio = "16:9"; input.prompt_expansion_mode = "balanced"; }
+      const submitted = await fal.queue.submit(modelId, { input });
       await pool.query("UPDATE video_bot_jobs SET request_id=$2,status='queued',updated_at=NOW() WHERE id=$1", [reserved.id, submitted.request_id]);
     } catch (e) {
       await refund(reserved.id, uid, reserved.source, e?.message || e);
@@ -146,7 +149,13 @@ async function stats(ctx) {
 
 bot.command("start", async ctx => {
   await upsertUser(ctx.from);
-  await ctx.reply("Привет! Я создаю короткие 3D-мультфильмы по текстовому описанию.\n\nТебе доступны 3 бесплатные генерации. Затем можно купить дополнительные за Telegram Stars. Длина ролика — 5 или 10 секунд.", { reply_markup: mainKeyboard() });
+  const mode = String(ctx.match || "").trim().toLowerCase();
+  if (mode === "text") { states.set(String(ctx.from.id), { step: "prompt" }); return ctx.reply("✍️ Генерация по тексту\n\nОпиши сцену для 3D-мультфильма одним сообщением."); }
+  if (mode === "photo") { states.set(String(ctx.from.id), { step: "photo" }); return ctx.reply("🖼 Оживление фото\n\nПришли фотографию, которую нужно превратить в видео. После этого можно будет описать движение."); }
+  if (mode === "buy") return ctx.reply("⭐ Тарифы на генерации:", { reply_markup: buyKeyboard() });
+  if (mode === "balance") return ctx.reply(await balanceText(ctx.from.id), { reply_markup: mainKeyboard() });
+  if (mode === "examples") return ctx.reply("Пример: «Маленький лисёнок в синем шарфе бежит по зимнему лесу, стряхивает снег с ветки, мягкий свет фонарей, плавное движение камеры, детализированная семейная 3D-анимация». Можно писать по-русски.", { reply_markup: mainKeyboard() });
+  await ctx.reply("🎬 Генерация видео\n\nСоздавай 3D-анимации по тексту или оживляй фотографии. Новым пользователям доступны 3 бесплатные попытки. Затем можно купить дополнительные генерации за Telegram Stars.\n\nВыбери действие:", { reply_markup: mainKeyboard() });
 });
 bot.command("help", async ctx => ctx.reply("Нажми «Создать видео», отправь описание сцены и выбери длительность. Пример: маленький робот поливает цветы на крыше футуристического дома на закате, плавный объезд камеры, семейная 3D-анимация."));
 bot.command("balance", async ctx => { await upsertUser(ctx.from); await ctx.reply(await balanceText(ctx.from.id)); });
@@ -175,7 +184,12 @@ bot.command("setfree", async ctx => {
 bot.callbackQuery("make", async ctx => {
   await ctx.answerCallbackQuery();
   states.set(String(ctx.from.id), { step: "prompt" });
-  await ctx.reply("Опиши сцену для 3D-мультфильма одним сообщением. Лучше описывать одно действие, персонажей, окружение и движение камеры.");
+  await ctx.reply("✍️ Опиши сцену для 3D-мультфильма одним сообщением. Лучше описывать одно действие, персонажей, окружение и движение камеры.");
+});
+bot.callbackQuery("make_photo", async ctx => {
+  await ctx.answerCallbackQuery();
+  states.set(String(ctx.from.id), { step: "photo" });
+  await ctx.reply("🖼 Пришли фотографию, которую нужно оживить. Затем я попрошу описать движение в видео.");
 });
 bot.callbackQuery("buy", async ctx => { await ctx.answerCallbackQuery(); await ctx.reply("Выбери пакет дополнительных генераций:", { reply_markup: buyKeyboard() }); });
 bot.callbackQuery("balance", async ctx => { await ctx.answerCallbackQuery(); await ctx.reply(await balanceText(ctx.from.id)); });
@@ -249,10 +263,31 @@ bot.callbackQuery("adm:help", async ctx => {
 bot.callbackQuery(/^duration:(5|10)$/, async ctx => {
   await ctx.answerCallbackQuery();
   const state = states.get(String(ctx.from.id));
-  if (!state || state.step !== "duration") return ctx.reply("Сначала нажми «Создать видео» и отправь описание.");
+  if (!state || state.step !== "duration") return ctx.reply("Сначала выбери генерацию и отправь описание.");
   states.delete(String(ctx.from.id));
   await ctx.editMessageText("Готовлю запрос на " + ctx.match[1] + " секунд...").catch(() => {});
-  await generate(ctx, state.prompt, Number(ctx.match[1]));
+  await generate(ctx, state.prompt, Number(ctx.match[1]), state.imageUrl || null);
+});
+bot.on("message:photo", async ctx => {
+  const uid = String(ctx.from.id);
+  const state = states.get(uid);
+  if (!state || state.step !== "photo") return;
+  try {
+    const photo = ctx.message.photo[ctx.message.photo.length - 1];
+    if (photo.file_size && photo.file_size > 18 * 1024 * 1024) return ctx.reply("Фото слишком большое. Пришли изображение меньше 18 МБ.");
+    await ctx.reply("Фото получено, загружаю его для генерации...");
+    const tgFile = await ctx.api.getFile(photo.file_id);
+    const response = await fetch("https://api.telegram.org/file/bot" + TOKEN + "/" + tgFile.file_path);
+    if (!response.ok) throw new Error("Telegram image download failed");
+    const bytes = Buffer.from(await response.arrayBuffer());
+    const uploaded = await fal.storage.upload(new File([bytes], "source-image.jpg", { type: "image/jpeg" }));
+    states.set(uid, { step: "photo_prompt", imageUrl: uploaded });
+    await ctx.reply("Теперь опиши, что должно происходить на фото: движение персонажа, камеры, окружения или атмосфера. Например: «Персонаж улыбается, ветер слегка шевелит волосы, камера плавно приближается».");
+  } catch (e) {
+    console.error("Photo upload failed", e);
+    states.delete(uid);
+    await ctx.reply("Не удалось загрузить фото. Попробуй отправить его ещё раз как обычное фото, не как файл.");
+  }
 });
 bot.on("message:text", async ctx => {
   if (ctx.from.is_bot || ctx.message.text.startsWith("/")) return;
@@ -260,10 +295,10 @@ bot.on("message:text", async ctx => {
   const uid = String(ctx.from.id);
   const state = states.get(uid);
   if (!state) return;
-  if (state.step === "prompt") {
+  if (state.step === "prompt" || state.step === "photo_prompt") {
     const prompt = ctx.message.text.trim();
     if (prompt.length < 8 || prompt.length > MAX_PROMPT) return ctx.reply("Описание должно быть от 8 до " + MAX_PROMPT + " символов. Попробуй ещё раз.");
-    states.set(uid, { step: "duration", prompt });
+    states.set(uid, { step: "duration", prompt, imageUrl: state.imageUrl || null });
     return ctx.reply("Выбери длительность:", { reply_markup: new InlineKeyboard().text("5 секунд", "duration:5").text("10 секунд", "duration:10") });
   }
   if (state.step === "grant" && admin(ctx.from.id)) {
@@ -283,13 +318,14 @@ async function pollJobs() {
     const jobs = await pool.query("SELECT * FROM video_bot_jobs WHERE status IN ('queued','processing') AND request_id IS NOT NULL ORDER BY created_at ASC LIMIT 10");
     for (const job of jobs.rows) {
       try {
-        const s = await fal.queue.status(MODEL, { requestId: job.request_id, logs: false });
+        const modelId = job.model_id || MODEL;
+        const s = await fal.queue.status(modelId, { requestId: job.request_id, logs: false });
         if (s.status === "IN_QUEUE" || s.status === "IN_PROGRESS") {
           if (job.status !== "processing") await pool.query("UPDATE video_bot_jobs SET status='processing',updated_at=NOW() WHERE id=$1", [job.id]);
           continue;
         }
         if (s.status === "COMPLETED") {
-          const out = await fal.queue.result(MODEL, { requestId: job.request_id });
+          const out = await fal.queue.result(modelId, { requestId: job.request_id });
           const url = out?.data?.video?.url;
           if (!url) throw new Error("API returned no video URL");
           const done = await pool.query("UPDATE video_bot_jobs SET status='completed',video_url=$2,updated_at=NOW() WHERE id=$1 AND status IN ('queued','processing') RETURNING id", [job.id, url]);
