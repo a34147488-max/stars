@@ -10,7 +10,7 @@ Telegram bot that creates short stylized 3D animated videos from text prompts us
 - PostgreSQL stores users, quotas, jobs and Telegram Stars payments.
 - Generation requests run through fal.ai's queue; the bot polls and sends the completed MP4.
 - Failed API jobs restore the reserved generation.
-- Telegram Stars packages: 5 for 50 Stars, 10 for 90 Stars, 25 for 200 Stars.
+- Telegram Stars packages: 5 for 300 Stars, 10 for 600 Stars, 25 for 1500 Stars.
 - Admin panel: /admin; statistics, grant credits, reset free attempts for all users.
 - Admin commands: /give TELEGRAM_ID COUNT and /setfree TELEGRAM_ID USED.
 
