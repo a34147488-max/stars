@@ -294,8 +294,10 @@ app.post('/api/starsdouble/spin', async (req, res) => {
 app.post('/api/telegram/webhook', async (req, res) => {
   const secret = String(process.env.TELEGRAM_WEBHOOK_SECRET || '').trim();
   const suppliedSecret = String(req.get('X-Telegram-Bot-Api-Secret-Token') || '').trim();
-  if (!secret || suppliedSecret !== secret) {
-    console.error('Telegram webhook rejected: secret missing or does not match');
+  // Secret-token validation is enforced when configured. This allows deployments
+  // that have not yet added TELEGRAM_WEBHOOK_SECRET to receive Telegram updates.
+  if (secret && suppliedSecret !== secret) {
+    console.error('Telegram webhook rejected: secret does not match');
     return res.sendStatus(403);
   }
   const update = req.body || {};
@@ -585,8 +587,13 @@ app.post('/api/telegram/webhook', async (req, res) => {
 app.get('*', (_req, res) => { res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate'); res.set('Pragma', 'no-cache'); res.set('Expires', '0'); res.sendFile(path.join(__dirname, 'index.html')); });
 app.listen(PORT, '0.0.0.0', async () => {
   console.log('Stars UI listening on ' + PORT);
-  if (process.env.WEBHOOK_URL && process.env.TELEGRAM_WEBHOOK_SECRET && process.env.BOT_TOKEN) {
-    try { const url = new URL('/api/telegram/webhook', process.env.WEBHOOK_URL).toString(); await telegramApi('setWebhook', { url, secret_token: process.env.TELEGRAM_WEBHOOK_SECRET, allowed_updates: ['message', 'pre_checkout_query', 'callback_query'], drop_pending_updates: false }); console.log('Telegram payment webhook configured'); }
-    catch (e) { console.error('Webhook setup failed:', e.message); }
-  } else console.log('Webhook setup skipped: set WEBHOOK_URL and TELEGRAM_WEBHOOK_SECRET');
+  if (process.env.WEBHOOK_URL && process.env.BOT_TOKEN) {
+    try {
+      const url = new URL('/api/telegram/webhook', process.env.WEBHOOK_URL).toString();
+      const webhookOptions = { url, allowed_updates: ['message', 'pre_checkout_query', 'callback_query'], drop_pending_updates: false };
+      if (process.env.TELEGRAM_WEBHOOK_SECRET) webhookOptions.secret_token = process.env.TELEGRAM_WEBHOOK_SECRET;
+      await telegramApi('setWebhook', webhookOptions);
+      console.log('Telegram webhook configured' + (webhookOptions.secret_token ? ' with secret token' : ' WITHOUT secret token; set TELEGRAM_WEBHOOK_SECRET in Railway'));
+    } catch (e) { console.error('Webhook setup failed:', e.message); }
+  } else console.log('Webhook setup skipped: BOT_TOKEN and WEBHOOK_URL are required');
 });
