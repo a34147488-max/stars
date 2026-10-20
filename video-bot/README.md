@@ -5,7 +5,8 @@ Telegram bot that creates short stylized 3D animated videos from text prompts us
 ## Features
 
 - 3 free generations per Telegram account by default.
-- User chooses 5 or 10 seconds.
+- Generate video from a text prompt or animate an uploaded photo.
+- User chooses 5 or 10 seconds for text-to-video.
 - 3D animated-film style is added automatically to the prompt.
 - PostgreSQL stores users, quotas, jobs and Telegram Stars payments.
 - Generation requests run through fal.ai's queue; the bot polls and sends the completed MP4.
@@ -29,7 +30,7 @@ Default model: `minimax/h3-max/text-to-video` on fal.ai. At the standard publish
    - `FAL_KEY`: fal API key
    - `DATABASE_URL`: Railway PostgreSQL connection string
    - `ADMIN_IDS`: your numeric Telegram user ID (not @username)
-   - Optional: `FREE_LIMIT=3`, `VIDEO_RESOLUTION=480P`, `FAL_MODEL=minimax/h3-max/text-to-video`
+   - Optional: `FREE_LIMIT=3`, `VIDEO_RESOLUTION=480P`, `FAL_MODEL=minimax/h3-max/text-to-video`, `FAL_IMAGE_MODEL=minimax/h3-max/image-to-video`
 6. Deploy. On startup, the bot creates its tables automatically.
 7. Open the bot in Telegram and send `/start`. Admin sends `/admin`.
 
