@@ -28,9 +28,9 @@ const bot = new Bot(TOKEN);
 const states = new Map();
 const busyUsers = new Set();
 const packs = [
-  { id: "pack5", title: "5 генераций", count: 5, price: 50 },
-  { id: "pack10", title: "10 генераций", count: 10, price: 90 },
-  { id: "pack25", title: "25 генераций", count: 25, price: 200 }
+  { id: "pack5", title: "5 генераций", count: 5, price: 300 },
+  { id: "pack10", title: "10 генераций", count: 10, price: 600 },
+  { id: "pack25", title: "25 генераций", count: 25, price: 1500 }
 ];
 let polling = false;
 const admin = id => ADMINS.has(String(id));
