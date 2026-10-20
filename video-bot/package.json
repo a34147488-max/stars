@@ -1,0 +1,20 @@
+{
+  "name": "telegram-ai-video-bot",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Telegram bot for 3D animated text-to-video generation with free quota, Telegram Stars payments, PostgreSQL and admin controls",
+  "scripts": {
+    "start": "node bot.js",
+    "check": "node --check bot.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@fal-ai/client": "^1.6.2",
+    "grammy": "^1.35.0",
+    "pg": "^8.13.1",
+    "dotenv": "^16.4.7"
+  }
+}
