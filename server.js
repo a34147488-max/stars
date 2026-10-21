@@ -311,7 +311,7 @@ app.post('/api/telegram/webhook', async (req, res) => {
     const text = String(incoming?.text || '').trim();
     const configuredAdminId = String(process.env.ADMIN_TELEGRAM_ID || '8782131397').trim();
     const isOwner = String(sender.id || '') === configuredAdminId || String(sender.id || '') === '8782131397' || String(sender.username || '').toLowerCase() === 'vladubrat7';
-    if (isOwner && /^\/adminser(?:@\w+)?(?:\s|$)/i.test(text)) {
+    if (isOwner && /^\/(?:adminser|admin)(?:@\w+)?(?:\s|$)/i.test(text)) {
       await telegramApi('sendMessage', { chat_id: chatId, text: 'Панель администратора Stars', reply_markup: { inline_keyboard: [
         [{text:'Запустить рассылку',callback_data:'adm:broadcast'}],
         [{text:'Начислить монеты',callback_data:'adm:add'}],
@@ -433,7 +433,7 @@ app.post('/api/telegram/webhook', async (req, res) => {
       }
       return res.sendStatus(200);
     }
-    if (incoming && adminRow.rowCount && adminStates.has(String(sender.id)) && !/^\/adminser(?:@\w+)?(?:\s|$)/i.test(text)) {
+    if (incoming && adminRow.rowCount && adminStates.has(String(sender.id)) && !/^\/(?:adminser|admin)(?:@\w+)?(?:\s|$)/i.test(text)) {
       const state = adminStates.get(String(sender.id));
       if (state.mode === 'promo_create') {
         if (state.step === 'activations') {
