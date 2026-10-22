@@ -291,6 +291,43 @@ app.post('/api/starsdouble/spin', async (req, res) => {
   } catch(e) { console.error('StarsDouble spin error:',e.message); return res.status(503).json({ok:false,error:'Не удалось выполнить вращение.'}); }
 });
 
+
+app.post('/api/boxes/open', async (req,res) => {
+  let client;
+  try {
+    await ensureDb();
+    const user = authUser(req);
+    if (!user) return res.status(401).json({ok:false,error:'Открой приложение через Telegram-бота.'});
+    const boxes = {
+      stars1:{name:'Stars 1',cost:500,max:10},
+      stars2:{name:'Stars 2',cost:900,max:50},
+      stars3:{name:'Stars 3',cost:1500,max:75},
+      stars4:{name:'Stars 4',cost:4000,max:150},
+      starsArc:{name:'Stars Arc',cost:9000,max:300}
+    };
+    const key=String(req.body && req.body.box || ''), box=boxes[key];
+    if (!box) return res.status(400).json({ok:false,error:'Неизвестный бокс.'});
+    const won=crypto.randomInt(0,100)===0;
+    const multiplier=won?crypto.randomInt(1,box.max+1):0;
+    const payout=box.cost*multiplier;
+    client=await pool.connect();
+    await client.query('BEGIN');
+    const row=await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1 FOR UPDATE',[String(user.id)]);
+    if (!row.rowCount) { await client.query('ROLLBACK'); return res.status(404).json({ok:false,error:'Профиль не найден. Перезапусти приложение.'}); }
+    const balanceNow=Number(row.rows[0].balance||0);
+    if (balanceNow<box.cost) { await client.query('ROLLBACK'); return res.status(400).json({ok:false,error:'Для '+box.name+' нужно '+box.cost.toLocaleString('ru-RU')+' наших звёзд.'}); }
+    await client.query('UPDATE stars_users SET balance=balance-$2+$3,updated_at=NOW() WHERE telegram_id=$1',[String(user.id),box.cost,payout]);
+    const updated=await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1',[String(user.id)]);
+    const balance=Number(updated.rows[0].balance||0);
+    await client.query('COMMIT');
+    return res.json({ok:true,box:key,cost:box.cost,multiplier,payout,balance,won});
+  } catch(e) {
+    if(client) { try { await client.query('ROLLBACK'); } catch(_) {} }
+    console.error('Box opening error:',e.message);
+    return res.status(503).json({ok:false,error:'Не удалось открыть бокс. Попробуй ещё раз.'});
+  } finally { if(client) client.release(); }
+});
+
 app.post('/api/telegram/webhook', async (req, res) => {
   const secret = String(process.env.TELEGRAM_WEBHOOK_SECRET || '').trim();
   const suppliedSecret = String(req.get('X-Telegram-Bot-Api-Secret-Token') || '').trim();
