@@ -223,6 +223,31 @@ body:before{content:"";position:fixed;inset:-35%;z-index:-2;pointer-events:none;
 #sbpModalPrice{font-size:17px;white-space:nowrap;letter-spacing:-.025em}.sbp-modal-total{min-width:0}.sbp-modal-total>span{min-width:0}.sbp-modal-total>strong{flex:none}
 @media(max-width:370px){.sbp-modal{padding:18px 14px}.sbp-modal-total{padding:12px;gap:8px}.sbp-modal-total strong#sbpModalPrice{font-size:15px}}
 
+
+/* User World */
+.world-open{padding:6px 13px;border:1px solid #ffffffb8;border-radius:999px;background:linear-gradient(135deg,#b9d9ff,#e9f5ff);color:#101724;font-size:11px;font-weight:850;cursor:pointer;box-shadow:0 3px 16px #8bc7ff22}
+.world-backdrop{position:fixed;inset:0;z-index:120;display:none;background:#080a12f5;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);overflow:auto}.world-backdrop.open{display:block}
+.world-shell{width:100%;max-width:620px;min-height:100%;margin:auto;padding:calc(env(safe-area-inset-top) + 14px) 14px calc(env(safe-area-inset-bottom) + 18px);display:flex;flex-direction:column}
+.world-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px}.world-title{font-size:25px;font-weight:900;letter-spacing:-.05em}.world-subtitle{font-size:11px;color:#aeb6ca;margin-top:4px}
+.world-close,.world-zoom{width:38px;height:38px;border:1px solid #ffffff28;border-radius:14px;background:#ffffff0d;color:#fff;font-size:22px;cursor:pointer}
+.world-map-wrap{position:relative;flex:1;min-height:45svh;max-height:58svh;border:1px solid #ffffff20;border-radius:25px;overflow:hidden;background:radial-gradient(ellipse at 50% 45%,#24324c 0,#131b2c 46%,#0b0e17 100%);box-shadow:inset 0 0 50px #0005}
+.world-map-wrap:before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.3;background-image:linear-gradient(#a9caff10 1px,transparent 1px),linear-gradient(90deg,#a9caff10 1px,transparent 1px);background-size:30px 30px}
+.world-land{position:absolute;inset:0;transform-origin:center;transition:transform .25s ease}
+.world-node{position:absolute;display:flex;flex-direction:column;align-items:center;gap:5px;transform:translate(-50%,-50%);border:0;background:transparent;color:#fff;cursor:pointer;padding:0;max-width:100px}
+.world-orb{width:var(--orb,42px);height:var(--orb,42px);border-radius:50%;border:1px solid #e1f0ffb0;background:linear-gradient(145deg,#f4f9ff,#8fb9e9 55%,#44679a);box-shadow:0 0 0 5px #8bc5ff12,0 0 22px #77b9ff35;display:grid;place-items:center;overflow:hidden;color:#152039;font-size:calc(var(--orb,42px)*.36);font-weight:900;transition:width .2s,height .2s}
+.world-orb img{width:100%;height:100%;object-fit:cover}.world-node.me .world-orb{border:2px solid #fff;box-shadow:0 0 0 6px #c3e2ff28,0 0 28px #a5d7ff70}
+.world-node-label{max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;font-weight:800;text-shadow:0 2px 7px #000;padding:3px 6px;border:1px solid #ffffff20;border-radius:999px;background:#090d18b8}
+.world-controls{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:10px 0}.world-zoom-group{display:flex;gap:7px}.world-count{color:#aab2c6;font-size:11px}
+.world-profile{margin-top:10px;padding:15px;border:1px solid #ffffff28;border-radius:22px;background:linear-gradient(145deg,#ffffff12,#ffffff05);display:none}.world-profile.open{display:block}
+.world-profile-top{display:flex;align-items:center;gap:12px}.world-profile-avatar{width:48px;height:48px;flex:none;border-radius:17px;background:linear-gradient(145deg,#dcecff,#7195c7);display:grid;place-items:center;overflow:hidden;color:#142039;font-weight:900}.world-profile-avatar img{width:100%;height:100%;object-fit:cover}.world-profile-name{font-size:16px;font-weight:850}.world-profile-user{font-size:11px;color:#aeb6c8;margin-top:3px}.world-profile-balance{margin-left:auto;text-align:right;font-size:17px;font-weight:900;white-space:nowrap}.world-profile-balance small{display:block;font-size:10px;font-weight:600;color:#aeb6c8}
+.world-profile-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px}.world-action{min-height:42px;border:1px solid #ffffff24;border-radius:13px;background:#ffffff0c;color:#fff;font:inherit;font-size:12px;font-weight:850;cursor:pointer}.world-action.primary{background:#eaf4ff;color:#111725;border-color:#eaf4ff}.world-action:disabled{opacity:.35}
+.world-transfer-row{display:none;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-top:10px}.world-transfer-row.open{display:grid}.world-transfer-input{min-width:0;width:100%;border:1px solid #ffffff2a;border-radius:13px;background:#ffffff0b;color:#fff;padding:12px;font:inherit;font-size:14px}.world-message{min-height:16px;margin-top:9px;color:#c8d7ed;font-size:11px;line-height:1.4}
+.world-play-card{margin-top:12px;padding:16px;border:1px solid #ffffff25;border-radius:25px;background:linear-gradient(145deg,#ffffff12,#ffffff05);text-align:center}.world-energy-top{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#b9c4d9}.world-energy-top strong{color:#fff;font-size:15px}.world-energy-track{height:5px;margin-top:9px;border-radius:99px;background:#ffffff18;overflow:hidden}.world-energy-fill{height:100%;width:100%;border-radius:99px;background:linear-gradient(90deg,#83baff,#f3f8ff);transition:width .2s}
+.world-tap-area{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:14px}.world-energy-ring{width:70px;height:70px;flex:none;border:1px solid #ffffff2b;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,#ffffff13,#ffffff03);color:#dcecff;font-size:11px;font-weight:850}
+.world-tap-button{width:116px;height:116px;flex:none;border:1px solid #ffffffc9;border-radius:50%;background:radial-gradient(circle at 32% 25%,#fff,#d7e8ff 65%,#8caedc);box-shadow:0 0 0 8px #c2ddff12,0 12px 35px #0005,inset 0 2px 3px #fff;color:#101828;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font:inherit;font-size:13px;font-weight:900;cursor:pointer;touch-action:manipulation;transition:transform .1s}.world-tap-button:active{transform:scale(.94)}.world-tap-button:disabled{opacity:.45;filter:grayscale(.4)}.world-tap-star{font-size:31px;line-height:1}.world-tap-note{font-size:10px;color:#aeb6c8;margin-top:11px}
+.world-upgrades{margin-top:10px;padding:13px 15px;border:1px solid #ffffff20;border-radius:17px;background:#ffffff07;display:flex;align-items:center;justify-content:space-between;gap:10px;color:#fff;font:inherit;text-align:left;cursor:pointer}.world-upgrades span:last-child{color:#929bb1;font-size:11px}
+@media(max-width:370px){.world-shell{padding-left:10px;padding-right:10px}.world-tap-area{gap:10px}.world-tap-button{width:102px;height:102px}.world-energy-ring{width:60px;height:60px}}
+
 </style>
 </head>
 <body>
@@ -260,10 +285,31 @@ body:before{content:"";position:fixed;inset:-35%;z-index:-2;pointer-events:none;
 </div>
 </div>
 <div class="caption">звёзд на вашем балансе</div>
-<div class="action-row"><button class="withdraw-open" id="withdrawOpen" type="button">вывести</button><button class="game-open" id="gameOpen" type="button">Играть</button><button class="game-open" id="promoOpen" type="button">Промокоды</button><button class="boxes-open" id="boxesOpen" type="button">Боксы</button></div>
+<div class="action-row"><button class="withdraw-open" id="withdrawOpen" type="button">вывести</button><button class="game-open" id="gameOpen" type="button">Играть</button><button class="game-open" id="promoOpen" type="button">Промокоды</button><button class="boxes-open" id="boxesOpen" type="button">Боксы</button><button class="world-open" id="worldOpen" type="button">Мир</button></div>
 </div>
 <div class="status-pill" id="maintenanceBanner" style="display:none;border-color:#ffd36b66;color:#ffe5a3"><span class="status-dot" style="background:#ffd36b;box-shadow:0 0 10px #ffd36b"></span><span>Ведутся технические работы. Действия в приложении временно ограничены.</span></div><div class="status-pill"><span class="status-dot"></span>Баланс отображается в реальном времени</div>
 </section>
+
+<div class="world-backdrop" id="worldBackdrop" aria-hidden="true">
+ <div class="world-shell">
+  <div class="world-head"><div><div class="world-title">Мир</div><div class="world-subtitle">Игроки Stars · нажми на круг, чтобы открыть профиль</div></div><button class="world-close" id="worldClose" type="button" aria-label="Закрыть">×</button></div>
+  <div class="world-map-wrap" id="worldMap"><div class="world-land" id="worldLand"></div></div>
+  <div class="world-controls"><div class="world-count" id="worldCount">Загружаем игроков…</div><div class="world-zoom-group"><button class="world-zoom" id="worldZoomOut" type="button" aria-label="Отдалить">−</button><button class="world-zoom" id="worldZoomIn" type="button" aria-label="Приблизить">+</button></div></div>
+  <div class="world-profile" id="worldProfile">
+   <div class="world-profile-top"><div class="world-profile-avatar" id="worldProfileAvatar">S</div><div><div class="world-profile-name" id="worldProfileName">Игрок</div><div class="world-profile-user" id="worldProfileUser">Профиль в мире</div></div><div class="world-profile-balance"><span id="worldProfileBalance">0</span><small>баланс ★</small></div></div>
+   <div class="world-profile-actions"><button class="world-action" id="worldSteal" type="button">Украсть энергию</button><button class="world-action primary" id="worldTransferToggle" type="button">Перевести звёзды</button></div>
+   <div class="world-transfer-row" id="worldTransferRow"><input class="world-transfer-input" id="worldTransferAmount" type="number" min="1" step="1" inputmode="numeric" placeholder="Сумма перевода"><button class="world-action primary" id="worldTransferSend" type="button">Отправить</button></div>
+   <div class="world-message" id="worldProfileMessage"></div>
+  </div>
+  <div class="world-play-card">
+   <div class="world-energy-top"><span>Энергия для кликов</span><strong><span id="worldEnergy">500</span> / 500</strong></div><div class="world-energy-track"><div class="world-energy-fill" id="worldEnergyFill"></div></div>
+   <div class="world-tap-area"><div class="world-energy-ring"><span>+2<br>звезды</span></div><button class="world-tap-button" id="worldTap" type="button"><span class="world-tap-star">✦</span><span>ТАПАТЬ</span></button><div class="world-energy-ring"><span><span id="worldClicks">0</span><br>кликов</span></div></div>
+   <div class="world-tap-note" id="worldTapMessage">Каждый клик даёт 2 звезды. Энергия восстанавливается на 1 в секунду.</div>
+  </div>
+  <button class="world-upgrades" id="worldUpgrades" type="button"><span>Улучшения</span><span>Пока пусто　›</span></button>
+ </div>
+</div>
+
 <section class="deposit-section" aria-label="Пополнение баланса">
 <div class="deposit-heading"><div><div class="deposit-title">Пополнить баланс</div><div class="deposit-subtitle">Оплата настоящими Telegram Stars</div></div><div class="tg-badge">XTR · TELEGRAM</div></div>
 <div class="packages" id="starPackages">
@@ -851,6 +897,33 @@ body:before{content:"";position:fixed;inset:-35%;z-index:-2;pointer-events:none;
  }
  openSelected&&openSelected.addEventListener('click',function(){if(selected)openBox(selected);});
  buy&&buy.addEventListener('click',function(){if(selected)openBox(selected);});
+})();
+</script>
+<script>
+(function(){
+ const tg=window.Telegram&&window.Telegram.WebApp,$=id=>document.getElementById(id),backdrop=$('worldBackdrop'),land=$('worldLand'),map=$('worldMap');
+ if(!backdrop||!land||!map)return;
+ let zoom=1,players=[],selected=null,energy=500,clicks=0,requestBusy=false,lastEnergyRefresh=Date.now();
+ const fmt=n=>Number(n||0).toLocaleString('ru-RU'),initData=()=>tg&&tg.initData||'';
+ function headers(json){const h={'X-Telegram-Init-Data':initData()};if(json)h['Content-Type']='application/json';return h}
+ async function api(url,method='GET',body){const r=await fetch(url,{method,headers:headers(method!=='GET'),...(body?{body:JSON.stringify(body)}:{})});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||'Не удалось выполнить действие.');return d}
+ function openWorld(){backdrop.classList.add('open');backdrop.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';loadWorld()}
+ function closeWorld(){backdrop.classList.remove('open');backdrop.setAttribute('aria-hidden','true');document.body.style.overflow=''}
+ $('worldOpen').addEventListener('click',openWorld);$('worldClose').addEventListener('click',closeWorld);backdrop.addEventListener('click',e=>{if(e.target===backdrop)closeWorld()});
+ $('worldZoomIn').addEventListener('click',()=>setZoom(Math.min(2.8,zoom+.25)));$('worldZoomOut').addEventListener('click',()=>setZoom(Math.max(.65,zoom-.25)));
+ function setZoom(v){zoom=v;land.style.transform='scale('+zoom+')'}
+ function hash(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+ function renderWorld(){land.replaceChildren();players.forEach(p=>{const n=document.createElement('button');n.type='button';n.className='world-node'+(p.me?' me':'');const h=hash(String(p.id)),x=8+(h%840)/10,y=9+((h>>>9)%800)/10;n.style.left=Math.min(94,x)+'%';n.style.top=Math.min(92,y)+'%';const orb=document.createElement('span');orb.className='world-orb';const size=Math.max(32,Math.min(76,34+Math.sqrt(Math.max(0,Number(p.clicks)||0))*1.35));orb.style.setProperty('--orb',size+'px');if(p.avatar){const im=document.createElement('img');im.src=p.avatar;im.alt='';orb.appendChild(im)}else orb.textContent=(p.name||p.username||'S').trim().charAt(0).toUpperCase();const label=document.createElement('span');label.className='world-node-label';label.textContent=p.me?'Вы':(p.username?'@'+p.username:p.name||'Игрок');n.append(orb,label);n.addEventListener('click',()=>showPlayer(p));land.appendChild(n)});$('worldCount').textContent='Игроков в мире: '+players.length;setZoom(zoom)}
+ async function loadWorld(){if(!initData()){$('worldCount').textContent='Открой приложение через Telegram.';return}$('worldCount').textContent='Загружаем игроков…';try{const d=await api('/api/world');players=d.players||[];energy=Number(d.energy)||0;clicks=Number(d.clicks)||0;lastEnergyRefresh=Date.now();updateEnergy();renderWorld();if(selected){const p=players.find(x=>String(x.id)===String(selected.id));if(p)showPlayer(p)}}catch(e){$('worldCount').textContent=e.message||'Не удалось загрузить мир.'}}
+ function updateEnergy(){$('worldEnergy').textContent=fmt(energy);$('worldEnergyFill').style.width=(Math.max(0,Math.min(500,energy))/5)+'%';$('worldClicks').textContent=fmt(clicks);$('worldTap').disabled=energy<=0||requestBusy}
+ function showPlayer(p){selected=p;$('worldProfile').classList.add('open');$('worldProfileName').textContent=p.name||'Игрок';$('worldProfileUser').textContent=p.me?'Это ваш профиль':(p.username?'@'+p.username:'Пользователь Stars');$('worldProfileBalance').textContent=fmt(p.balance);const av=$('worldProfileAvatar');av.replaceChildren();if(p.avatar){const im=document.createElement('img');im.src=p.avatar;im.alt='';av.appendChild(im)}else av.textContent=(p.name||p.username||'S').trim().charAt(0).toUpperCase();$('worldSteal').disabled=!!p.me;$('worldTransferToggle').disabled=!!p.me;$('worldTransferRow').classList.remove('open');$('worldProfileMessage').textContent=p.me?'Это ваш профиль.':'Клики: '+fmt(p.clicks)+' · Энергия: '+fmt(p.energy)}
+ $('worldTransferToggle').addEventListener('click',()=>{$('worldTransferRow').classList.toggle('open');$('worldTransferAmount').focus()});
+ $('worldTransferSend').addEventListener('click',async()=>{if(!selected||selected.me||requestBusy)return;const amount=Number($('worldTransferAmount').value),msg=$('worldProfileMessage');if(!Number.isSafeInteger(amount)||amount<1){msg.textContent='Укажи целую сумму от 1 звезды.';return}requestBusy=true;updateEnergy();msg.textContent='Переводим…';try{const d=await api('/api/world/transfer','POST',{targetId:selected.id,amount});$('balance').textContent=fmt(d.balance);msg.textContent='Перевод выполнен: '+fmt(amount)+' звёзд.';$('worldTransferAmount').value='';await loadWorld()}catch(e){msg.textContent=e.message||'Не удалось перевести звёзды.'}finally{requestBusy=false;updateEnergy()}});
+ $('worldSteal').addEventListener('click',async()=>{if(!selected||selected.me||requestBusy)return;const msg=$('worldProfileMessage');requestBusy=true;updateEnergy();msg.textContent='Пытаемся украсть энергию…';try{const d=await api('/api/world/steal','POST',{targetId:selected.id});energy=Number(d.energy)||0;msg.textContent=d.stolen>0?'Украдено энергии: '+d.stolen+'.':(d.message||'У игрока нет доступной энергии.');updateEnergy();await loadWorld()}catch(e){msg.textContent=e.message||'Не удалось украсть энергию.'}finally{requestBusy=false;updateEnergy()}});
+ $('worldTap').addEventListener('click',async()=>{if(requestBusy||energy<1)return;requestBusy=true;updateEnergy();try{const d=await api('/api/world/tap','POST');energy=Number(d.energy)||0;clicks=Number(d.clicks)||0;$('balance').textContent=fmt(d.balance);updateEnergy();const me=players.find(p=>p.me);if(me){me.balance=d.balance;me.clicks=clicks;me.energy=energy;renderWorld()}}catch(e){$('worldTapMessage').textContent=e.message||'Не удалось засчитать клик.'}finally{requestBusy=false;updateEnergy()}});
+ $('worldUpgrades').addEventListener('click',()=>{$('worldTapMessage').textContent='Улучшения скоро появятся.'});
+ setInterval(()=>{if(!backdrop.classList.contains('open'))return;if(energy<500){const elapsed=Math.floor((Date.now()-lastEnergyRefresh)/1000);if(elapsed>0){energy=Math.min(500,energy+elapsed);lastEnergyRefresh+=elapsed*1000;updateEnergy()}}else lastEnergyRefresh=Date.now()},1000);
+ setInterval(()=>{if(backdrop.classList.contains('open')&&!requestBusy)loadWorld()},20000);
 })();
 </script>
 </body>
