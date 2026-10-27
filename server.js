@@ -53,6 +53,8 @@ async function ensureDb() {
     CREATE TABLE IF NOT EXISTS stars_cup_wins (telegram_id BIGINT PRIMARY KEY, total_won BIGINT NOT NULL DEFAULT 0, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
     CREATE TABLE IF NOT EXISTS stars_settings (key TEXT PRIMARY KEY, value TEXT NOT NULL, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
     ALTER TABLE stars_withdrawals ADD COLUMN IF NOT EXISTS rejection_comment TEXT;
+    ALTER TABLE stars_users ADD COLUMN IF NOT EXISTS avatar_url TEXT;
+    CREATE TABLE IF NOT EXISTS stars_world_stats (telegram_id BIGINT PRIMARY KEY REFERENCES stars_users(telegram_id) ON DELETE CASCADE, clicks BIGINT NOT NULL DEFAULT 0, energy INTEGER NOT NULL DEFAULT 500 CHECK (energy BETWEEN 0 AND 500), energy_updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), last_steal_at TIMESTAMPTZ);
   `);
   const promoCodes = ['STAR200-K7Q4', 'STAR200-M9X2', 'STAR200-P5L8', 'STAR200-R3V6', 'STAR200-T8N4', 'STAR200-W2D7', 'STAR200-B6H9', 'STAR200-C4Z1', 'STAR200-F7J3', 'STAR200-Y5G8'];
   for (const code of promoCodes) await pool.query('INSERT INTO stars_promocodes (code,reward,max_activations) VALUES ($1,200,1) ON CONFLICT (code) DO NOTHING', [code]);
@@ -113,6 +115,52 @@ app.get('/api/balance', async (req, res) => {
     const result = await pool.query('SELECT balance FROM stars_users WHERE telegram_id=$1', [String(user.id)]);
     return res.json({ ok: true, balance: Number(result.rows[0]?.balance || 0) });
   } catch (e) { console.error('Balance read error:', e.message); return res.status(503).json({ ok: false, error: 'Не удалось загрузить баланс.' }); }
+});
+
+
+app.get('/api/world', async (req,res) => {
+ try {
+  await ensureDb();const user=authUser(req);if(!user)return res.status(401).json({ok:false,error:'Открой приложение через Telegram-бота.'});
+  await pool.query('INSERT INTO stars_users(telegram_id,username,first_name,avatar_url) VALUES($1,$2,$3,$4) ON CONFLICT(telegram_id) DO UPDATE SET username=EXCLUDED.username,first_name=EXCLUDED.first_name,avatar_url=COALESCE(EXCLUDED.avatar_url,stars_users.avatar_url),updated_at=NOW()',[String(user.id),user.username||null,user.first_name||null,typeof user.photo_url==='string'&&/^https:\/\//i.test(user.photo_url)?user.photo_url:null]);
+  await pool.query('INSERT INTO stars_world_stats(telegram_id) VALUES($1) ON CONFLICT(telegram_id) DO NOTHING',[String(user.id)]);
+  const me=await pool.query("UPDATE stars_world_stats SET energy=LEAST(500,GREATEST(0,energy+FLOOR(EXTRACT(EPOCH FROM (NOW()-energy_updated_at))))),energy_updated_at=NOW() WHERE telegram_id=$1 RETURNING energy,clicks",[String(user.id)]);
+  const rows=await pool.query("SELECT u.telegram_id,u.username,u.first_name,u.avatar_url,u.balance,COALESCE(w.clicks,0) AS clicks,LEAST(500,GREATEST(0,COALESCE(w.energy,500)+FLOOR(EXTRACT(EPOCH FROM (NOW()-COALESCE(w.energy_updated_at,NOW()))))))::int AS energy FROM stars_users u LEFT JOIN stars_world_stats w ON w.telegram_id=u.telegram_id WHERE u.is_blocked=FALSE ORDER BY u.registered_at ASC LIMIT 500");
+  const players=rows.rows.map(r=>({id:String(r.telegram_id),username:r.username||null,name:r.first_name||r.username||'Игрок',avatar:r.avatar_url||null,balance:Number(r.balance||0),clicks:Number(r.clicks||0),energy:Number(r.energy||0),me:String(r.telegram_id)===String(user.id)}));const mine=me.rows[0]||{energy:500,clicks:0};
+  return res.json({ok:true,players,energy:Number(mine.energy),clicks:Number(mine.clicks)});
+ }catch(e){console.error('World load error:',e.message);return res.status(503).json({ok:false,error:'Не удалось загрузить мир пользователей.'});}
+});
+app.post('/api/world/tap', async (req,res) => {
+ const user=authUser(req);if(!user)return res.status(401).json({ok:false,error:'Открой приложение через Telegram-бота.'});const client=await pool.connect();
+ try{
+  await ensureDb();await client.query('BEGIN');
+  await client.query('INSERT INTO stars_users(telegram_id,username,first_name,avatar_url) VALUES($1,$2,$3,$4) ON CONFLICT(telegram_id) DO UPDATE SET username=EXCLUDED.username,first_name=EXCLUDED.first_name,avatar_url=COALESCE(EXCLUDED.avatar_url,stars_users.avatar_url),updated_at=NOW()',[String(user.id),user.username||null,user.first_name||null,typeof user.photo_url==='string'&&/^https:\/\//i.test(user.photo_url)?user.photo_url:null]);
+  await client.query('INSERT INTO stars_world_stats(telegram_id) VALUES($1) ON CONFLICT(telegram_id) DO NOTHING',[String(user.id)]);
+  const row=await client.query("SELECT clicks,LEAST(500,GREATEST(0,energy+FLOOR(EXTRACT(EPOCH FROM (NOW()-energy_updated_at)))))::int AS energy FROM stars_world_stats WHERE telegram_id=$1 FOR UPDATE",[String(user.id)]);const current=Number(row.rows[0]?.energy||0);
+  if(current<1){await client.query('UPDATE stars_world_stats SET energy=$2,energy_updated_at=NOW() WHERE telegram_id=$1',[String(user.id),current]);await client.query('COMMIT');return res.status(400).json({ok:false,error:'Энергия закончилась. Она восстанавливается на 1 единицу в секунду.'});}
+  await client.query('UPDATE stars_world_stats SET clicks=clicks+1,energy=$2,energy_updated_at=NOW() WHERE telegram_id=$1',[String(user.id),current-1]);const updated=await client.query('UPDATE stars_users SET balance=balance+2,updated_at=NOW() WHERE telegram_id=$1 RETURNING balance',[String(user.id)]);const stats=await client.query('SELECT clicks,energy FROM stars_world_stats WHERE telegram_id=$1',[String(user.id)]);
+  await client.query('COMMIT');return res.json({ok:true,balance:Number(updated.rows[0].balance),clicks:Number(stats.rows[0].clicks),energy:Number(stats.rows[0].energy)});
+ }catch(e){try{await client.query('ROLLBACK')}catch(_){}console.error('World tap error:',e.message);return res.status(503).json({ok:false,error:'Не удалось засчитать клик.'});}finally{client.release();}
+});
+app.post('/api/world/transfer', async (req,res) => {
+ const user=authUser(req);if(!user)return res.status(401).json({ok:false,error:'Открой приложение через Telegram-бота.'});const targetId=String(req.body?.targetId||''),amount=Number(req.body?.amount);
+ if(!/^\d{1,20}$/.test(targetId)||targetId===String(user.id))return res.status(400).json({ok:false,error:'Выбери другого игрока.'});if(!Number.isSafeInteger(amount)||amount<1||amount>1000000000)return res.status(400).json({ok:false,error:'Сумма должна быть целым числом от 1.'});
+ const client=await pool.connect();try{
+  await ensureDb();await client.query('BEGIN');const ids=[String(user.id),targetId].sort((a,b)=>BigInt(a)<BigInt(b)?-1:BigInt(a)>BigInt(b)?1:0);
+  const rows=await client.query('SELECT telegram_id,balance FROM stars_users WHERE telegram_id=ANY($1::bigint[]) AND is_blocked=FALSE ORDER BY telegram_id FOR UPDATE',[ids]);const from=rows.rows.find(r=>String(r.telegram_id)===String(user.id)),to=rows.rows.find(r=>String(r.telegram_id)===targetId);
+  if(!from||!to){await client.query('ROLLBACK');return res.status(404).json({ok:false,error:'Игрок не найден.'});}if(Number(from.balance)<amount){await client.query('ROLLBACK');return res.status(400).json({ok:false,error:'Недостаточно звёзд на балансе.'});}
+  await client.query('UPDATE stars_users SET balance=balance-$2,updated_at=NOW() WHERE telegram_id=$1',[String(user.id),amount]);await client.query('UPDATE stars_users SET balance=balance+$2,updated_at=NOW() WHERE telegram_id=$1',[targetId,amount]);const balance=await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1',[String(user.id)]);await client.query('COMMIT');return res.json({ok:true,balance:Number(balance.rows[0].balance)});
+ }catch(e){try{await client.query('ROLLBACK')}catch(_){}console.error('World transfer error:',e.message);return res.status(503).json({ok:false,error:'Не удалось перевести звёзды.'});}finally{client.release();}
+});
+app.post('/api/world/steal', async (req,res) => {
+ const user=authUser(req);if(!user)return res.status(401).json({ok:false,error:'Открой приложение через Telegram-бота.'});const targetId=String(req.body?.targetId||'');
+ if(!/^\d{1,20}$/.test(targetId)||targetId===String(user.id))return res.status(400).json({ok:false,error:'Выбери другого игрока.'});const client=await pool.connect();
+ try{
+  await ensureDb();await client.query('BEGIN');const ids=[String(user.id),targetId].sort((a,b)=>BigInt(a)<BigInt(b)?-1:BigInt(a)>BigInt(b)?1:0);
+  await client.query('INSERT INTO stars_world_stats(telegram_id) SELECT telegram_id FROM stars_users WHERE telegram_id=ANY($1::bigint[]) ON CONFLICT(telegram_id) DO NOTHING',[ids]);
+  const rows=await client.query("SELECT w.telegram_id,w.last_steal_at,LEAST(500,GREATEST(0,w.energy+FLOOR(EXTRACT(EPOCH FROM (NOW()-w.energy_updated_at)))))::int AS current_energy FROM stars_world_stats w JOIN stars_users u ON u.telegram_id=w.telegram_id WHERE w.telegram_id=ANY($1::bigint[]) AND u.is_blocked=FALSE ORDER BY w.telegram_id FOR UPDATE",[ids]);const victim=rows.rows.find(r=>String(r.telegram_id)===targetId),thief=rows.rows.find(r=>String(r.telegram_id)===String(user.id));
+  if(!victim||!thief){await client.query('ROLLBACK');return res.status(404).json({ok:false,error:'Игрок не найден.'});}if(thief.last_steal_at&&Date.now()-new Date(thief.last_steal_at).getTime()<30000){await client.query('ROLLBACK');return res.status(429).json({ok:false,error:'Украсть энергию можно раз в 30 секунд.'});}
+  const stolen=Math.min(25,Number(victim.current_energy||0),500-Number(thief.current_energy||0));await client.query('UPDATE stars_world_stats SET energy=$2,energy_updated_at=NOW() WHERE telegram_id=$1',[targetId,Number(victim.current_energy)-stolen]);await client.query('UPDATE stars_world_stats SET energy=$2,energy_updated_at=NOW(),last_steal_at=NOW() WHERE telegram_id=$1',[String(user.id),Number(thief.current_energy)+stolen]);await client.query('COMMIT');return res.json({ok:true,stolen,energy:Number(thief.current_energy)+stolen,message:stolen?'':'У игрока нет энергии, которую можно украсть.'});
+ }catch(e){try{await client.query('ROLLBACK')}catch(_){}console.error('World steal error:',e.message);return res.status(503).json({ok:false,error:'Не удалось украсть энергию.'});}finally{client.release();}
 });
 
 function authUser(req) { return validateTelegramInitData(req.get('X-Telegram-Init-Data'), process.env.BOT_TOKEN); }
