@@ -313,7 +313,7 @@ body:before{content:"";position:fixed;inset:-35%;z-index:-2;pointer-events:none;
 <div class="sbp-modal-backdrop" id="sbpModalBackdrop" aria-hidden="true">
  <section class="sbp-modal" role="dialog" aria-modal="true" aria-labelledby="sbpModalTitle">
   <div class="sbp-modal-head"><div class="sbp-modal-title" id="sbpModalTitle">Оплата через СБП</div><button class="sbp-modal-close" id="sbpModalClose" type="button" aria-label="Закрыть">×</button></div>
-  <div class="sbp-detail"><div class="sbp-detail-label">НОМЕР</div><div class="sbp-detail-value" id="sbpRecipient">79531114790</div></div>
+  <div class="sbp-detail"><div class="sbp-detail-label">НОМЕР</div><div class="sbp-detail-value" id="sbpRecipient">+79959351914</div></div>
   <div class="sbp-detail"><div class="sbp-detail-label">БАНК</div><div class="sbp-detail-value">Т-БАНК</div></div>
   <div class="sbp-modal-total"><span><span class="sbp-detail-label">К оплате</span><br><strong id="sbpModalCoins">500 наших звёзд</strong></span><strong id="sbpModalPrice">94 ₽</strong></div>
   <div class="sbp-order-meta"><span>Номер заявки</span><strong id="sbpOrderNumber">—</strong></div>
@@ -620,7 +620,7 @@ body:before{content:"";position:fixed;inset:-35%;z-index:-2;pointer-events:none;
  if(sbpTBank)sbpTBank.addEventListener('click',openTBankDetails);
  if(sbpClose)sbpClose.addEventListener('click',closeSbpModal);
  if(sbpBackdrop)sbpBackdrop.addEventListener('click',e=>{if(e.target===sbpBackdrop)closeSbpModal();});
- if(sbpCopy)sbpCopy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText('79531114790');sbpCopy.textContent='Номер скопирован';}catch(_){sbpCopy.textContent='Номер: 79531114790';}});
+ if(sbpCopy)sbpCopy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText('+79959351914');sbpCopy.textContent='Номер скопирован';}catch(_){sbpCopy.textContent='Номер: +79959351914';}});
  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSbpModal();});
  button.addEventListener('click',async()=>{
   const tg=window.Telegram&&window.Telegram.WebApp;
