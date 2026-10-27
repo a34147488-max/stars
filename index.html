@@ -657,7 +657,8 @@ body:before{content:"";position:fixed;inset:-35%;z-index:-2;pointer-events:none;
    const data=await response.json();if(!response.ok||!data.ok)throw new Error(data.error||'Не удалось активировать промокод.');
    const balance=Number(data.balance)||0;const balanceNode=document.getElementById('balance');if(balanceNode)balanceNode.textContent=balance.toLocaleString('ru-RU');
    const wheelBalance=document.getElementById('wheelBalance');if(wheelBalance)wheelBalance.textContent=balance.toLocaleString('ru-RU');
-   message.textContent='Успешно! Начислено '+Number(data.reward).toLocaleString('ru-RU')+' наших звёзд.';input.value='';
+   if(data.promoType==='box12'){message.textContent='STAR-12BOX активирован! Доступны 2 бесплатных открытия Stars 1 и +1,2% к каждому пополнению в течение 12 часов.';input.value='';}
+   else{message.textContent='Успешно! Начислено '+Number(data.reward).toLocaleString('ru-RU')+' наших звёзд.';input.value='';}
   }catch(err){message.textContent=err.message||'Ошибка активации промокода.';}
   finally{submit.disabled=false;}
  });
@@ -682,6 +683,8 @@ body:before{content:"";position:fixed;inset:-35%;z-index:-2;pointer-events:none;
  const openSelected=document.getElementById('boxOpenSelected');
  const status=document.getElementById('boxesStatus');
  const viewport=document.getElementById('boxRollViewport');
+ let freeBoxSpins=0,freeBoxExpiresAt=null;
+ async function refreshBoxPromo(){if(!tg||!tg.initData)return;try{const r=await fetch('/api/boxes/status',{headers:{'X-Telegram-Init-Data':tg.initData}});const d=await r.json();if(r.ok&&d.ok){freeBoxSpins=Number(d.freeSpins)||0;freeBoxExpiresAt=d.expiresAt||null;if(selected)setSelected(selected);if(freeBoxSpins>0)status.textContent='STAR-12BOX: бесплатных Stars 1 осталось '+freeBoxSpins+'. Бонус +1,2% к пополнениям действует 12 часов.';}}catch(_){}}
  const balanceNode=document.getElementById('balance');
  const boxes={
   stars1:{name:'Stars 1',cost:500,max:10},
@@ -704,7 +707,7 @@ body:before{content:"";position:fixed;inset:-35%;z-index:-2;pointer-events:none;
   backdrop.setAttribute('aria-hidden','true');
   document.body.style.overflow='';
  }
- open&&open.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();show();});
+ open&&open.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();show();refreshBoxPromo();});
  close&&close.addEventListener('click',hide);
  backdrop&&backdrop.addEventListener('click',function(e){if(e.target===backdrop)hide();});
  document.addEventListener('keydown',function(e){if(e.key==='Escape')hide();});
@@ -717,8 +720,8 @@ body:before{content:"";position:fixed;inset:-35%;z-index:-2;pointer-events:none;
    button.setAttribute('aria-pressed',active?'true':'false');
   });
   openSelected.disabled=false;
-  openSelected.textContent='Открыть за '+box.cost.toLocaleString('ru-RU')+' звёзд';
-  status.textContent=box.name+' выбран. Цена: '+box.cost.toLocaleString('ru-RU')+' наших звёзд.';
+  openSelected.textContent=(key==='stars1'&&freeBoxSpins>0?'Бесплатно открыть Stars 1 · осталось '+freeBoxSpins:'Открыть за '+box.cost.toLocaleString('ru-RU')+' звёзд');
+  status.textContent=key==='stars1'&&freeBoxSpins>0?'STAR-12BOX активен: бесплатных открытий осталось '+freeBoxSpins+'.':box.name+' выбран. Цена: '+box.cost.toLocaleString('ru-RU')+' наших звёзд.';
  }
  function setBusy(value){
   busy=value;
@@ -745,7 +748,7 @@ body:before{content:"";position:fixed;inset:-35%;z-index:-2;pointer-events:none;
    return;
   }
   selected=key;setBusy(true);
-  status.textContent='Покупаем '+box.name+'…';
+  status.textContent=(key==='stars1'&&freeBoxSpins>0?'Используем бесплатное открытие…':'Покупаем '+box.name+'…');
   hint.style.display='none';roll.classList.add('active');result.textContent='';
   openSelected.textContent='Открываем…';if(buy)buy.style.display='none';
   try{
@@ -784,7 +787,9 @@ body:before{content:"";position:fixed;inset:-35%;z-index:-2;pointer-events:none;
    if(balanceNode)balanceNode.textContent=Number(data.balance).toLocaleString('ru-RU');
    caption.textContent='Результат';
    status.textContent=won?'Поздравляем! Баланс обновлён.':'Бокс открыт. Выплаты нет.';
-   openSelected.textContent='Открыть ещё раз · '+box.cost.toLocaleString('ru-RU')+' звёзд';
+   freeBoxSpins=Number(data.freeSpinsRemaining)||0;freeBoxExpiresAt=data.promoExpiresAt||null;
+   openSelected.textContent=(key==='stars1'&&freeBoxSpins>0?'Бесплатно открыть Stars 1 · осталось '+freeBoxSpins:'Открыть ещё раз · '+box.cost.toLocaleString('ru-RU')+' звёзд');
+   if(data.freeSpin)status.textContent='Бесплатное открытие использовано. Осталось: '+freeBoxSpins+'.';
    if(tg&&tg.HapticFeedback)try{tg.HapticFeedback.notificationOccurred(won?'success':'warning')}catch(_){}
   }catch(e){
    status.textContent=e&&e.message?e.message:'Ошибка открытия бокса.';
