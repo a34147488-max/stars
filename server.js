@@ -301,6 +301,17 @@ app.post('/api/starsdouble/spin', async (req, res) => {
 });
 
 
+app.get('/api/boxes/status', async (req,res) => {
+  try {
+    await ensureDb();
+    const user=authUser(req);
+    if(!user)return res.status(401).json({ok:false,error:'Открой приложение через Telegram-бота.'});
+    const row=await pool.query('SELECT free_spins_remaining,expires_at FROM stars_box_promos WHERE telegram_id=$1',[String(user.id)]);
+    const active=Boolean(row.rowCount && new Date(row.rows[0].expires_at).getTime()>Date.now());
+    return res.json({ok:true,freeSpins:active?Number(row.rows[0].free_spins_remaining||0):0,expiresAt:active?row.rows[0].expires_at:null,topupBonusPercent:active?1.2:0});
+  } catch(e) { console.error('Box promo status error:',e.message); return res.status(503).json({ok:false,error:'Не удалось проверить бесплатные открытия.'}); }
+});
+
 app.post('/api/boxes/open', async (req,res) => {
   let client;
   try {
@@ -335,7 +346,8 @@ app.post('/api/boxes/open', async (req,res) => {
     const balance=Number(updated.rows[0].balance||0);
     const promoStatus=await client.query("SELECT free_spins_remaining,expires_at FROM stars_box_promos WHERE telegram_id=$1",[String(user.id)]);
     await client.query('COMMIT');
-    return res.json({ok:true,box:key,cost:chargedCost,boxCost:box.cost,freeSpin,freeSpinsRemaining:Number(promoStatus.rows[0]?.free_spins_remaining||0),promoExpiresAt:promoStatus.rows[0]?.expires_at||null,multiplier,payout,balance,won});
+    const promoActive=Boolean(promoStatus.rows[0]&&new Date(promoStatus.rows[0].expires_at).getTime()>Date.now());
+    return res.json({ok:true,box:key,cost:chargedCost,boxCost:box.cost,freeSpin,freeSpinsRemaining:promoActive?Number(promoStatus.rows[0].free_spins_remaining||0):0,promoExpiresAt:promoActive?promoStatus.rows[0].expires_at:null,multiplier,payout,balance,won});
   } catch(e) {
     if(client) { try { await client.query('ROLLBACK'); } catch(_) {} }
     console.error('Box opening error:',e.message);
