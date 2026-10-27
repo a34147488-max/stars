@@ -98,7 +98,7 @@ body:before{content:"";position:fixed;inset:-35%;z-index:-2;pointer-events:none;
 @media(max-width:370px){.packages{gap:8px}.pack{padding:13px 10px}.pack-amount{font-size:22px}.deposit-title{font-size:16px}}
 
 /* StarsSlots — iOS 26 glass interface */
-.action-row{display:flex;justify-content:center;align-items:center;gap:9px;margin-top:14px}
+.action-row{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:9px;margin-top:14px;overflow:visible}.action-row #boxesOpen{display:inline-flex!important;visibility:visible!important;opacity:1!important;align-items:center;justify-content:center;min-height:30px;min-width:76px;position:relative;z-index:2;flex:none}
 .action-row .withdraw-open{margin:0;min-width:76px}
 .game-open{padding:6px 13px;border:1px solid #ffffffb8;border-radius:999px;background:#fff;color:#161720;font-size:11px;font-weight:800;letter-spacing:.01em;cursor:pointer;box-shadow:0 3px 14px #ffffff12;transition:transform .15s}
 .game-open:active{transform:scale(.96)}
