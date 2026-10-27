@@ -179,6 +179,29 @@ body:before{content:"";position:fixed;inset:-35%;z-index:-2;pointer-events:none;
 .loot-art{position:absolute;inset:0;z-index:-2;overflow:hidden;display:grid;place-items:center}.loot-art:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#05060b00 15%,#05060b33 45%,#05060bed 100%);z-index:1}.loot-art:after{content:"";position:absolute;width:72%;aspect-ratio:1;border-radius:50%;border:1px solid #ffffff25;box-shadow:0 0 45px var(--box-glow);background:radial-gradient(circle,#ffffff1a,transparent 68%)}.loot-crate{position:relative;z-index:2;width:76px;height:76px;border-radius:21px;display:grid;place-items:center;border:1px solid #ffffff65;background:linear-gradient(145deg,var(--box-light),var(--box-dark));box-shadow:inset 0 1px #ffffff9c,0 12px 36px var(--box-glow);transform:rotate(-8deg);font-size:31px;font-weight:950;letter-spacing:-.08em}.loot-crate:before,.loot-crate:after{content:"";position:absolute;border:1px solid #ffffff54;border-radius:inherit;inset:7px}.loot-crate:after{inset:15px;border-radius:13px}.loot-box-content{position:relative;z-index:2;padding:12px}.loot-box-name{display:block;font-size:15px;font-weight:900;letter-spacing:-.035em}.loot-box-price{display:block;margin-top:5px;font-size:11px;color:#e2e4ef}.loot-box-price b{color:#fff;font-size:14px}.loot-box:nth-child(1){--box-light:#91caff;--box-dark:#234eab;--box-glow:#579aff66;--box-accent:#579aff}.loot-box:nth-child(2){--box-light:#d7a7ff;--box-dark:#6437a5;--box-glow:#ad68ff66;--box-accent:#ad68ff}.loot-box:nth-child(3){--box-light:#7bf0d0;--box-dark:#147b77;--box-glow:#38e6d066;--box-accent:#38e6d0}.loot-box:nth-child(4){--box-light:#ffc77b;--box-dark:#a44a22;--box-glow:#ff9c4566;--box-accent:#ff9c45}.loot-box:nth-child(5){--box-light:#fff1a4;--box-dark:#a88732;--box-glow:#ffe47777;--box-accent:#ffe477;grid-column:1/-1;aspect-ratio:2.25/1}.loot-box:nth-child(5) .loot-crate{width:68px;height:68px}.loot-box:nth-child(5) .loot-art{place-items:center start;padding-left:18%}
 .boxes-hint{margin-top:14px;color:#aeb2c3;font-size:11px;line-height:1.5;text-align:center}.box-roll-area{display:none;margin-top:20px}.box-roll-area.active{display:block}.box-roll-caption{text-align:center;color:#bfc3d3;font-size:12px;margin-bottom:12px}.box-roll-viewport{position:relative;height:110px;overflow:hidden;border:1px solid #ffffff22;border-radius:17px;background:linear-gradient(90deg,#ffffff04,#ffffff0d,#ffffff04);box-shadow:inset 0 0 30px #0004}.box-roll-viewport:before{content:"";position:absolute;z-index:4;top:0;bottom:0;left:50%;width:3px;transform:translateX(-50%);background:#fff;box-shadow:0 0 12px #fff,0 0 25px #b9a5ff;pointer-events:none}.box-roll-viewport:after{content:"";position:absolute;z-index:3;inset:0;pointer-events:none;background:linear-gradient(90deg,#11121b 0%,transparent 14%,transparent 86%,#11121b 100%)}.box-roll-strip{position:absolute;left:0;top:0;height:100%;display:flex;align-items:center;gap:8px;padding:0 8px;will-change:transform}.box-prize{flex:none;width:78px;height:78px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border:1px solid #ffffff25;border-radius:13px;background:linear-gradient(145deg,#ffffff16,#ffffff05);font-size:18px;font-weight:900}.box-prize small{font-size:10px;color:#bfc3d3}.box-prize.win{border-color:#fff;background:linear-gradient(145deg,#d9c6ff35,#ffffff12);box-shadow:0 0 22px #b69bff40}.box-result{text-align:center;margin-top:17px;min-height:58px}.box-result-mult{font-size:32px;font-weight:950;letter-spacing:-.05em}.box-result-copy{font-size:12px;color:#b9bdcd;margin-top:4px}.box-buy-button{width:100%;margin-top:14px;padding:15px;border:0;border-radius:15px;background:#fff;color:#151620;font:inherit;font-size:14px;font-weight:900;cursor:pointer}.box-buy-button:disabled{opacity:.45}.boxes-status{min-height:18px;margin-top:10px;text-align:center;color:#bfc3d3;font-size:12px;line-height:1.45}
 @media(max-width:360px){.action-row{gap:6px}.action-row .withdraw-open,.game-open,.boxes-open{padding:6px 9px;font-size:10px}.boxes-grid{gap:8px}.loot-box-content{padding:10px}.loot-box-name{font-size:13px}}
+
+/* Low-balance reminder */
+.low-balance-backdrop{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(4,5,12,.78);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.low-balance-backdrop.open{display:flex;animation:lowFadeIn .22s ease-out}
+.low-balance-modal{position:relative;isolation:isolate;overflow:hidden;width:100%;max-width:390px;padding:27px 21px 21px;border:1px solid rgba(255,255,255,.2);border-radius:29px;background:linear-gradient(155deg,rgba(44,47,68,.98),rgba(15,16,26,.99) 72%);box-shadow:0 26px 90px #0009, inset 0 1px 0 #ffffff16;text-align:center}
+.low-balance-modal:before{content:"";position:absolute;z-index:-1;width:220px;height:220px;top:-125px;left:calc(50% - 110px);border-radius:50%;background:#9a83ff55;filter:blur(25px);pointer-events:none}
+.low-balance-symbol{width:68px;height:68px;margin:0 auto 16px;display:grid;place-items:center;border:1px solid #ffffff28;border-radius:23px;background:linear-gradient(145deg,#ffffff1b,#ffffff05);box-shadow:0 8px 28px #8c7bff20}
+.low-balance-symbol svg{width:34px;height:34px;filter:drop-shadow(0 0 12px #fff5)}
+.low-balance-title{font-size:23px;font-weight:900;letter-spacing:-.045em;line-height:1.12}
+.low-balance-copy{margin:11px auto 0;max-width:300px;color:#c4c7d7;font-size:14px;line-height:1.55}
+.low-balance-copy strong{color:#fff}
+.low-balance-bonus{margin:18px 0 16px;padding:13px 12px;border:1px solid #b8a1ff55;border-radius:16px;background:linear-gradient(110deg,#9272ff22,#ffffff07);color:#e6ddff;font-size:13px;font-weight:750;line-height:1.45}
+.low-balance-bonus b{display:block;color:#fff;font-size:15px;margin-bottom:2px}
+.low-balance-actions{display:grid;gap:9px}
+.low-balance-primary,.low-balance-secondary{width:100%;min-height:48px;padding:13px 15px;border-radius:15px;font:inherit;font-size:14px;font-weight:850;cursor:pointer;transition:transform .15s,opacity .15s}
+.low-balance-primary{border:0;background:linear-gradient(110deg,#fff,#e9e7ff);color:#171622;box-shadow:0 8px 22px #ffffff12}
+.low-balance-secondary{border:1px solid #ffffff25;background:#ffffff0a;color:#fff}
+.low-balance-primary:active,.low-balance-secondary:active{transform:scale(.98)}
+.low-balance-close{position:absolute;right:13px;top:13px;width:32px;height:32px;border:1px solid #ffffff20;border-radius:50%;background:#ffffff0b;color:#dfe1ec;font-size:21px;cursor:pointer}
+.low-balance-footnote{margin-top:13px;color:#898da1;font-size:11px;line-height:1.4}
+@keyframes lowFadeIn{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.low-balance-backdrop.open{animation:none}}
+
 </style>
 </head>
 <body>
@@ -332,6 +355,19 @@ body:before{content:"";position:fixed;inset:-35%;z-index:-2;pointer-events:none;
 <button class="box-buy-button" id="boxBuyButton" type="button" style="display:none">Открыть ещё раз</button><div class="boxes-status" id="boxesStatus" aria-live="polite"></div>
 </section></div>
 </main>
+
+<div class="low-balance-backdrop" id="lowBalanceBackdrop" aria-hidden="true">
+ <section class="low-balance-modal" role="dialog" aria-modal="true" aria-labelledby="lowBalanceTitle">
+  <button class="low-balance-close" id="lowBalanceClose" type="button" aria-label="Закрыть">×</button>
+  <div class="low-balance-symbol" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 3c2.1 0 3.4 2.8 4.7 7.6 1.2 4.5 2.4 5.7 6.9 6.9 4.8 1.3 7.6 2.6 7.6 4.8s-2.8 3.4-7.6 4.7c-4.5 1.2-5.7 2.4-6.9 6.9-1.3 4.8-2.6 7.6-4.7 7.6s-3.5-2.8-4.8-7.6c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 25.7 4.8 24.4 4.8 22.2s2.7-3.5 7.5-4.8c4.5-1.2 5.7-2.4 6.9-6.9C20.5 5.8 21.9 3 24 3Z" fill="#fff"/></svg></div>
+  <div class="low-balance-title" id="lowBalanceTitle">Звёздочки почти закончились</div>
+  <p class="low-balance-copy">На балансе осталось <strong id="lowBalanceAmount">меньше 10</strong> наших звёзд. Пополни баланс или пригласи друзей, чтобы продолжить игру.</p>
+  <div class="low-balance-bonus"><b>Бонус для первого пополнения</b>Пополни первый раз и получи <strong>+5%</strong> к пополнению</div>
+  <div class="low-balance-actions"><button class="low-balance-primary" id="lowBalanceTopUp" type="button">Пополнить баланс</button><button class="low-balance-secondary" id="lowBalanceInvite" type="button">Пригласить друзей</button></div>
+  <div class="low-balance-footnote">Напоминание появится снова, когда баланс вновь опустится ниже 10 звёзд.</div>
+ </section>
+</div>
+
 <script>
 (function(){
  const tg=window.Telegram&&window.Telegram.WebApp;
@@ -452,6 +488,25 @@ body:before{content:"";position:fixed;inset:-35%;z-index:-2;pointer-events:none;
  }
  syncAppBalance();
  setInterval(syncAppBalance,5000);
+
+
+ // Low-balance prompt: only show when the server confirms the balance is below 10.
+ const lowBalanceBackdrop=document.getElementById('lowBalanceBackdrop');
+ const lowBalanceAmount=document.getElementById('lowBalanceAmount');
+ const lowBalanceClose=document.getElementById('lowBalanceClose');
+ const lowBalanceTopUp=document.getElementById('lowBalanceTopUp');
+ const lowBalanceInvite=document.getElementById('lowBalanceInvite');
+ const lowBalanceNode=document.getElementById('balance');
+ let lowBalanceDismissed=false,lowBalanceLastValue=null;
+ function closeLowBalance(){if(!lowBalanceBackdrop)return;lowBalanceBackdrop.classList.remove('open');lowBalanceBackdrop.setAttribute('aria-hidden','true');document.body.style.overflow='';lowBalanceDismissed=true;}
+ function showLowBalance(value){if(!lowBalanceBackdrop||!Number.isFinite(value)||value>=10||lowBalanceDismissed)return;lowBalanceAmount.textContent=Math.max(0,value).toLocaleString('ru-RU')+' звёзд';lowBalanceBackdrop.classList.add('open');lowBalanceBackdrop.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';}
+ function checkLowBalance(value){const n=Number(value);if(!Number.isFinite(n))return;if(lowBalanceLastValue!==null&&lowBalanceLastValue>=10&&n<10)lowBalanceDismissed=false;lowBalanceLastValue=n;if(n<10)showLowBalance(n);}
+ lowBalanceClose&&lowBalanceClose.addEventListener('click',closeLowBalance);
+ lowBalanceBackdrop&&lowBalanceBackdrop.addEventListener('click',function(e){if(e.target===lowBalanceBackdrop)closeLowBalance();});
+ lowBalanceTopUp&&lowBalanceTopUp.addEventListener('click',function(){closeLowBalance();const target=document.getElementById('depositButton');if(target){target.scrollIntoView({behavior:'smooth',block:'center'});target.focus({preventScroll:true});}});
+ lowBalanceInvite&&lowBalanceInvite.addEventListener('click',function(){closeLowBalance();const shareUrl='https://t.me/share/url?url='+encodeURIComponent(window.location.href)+'&text='+encodeURIComponent('Заходи в Stars — давай играть вместе!');if(tg&&typeof tg.openTelegramLink==='function')tg.openTelegramLink(shareUrl);else window.open(shareUrl,'_blank','noopener');});
+ if(lowBalanceNode&&window.MutationObserver){new MutationObserver(function(){checkLowBalance(Number(lowBalanceNode.textContent.replace(/[^0-9,.-]/g,'').replace(',','.')));}).observe(lowBalanceNode,{childList:true,characterData:true,subtree:true});}
+ if(tg&&tg.initData){fetch('/api/balance',{headers:{'X-Telegram-Init-Data':tg.initData}}).then(function(r){return r.json();}).then(function(d){if(d&&d.ok){const n=Number(d.balance)||0;lowBalanceLastValue=n;if(lowBalanceNode)lowBalanceNode.textContent=n.toLocaleString('ru-RU');checkLowBalance(n);}}).catch(function(){});}
 
 })();
 </script>
