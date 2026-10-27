@@ -45,6 +45,7 @@ async function ensureDb() {
     CREATE TABLE IF NOT EXISTS stars_payments (telegram_payment_charge_id TEXT PRIMARY KEY, telegram_id BIGINT NOT NULL, package_stars INTEGER NOT NULL, coins BIGINT NOT NULL, currency TEXT NOT NULL, total_amount INTEGER NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
     CREATE TABLE IF NOT EXISTS stars_promocodes (code TEXT PRIMARY KEY, reward BIGINT NOT NULL CHECK (reward > 0), max_activations INTEGER NOT NULL CHECK (max_activations > 0), activations INTEGER NOT NULL DEFAULT 0 CHECK (activations >= 0 AND activations <= max_activations));
     CREATE TABLE IF NOT EXISTS stars_promocode_uses (code TEXT NOT NULL REFERENCES stars_promocodes(code), telegram_id BIGINT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), PRIMARY KEY (code, telegram_id));
+    CREATE TABLE IF NOT EXISTS stars_box_promos (telegram_id BIGINT PRIMARY KEY, code TEXT NOT NULL, activated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), expires_at TIMESTAMPTZ NOT NULL, free_spins_remaining INTEGER NOT NULL DEFAULT 2 CHECK (free_spins_remaining >= 0));
     CREATE TABLE IF NOT EXISTS stars_daily_games (telegram_id BIGINT NOT NULL, game TEXT NOT NULL CHECK (game IN ('dice','darts','slots')), played_on DATE NOT NULL DEFAULT CURRENT_DATE, choice TEXT, value INTEGER, won BOOLEAN NOT NULL DEFAULT FALSE, payout BIGINT NOT NULL DEFAULT 0, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), PRIMARY KEY (telegram_id,game,played_on));
     CREATE TABLE IF NOT EXISTS stars_referrals (referred_id BIGINT PRIMARY KEY, referrer_id BIGINT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), CHECK (referred_id <> referrer_id));
     CREATE TABLE IF NOT EXISTS stars_slot_wins (telegram_id BIGINT PRIMARY KEY, total_won BIGINT NOT NULL DEFAULT 0, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
@@ -55,6 +56,7 @@ async function ensureDb() {
   `);
   const promoCodes = ['STAR200-K7Q4', 'STAR200-M9X2', 'STAR200-P5L8', 'STAR200-R3V6', 'STAR200-T8N4', 'STAR200-W2D7', 'STAR200-B6H9', 'STAR200-C4Z1', 'STAR200-F7J3', 'STAR200-Y5G8'];
   for (const code of promoCodes) await pool.query('INSERT INTO stars_promocodes (code,reward,max_activations) VALUES ($1,200,1) ON CONFLICT (code) DO NOTHING', [code]);
+  await pool.query("INSERT INTO stars_promocodes (code,reward,max_activations) VALUES ('STAR-12BOX',1,10) ON CONFLICT (code) DO NOTHING");
   // One-time global leaderboard reset requested by the owner. Balances are not modified.
   const resetMarker = await pool.query("SELECT 1 FROM stars_settings WHERE key='leaderboard_reset_all_v1'");
   if (!resetMarker.rowCount) {
@@ -205,6 +207,13 @@ app.post('/api/promocodes/activate', async (req, res) => {
     await client.query('INSERT INTO stars_users (telegram_id,username,first_name) VALUES ($1,$2,$3) ON CONFLICT (telegram_id) DO NOTHING',[String(user.id),user.username||null,user.first_name||null]);
     await client.query('INSERT INTO stars_promocode_uses (code,telegram_id) VALUES ($1,$2)',[code,String(user.id)]);
     await client.query('UPDATE stars_promocodes SET activations=activations+1 WHERE code=$1',[code]);
+    if (code === 'STAR-12BOX') {
+      await client.query("INSERT INTO stars_box_promos (telegram_id,code,activated_at,expires_at,free_spins_remaining) VALUES ($1,$2,NOW(),NOW()+INTERVAL '12 hours',2)",[String(user.id),code]);
+      await client.query('UPDATE stars_users SET username=$2,first_name=$3,updated_at=NOW() WHERE telegram_id=$1',[String(user.id),user.username||null,user.first_name||null]);
+      const balance = await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1',[String(user.id)]);
+      await client.query('COMMIT');
+      return res.json({ok:true,reward:0,balance:Number(balance.rows[0].balance),promoType:'box12',freeSpins:2,expiresAt:new Date(Date.now()+12*60*60*1000).toISOString(),message:'STAR-12BOX активирован! Доступны 2 бесплатных открытия Stars 1 и +1,2% к пополнениям в течение 12 часов.'});
+    }
     await client.query('UPDATE stars_users SET balance=balance+$2,username=$3,first_name=$4,updated_at=NOW() WHERE telegram_id=$1',[String(user.id),Number(row.reward),user.username||null,user.first_name||null]);
     const balance = await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1',[String(user.id)]);
     await client.query('COMMIT');
@@ -315,12 +324,18 @@ app.post('/api/boxes/open', async (req,res) => {
     const row=await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1 FOR UPDATE',[String(user.id)]);
     if (!row.rowCount) { await client.query('ROLLBACK'); return res.status(404).json({ok:false,error:'Профиль не найден. Перезапусти приложение.'}); }
     const balanceNow=Number(row.rows[0].balance||0);
-    if (balanceNow<box.cost) { await client.query('ROLLBACK'); return res.status(400).json({ok:false,error:'Для '+box.name+' нужно '+box.cost.toLocaleString('ru-RU')+' наших звёзд.'}); }
-    await client.query('UPDATE stars_users SET balance=balance-$2+$3,updated_at=NOW() WHERE telegram_id=$1',[String(user.id),box.cost,payout]);
+    let freeSpinRow={rowCount:0,rows:[]};
+    if(key==='stars1') freeSpinRow=await client.query("SELECT free_spins_remaining,expires_at FROM stars_box_promos WHERE telegram_id=$1 AND expires_at>NOW() AND free_spins_remaining>0 FOR UPDATE",[String(user.id)]);
+    const freeSpin=Boolean(freeSpinRow.rowCount);
+    const chargedCost=freeSpin?0:box.cost;
+    if (balanceNow<chargedCost) { await client.query('ROLLBACK'); return res.status(400).json({ok:false,error:'Для '+box.name+' нужно '+box.cost.toLocaleString('ru-RU')+' наших звёзд.'}); }
+    if(freeSpin) await client.query('UPDATE stars_box_promos SET free_spins_remaining=free_spins_remaining-1 WHERE telegram_id=$1',[String(user.id)]);
+    await client.query('UPDATE stars_users SET balance=balance-$2+$3,updated_at=NOW() WHERE telegram_id=$1',[String(user.id),chargedCost,payout]);
     const updated=await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1',[String(user.id)]);
     const balance=Number(updated.rows[0].balance||0);
+    const promoStatus=await client.query("SELECT free_spins_remaining,expires_at FROM stars_box_promos WHERE telegram_id=$1",[String(user.id)]);
     await client.query('COMMIT');
-    return res.json({ok:true,box:key,cost:box.cost,multiplier,payout,balance,won});
+    return res.json({ok:true,box:key,cost:chargedCost,boxCost:box.cost,freeSpin,freeSpinsRemaining:Number(promoStatus.rows[0]?.free_spins_remaining||0),promoExpiresAt:promoStatus.rows[0]?.expires_at||null,multiplier,payout,balance,won});
   } catch(e) {
     if(client) { try { await client.query('ROLLBACK'); } catch(_) {} }
     console.error('Box opening error:',e.message);
@@ -584,7 +599,12 @@ app.post('/api/telegram/webhook', async (req, res) => {
       await client.query('BEGIN');
       await client.query('INSERT INTO stars_users (telegram_id, username, first_name) VALUES ($1,$2,$3) ON CONFLICT (telegram_id) DO NOTHING', [String(paymentSender.id), paymentSender.username || null, paymentSender.first_name || null]);
       const inserted = await client.query('INSERT INTO stars_payments (telegram_payment_charge_id, telegram_id, package_stars, coins, currency, total_amount) VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT (telegram_payment_charge_id) DO NOTHING RETURNING telegram_payment_charge_id', [payment.telegram_payment_charge_id, String(paymentSender.id), pack.stars, pack.coins, payment.currency, payment.total_amount]);
-      if (inserted.rowCount) await client.query('UPDATE stars_users SET balance=balance+$2, username=$3, first_name=$4, updated_at=NOW() WHERE telegram_id=$1', [String(paymentSender.id), pack.coins, paymentSender.username || null, paymentSender.first_name || null]);
+      let topupBonus=0;
+      if (inserted.rowCount) {
+        const activePromo=await client.query("SELECT telegram_id FROM stars_box_promos WHERE telegram_id=$1 AND expires_at>NOW() FOR UPDATE",[String(paymentSender.id)]);
+        if(activePromo.rowCount) topupBonus=Math.floor(pack.coins*0.012);
+        await client.query('UPDATE stars_users SET balance=balance+$2, username=$3, first_name=$4, updated_at=NOW() WHERE telegram_id=$1', [String(paymentSender.id), pack.coins+topupBonus, paymentSender.username || null, paymentSender.first_name || null]);
+      }
       await client.query('COMMIT');
     } catch (e) { await client.query('ROLLBACK'); throw e; } finally { client.release(); }
     res.sendStatus(200);
