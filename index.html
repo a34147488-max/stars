@@ -327,7 +327,7 @@ body:before{content:"";position:fixed;inset:-35%;z-index:-2;pointer-events:none;
 <button class="loot-box" type="button" data-box="stars4"><span class="loot-art"><span class="loot-crate">S4</span></span><span class="loot-box-content"><span class="loot-box-name">Stars 4</span><span class="loot-box-price"><b>4 000</b> наших звёзд</span></span></button>
 <button class="loot-box" type="button" data-box="starsArc"><span class="loot-art"><span class="loot-crate">ARC</span></span><span class="loot-box-content"><span class="loot-box-name">Stars Arc</span><span class="loot-box-price"><b>9 000</b> наших звёзд</span></span></button>
 </div>
-<div class="boxes-hint" id="boxesHint">Покупка списывает цену бокса. При ×0 выплата равна нулю.</div>
+<div class="boxes-hint" id="boxesHint">Выбери бокс. Цена спишется только после нажатия кнопки открытия.</div><button class="box-buy-button" id="boxOpenSelected" type="button" disabled>Выбери бокс</button>
 <div class="box-roll-area" id="boxRollArea"><div class="box-roll-caption" id="boxRollCaption">Определяем приз…</div><div class="box-roll-viewport" id="boxRollViewport"><div class="box-roll-strip" id="boxRollStrip"></div></div><div class="box-result" id="boxResult"></div></div>
 <button class="box-buy-button" id="boxBuyButton" type="button" style="display:none">Открыть ещё раз</button><div class="boxes-status" id="boxesStatus" aria-live="polite"></div>
 </section></div>
@@ -612,43 +612,134 @@ body:before{content:"";position:fixed;inset:-35%;z-index:-2;pointer-events:none;
 
 <script>
 (function(){
+ 'use strict';
  const tg=window.Telegram&&window.Telegram.WebApp;
- const backdrop=document.getElementById('boxesBackdrop'),open=document.getElementById('boxesOpen'),close=document.getElementById('boxesClose');
- const grid=document.getElementById('boxesGrid'),hint=document.getElementById('boxesHint'),roll=document.getElementById('boxRollArea'),strip=document.getElementById('boxRollStrip'),caption=document.getElementById('boxRollCaption'),result=document.getElementById('boxResult'),buy=document.getElementById('boxBuyButton'),status=document.getElementById('boxesStatus');
- const boxes={stars1:{name:'Stars 1',cost:500,max:10},stars2:{name:'Stars 2',cost:900,max:50},stars3:{name:'Stars 3',cost:1500,max:75},stars4:{name:'Stars 4',cost:4000,max:150},starsArc:{name:'Stars Arc',cost:9000,max:300}};
- let selected=null,busy=false,lastResult=null;
- function show(){backdrop.classList.add('open');backdrop.setAttribute('aria-hidden','false');if(tg?.HapticFeedback)tg.HapticFeedback.impactOccurred('light');}
- function hide(){if(busy)return;backdrop.classList.remove('open');backdrop.setAttribute('aria-hidden','true');}
- open?.addEventListener('click',show);close?.addEventListener('click',hide);backdrop?.addEventListener('click',e=>{if(e.target===backdrop)hide();});
- document.addEventListener('keydown',e=>{if(e.key==='Escape')hide();});
- function resetRoll(){roll.classList.remove('active');strip.style.transition='none';strip.style.transform='translateX(0)';result.innerHTML='';caption.textContent='Определяем приз…';buy.style.display='none';hint.style.display='block';grid.style.display='grid';}
- function prizeCard(multiplier,win){const el=document.createElement('div');el.className='box-prize'+(win?' win':'');const big=document.createElement('span');big.textContent='×'+multiplier;const small=document.createElement('small');small.textContent=multiplier===0?'Без выплаты':'Множитель';el.append(big,small);return el;}
+ const backdrop=document.getElementById('boxesBackdrop');
+ const open=document.getElementById('boxesOpen');
+ const close=document.getElementById('boxesClose');
+ const grid=document.getElementById('boxesGrid');
+ const hint=document.getElementById('boxesHint');
+ const roll=document.getElementById('boxRollArea');
+ const strip=document.getElementById('boxRollStrip');
+ const caption=document.getElementById('boxRollCaption');
+ const result=document.getElementById('boxResult');
+ const buy=document.getElementById('boxBuyButton');
+ const openSelected=document.getElementById('boxOpenSelected');
+ const status=document.getElementById('boxesStatus');
+ const viewport=document.getElementById('boxRollViewport');
+ const balanceNode=document.getElementById('balance');
+ const boxes={
+  stars1:{name:'Stars 1',cost:500,max:10},
+  stars2:{name:'Stars 2',cost:900,max:50},
+  stars3:{name:'Stars 3',cost:1500,max:75},
+  stars4:{name:'Stars 4',cost:4000,max:150},
+  starsArc:{name:'Stars Arc',cost:9000,max:300}
+ };
+ let selected=null,busy=false;
+ function show(){
+  if(!backdrop)return;
+  backdrop.classList.add('open');
+  backdrop.setAttribute('aria-hidden','false');
+  document.body.style.overflow='hidden';
+  if(tg&&tg.HapticFeedback)try{tg.HapticFeedback.impactOccurred('light')}catch(_){}
+ }
+ function hide(){
+  if(busy||!backdrop)return;
+  backdrop.classList.remove('open');
+  backdrop.setAttribute('aria-hidden','true');
+  document.body.style.overflow='';
+ }
+ open&&open.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();show();});
+ close&&close.addEventListener('click',hide);
+ backdrop&&backdrop.addEventListener('click',function(e){if(e.target===backdrop)hide();});
+ document.addEventListener('keydown',function(e){if(e.key==='Escape')hide();});
+ function setSelected(key){
+  const box=boxes[key];if(!box||busy)return;
+  selected=key;
+  grid.querySelectorAll('[data-box]').forEach(function(button){
+   const active=button.dataset.box===key;
+   button.classList.toggle('selected',active);
+   button.setAttribute('aria-pressed',active?'true':'false');
+  });
+  openSelected.disabled=false;
+  openSelected.textContent='Открыть за '+box.cost.toLocaleString('ru-RU')+' звёзд';
+  status.textContent=box.name+' выбран. Цена: '+box.cost.toLocaleString('ru-RU')+' наших звёзд.';
+ }
+ function setBusy(value){
+  busy=value;
+  grid.querySelectorAll('[data-box]').forEach(function(button){button.disabled=value;});
+  openSelected.disabled=value||!selected;
+  if(buy)buy.disabled=value;
+  if(close)close.disabled=value;
+ }
+ function prizeCard(multiplier,win){
+  const el=document.createElement('div');el.className='box-prize'+(win?' win':'');
+  const big=document.createElement('span');big.textContent='×'+multiplier;
+  const small=document.createElement('small');small.textContent=multiplier===0?'Без выплаты':'Множитель';
+  el.append(big,small);return el;
+ }
+ function resetAnimation(){
+  strip.style.transition='none';strip.style.transform='translateX(0)';
+  result.textContent='';caption.textContent='Бокс открывается…';
+ }
  async function openBox(key){
   if(busy)return;
-  selected=key;const box=boxes[key];if(!box)return;
-  if(!tg?.initData){status.textContent='Открой приложение через Telegram-бота, чтобы открыть боксы.';return;}
-  busy=true;status.textContent='Покупаем '+box.name+'…';grid.querySelectorAll('button').forEach(b=>b.disabled=true);buy.disabled=true;buy.style.display='none';hint.style.display='none';roll.classList.add('active');result.innerHTML='';caption.textContent='Бокс открывается…';
+  const box=boxes[key];if(!box)return;
+  if(!tg||!tg.initData){
+   status.textContent='Открой приложение через Telegram-бота, чтобы открыть боксы.';
+   return;
+  }
+  selected=key;setBusy(true);
+  status.textContent='Покупаем '+box.name+'…';
+  hint.style.display='none';roll.classList.add('active');result.textContent='';
+  openSelected.textContent='Открываем…';if(buy)buy.style.display='none';
   try{
-   const response=await fetch('/api/boxes/open',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':tg.initData},body:JSON.stringify({box:key})});
-   const data=await response.json();if(!response.ok||!data.ok)throw new Error(data.error||'Не удалось открыть бокс.');
-   lastResult=data;const items=Array.from({length:34},(_,i)=>({multiplier:(i%9===0?Math.floor(Math.random()*box.max)+1:0),win:false}));
-   const targetIndex=28;items[targetIndex]={multiplier:data.multiplier,win:true};
-   strip.replaceChildren();items.forEach(item=>strip.appendChild(prizeCard(item.multiplier,item.win)));
-   strip.style.transition='none';strip.style.transform='translateX(0)';
-   const viewport=document.getElementById('boxRollViewport');const cardWidth=86;const distance=targetIndex*cardWidth+39-viewport.clientWidth/2;
-   requestAnimationFrame(()=>requestAnimationFrame(()=>{strip.style.transition='transform 4.4s cubic-bezier(.08,.78,.12,1)';strip.style.transform='translateX(-'+Math.max(0,distance)+'px)';}));
+   const response=await fetch('/api/boxes/open',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','X-Telegram-Init-Data':tg.initData},
+    body:JSON.stringify({box:key})
+   });
+   const data=await response.json();
+   if(!response.ok||!data.ok)throw new Error(data.error||'Не удалось открыть бокс.');
+   const items=Array.from({length:36},function(_,i){
+    return {multiplier:(i%8===0?Math.floor(Math.random()*box.max)+1:0),win:false};
+   });
+   const targetIndex=30;
+   items[targetIndex]={multiplier:Number(data.multiplier),win:true};
+   strip.replaceChildren();
+   items.forEach(function(item){strip.appendChild(prizeCard(item.multiplier,item.win));});
+   resetAnimation();
    caption.textContent=box.name+' · прокрутка призов';
-   await new Promise(resolve=>setTimeout(resolve,4550));
-   const won=Number(data.payout)>0;result.innerHTML='<div class="box-result-mult">×'+Number(data.multiplier)+'</div><div class="box-result-copy">'+(won?'Выигрыш: '+Number(data.payout).toLocaleString('ru-RU')+' наших звёзд':'Выпал ×0. Выплаты нет.')+'</div>';
-   document.getElementById('balance').textContent=Number(data.balance).toLocaleString('ru-RU');
-   if(tg?.HapticFeedback)tg.HapticFeedback.notificationOccurred(won?'success':'warning');
-   caption.textContent='Результат';status.textContent=won?'Поздравляем! Баланс обновлён.':'Бокс открыт. Попробуй ещё раз.';
-   buy.textContent='Открыть ещё раз · '+box.cost.toLocaleString('ru-RU');buy.style.display='block';buy.disabled=false;
-  }catch(e){status.textContent=e.message||'Ошибка открытия бокса.';if(lastResult===null){roll.classList.remove('active');hint.style.display='block';}}
-  finally{busy=false;grid.querySelectorAll('button').forEach(b=>b.disabled=false);}
+   await new Promise(function(resolve){requestAnimationFrame(function(){requestAnimationFrame(function(){
+    const target=strip.children[targetIndex];
+    const distance=Math.max(0,target.offsetLeft+target.offsetWidth/2-viewport.clientWidth/2);
+    strip.style.transition='transform 4.6s cubic-bezier(.08,.78,.12,1)';
+    strip.style.transform='translate3d(-'+distance+'px,0,0)';
+    setTimeout(resolve,4700);
+   });});});
+   const won=Number(data.payout)>0;
+   const mult=document.createElement('div');mult.className='box-result-mult';mult.textContent='×'+Number(data.multiplier);
+   const copy=document.createElement('div');copy.className='box-result-copy';
+   copy.textContent=won?'Выигрыш: '+Number(data.payout).toLocaleString('ru-RU')+' наших звёзд':'Выпал ×0. Выплаты нет.';
+   result.replaceChildren(mult,copy);
+   if(balanceNode)balanceNode.textContent=Number(data.balance).toLocaleString('ru-RU');
+   caption.textContent='Результат';
+   status.textContent=won?'Поздравляем! Баланс обновлён.':'Бокс открыт. Выплаты нет.';
+   openSelected.textContent='Открыть ещё раз · '+box.cost.toLocaleString('ru-RU')+' звёзд';
+   if(tg&&tg.HapticFeedback)try{tg.HapticFeedback.notificationOccurred(won?'success':'warning')}catch(_){}
+  }catch(e){
+   status.textContent=e&&e.message?e.message:'Ошибка открытия бокса.';
+   if(!strip.children.length){roll.classList.remove('active');hint.style.display='block';}
+   openSelected.textContent='Открыть за '+box.cost.toLocaleString('ru-RU')+' звёзд';
+  }finally{setBusy(false);}
  }
- grid?.querySelectorAll('[data-box]').forEach(button=>button.addEventListener('click',()=>openBox(button.dataset.box)));
- buy?.addEventListener('click',()=>{if(selected)openBox(selected);});
+ if(grid){
+  grid.querySelectorAll('[data-box]').forEach(function(button){
+   button.addEventListener('click',function(){setSelected(button.dataset.box);});
+  });
+ }
+ openSelected&&openSelected.addEventListener('click',function(){if(selected)openBox(selected);});
+ buy&&buy.addEventListener('click',function(){if(selected)openBox(selected);});
 })();
 </script>
 </body>
