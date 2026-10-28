@@ -927,6 +927,7 @@ body:before{content:"";position:fixed;inset:-35%;z-index:-2;pointer-events:none;
  $('cityCopyReferral').addEventListener('click',async()=>{const link=$('cityReferralLink').textContent;if(!/^https:\/\//.test(link))return;try{if(navigator.clipboard&&navigator.clipboard.writeText)await navigator.clipboard.writeText(link);else{const ta=document.createElement('textarea');ta.value=link;document.body.append(ta);ta.select();document.execCommand('copy');ta.remove()}$('cityReferralMessage').textContent='Ссылка скопирована.'}catch(e){$('cityReferralMessage').textContent='Не удалось скопировать. Нажми и удерживай ссылку.'}});
  async function pump(){if(busy||queue<1)return;busy=true;render();try{while(queue>0){queue--;const d=await api('/api/cities/tap','POST');state={...state,balance:d.cityBalance??d.balance,city:d.city,clicks:d.clicks,level:d.level,goldenFrame:d.goldenFrame};render()}}catch(e){queue=0;$('cityMessage').textContent=e.message}finally{busy=false;render();if(queue>0)pump()}}
  $('cityTap').addEventListener('click',()=>{queue=Math.min(30,queue+1);$('cityMessage').textContent=queue>1?'Клики в очереди: '+queue:'Каждые 10 кликов — новый уровень.';pump()});
+ load();
 })();
 </script>
 </body>
