@@ -365,6 +365,18 @@ app.post('/api/starsslots/spin', async (req, res) => {
 
 
 
+app.post('/api/penalty/play',async(req,res)=>{
+ const user=authUser(req);if(!user)return res.status(401).json({ok:false,error:'Открой приложение через Telegram.'});
+ const bet=Number(req.body&&req.body.bet),direction=String(req.body&&req.body.direction||'');
+ if(!Number.isSafeInteger(bet)||bet<1||bet>1000000000)return res.status(400).json({ok:false,error:'Ставка должна быть целым числом от 1.'});
+ if(!['left','center','right'].includes(direction))return res.status(400).json({ok:false,error:'Выбери направление удара.'});
+ const c=await pool.connect();
+ try{await ensureDb();await c.query('BEGIN');const row=await c.query('SELECT balance FROM stars_users WHERE telegram_id=$1 FOR UPDATE',[String(user.id)]);const current=Number(row.rows[0]?.balance||0);if(current<bet){await c.query('ROLLBACK');return res.status(400).json({ok:false,error:'Недостаточно звёзд на основном балансе.'});}
+ const goal=crypto.randomInt(100)<8,payout=goal?bet*8:0;
+ const updated=await c.query('UPDATE stars_users SET balance=balance-$2+$3,updated_at=NOW() WHERE telegram_id=$1 RETURNING balance',[String(user.id),bet,payout]);
+ await c.query('COMMIT');return res.json({ok:true,goal,direction,bet,payout,balance:Number(updated.rows[0].balance)});
+ }catch(e){try{await c.query('ROLLBACK')}catch(_){}console.error('Penalty game error:',e.message);return res.status(503).json({ok:false,error:'Не удалось выполнить пенальти.'})}finally{c.release()}
+});
 app.post('/api/cups/play', async (req,res) => { const client=await pool.connect(); try { await ensureDb(); const user=validateTelegramInitData(req.get('X-Telegram-Init-Data'),process.env.BOT_TOKEN); if(!user)return res.status(401).json({ok:false,error:'Открой приложение через Telegram-бота.'}); const bet=Number(req.body&&req.body.bet),choice=Number(req.body&&req.body.choice); if(!Number.isSafeInteger(bet)||bet<1||bet>1000000000)return res.status(400).json({ok:false,error:'Ставка должна быть целым числом от 1.'}); if(!Number.isInteger(choice)||choice<0||choice>4)return res.status(400).json({ok:false,error:'Выбери один из пяти стаканчиков.'}); await client.query('BEGIN'); const row=await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1 FOR UPDATE',[String(user.id)]); const current=Number(row.rows[0]?.balance||0); if(current<bet){await client.query('ROLLBACK');return res.status(400).json({ok:false,error:'Недостаточно звёзд на балансе.'});} const winningCup=crypto.randomInt(0,5),won=choice===winningCup,payout=won?bet*4:0; await client.query('UPDATE stars_users SET balance=balance-$2+$3,updated_at=NOW() WHERE telegram_id=$1',[String(user.id),bet,payout]); if(won)await client.query('INSERT INTO stars_cup_wins(telegram_id,total_won) VALUES($1,$2) ON CONFLICT(telegram_id) DO UPDATE SET total_won=stars_cup_wins.total_won+EXCLUDED.total_won,updated_at=NOW()',[String(user.id),payout]); const updated=await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1',[String(user.id)]); await client.query('COMMIT'); return res.json({ok:true,winningCup,won,payout,bet,balance:Number(updated.rows[0]?.balance||0)}); } catch(e){try{await client.query('ROLLBACK')}catch(_){} console.error('Cups game error:',e.message); return res.status(503).json({ok:false,error:'Не удалось сыграть.'});} finally{client.release();} });
 app.post('/api/starsdouble/spin', async (req, res) => {
   try {
