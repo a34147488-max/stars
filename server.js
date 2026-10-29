@@ -527,6 +527,7 @@ app.post('/api/telegram/webhook', async (req, res) => {
         [{text:'Сбросить все топы до 0',callback_data:'adm:leaderboard:reset'}],
         [{text:'Создать промокод',callback_data:'adm:promo:create'}],
         [{text:'Создать бонус ссылку',callback_data:'adm:bonuslink:create'}],
+         [{text:'Проверка бонусов',callback_data:'adm:bonuses:check'}],
         [{text:'Вывести звезды с бота',callback_data:'adm:botstars'}]
       ]}});
       try {
@@ -560,7 +561,25 @@ app.post('/api/telegram/webhook', async (req, res) => {
     if (callback && adminRow.rowCount) {
       const action = String(callback.data || '');
       await telegramApi('answerCallbackQuery',{callback_query_id:callback.id});
-      if (action === 'adm:botstars') {
+      if (action === 'adm:bonuses:check') {
+        const [promos, links, me] = await Promise.all([
+          pool.query("SELECT code,reward,max_activations,activations FROM stars_promocodes WHERE activations < max_activations ORDER BY code"),
+          pool.query("SELECT token,balance_type,reward,max_activations,activations,created_at FROM stars_bonus_links WHERE activations < max_activations ORDER BY created_at DESC"),
+          telegramApi('getMe', {})
+        ]);
+        const botUsername = String(me?.username || '');
+        const lines = ['АКТИВНЫЕ БОНУСЫ', '', 'ПРОМОКОДЫ (' + promos.rowCount + '):'];
+        if (!promos.rowCount) lines.push('— Активных промокодов нет.');
+        for (const p of promos.rows) lines.push('• ' + p.code + ' — осталось ' + Math.max(0, Number(p.max_activations)-Number(p.activations)) + ' из ' + p.max_activations + ' активаций; награда: ' + Number(p.reward).toLocaleString('ru-RU') + ' звёзд.');
+        lines.push('', 'БОНУС-СCЫЛКИ (' + links.rowCount + '):');
+        if (!links.rowCount) lines.push('— Активных бонус-ссылок нет.');
+        for (const b of links.rows) {
+          const remaining = Math.max(0, Number(b.max_activations)-Number(b.activations));
+          const link = botUsername ? 'https://t.me/' + botUsername + '?start=bonus_' + b.token : '';
+          lines.push('• ' + (link || ('Токен: ' + b.token)) + '\n  Баланс: ' + (b.balance_type === 'city' ? 'городской' : 'основной') + '; награда: ' + Number(b.reward).toLocaleString('ru-RU') + ' звёзд.\n  Осталось активаций: ' + remaining + ' из ' + b.max_activations + '.');
+        }
+        await telegramApi('sendMessage', {chat_id:chatId, text:lines.join('\n'), disable_web_page_preview:true, reply_markup:{inline_keyboard:[[{text:'Обновить список',callback_data:'adm:bonuses:check'}],[{text:'В админ-панель',callback_data:'adm:cancel'}]]}});
+      } else if (action === 'adm:botstars') {
         const balance = await telegramApi('getMyStarBalance', {});
         const amount = Number(balance?.amount || 0);
         await telegramApi('sendMessage', {
