@@ -286,7 +286,31 @@ body:before{content:"";position:fixed;inset:-35%;z-index:-2;pointer-events:none;
 .bottom-nav .nav-item:active{transform:scale(.94)}
 .bottom-nav .nav-item:not(.nav-item-primary):focus-visible{outline:1px solid #ffffff66}
 @media(max-width:360px){.bottom-nav{padding-left:5px;padding-right:5px;gap:1px}.bottom-nav .nav-item{font-size:9px}.bottom-nav .nav-icon{width:23px;height:23px}}
-.city-loading{position:fixed;inset:0;z-index:125;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .18s ease,visibility .18s ease;background:#10152b22;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}.city-loading.show{opacity:1;visibility:visible}.city-loading-card{display:flex;align-items:center;gap:10px;padding:12px 16px;border:1px solid #ffffff70;border-radius:18px;background:linear-gradient(135deg,#ffffffd9,#e7eaffbd);box-shadow:0 12px 35px #0002;color:#30344d;font-size:12px;font-weight:800;transform:translateY(5px) scale(.98);transition:transform .22s ease}.city-loading.show .city-loading-card{transform:translateY(0) scale(1)}.city-loading-spinner{width:19px;height:19px;border:2px solid #5d638333;border-top-color:#6d73c9;border-right-color:#6d73c9;border-radius:50%;animation:cityLoadingSpin .65s linear infinite}@keyframes cityLoadingSpin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.city-loading,.city-loading-card{transition:none}.city-loading-spinner{animation:none}}</style>
+.city-loading{position:fixed;inset:0;z-index:125;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .18s ease,visibility .18s ease;background:#10152b22;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}.city-loading.show{opacity:1;visibility:visible}.city-loading-card{display:flex;align-items:center;gap:10px;padding:12px 16px;border:1px solid #ffffff70;border-radius:18px;background:linear-gradient(135deg,#ffffffd9,#e7eaffbd);box-shadow:0 12px 35px #0002;color:#30344d;font-size:12px;font-weight:800;transform:translateY(5px) scale(.98);transition:transform .22s ease}.city-loading.show .city-loading-card{transform:translateY(0) scale(1)}.city-loading-spinner{width:19px;height:19px;border:2px solid #5d638333;border-top-color:#6d73c9;border-right-color:#6d73c9;border-radius:50%;animation:cityLoadingSpin .65s linear infinite}@keyframes cityLoadingSpin{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.city-loading,.city-loading-card{transition:none}.city-loading-spinner{animation:none}}
+/* Full-screen section navigation */
+body.section-page-active{overflow:hidden!important}
+body.section-page-active .bottom-nav{display:none!important}
+body.section-page-active .city-backdrop,
+body.section-page-active .boxes-backdrop,
+body.section-page-active .game-backdrop,
+body.section-page-active .promo-backdrop,
+body.section-page-active .modal-backdrop{position:fixed!important;inset:0!important;width:100%!important;height:100vh!important;height:100dvh!important;max-height:100dvh!important;border-radius:0!important;overflow-x:hidden!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important}
+body.section-page-active .boxes-modal,
+body.section-page-active .withdraw-modal,
+body.section-page-active .promo-modal{position:relative!important;width:100%!important;max-width:640px!important;min-height:100%!important;height:auto!important;margin:0 auto!important;border-radius:0!important;border:0!important;box-shadow:none!important;padding:calc(env(safe-area-inset-top) + 62px) 18px calc(env(safe-area-inset-bottom) + 28px)!important;background:transparent!important}
+body.section-page-active .boxes-modal .modal-head,
+body.section-page-active .withdraw-modal .modal-head,
+body.section-page-active .promo-modal .modal-head{position:sticky;top:env(safe-area-inset-top);z-index:5;padding:8px 0 14px;background:inherit}
+body.section-page-active .boxes-modal .modal-close,
+body.section-page-active .withdraw-modal .modal-close,
+body.section-page-active .promo-modal .modal-close{position:fixed!important;top:calc(env(safe-area-inset-top) + 10px)!important;right:16px!important;z-index:20!important;width:42px!important;height:42px!important;border-radius:50%!important;background:#ffffff20!important;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);font-size:28px!important}
+body.section-page-active .game-backdrop{padding:calc(env(safe-area-inset-top) + 60px) 12px calc(env(safe-area-inset-bottom) + 20px)!important;align-items:flex-start!important}
+body.section-page-active .game-close,
+body.section-page-active #gameClose{position:fixed!important;top:calc(env(safe-area-inset-top) + 10px)!important;right:16px!important;z-index:30!important}
+body.section-page-active .city-shell{padding-top:calc(env(safe-area-inset-top) + 62px)!important}
+body.section-page-active .city-close{position:fixed!important;top:calc(env(safe-area-inset-top) + 10px)!important;right:16px!important;z-index:30!important;width:42px!important;height:42px!important;border-radius:50%!important;background:#ffffff25!important;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+@media(prefers-reduced-motion:reduce){body.section-page-active *{scroll-behavior:auto!important}}
+</style>
 </head>
 <body>
 <div class="cube-field" aria-hidden="true">
@@ -999,25 +1023,16 @@ body:before{content:"";position:fixed;inset:-35%;z-index:-2;pointer-events:none;
 <script>
 (function(){
  const navIds=['cityOpen','boxesOpen','gameOpen','withdrawOpen','promoOpen'];
- const overlays=[
-  ['cityBackdrop','open'],
-  ['boxesBackdrop','open'],
-  ['gameBackdrop','open'],
-  ['promoBackdrop','open'],
-  ['withdrawBackdrop','open']
- ];
+ const closeIds=['cityClose','boxesClose','gameClose','withdrawClose','promoClose'];
  navIds.forEach(function(id){
   const button=document.getElementById(id);
   if(!button)return;
-  button.addEventListener('click',function(){
-   overlays.forEach(function(item){
-    const el=document.getElementById(item[0]);
-    if(!el)return;
-    el.classList.remove(item[1]);
-    el.setAttribute('aria-hidden','true');
-   });
-   document.body.style.overflow='';
-  },true);
+  button.addEventListener('click',function(){document.body.classList.add('section-page-active')},true);
+ });
+ closeIds.forEach(function(id){
+  const button=document.getElementById(id);
+  if(!button)return;
+  button.addEventListener('click',function(){document.body.classList.remove('section-page-active');document.body.style.overflow=''},true);
  });
 })();
 </script>
