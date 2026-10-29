@@ -490,6 +490,7 @@ app.post('/api/telegram/webhook', async (req, res) => {
       await telegramApi('sendMessage', { chat_id: chatId, text: 'Панель администратора Stars', reply_markup: { inline_keyboard: [
         [{text:'Запустить рассылку',callback_data:'adm:broadcast'}],
         [{text:'Начислить монеты',callback_data:'adm:add'}],
+        [{text:'Начислить на городской баланс',callback_data:'adm:cityadd'}],
         [{text:'Снять монеты',callback_data:'adm:remove'}],
         [{text:'Сделать технические работы',callback_data:'adm:maintenance'}],
         [{text:'Инфо об игроке',callback_data:'adm:info'}],
@@ -582,9 +583,10 @@ app.post('/api/telegram/webhook', async (req, res) => {
         const targetId=action.slice('adm:player:unblock:'.length);
         const changed=await pool.query('UPDATE stars_users SET is_blocked=FALSE,updated_at=NOW() WHERE telegram_id=$1 RETURNING telegram_id',[targetId]);
         await telegramApi('sendMessage',{chat_id:chatId,text:changed.rowCount?'Блокировка игрока '+targetId+' снята.':'Игрок не найден.'});
-      } else if (action === 'adm:add' || action === 'adm:remove') {
-        adminStates.set(String(sender.id), {mode: action === 'adm:add' ? 'add' : 'remove', step:'user'});
-        await telegramApi('sendMessage',{chat_id:chatId,text:'Введи Telegram ID пользователя, которому '+(action==='adm:add'?'начислить':'списать')+' монеты.'});
+      } else if (action === 'adm:add' || action === 'adm:remove' || action === 'adm:cityadd') {
+        const mode = action === 'adm:add' ? 'add' : action === 'adm:remove' ? 'remove' : 'cityadd';
+        adminStates.set(String(sender.id), {mode, step:'user'});
+        await telegramApi('sendMessage',{chat_id:chatId,text:mode==='cityadd'?'Введи Telegram username (@username) или числовой Telegram ID игрока для начисления на городской баланс.':'Введи Telegram ID пользователя, которому '+(mode==='add'?'начислить':'списать')+' монеты.'});
       } else if (action === 'adm:maintenance') {
         adminStates.set(String(sender.id), {mode:'maintenance'});
         await telegramApi('sendMessage',{chat_id:chatId,text:'Технические работы: выбери действие.',reply_markup:{inline_keyboard:[
@@ -671,25 +673,46 @@ app.post('/api/telegram/webhook', async (req, res) => {
         await telegramApi('sendMessage',{chat_id:chatId,text:'Предпросмотр рассылки:\n\n'+text+'\n\nОтправить всем зарегистрированным пользователям?',reply_markup:{inline_keyboard:[[{text:'Подтвердить рассылку',callback_data:'adm:broadcast:confirm'},{text:'Отмена',callback_data:'adm:cancel'}]]}});
         return res.sendStatus(200);
       }
-      if (state.mode === 'add' || state.mode === 'remove') {
-        if (state.step === 'user' && /^\d+$/.test(text)) {
-          state.telegramId=text; state.step='amount'; adminStates.set(String(sender.id),state);
-          await telegramApi('sendMessage',{chat_id:chatId,text:'Теперь введи целое положительное количество монет.'});
+      if (state.mode === 'add' || state.mode === 'remove' || state.mode === 'cityadd') {
+        if (state.step === 'user') {
+          let targetId = null;
+          if (/^\d+$/.test(text)) targetId = text;
+          else if (state.mode === 'cityadd' && /^@?[A-Za-z0-9_]{5,32}$/.test(text)) {
+            const username = text.replace(/^@/, '');
+            const found = await pool.query('SELECT telegram_id FROM stars_users WHERE LOWER(username)=LOWER($1) ORDER BY registered_at ASC LIMIT 1',[username]);
+            if (found.rowCount) targetId = String(found.rows[0].telegram_id);
+          }
+          if (targetId) {
+            state.telegramId=targetId; state.step='amount'; adminStates.set(String(sender.id),state);
+            await telegramApi('sendMessage',{chat_id:chatId,text:'Теперь введи целое положительное количество '+(state.mode==='cityadd'?'городских звёзд':'монет')+'.'});
+          } else await telegramApi('sendMessage',{chat_id:chatId,text:state.mode==='cityadd'?'Игрок не найден. Проверь username или введи числовой Telegram ID.':'Введи числовой Telegram ID пользователя.'});
         } else if (state.step === 'amount' && /^\d+$/.test(text) && Number.isSafeInteger(Number(text)) && Number(text)>0) {
           const amount=Number(text), client=await pool.connect();
           try {
             await client.query('BEGIN');
-            const user=await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1 FOR UPDATE',[state.telegramId]);
-            if (!user.rowCount) { await client.query('ROLLBACK'); await telegramApi('sendMessage',{chat_id:chatId,text:'Пользователь не найден в базе. Операция отменена.'}); }
-            else if (state.mode==='remove' && Number(user.rows[0].balance)<amount) { await client.query('ROLLBACK'); await telegramApi('sendMessage',{chat_id:chatId,text:'Недостаточно монет. Текущий баланс: '+user.rows[0].balance}); }
-            else {
-              const delta=state.mode==='add'?amount:-amount;
-              const updated=await client.query('UPDATE stars_users SET balance=balance+$2,updated_at=NOW() WHERE telegram_id=$1 RETURNING balance',[state.telegramId,delta]);
-              await client.query('COMMIT');
-              await telegramApi('sendMessage',{chat_id:chatId,text:(state.mode==='add'?'Начислено ':'Списано ')+amount+'. Новый баланс: '+updated.rows[0].balance});
-              try { await telegramApi('sendMessage',{chat_id:state.telegramId,text:'Администратор '+(delta>0?'начислил':'списал')+' '+amount+' игровых звёзд. Текущий баланс: '+updated.rows[0].balance+'.'}); } catch(_) {}
+            if (state.mode==='cityadd') {
+              const user=await client.query('SELECT telegram_id FROM stars_users WHERE telegram_id=$1 FOR UPDATE',[state.telegramId]);
+              if (!user.rowCount) { await client.query('ROLLBACK'); await telegramApi('sendMessage',{chat_id:chatId,text:'Пользователь не найден в базе. Операция отменена.'}); }
+              else {
+                await client.query('INSERT INTO stars_city_stats(telegram_id) VALUES($1) ON CONFLICT(telegram_id) DO NOTHING',[state.telegramId]);
+                const updated=await client.query('UPDATE stars_city_stats SET balance=balance+$2,updated_at=NOW() WHERE telegram_id=$1 RETURNING balance,city',[state.telegramId,amount]);
+                await client.query('COMMIT');
+                await telegramApi('sendMessage',{chat_id:chatId,text:'Начислено '+amount.toLocaleString('ru-RU')+' городских звёзд игроку '+state.telegramId+'. Новый городской баланс: '+Number(updated.rows[0].balance).toLocaleString('ru-RU')+'. Город: '+(CITY_CONFIG[updated.rows[0].city]?.name||updated.rows[0].city)+'.'});
+                try { await telegramApi('sendMessage',{chat_id:state.telegramId,text:'Администратор начислил '+amount.toLocaleString('ru-RU')+' городских звёзд. Текущий городской баланс: '+Number(updated.rows[0].balance).toLocaleString('ru-RU')+'.'}); } catch(_) {}
+              }
+            } else {
+              const user=await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1 FOR UPDATE',[state.telegramId]);
+              if (!user.rowCount) { await client.query('ROLLBACK'); await telegramApi('sendMessage',{chat_id:chatId,text:'Пользователь не найден в базе. Операция отменена.'}); }
+              else if (state.mode==='remove' && Number(user.rows[0].balance)<amount) { await client.query('ROLLBACK'); await telegramApi('sendMessage',{chat_id:chatId,text:'Недостаточно монет. Текущий баланс: '+user.rows[0].balance}); }
+              else {
+                const delta=state.mode==='add'?amount:-amount;
+                const updated=await client.query('UPDATE stars_users SET balance=balance+$2,updated_at=NOW() WHERE telegram_id=$1 RETURNING balance',[state.telegramId,delta]);
+                await client.query('COMMIT');
+                await telegramApi('sendMessage',{chat_id:chatId,text:(state.mode==='add'?'Начислено ':'Списано ')+amount+'. Новый баланс: '+updated.rows[0].balance});
+                try { await telegramApi('sendMessage',{chat_id:state.telegramId,text:'Администратор '+(delta>0?'начислил':'списал')+' '+amount+' игровых звёзд. Текущий баланс: '+updated.rows[0].balance+'.'}); } catch(_) {}
+              }
             }
-          } catch(e) { await client.query('ROLLBACK'); throw e; } finally { client.release(); }
+          } catch(e) { try { await client.query('ROLLBACK'); } catch(_) {} throw e; } finally { client.release(); }
           adminStates.delete(String(sender.id));
         } else await telegramApi('sendMessage',{chat_id:chatId,text:'Неверный ввод. Операция отменена.'});
         return res.sendStatus(200);
