@@ -995,5 +995,30 @@ body:before{content:"";position:fixed;inset:-35%;z-index:-2;pointer-events:none;
  load();
 })();
 </script>
+<script>
+(function(){
+ const navIds=['cityOpen','boxesOpen','gameOpen','withdrawOpen','promoOpen'];
+ const overlays=[
+  ['cityBackdrop','open'],
+  ['boxesBackdrop','open'],
+  ['gameBackdrop','open'],
+  ['promoBackdrop','open'],
+  ['withdrawBackdrop','open']
+ ];
+ navIds.forEach(function(id){
+  const button=document.getElementById(id);
+  if(!button)return;
+  button.addEventListener('click',function(){
+   overlays.forEach(function(item){
+    const el=document.getElementById(item[0]);
+    if(!el)return;
+    el.classList.remove(item[1]);
+    el.setAttribute('aria-hidden','true');
+   });
+   document.body.style.overflow='';
+  },true);
+ });
+})();
+</script>
 </body>
 </html>
