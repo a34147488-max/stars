@@ -261,6 +261,16 @@ body:before{content:"";position:fixed;inset:-35%;z-index:-2;pointer-events:none;
 .city-backdrop.city-theme-rezh .city-top-balance,.city-backdrop.city-theme-ekaterinburg .city-top-balance,.city-backdrop.city-theme-berezovsky .city-top-balance{color:#fff}
 .city-backdrop.city-theme-alapaevsk .city-stat,.city-backdrop.city-theme-alapaevsk .city-panel,.city-backdrop.city-theme-alapaevsk .city-choice,.city-backdrop.city-theme-alapaevsk .city-ref-link{color:#241a05}
 
+
+/* Fixed glass bottom navigation inspired by the reference */
+.app{padding-bottom:calc(env(safe-area-inset-bottom) + 112px)}
+.bottom-nav{position:fixed;z-index:110;left:50%;bottom:0;transform:translateX(-50%);width:min(100%,520px);display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px;margin:0;padding:10px 10px calc(env(safe-area-inset-bottom) + 8px);border:1px solid #ffffff22;border-bottom:0;border-radius:23px 23px 0 0;background:linear-gradient(160deg,rgba(36,29,54,.94),rgba(17,17,30,.97));box-shadow:0 -12px 36px #0004,inset 0 1px 0 #ffffff12;backdrop-filter:blur(28px) saturate(150%);-webkit-backdrop-filter:blur(28px) saturate(150%)}
+.bottom-nav .nav-item{min-width:0;min-height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:5px 2px;border:1px solid transparent;border-radius:15px;background:transparent;color:#c7c3d7;font:inherit;font-size:10px;font-weight:650;white-space:nowrap;cursor:pointer;transition:background .18s,transform .18s,color .18s}
+.bottom-nav .nav-icon{height:27px;display:grid;place-items:center;font-size:25px;line-height:1;font-weight:400}
+.bottom-nav .nav-item-primary{background:linear-gradient(145deg,#19f0a0,#00cf83);color:#09291f;box-shadow:0 0 22px #00e58b26}
+.bottom-nav .nav-item:active{transform:scale(.94)}
+.bottom-nav .nav-item:not(.nav-item-primary):focus-visible{outline:1px solid #ffffff66}
+@media(max-width:360px){.bottom-nav{padding-left:6px;padding-right:6px}.bottom-nav .nav-item{font-size:9px}.bottom-nav .nav-icon{font-size:23px}}
 </style>
 </head>
 <body>
@@ -299,7 +309,7 @@ body:before{content:"";position:fixed;inset:-35%;z-index:-2;pointer-events:none;
 </div>
 <div class="caption">основные звёзды на вашем балансе</div>
 <div class="city-balance-mini"><span>Баланс города</span><strong id="homeCityBalance">0</strong><span>★</span><button class="city-exchange-small" id="cityExchangeOpen" type="button" aria-label="Обмен городских звёзд" title="Обмен">↔</button></div>
-<div class="action-row"><button class="withdraw-open" id="withdrawOpen" type="button">вывести</button><button class="game-open" id="gameOpen" type="button">Играть</button><button class="game-open" id="promoOpen" type="button">Промокоды</button><button class="boxes-open" id="boxesOpen" type="button">Боксы</button><button class="city-open" id="cityOpen" type="button">Города</button></div>
+<div class="action-row bottom-nav" role="navigation" aria-label="Главное меню"><button class="nav-item" id="cityOpen" type="button"><span class="nav-icon" aria-hidden="true">⌖</span><span>Города</span></button><button class="nav-item" id="boxesOpen" type="button"><span class="nav-icon" aria-hidden="true">▣</span><span>Боксы</span></button><button class="nav-item nav-item-primary" id="gameOpen" type="button"><span class="nav-icon" aria-hidden="true">✧</span><span>Играть</span></button><button class="nav-item" id="withdrawOpen" type="button"><span class="nav-icon" aria-hidden="true">↗</span><span>Вывести</span></button><button class="nav-item" id="promoOpen" type="button"><span class="nav-icon" aria-hidden="true">◇</span><span>Промокоды</span></button></div>
 </div>
 <div class="status-pill" id="maintenanceBanner" style="display:none;border-color:#ffd36b66;color:#ffe5a3"><span class="status-dot" style="background:#ffd36b;box-shadow:0 0 10px #ffd36b"></span><span>Ведутся технические работы. Действия в приложении временно ограничены.</span></div><div class="status-pill"><span class="status-dot"></span>Баланс отображается в реальном времени</div>
 </section>
