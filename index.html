@@ -300,7 +300,12 @@ body.section-page-active .withdraw-modal,
 body.section-page-active .promo-modal{position:relative!important;width:100%!important;max-width:640px!important;min-height:100%!important;height:auto!important;margin:0 auto!important;border-radius:0!important;border:0!important;box-shadow:none!important;padding:calc(env(safe-area-inset-top) + 62px) 18px calc(env(safe-area-inset-bottom) + 28px)!important;background:transparent!important}
 body.section-page-active .boxes-modal .modal-head,
 body.section-page-active .withdraw-modal .modal-head,
-body.section-page-active .promo-modal .modal-head{position:sticky;top:env(safe-area-inset-top);z-index:5;padding:8px 0 14px;background:inherit}
+body.section-page-active .promo-modal .modal-head{position:relative;top:auto;z-index:5;padding:8px 0 14px;background:transparent}
+body.section-page-active .city-backdrop .city-head{position:relative;top:auto;background:transparent}
+body.section-page-active .game-backdrop .modal-head{position:relative;top:auto;background:transparent}
+body.section-page-active .boxes-modal .modal-title,
+body.section-page-active .withdraw-modal .modal-title,
+body.section-page-active .promo-modal .modal-title{position:static}
 body.section-page-active .boxes-modal .modal-close,
 body.section-page-active .withdraw-modal .modal-close,
 body.section-page-active .promo-modal .modal-close{position:fixed!important;top:calc(env(safe-area-inset-top) + 10px)!important;right:16px!important;z-index:20!important;width:42px!important;height:42px!important;border-radius:50%!important;background:#ffffff20!important;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);font-size:28px!important}
