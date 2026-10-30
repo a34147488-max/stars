@@ -134,6 +134,7 @@ app.post('/api/payments/create-invoice', async (req, res) => {
     return res.status(503).json({ ok: false, error: e.message === 'DATABASE_URL is not configured' ? 'Не настроена база данных для баланса (DATABASE_URL).' : 'Не удалось создать счёт Telegram Stars. Проверь настройки сервера и попробуй снова.' });
   }
 });
+app.post('/api/payments/create-custom-invoice',async(req,res)=>{try{await ensureDb();const user=validateTelegramInitData(req.get('X-Telegram-Init-Data'),process.env.BOT_TOKEN);if(!user)return res.status(401).json({ok:false,error:'Не удалось подтвердить Telegram-профиль.'});const coins=Math.floor(Number(req.body?.coins)),stars=Math.ceil(coins/10);if(!Number.isSafeInteger(coins)||coins<500||coins>531914||Number(req.body?.stars)!==stars)return res.status(400).json({ok:false,error:'Некорректная сумма пополнения.'});await pool.query('INSERT INTO stars_users (telegram_id,username,first_name) VALUES ($1,$2,$3) ON CONFLICT(telegram_id) DO UPDATE SET username=EXCLUDED.username,first_name=EXCLUDED.first_name,updated_at=NOW()',[String(user.id),user.username||null,user.first_name||null]);const payload=JSON.stringify({userId:String(user.id),stars,coins,custom:true,nonce:crypto.randomBytes(16).toString('hex')}),title='Пополнение Stars — '+coins+' игровых звёзд';const url=await telegramApi('createInvoiceLink',{title,description:'Пополнение игрового баланса на '+coins+' звёзд.',payload,currency:'XTR',prices:[{label:title,amount:stars}]});return res.json({ok:true,url,package:{stars,coins}});}catch(e){console.error('Custom invoice error:',e.message);return res.status(503).json({ok:false,error:'Не удалось создать счёт Telegram Stars.'});}});
 app.get('/api/balance', async (req, res) => {
   try {
     await ensureDb();
@@ -825,24 +826,24 @@ app.post('/api/telegram/webhook', async (req, res) => {
     if (update.pre_checkout_query) {
       const q = update.pre_checkout_query;
       let valid = false;
-      try { const payload = JSON.parse(q.invoice_payload || '{}'), pack = PACKAGES[Number(payload.stars)]; valid = Boolean(pack && String(q.from?.id) === String(payload.userId) && q.currency === 'XTR' && q.total_amount === pack.stars && Number(payload.coins) === pack.coins); } catch (_) {}
+      try { const p=JSON.parse(q.invoice_payload||'{}'),k=PACKAGES[Number(p.stars)],c=p.custom===true&&Number.isSafeInteger(Number(p.coins))&&Number(p.coins)>=500&&Number(p.coins)<=531914&&Number(p.stars)===Math.ceil(Number(p.coins)/10);valid=String(q.from?.id)===String(p.userId)&&q.currency==='XTR'&&q.total_amount===Number(p.stars)&&(c||(!!k&&Number(p.coins)===k.coins)); } catch (_) {}
       await telegramApi('answerPreCheckoutQuery', { pre_checkout_query_id: q.id, ok: valid, ...(!valid ? { error_message: 'Счёт недействителен. Создай новый счёт.' } : {}) });
       return res.sendStatus(200);
     }
     const payment = update.message?.successful_payment;
     if (!payment) return res.sendStatus(200);
-    const paymentSender = update.message.from, payload = JSON.parse(payment.invoice_payload || '{}'), pack = PACKAGES[Number(payload.stars)];
-    if (!pack || String(paymentSender?.id) !== String(payload.userId) || payment.currency !== 'XTR' || payment.total_amount !== pack.stars || Number(payload.coins) !== pack.coins || !payment.telegram_payment_charge_id) { console.error('Rejected mismatched successful_payment update'); return res.sendStatus(200); }
+    const paymentSender=update.message.from,payload=JSON.parse(payment.invoice_payload||'{}'),pack=PACKAGES[Number(payload.stars)],custom=payload.custom===true&&Number.isSafeInteger(Number(payload.coins))&&Number(payload.coins)>=500&&Number(payload.coins)<=531914&&Number(payload.stars)===Math.ceil(Number(payload.coins)/10),paidStars=custom?Number(payload.stars):pack?.stars,paidCoins=custom?Number(payload.coins):pack?.coins;
+    if ((!pack&&!custom)||String(paymentSender?.id)!==String(payload.userId)||payment.currency!=='XTR'||payment.total_amount!==paidStars||!paidCoins||!payment.telegram_payment_charge_id) { console.error('Rejected mismatched successful_payment update'); return res.sendStatus(200); }
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
       await client.query('INSERT INTO stars_users (telegram_id, username, first_name) VALUES ($1,$2,$3) ON CONFLICT (telegram_id) DO NOTHING', [String(paymentSender.id), paymentSender.username || null, paymentSender.first_name || null]);
-      const inserted = await client.query('INSERT INTO stars_payments (telegram_payment_charge_id, telegram_id, package_stars, coins, currency, total_amount) VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT (telegram_payment_charge_id) DO NOTHING RETURNING telegram_payment_charge_id', [payment.telegram_payment_charge_id, String(paymentSender.id), pack.stars, pack.coins, payment.currency, payment.total_amount]);
+      const inserted = await client.query('INSERT INTO stars_payments (telegram_payment_charge_id, telegram_id, package_stars, coins, currency, total_amount) VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT (telegram_payment_charge_id) DO NOTHING RETURNING telegram_payment_charge_id', [payment.telegram_payment_charge_id,String(paymentSender.id),paidStars,paidCoins,payment.currency,payment.total_amount]);
       let topupBonus=0;
       if (inserted.rowCount) {
         const activePromo=await client.query("SELECT telegram_id FROM stars_box_promos WHERE telegram_id=$1 AND expires_at>NOW() FOR UPDATE",[String(paymentSender.id)]);
-        if(activePromo.rowCount) topupBonus=Math.floor(pack.coins*0.012);
-        await client.query('UPDATE stars_users SET balance=balance+$2, username=$3, first_name=$4, updated_at=NOW() WHERE telegram_id=$1', [String(paymentSender.id), pack.coins+topupBonus, paymentSender.username || null, paymentSender.first_name || null]);
+        if(activePromo.rowCount) topupBonus=Math.floor(paidCoins*0.012);
+        await client.query('UPDATE stars_users SET balance=balance+$2, username=$3, first_name=$4, updated_at=NOW() WHERE telegram_id=$1', [String(paymentSender.id), paidCoins+topupBonus, paymentSender.username || null, paymentSender.first_name || null]);
       }
       await client.query('COMMIT');
     } catch (e) { await client.query('ROLLBACK'); throw e; } finally { client.release(); }
