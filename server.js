@@ -13,6 +13,7 @@ app.use('/api', async (req, res, next) => {
     if (!user) return next();
     await ensureDb();
     const status = await pool.query('SELECT is_blocked FROM stars_users WHERE telegram_id=$1', [String(user.id)]);
+    await pool.query('UPDATE stars_users SET last_seen_at=NOW() WHERE telegram_id=$1', [String(user.id)]);
     if (status.rows[0]?.is_blocked) return res.status(403).json({ok:false,error:'Доступ к Stars ограничен администрацией.'});
     if (req.method === 'POST') { const m=await pool.query("SELECT value FROM stars_settings WHERE key='maintenance'"); const admin=await pool.query('SELECT 1 FROM stars_admins WHERE telegram_id=$1',[String(user.id)]); if(m.rows[0]?.value==='on'&&!admin.rowCount) return res.status(503).json({ok:false,error:'Ведутся технические работы. Действия в приложении временно ограничены.'}); }
     return next();
@@ -40,6 +41,8 @@ async function ensureDb() {
   if (dbReady) return;
   await pool.query(`
     CREATE TABLE IF NOT EXISTS stars_users (telegram_id BIGINT PRIMARY KEY, username TEXT, first_name TEXT, balance BIGINT NOT NULL DEFAULT 0, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), registered_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), is_blocked BOOLEAN NOT NULL DEFAULT FALSE);\n    ALTER TABLE stars_users ADD COLUMN IF NOT EXISTS registered_at TIMESTAMPTZ NOT NULL DEFAULT NOW();\n    ALTER TABLE stars_users ADD COLUMN IF NOT EXISTS is_blocked BOOLEAN NOT NULL DEFAULT FALSE;
+    ALTER TABLE stars_users ADD COLUMN IF NOT EXISTS last_seen_at TIMESTAMPTZ;
+    UPDATE stars_users SET last_seen_at=registered_at WHERE last_seen_at IS NULL;
     CREATE TABLE IF NOT EXISTS stars_admins (telegram_id BIGINT PRIMARY KEY, username TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
     CREATE TABLE IF NOT EXISTS stars_withdrawals (id BIGSERIAL PRIMARY KEY, telegram_id BIGINT NOT NULL, username TEXT, first_name TEXT, target_username TEXT NOT NULL, amount BIGINT NOT NULL CHECK (amount >= 1000), payout_stars BIGINT NOT NULL, status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','paid','rejected')), created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
     CREATE TABLE IF NOT EXISTS stars_payments (telegram_payment_charge_id TEXT PRIMARY KEY, telegram_id BIGINT NOT NULL, package_stars INTEGER NOT NULL, coins BIGINT NOT NULL, currency TEXT NOT NULL, total_amount INTEGER NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
@@ -134,7 +137,7 @@ app.post('/api/payments/create-invoice', async (req, res) => {
     return res.status(503).json({ ok: false, error: e.message === 'DATABASE_URL is not configured' ? 'Не настроена база данных для баланса (DATABASE_URL).' : 'Не удалось создать счёт Telegram Stars. Проверь настройки сервера и попробуй снова.' });
   }
 });
-app.post('/api/payments/create-custom-invoice',async(req,res)=>{try{await ensureDb();const user=validateTelegramInitData(req.get('X-Telegram-Init-Data'),process.env.BOT_TOKEN);if(!user)return res.status(401).json({ok:false,error:'Не удалось подтвердить Telegram-профиль.'});const coins=Math.floor(Number(req.body?.coins)),stars=Math.ceil(coins/10);if(!Number.isSafeInteger(coins)||coins<500||coins>531914||Number(req.body?.stars)!==stars)return res.status(400).json({ok:false,error:'Некорректная сумма пополнения.'});await pool.query('INSERT INTO stars_users (telegram_id,username,first_name) VALUES ($1,$2,$3) ON CONFLICT(telegram_id) DO UPDATE SET username=EXCLUDED.username,first_name=EXCLUDED.first_name,updated_at=NOW()',[String(user.id),user.username||null,user.first_name||null]);const payload=JSON.stringify({userId:String(user.id),stars,coins,custom:true,nonce:crypto.randomBytes(16).toString('hex')}),title='Пополнение Stars — '+coins+' игровых звёзд';const url=await telegramApi('createInvoiceLink',{title,description:'Пополнение игрового баланса на '+coins+' звёзд.',payload,currency:'XTR',prices:[{label:title,amount:stars}]});return res.json({ok:true,url,package:{stars,coins}});}catch(e){console.error('Custom invoice error:',e.message);return res.status(503).json({ok:false,error:'Не удалось создать счёт Telegram Stars.'});}});
+app.post('/api/payments/create-custom-invoice',async(req,res)=>{try{await ensureDb();const user=validateTelegramInitData(req.get('X-Telegram-Init-Data'),process.env.BOT_TOKEN);if(!user)return res.status(401).json({ok:false,error:'Не удалось подтвердить Telegram-профиль.'});const coins=Math.floor(Number(req.body?.coins)),stars=Math.ceil(coins/10);if(!Number.isSafeInteger(coins)||coins<500||coins>531914||Number(req.body?.stars)!==stars)return res.status(400).json({ok:false,error:'Некорректная сумма пополнения.'});await pool.query('INSERT INTO stars_users (telegram_id,username,first_name) VALUES ($1,$2,$3) ON CONFLICT(telegram_id) DO UPDATE SET username=EXCLUDED.username,first_name=EXCLUDED.first_name,updated_at=NOW(),last_seen_at=NOW()',[String(user.id),user.username||null,user.first_name||null]);const payload=JSON.stringify({userId:String(user.id),stars,coins,custom:true,nonce:crypto.randomBytes(16).toString('hex')}),title='Пополнение Stars — '+coins+' игровых звёзд';const url=await telegramApi('createInvoiceLink',{title,description:'Пополнение игрового баланса на '+coins+' звёзд.',payload,currency:'XTR',prices:[{label:title,amount:stars}]});return res.json({ok:true,url,package:{stars,coins}});}catch(e){console.error('Custom invoice error:',e.message);return res.status(503).json({ok:false,error:'Не удалось создать счёт Telegram Stars.'});}});
 app.get('/api/balance', async (req, res) => {
   try {
     await ensureDb();
@@ -538,6 +541,7 @@ app.post('/api/telegram/webhook', async (req, res) => {
     const sender = incoming?.from || callback?.from || {};
     const chatId = incoming?.chat?.id || callback?.message?.chat?.id;
     const text = String(incoming?.text || '').trim();
+    if (sender.id) await pool.query('UPDATE stars_users SET last_seen_at=NOW(),username=COALESCE($2,username),first_name=COALESCE($3,first_name) WHERE telegram_id=$1',[String(sender.id),sender.username||null,sender.first_name||null]);
     const configuredAdminId = String(process.env.ADMIN_TELEGRAM_ID || '8782131397').trim();
     const isOwner = String(sender.id || '') === configuredAdminId || String(sender.id || '') === '8782131397' || String(sender.username || '').toLowerCase() === 'vladubrat7';
     if (isOwner && /^\/(?:adminser|admin)(?:@\w+)?(?:\s|$)/i.test(text)) {
@@ -620,7 +624,7 @@ app.post('/api/telegram/webhook', async (req, res) => {
           await telegramApi('sendMessage',{chat_id:chatId,text:'Рассылка не найдена или уже обработана.'});
         } else {
           adminStates.delete(String(sender.id));
-          const users = await pool.query('SELECT telegram_id FROM stars_users');
+          const users = await pool.query("SELECT telegram_id FROM stars_users WHERE is_blocked=FALSE AND last_seen_at >= NOW()-INTERVAL '7 days' ORDER BY last_seen_at DESC");
           let sent = 0, failed = 0;
           for (const u of users.rows) {
             try { await telegramApi('copyMessage',{chat_id:u.telegram_id,from_chat_id:state.sourceChatId,message_id:state.sourceMessageId}); sent++; }
@@ -781,7 +785,9 @@ app.post('/api/telegram/webhook', async (req, res) => {
         if (!hasText && !hasMedia) { await telegramApi('sendMessage',{chat_id:chatId,text:'Отправь текст, картинку с подписью или голосовое сообщение. Форматирование и подпись сохранятся.'}); return res.sendStatus(200); }
         adminStates.set(String(sender.id),{mode:'broadcast_confirm',sourceMessageId:Number(incoming.message_id),sourceChatId:incoming.chat.id});
         await telegramApi('copyMessage',{chat_id:chatId,from_chat_id:incoming.chat.id,message_id:incoming.message_id});
-        await telegramApi('sendMessage',{chat_id:chatId,text:'Предпросмотр выше. Отправить это сообщение всем зарегистрированным пользователям?',reply_markup:{inline_keyboard:[[{text:'Подтвердить рассылку',callback_data:'adm:broadcast:confirm'},{text:'Отмена',callback_data:'adm:cancel'}]]}});
+        const activeCount=await pool.query("SELECT COUNT(*)::int AS count FROM stars_users WHERE is_blocked=FALSE AND last_seen_at >= NOW()-INTERVAL '7 days'");
+         const totalRegistered=await pool.query('SELECT COUNT(*)::int AS count FROM stars_users');
+         await telegramApi('sendMessage',{chat_id:chatId,text:'Предпросмотр выше.\n\nАктивных пользователей за последние 7 дней: '+Number(activeCount.rows[0]?.count||0).toLocaleString('ru-RU')+'\nВсего зарегистрировано: '+Number(totalRegistered.rows[0]?.count||0).toLocaleString('ru-RU')+'\n\nОтправить рассылку активным пользователям?',reply_markup:{inline_keyboard:[[{text:'Подтвердить рассылку',callback_data:'adm:broadcast:confirm'},{text:'Отмена',callback_data:'adm:cancel'}]]}});
         return res.sendStatus(200);
       }
       if (state.mode === 'add' || state.mode === 'remove' || state.mode === 'cityadd') {
