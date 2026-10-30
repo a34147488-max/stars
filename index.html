@@ -697,7 +697,7 @@ body.section-page-active .city-close{position:fixed!important;top:calc(env(safe-
  let selected={stars:50,coins:500},customMode=false;
  const customToggle=document.getElementById('customAmountToggle'),customPanel=document.getElementById('customAmountPanel'),customInput=document.getElementById('customRubles'),customPreview=document.getElementById('customAmountPreview');
  const sbpRubles=coins=>Math.round(Number(coins)*94/500);
- function updateCustomAmount(){const rub=Number(customInput?.value||0);if(!Number.isFinite(rub)||rub<94||rub>100000){if(customPreview)customPreview.textContent='Минимум 94 ₽ · максимум 100 000 ₽';return;}const coins=Math.floor(rub*500/94),stars=Math.ceil(coins/10);selected={stars,coins,rubles:rub};if(customPreview)customPreview.textContent='К начислению: '+coins.toLocaleString('ru-RU')+' игровых звёзд · '+stars+' Telegram Stars';button.innerHTML='<span>✦</span> Пополнить за '+stars+' Telegram Stars';if(sbpPrice)sbpPrice.textContent=rub.toLocaleString('ru-RU')+' ₽';message.textContent='Выбрано '+rub.toLocaleString('ru-RU')+' ₽. Получишь '+coins.toLocaleString('ru-RU')+' игровых звёзд.';}
+ function updateCustomAmount(){const rub=Number(customInput?.value||0);if(!Number.isFinite(rub)||rub<94||rub>100000){selected={stars:0,coins:0};if(customPreview)customPreview.textContent='Минимум 94 ₽ · максимум 100 000 ₽';button.innerHTML='<span>✦</span> Укажи сумму от 94 ₽';if(sbpPrice)sbpPrice.textContent='—';message.textContent='Введи допустимую сумму для продолжения.';return;}const coins=Math.floor(rub*500/94),stars=Math.ceil(coins/10);selected={stars,coins,rubles:rub};if(customPreview)customPreview.textContent='К начислению: '+coins.toLocaleString('ru-RU')+' игровых звёзд · '+stars+' Telegram Stars';button.innerHTML='<span>✦</span> Пополнить за '+stars+' Telegram Stars';if(sbpPrice)sbpPrice.textContent=rub.toLocaleString('ru-RU')+' ₽';message.textContent='Выбрано '+rub.toLocaleString('ru-RU')+' ₽. Получишь '+coins.toLocaleString('ru-RU')+' игровых звёзд.';}
  customToggle?.addEventListener('click',()=>{customMode=!customMode;customPanel.hidden=!customMode;customToggle.textContent=customMode?'− Скрыть свою сумму':'＋ Ввести свою сумму';if(customMode)customInput?.focus();});customInput?.addEventListener('input',updateCustomAmount);
  function choose(card){
   customMode=false;if(customPanel)customPanel.hidden=true;if(customToggle)customToggle.textContent='＋ Ввести свою сумму';
@@ -752,9 +752,9 @@ body.section-page-active .city-close{position:fixed!important;top:calc(env(safe-
  button.addEventListener('click',async()=>{
   const tg=window.Telegram&&window.Telegram.WebApp;
   if(!tg||!tg.initData){message.textContent='Для настоящей оплаты открой приложение внутри Telegram.';return;}
-  button.disabled=true;message.textContent='Создаём счёт Telegram Stars…';
+  if(customMode&&(!selected.coins||selected.coins<500)){message.textContent='Укажи сумму от 94 ₽.';return;}button.disabled=true;message.textContent='Создаём счёт Telegram Stars…';
   try{
-   const response=await fetch('/api/payments/create-invoice',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':tg.initData},body:JSON.stringify(customMode?{custom:true,coins:selected.coins,stars:selected.stars}:{stars:selected.stars})});
+   const response=await fetch(customMode?'/api/payments/create-custom-invoice':'/api/payments/create-invoice',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':tg.initData},body:JSON.stringify(customMode?{custom:true,coins:selected.coins,stars:selected.stars}:{stars:selected.stars})});
    const data=await response.json();
    if(!response.ok||!data.ok||!data.url)throw new Error(data.error||'Не удалось создать счёт.');
    tg.openInvoice(data.url,async status=>{
