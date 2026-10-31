@@ -465,6 +465,7 @@ app.post('/api/starsdouble/spin', async (req, res) => {
       const current = Number(row.rows[0]?.balance || 0);
       if (current < bet) { await client.query('ROLLBACK'); return res.status(400).json({ok:false,error:'Недостаточно звёзд на балансе.'}); }
       await client.query('UPDATE stars_users SET balance=balance-$2+$3,updated_at=NOW() WHERE telegram_id=$1',[String(user.id),bet,payout]);
+      await addCashback(client,user.id,bet);
       const updated = await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1',[String(user.id)]);
       balance = Number(updated.rows[0]?.balance || 0);
       await client.query('COMMIT');
