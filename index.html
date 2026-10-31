@@ -13,14 +13,14 @@ body{margin:0;min-height:100svh;background:radial-gradient(ellipse at 50% -15%,#
 .cashback-mini{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px 7px;width:100%;margin:8px auto 0;padding:7px 5px 0;border-top:1px solid #ffffff20;color:#aeb2c3;font-size:10px}.cashback-mini strong{color:#fff;font-size:13px;font-weight:800;font-variant-numeric:tabular-nums}.cashback-star{color:#f7d58b;font-size:13px}.cashback-mini button{padding:4px 9px;border:1px solid #ffffff35;border-radius:999px;background:#ffffff12;color:#fff;font:inherit;font-size:10px;font-weight:800}.cashback-mini button:disabled{opacity:.42}.cashback-mini small{flex-basis:100%;text-align:center;color:#858b9f;font-size:8px;line-height:1.25}.halloween-mouse{position:absolute;top:-47px;left:50%;width:82px;height:54px;transform:translateX(-50%);z-index:4;pointer-events:none;animation:mouseFly 2.2s ease-in-out infinite}.halloween-mouse svg{width:100%;height:100%;filter:drop-shadow(0 3px 8px #0008)}.nav-item-primary{position:relative;overflow:visible}.halloween-pumpkin{display:inline-flex;width:19px;height:19px;vertical-align:middle;margin-left:4px}.halloween-pumpkin svg{width:100%;height:100%;filter:drop-shadow(0 0 7px #f39a4c55)}@keyframes mouseFly{0%,100%{translate:-50% 0;rotate:-5deg}50%{translate:calc(-50% + 7px) -8px;rotate:7deg}}@media(prefers-reduced-motion:reduce){.halloween-mouse{animation:none}}
 /* Animated iridescent background with floating glass cubes */
 body{position:relative;isolation:isolate;background:#090a12}
-body:before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:linear-gradient(180deg,rgba(5,6,12,.22),rgba(5,6,12,.42)),url("/a_moody_high_detail_cartoonish_digital_illustrat.png") center center/cover no-repeat;background-attachment:fixed}
+.app-background{position:fixed;inset:0;z-index:0;pointer-events:none;background-color:#090a12;background-image:linear-gradient(180deg,rgba(5,6,12,.18),rgba(5,6,12,.38)),url("/a_moody_high_detail_cartoonish_digital_illustrat.png");background-position:center center;background-size:cover;background-repeat:no-repeat}
 .cube-field{position:fixed;inset:0;z-index:1;overflow:hidden;pointer-events:none;perspective:900px;contain:strict}
 .float-cube{position:absolute;bottom:-90px;width:var(--cube-size,34px);height:var(--cube-size,34px);border:1px solid #dbeaff50;border-radius:7px;background:linear-gradient(135deg,#ffffff14,#83aaff05 55%,#b6c9ff12);box-shadow:inset 0 0 18px #a7caff0b,0 0 22px #689bff0b;transform:rotateX(55deg) rotateZ(35deg);animation:cubeRise var(--cube-duration,24s) linear infinite;animation-delay:var(--cube-delay,0s);opacity:0}
 .float-cube:before,.float-cube:after{content:"";position:absolute;inset:0;border:1px solid #c6d9ff24;border-radius:inherit;transform:translate(7px,-7px)}
 .float-cube:after{transform:translate(14px,-14px);opacity:.55}
 @keyframes auroraDrift{0%{transform:translate3d(-2%,0,0) rotate(-3deg);filter:hue-rotate(0deg)}50%{transform:translate3d(2%,-1%,0) rotate(2deg);filter:hue-rotate(18deg)}100%{transform:translate3d(-1%,2%,0) rotate(-1deg);filter:hue-rotate(-12deg)}}
 @keyframes cubeRise{0%{transform:translate3d(0,0,0) rotateX(55deg) rotateZ(35deg) rotate(0deg);opacity:0}10%{opacity:.55}55%{transform:translate3d(var(--cube-drift,35px),-55vh,0) rotateX(65deg) rotateZ(155deg) rotate(70deg);opacity:.35}90%{opacity:.28}100%{transform:translate3d(calc(var(--cube-drift,35px) * -1),-115vh,0) rotateX(55deg) rotateZ(275deg) rotate(140deg);opacity:0}}
-@media(prefers-reduced-motion:reduce){body:before,.float-cube{animation:none!important}.float-cube{opacity:.16}}
+@media(prefers-reduced-motion:reduce){.app-background,.float-cube{animation:none!important}.float-cube{opacity:.16}}
 
 .app{position:relative;z-index:2;width:100%;max-width:520px;min-height:100svh;padding:calc(env(safe-area-inset-top) + 22px) 22px calc(env(safe-area-inset-bottom) + 28px);display:flex;flex-direction:column}
 .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:clamp(70px,15vh,140px)}
@@ -327,6 +327,7 @@ body.section-page-active .city-close{position:fixed!important;top:calc(env(safe-
 </style>
 </head>
 <body>
+<div class="app-background" aria-hidden="true"></div>
 <div class="cube-field" aria-hidden="true">
 <span class="float-cube" style="left:4%;--cube-size:27px;--cube-duration:26s;--cube-delay:-13s;--cube-drift:42px"></span>
 <span class="float-cube" style="left:15%;--cube-size:43px;--cube-duration:31s;--cube-delay:-24s;--cube-drift:-34px"></span>
