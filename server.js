@@ -873,6 +873,7 @@ app.post('/api/telegram/webhook', async (req, res) => {
     if (!res.headersSent) res.sendStatus(500);
   }
 });
+app.get('/a_moody_high_detail_cartoonish_digital_illustrat.png', (_req, res) => { res.set('Cache-Control', 'public, max-age=86400'); res.type('png'); res.sendFile(path.join(__dirname, 'a_moody_high_detail_cartoonish_digital_illustrat.png')); });
 app.get('*', (_req, res) => { res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate'); res.set('Pragma', 'no-cache'); res.set('Expires', '0'); res.sendFile(path.join(__dirname, 'index.html')); });
 app.listen(PORT, '0.0.0.0', async () => {
   console.log('Stars UI listening on ' + PORT);
