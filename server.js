@@ -476,6 +476,35 @@ app.post('/api/starsdouble/spin', async (req, res) => {
 });
 
 
+app.post('/api/nvuti/play', async (req,res) => {
+  let client;
+  try {
+    await ensureDb();
+    const user=authUser(req);
+    if(!user)return res.status(401).json({ok:false,error:'Открой приложение через Telegram-бота.'});
+    const bet=Number(req.body?.bet),threshold=Number(req.body?.threshold),color=String(req.body?.color||'');
+    if(!Number.isSafeInteger(bet)||bet<1||bet>1000000000)return res.status(400).json({ok:false,error:'Укажи корректную ставку.'});
+    if(!Number.isInteger(threshold)||threshold<1||threshold>100)return res.status(400).json({ok:false,error:'Порог должен быть от 1 до 100.'});
+    if(!['red','green'].includes(color))return res.status(400).json({ok:false,error:'Выбери красную или зелёную сторону.'});
+    const roll=crypto.randomInt(1,101),resultColor=roll<=threshold?'green':'red';
+    const winChance=color==='green'?threshold:100-threshold;
+    const won=resultColor===color;
+    const multiplier=won&&winChance>0?Math.floor(9500/winChance)/100:0;
+    const payout=won?Math.floor(bet*multiplier):0;
+    client=await pool.connect();await client.query('BEGIN');
+    const row=await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1 FOR UPDATE',[String(user.id)]);
+    const current=Number(row.rows[0]?.balance||0);
+    if(current<bet){await client.query('ROLLBACK');return res.status(400).json({ok:false,error:'Недостаточно звёзд на балансе.'});}
+    await client.query('UPDATE stars_users SET balance=balance-$2+$3,updated_at=NOW() WHERE telegram_id=$1',[String(user.id),bet,payout]);
+    await addCashback(client,user.id,bet);
+    const updated=await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1',[String(user.id)]);
+    const balance=Number(updated.rows[0]?.balance||0);
+    await client.query('COMMIT');
+    return res.json({ok:true,roll,color:resultColor,chosen:color,won,threshold,winChance,multiplier,payout,bet,balance});
+  } catch(e) {if(client){try{await client.query('ROLLBACK')}catch(_){}}console.error('NVUTI play error:',e.message);return res.status(503).json({ok:false,error:'Не удалось завершить раунд.'});}
+  finally {if(client)client.release();}
+});
+
 app.get('/api/boxes/status', async (req,res) => {
   try {
     await ensureDb();
