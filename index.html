@@ -1452,5 +1452,48 @@ body.section-page-active #withdrawBackdrop .withdraw-modal .modal-head{position:
 body.section-page-active #withdrawBackdrop .withdraw-modal .modal-close{position:fixed!important;top:calc(env(safe-area-inset-top) + 10px)!important;right:16px!important;z-index:100!important;width:42px!important;height:42px!important;border-radius:50%!important;background:#ffffff20!important;backdrop-filter:blur(18px)!important;-webkit-backdrop-filter:blur(18px)!important;font-size:28px!important}
 body.section-page-active #withdrawBackdrop .withdraw-modal{animation:fullMenuRise .48s cubic-bezier(.18,.78,.22,1) both!important}
 </style>
+
+<style id="fix-game-withdraw-vertical-scroll">
+/* На iOS прокрутка должна идти внутри открытой полноэкранной вкладки, а не body */
+body.section-page-active .game-backdrop.open,
+body.section-page-active #withdrawBackdrop.open{
+ display:block!important;
+ position:fixed!important;
+ inset:0!important;
+ width:100%!important;
+ height:100vh!important;
+ height:100dvh!important;
+ max-height:100dvh!important;
+ overflow-x:hidden!important;
+ overflow-y:scroll!important;
+ -webkit-overflow-scrolling:touch!important;
+ overscroll-behavior-y:contain!important;
+ touch-action:pan-y!important;
+}
+body.section-page-active .game-backdrop.open .game-modal,
+body.section-page-active #withdrawBackdrop.open .withdraw-modal{
+ display:block!important;
+ position:relative!important;
+ width:100%!important;
+ max-width:640px!important;
+ min-height:100vh!important;
+ min-height:100dvh!important;
+ height:auto!important;
+ max-height:none!important;
+ overflow:visible!important;
+ margin:0 auto!important;
+ touch-action:pan-y!important;
+}
+body.section-page-active .game-backdrop.open .game-modal>*,
+body.section-page-active #withdrawBackdrop.open .withdraw-modal>*{
+ touch-action:pan-y;
+}
+@media(max-width:700px){
+ body.section-page-active .game-backdrop.open .game-modal,
+ body.section-page-active #withdrawBackdrop.open .withdraw-modal{
+  padding-bottom:calc(env(safe-area-inset-bottom) + 48px)!important;
+ }
+}
+</style>
 </body>
 </html>
