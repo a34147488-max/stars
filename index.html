@@ -412,6 +412,41 @@ body.section-page-active .city-close{position:fixed!important;top:calc(env(safe-
 .city-backdrop button:disabled{opacity:.48!important;filter:saturate(.7)!important}
 .city-backdrop button:not(:disabled):active{transform:scale(.98)!important}
 </style>
+<style id="restored-original-bottom-nav">
+/* Restore the original framed glass navigation appearance */
+.bottom-nav{
+ position:fixed!important;z-index:999!important;left:50%!important;bottom:0!important;
+ transform:translateX(-50%)!important;width:min(100%,520px)!important;
+ display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:3px!important;
+ margin:0!important;padding:10px 10px calc(env(safe-area-inset-bottom) + 8px)!important;
+ border:1px solid #ffffff4a!important;border-bottom:0!important;border-radius:26px 26px 0 0!important;
+ background:linear-gradient(135deg,rgba(255,255,255,.19) 0%,rgba(255,255,255,.075) 34%,rgba(180,194,255,.09) 65%,rgba(255,255,255,.13) 100%)!important;
+ box-shadow:0 -12px 38px #0003,inset 0 1px 0 #ffffff70,inset 0 -1px 0 #ffffff12!important;
+ backdrop-filter:blur(42px) saturate(190%)!important;-webkit-backdrop-filter:blur(42px) saturate(190%)!important;
+ isolation:isolate!important;overflow:visible!important
+}
+.bottom-nav:before{content:""!important;position:absolute!important;inset:0!important;pointer-events:none!important;border-radius:inherit!important;background:linear-gradient(110deg,transparent 10%,#ffffff10 28%,transparent 45%,#ffffff0c 72%,transparent 90%)!important;opacity:.9!important}
+.bottom-nav:after{content:""!important;position:absolute!important;top:0!important;left:8%!important;right:8%!important;height:1px!important;pointer-events:none!important;background:linear-gradient(90deg,transparent,#ffffffbb 25%,#ffffff66 50%,#ffffffbb 75%,transparent)!important}
+.bottom-nav .nav-item{
+ position:relative!important;z-index:1!important;min-width:0!important;min-height:66px!important;
+ display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;
+ gap:4px!important;padding:5px 1px!important;border:1px solid transparent!important;border-radius:16px!important;
+ background:transparent!important;color:#f0efff!important;font:inherit!important;font-size:10px!important;
+ font-weight:650!important;white-space:nowrap!important;cursor:pointer!important;text-shadow:0 1px 8px #0002!important;
+ box-shadow:none!important;outline:none!important;transition:background .18s,transform .18s,color .18s,border-color .18s!important
+}
+.bottom-nav .nav-icon{width:25px!important;height:25px!important;display:block!important;fill:none!important;stroke:currentColor!important;stroke-width:1.8!important;stroke-linecap:round!important;stroke-linejoin:round!important;flex:none!important}
+.bottom-nav .nav-item.nav-item-primary{
+ border:1px solid #ffffff75!important;
+ background:linear-gradient(145deg,rgba(255,255,255,.9),rgba(205,255,235,.68) 42%,rgba(66,240,175,.78))!important;
+ color:#073b2b!important;box-shadow:0 0 24px #5bffc64a,inset 0 1px 0 #ffffffd9!important;
+ backdrop-filter:blur(18px)!important;-webkit-backdrop-filter:blur(18px)!important
+}
+.bottom-nav .nav-item:active{transform:scale(.94)!important}
+.bottom-nav .nav-item:not(.nav-item-primary):focus-visible{outline:1px solid #ffffff66!important;outline-offset:1px!important}
+@media(max-width:360px){.bottom-nav{padding-left:5px!important;padding-right:5px!important;gap:1px!important}.bottom-nav .nav-item{font-size:9px!important}.bottom-nav .nav-icon{width:23px!important;height:23px!important}}
+.app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!important}
+</style>
 </head>
 <body>
 <div class="app-background" aria-hidden="true"></div>
