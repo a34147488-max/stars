@@ -1531,6 +1531,46 @@ body.section-page-active .boxes-backdrop.open #boxOpenSelected,body.section-page
 @keyframes starsPlayPulse{0%,100%{box-shadow:0 0 12px #ff183c77,0 0 24px #e9003150,inset 0 1px 0 #ffffff55}50%{box-shadow:0 0 19px #ff284fbb,0 0 36px #ed002c88,inset 0 1px 0 #ffffff80}}
 @keyframes starsPlayShine{0%,18%{transform:translateX(-65%) rotate(8deg)}65%,100%{transform:translateX(65%) rotate(8deg)}}
 @media(prefers-reduced-motion:reduce){#gameOpen,#gameOpen::before{animation:none!important}}
+
+/* Final override: beat the older authoritative green nav-button rule. */
+html body nav.bottom-nav>button.nav-item#gameOpen{
+ position:relative!important;isolation:isolate!important;overflow:hidden!important;
+ display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;
+ gap:4px!important;padding:5px 1px!important;
+ border:1px solid #ffb4c0!important;border-radius:16px!important;
+ background:linear-gradient(115deg,#a9001c 0%,#ff1838 25%,#ff5264 48%,#e6002b 70%,#ff1838 100%)!important;
+ background-size:300% 300%!important;color:#fff!important;-webkit-text-fill-color:#fff!important;
+ box-shadow:0 0 16px #ff183cbb,0 0 34px #ed002c88,inset 0 1px 0 #ffffff80!important;
+ animation:starsPlayRedFlow 2.8s ease-in-out infinite,starsPlayPulse 1.6s ease-in-out infinite!important
+}
+html body nav.bottom-nav>button.nav-item#gameOpen>svg.nav-icon{
+ position:relative!important;display:block!important;flex:0 0 25px!important;width:25px!important;height:25px!important;
+ stroke:#fff!important;color:#fff!important;z-index:2!important
+}
+html body nav.bottom-nav>button.nav-item#gameOpen>span:not(.halloween-mouse):not(.halloween-pumpkin){
+ position:relative!important;display:block!important;flex:0 0 auto!important;z-index:3!important;
+ margin:0!important;padding:0!important;line-height:1.15!important;color:#fff!important;-webkit-text-fill-color:#fff!important
+}
+html body nav.bottom-nav>button.nav-item#gameOpen>.halloween-mouse{
+ position:absolute!important;display:block!important;left:-4px!important;top:-15px!important;width:38px!important;height:25px!important;
+ z-index:4!important;pointer-events:none!important
+}
+html body nav.bottom-nav>button.nav-item#gameOpen>.halloween-mouse svg{width:100%!important;height:100%!important}
+html body nav.bottom-nav>button.nav-item#gameOpen>.halloween-pumpkin{
+ position:absolute!important;display:block!important;right:-5px!important;top:-10px!important;width:25px!important;height:25px!important;
+ z-index:4!important;pointer-events:none!important
+}
+html body nav.bottom-nav>button.nav-item#gameOpen>.halloween-pumpkin svg{width:100%!important;height:100%!important}
+html body nav.bottom-nav>button.nav-item#gameOpen::before{
+ content:""!important;position:absolute!important;z-index:1!important;inset:-60% -80%!important;
+ background:linear-gradient(105deg,transparent 38%,#ffffff12 44%,#ffffffd9 50%,#ffffff18 56%,transparent 63%)!important;
+ transform:translateX(-65%) rotate(8deg)!important;animation:starsPlayShine 2.3s ease-in-out infinite!important;pointer-events:none!important
+}
+html body nav.bottom-nav>button.nav-item#gameOpen::after{
+ content:""!important;position:absolute!important;z-index:0!important;inset:1px!important;border-radius:15px!important;
+ background:linear-gradient(180deg,#ffffff24,transparent 48%,#65000e30)!important;pointer-events:none!important
+}
+html body nav.bottom-nav>button.nav-item#gameOpen:active{transform:scale(.94)!important;filter:brightness(1.2)!important}
 </style>
 
 </body>
