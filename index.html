@@ -344,64 +344,79 @@ body.section-page-active .city-close{position:fixed!important;top:calc(env(safe-
 .city-backdrop #cityShopPanel.open,.city-backdrop #cityWorkPanel.open,.city-backdrop #cityCreatePanel.open{display:block!important}
 .city-backdrop .compact-business-card{padding:10px 11px!important;border-radius:15px!important}.city-backdrop .compact-business-card .city-business-products{gap:4px!important;margin:7px 0!important}.city-backdrop .compact-business-card .city-business-product{padding:6px 8px!important;font-size:10px!important}.city-backdrop .business-total-revenue{margin-top:5px;color:#79e8ae;font-size:10px;font-weight:850}.city-backdrop .business-product-buy{display:flex;align-items:center;gap:7px}.city-backdrop .business-buy-button{padding:5px 9px;border:1px solid #bde7ff66;border-radius:9px;background:linear-gradient(135deg,#c8eaff,#8dbbe2);color:#102033;font:inherit;font-size:9px;font-weight:900}
 
-/* FINAL OVERRIDE — framed glass bottom menu, independent of generic button rules */
+/* CONSOLIDATED GLASS CONTROLS — one source of truth */
 .bottom-nav{
- position:fixed!important;left:50%!important;right:auto!important;bottom:0!important;top:auto!important;
+ position:fixed!important;z-index:999!important;left:50%!important;right:auto!important;top:auto!important;bottom:0!important;
  transform:translateX(-50%)!important;width:min(100%,520px)!important;
- display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
- gap:7px!important;padding:10px 10px calc(env(safe-area-inset-bottom) + 9px)!important;
- border:1px solid rgba(255,255,255,.25)!important;border-bottom:0!important;
- border-radius:25px 25px 0 0!important;
- background:linear-gradient(145deg,rgba(24,31,48,.82),rgba(12,17,30,.78))!important;
- box-shadow:0 -10px 35px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.25)!important;
- backdrop-filter:blur(30px) saturate(170%)!important;-webkit-backdrop-filter:blur(30px) saturate(170%)!important;
+ display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:6px!important;
+ margin:0!important;padding:10px 10px calc(env(safe-area-inset-bottom) + 9px)!important;
+ border:1px solid rgba(255,255,255,.3)!important;border-bottom:0!important;border-radius:25px 25px 0 0!important;
+ background:linear-gradient(145deg,rgba(34,43,62,.84),rgba(13,18,32,.82))!important;
+ box-shadow:0 -10px 35px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.24)!important;
+ backdrop-filter:blur(32px) saturate(175%)!important;-webkit-backdrop-filter:blur(32px) saturate(175%)!important;
 }
-.bottom-nav .nav-item,
-.bottom-nav button.nav-item{
- min-width:0!important;min-height:62px!important;padding:6px 2px!important;
- display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;
- gap:4px!important;border:1px solid rgba(225,237,255,.3)!important;border-radius:15px!important;
- background:linear-gradient(145deg,rgba(255,255,255,.16),rgba(255,255,255,.065))!important;
- color:#f5f7ff!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.13),0 3px 12px rgba(0,0,0,.12)!important;
- font-family:inherit!important;font-size:10px!important;font-weight:750!important;
- -webkit-appearance:none!important;appearance:none!important;
+.bottom-nav>button.nav-item{
+ position:relative!important;z-index:2!important;min-width:0!important;height:66px!important;min-height:66px!important;
+ margin:0!important;padding:6px 2px!important;display:flex!important;flex-direction:column!important;
+ align-items:center!important;justify-content:center!important;gap:5px!important;
+ border:1px solid rgba(225,237,255,.42)!important;border-radius:16px!important;
+ background:linear-gradient(150deg,rgba(139,164,198,.32),rgba(70,88,119,.24))!important;
+ color:#f7f8ff!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 4px 13px rgba(0,0,0,.16)!important;
+ font:750 10px/1.15 inherit!important;-webkit-appearance:none!important;appearance:none!important;opacity:1!important;filter:none!important;
 }
-.bottom-nav .nav-item.nav-item-primary,
-.bottom-nav button.nav-item-primary{
- border:1px solid rgba(225,245,255,.75)!important;
- background:linear-gradient(145deg,rgba(224,242,255,.96),rgba(151,199,238,.9))!important;
- color:#14243a!important;box-shadow:0 0 20px rgba(159,211,255,.2),inset 0 1px 0 #fff!important;
+.bottom-nav>button.nav-item .nav-icon{width:25px!important;height:25px!important;stroke:currentColor!important;opacity:1!important}
+.bottom-nav>button.nav-item>span{color:inherit!important;opacity:1!important}
+.bottom-nav>button.nav-item.nav-item-primary{
+ border-color:rgba(226,247,255,.9)!important;background:linear-gradient(150deg,#e8f7ff,#a3cfee 58%,#70aedc)!important;
+ color:#10243a!important;box-shadow:inset 0 1px 0 #fff,0 4px 18px rgba(116,190,245,.3)!important;
 }
-.bottom-nav .nav-item .nav-icon{color:inherit!important;stroke:currentColor!important}
-.bottom-nav .nav-item:active{transform:scale(.96)!important}
-.app{padding-bottom:calc(env(safe-area-inset-bottom) + 105px)!important}
-@media(max-width:360px){.bottom-nav{gap:4px!important;padding-left:6px!important;padding-right:6px!important}.bottom-nav .nav-item{font-size:9px!important}}
+.bottom-nav>button.nav-item.nav-item-primary .nav-icon{stroke:#10243a!important}
+.bottom-nav>button.nav-item:active{transform:scale(.97)!important}
+.app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!important}
+@media(max-width:360px){.bottom-nav{gap:4px!important;padding-left:6px!important;padding-right:6px!important}.bottom-nav>button.nav-item{height:62px!important;min-height:62px!important;font-size:9px!important}.bottom-nav .nav-icon{width:23px!important;height:23px!important}}
 
-
-/* Restore clearly visible framed menu tiles (city, boxes, games, withdraw) */
-nav.bottom-nav>button.nav-item{
- position:relative!important;z-index:5!important;
- min-height:68px!important;height:68px!important;
- margin:0 2px!important;padding:7px 3px!important;
- display:flex!important;align-items:center!important;justify-content:center!important;flex-direction:column!important;gap:5px!important;
- border:1px solid rgba(231,240,255,.52)!important;border-radius:16px!important;
- background:linear-gradient(155deg,rgba(105,125,158,.48) 0%,rgba(54,66,91,.58) 48%,rgba(34,43,64,.68) 100%)!important;
- color:#f7f8ff!important;
- box-shadow:inset 0 1px 0 rgba(255,255,255,.28),inset 0 -1px 0 rgba(255,255,255,.08),0 4px 14px rgba(0,0,0,.24)!important;
- opacity:1!important;filter:none!important;
+/* City controls: consistent iOS glass buttons across every city theme */
+.city-backdrop button:not(.city-tap):not(.city-close){
+ -webkit-appearance:none!important;appearance:none!important;font-family:inherit!important;
+ border:1px solid var(--city-border,rgba(255,255,255,.42))!important;border-radius:14px!important;
+ background:linear-gradient(145deg,rgba(255,255,255,.2),rgba(255,255,255,.075))!important;
+ color:var(--city-ink,#f7f8ff)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 5px 16px rgba(0,0,0,.12)!important;
+ font-weight:800!important;transition:transform .18s,background .18s,border-color .18s,box-shadow .18s!important;
 }
-nav.bottom-nav>button.nav-item .nav-icon{width:25px!important;height:25px!important;stroke:#f7f8ff!important;opacity:1!important}
-nav.bottom-nav>button.nav-item>span:not(.halloween-pumpkin):not(.halloween-mouse){color:#fff!important;opacity:1!important;text-shadow:0 1px 5px rgba(0,0,0,.4)!important}
-nav.bottom-nav>button.nav-item.nav-item-primary{
- border-color:rgba(226,247,255,.9)!important;
- background:linear-gradient(150deg,rgba(232,247,255,.98),rgba(163,207,239,.96) 55%,rgba(112,174,220,.94))!important;
- color:#10243a!important;
- box-shadow:inset 0 1px 0 #fff,0 4px 18px rgba(116,190,245,.3)!important;
+.city-backdrop .city-actions,
+.city-backdrop .city-business-actions{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important}
+.city-backdrop .city-actions>.city-action,
+.city-backdrop .city-business-actions>.city-action{
+ display:flex!important;align-items:center!important;justify-content:center!important;min-width:0!important;
+ min-height:54px!important;padding:10px 6px!important;border-radius:17px!important;
+ background:linear-gradient(145deg,rgba(255,255,255,.22),rgba(255,255,255,.075))!important;
+ color:var(--city-ink,#f7f8ff)!important;border:1px solid var(--city-border,rgba(255,255,255,.42))!important;
+ font-size:clamp(9px,2.7vw,11px)!important;font-weight:900!important;line-height:1.2!important;letter-spacing:.035em!important;
+ white-space:normal!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.24),0 7px 18px rgba(0,0,0,.12)!important;
 }
-nav.bottom-nav>button.nav-item.nav-item-primary .nav-icon,
-nav.bottom-nav>button.nav-item.nav-item-primary>span:not(.halloween-pumpkin):not(.halloween-mouse){color:#10243a!important;stroke:#10243a!important}
-nav.bottom-nav>button.nav-item:active{transform:translateY(1px) scale(.97)!important}
-
+.city-backdrop .city-actions>.city-action.primary,
+.city-backdrop .city-business-actions>.city-action.primary,
+.city-backdrop .city-action.primary{
+ background:linear-gradient(145deg,var(--city-accent,#dceeff),rgba(255,255,255,.32))!important;
+ color:var(--city-ink,#17243a)!important;border-color:var(--city-border,#fff)!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 7px 20px rgba(0,0,0,.13)!important;
+}
+.city-backdrop .city-business-types button,
+.city-backdrop .city-business-action,
+.city-backdrop .city-choice,
+.city-backdrop .business-buy-button,
+.city-backdrop #businessAddProduct,
+.city-backdrop #businessCreateSubmit{
+ min-height:42px!important;padding:10px 12px!important;border-radius:13px!important;
+ background:linear-gradient(145deg,rgba(255,255,255,.2),rgba(255,255,255,.075))!important;
+ color:var(--city-ink,#f7f8ff)!important;border:1px solid var(--city-border,rgba(255,255,255,.42))!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.2),0 4px 13px rgba(0,0,0,.1)!important;
+}
+.city-backdrop .city-business-types button.selected{border-color:var(--city-accent,#fff)!important;background:linear-gradient(145deg,rgba(255,255,255,.36),rgba(255,255,255,.14))!important;box-shadow:0 0 0 1px var(--city-accent,#fff),inset 0 1px 0 rgba(255,255,255,.3)!important}
+.city-backdrop .business-buy-button{min-height:30px!important;padding:5px 10px!important;background:linear-gradient(145deg,#dff2ff,#a8d1ef)!important;color:#10243a!important;border-color:#e8f7ff!important}
+.city-backdrop button:disabled{opacity:.48!important;filter:saturate(.7)!important}
+.city-backdrop button:not(:disabled):active{transform:scale(.98)!important}
 </style>
 </head>
 <body>
