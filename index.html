@@ -1179,27 +1179,24 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
  load();
 })();
 </script>
-<script>
+<script id="section-navigation-fix">
 (function(){
- const navIds=['cityOpen','boxesOpen','gameOpen','withdrawOpen','promoOpen'];
- const closeIds=['cityClose','boxesClose','gameClose','withdrawClose','promoClose'];
- navIds.forEach(function(id){
-  const button=document.getElementById(id);
-  if(!button)return;
-  button.addEventListener('click',function(){document.body.classList.add('section-page-active')},true);
- });
- closeIds.forEach(function(id){
-  const button=document.getElementById(id);
-  if(!button)return;
-  button.addEventListener('click',function(){document.body.classList.remove('section-page-active');document.body.style.overflow=''},true);
- });
- ['cityBackdrop','boxesBackdrop','gameBackdrop','promoBackdrop','withdrawBackdrop'].forEach(function(id){
-  const panel=document.getElementById(id);
-  if(!panel)return;
-  panel.addEventListener('click',function(e){
-   if(document.body.classList.contains('section-page-active')&&e.target===panel){e.preventDefault();e.stopImmediatePropagation()}
-  },true);
- });
+ const routes={cityOpen:'cityBackdrop',boxesOpen:'boxesBackdrop',gameOpen:'gameBackdrop',withdrawOpen:'withdrawBackdrop',promoOpen:'promoBackdrop'};
+ const panels=['cityBackdrop','boxesBackdrop','gameBackdrop','withdrawBackdrop','promoBackdrop'];
+ function closeGameModes(){
+  ['wheelPanel','doublePanel','nvutiPanel','penaltyPanel','doorGamePanel','cupsPanel'].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.remove('active');if(id==='cupsPanel')el.style.display='none';}});
+  const menu=document.getElementById('gameMenu');if(menu)menu.style.display='grid';
+  document.getElementById('gameBackdrop')?.classList.remove('closing');
+ }
+ function closeOthers(keep){
+  panels.forEach(id=>{if(id===keep)return;const el=document.getElementById(id);if(el){el.classList.remove('open');el.setAttribute('aria-hidden','true');}});
+  if(keep!=='gameBackdrop')closeGameModes();
+  if(keep!=='cityBackdrop')['cityMovePanel','cityTopPanel','districtPanel','cityShopPanel','cityWorkPanel','cityCreatePanel'].forEach(id=>document.getElementById(id)?.classList.remove('open'));
+  ['exchangeSoonBackdrop','sbpBankBackdrop','sbpBackdrop','lowBalanceBackdrop','bigWinBackdrop'].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.remove('open');el.setAttribute('aria-hidden','true');}});
+  document.body.style.overflow='hidden';
+ }
+ Object.entries(routes).forEach(([id,target])=>{const b=document.getElementById(id);if(b)b.addEventListener('click',()=>{closeOthers(target);document.body.classList.add('section-page-active');},true);});
+ ['cityClose','boxesClose','gameClose','withdrawClose','promoClose'].forEach(id=>{const b=document.getElementById(id);if(b)b.addEventListener('click',()=>{setTimeout(()=>{if(!panels.some(id=>document.getElementById(id)?.classList.contains('open'))){document.body.classList.remove('section-page-active');document.body.style.overflow='';}},0);},true);});
 })();
 </script>
 <script>
