@@ -488,7 +488,7 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
   
   <div class="city-message" id="cityMessage">Каждые 10 кликов — новый уровень.</div>
   
-  <section class="city-panel district-panel" id="districtPanel"><div class="city-panel-title">Районы города</div><div class="district-current" id="districtCurrent">Район не выбран</div><div class="district-income" id="districtIncome">Автоматический доход: 0</div><div id="districtChoices" class="district-choices"></div></section>
+  <section class="city-panel" id="districtPanel"><div class="city-panel-title">Районы города</div><div class="district-current" id="districtCurrent">Район не выбран</div><div class="district-income" id="districtIncome">Автоматический доход: 0</div><div id="districtChoices" class="district-choices"></div></section>
   <div class="city-actions city-business-actions"><button class="city-action primary" id="cityShopOpen" type="button">МАГАЗИН</button><button class="city-action" id="cityWorkOpen" type="button">РАБОТА</button><button class="city-action" id="cityCreateOpen" type="button">СОЗДАТЬ БИЗНЕС</button><button class="city-action" id="cityWorkersOpen" type="button">РАБОТНИКИ</button></div>
   <section class="city-panel" id="cityShopPanel"><div class="city-panel-title">Магазин города</div><div id="cityShopList" class="city-business-list">Загружаем бизнесы…</div></section>
   <section class="city-panel" id="cityWorkPanel"><div class="city-panel-title">Работа</div><div id="cityJobStatus" class="city-job-status"></div><div id="cityWorkList" class="city-business-list">Загружаем вакансии…</div></section>
@@ -1424,4 +1424,16 @@ body.section-page-active .game-backdrop.open .game-modal{animation:fullMenuRise 
  .city-backdrop.open .city-shell,.withdraw-backdrop.open .withdraw-modal,
  .modal-backdrop.open .modal,.city-backdrop .city-subwindow.open{animation:none!important}
 }
+</style>
+
+<style id="district-panel-match-move">
+/* Районы используют ту же базовую панель, размеры и оформление, что и Переехать */
+.city-backdrop #districtPanel{
+ display:none;width:100%;box-sizing:border-box;margin-top:12px;
+ border:1px solid rgba(218,232,255,.2);border-radius:22px;
+ background:linear-gradient(145deg,rgba(255,255,255,.105),rgba(255,255,255,.045));
+ padding:16px;box-shadow:inset 0 1px 0 rgba(255,255,255,.09),0 12px 30px rgba(0,0,0,.16);
+}
+.city-backdrop #districtPanel.open{display:block;animation:fullMenuRise .48s cubic-bezier(.18,.78,.22,1) both}
+.city-backdrop #districtPanel .city-panel-title{margin:0 0 13px;font-size:17px;font-weight:900;letter-spacing:.01em}
 </style>
