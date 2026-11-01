@@ -377,6 +377,31 @@ body.section-page-active .city-close{position:fixed!important;top:calc(env(safe-
 .app{padding-bottom:calc(env(safe-area-inset-bottom) + 105px)!important}
 @media(max-width:360px){.bottom-nav{gap:4px!important;padding-left:6px!important;padding-right:6px!important}.bottom-nav .nav-item{font-size:9px!important}}
 
+
+/* Restore clearly visible framed menu tiles (city, boxes, games, withdraw) */
+nav.bottom-nav>button.nav-item{
+ position:relative!important;z-index:5!important;
+ min-height:68px!important;height:68px!important;
+ margin:0 2px!important;padding:7px 3px!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;flex-direction:column!important;gap:5px!important;
+ border:1px solid rgba(231,240,255,.52)!important;border-radius:16px!important;
+ background:linear-gradient(155deg,rgba(105,125,158,.48) 0%,rgba(54,66,91,.58) 48%,rgba(34,43,64,.68) 100%)!important;
+ color:#f7f8ff!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.28),inset 0 -1px 0 rgba(255,255,255,.08),0 4px 14px rgba(0,0,0,.24)!important;
+ opacity:1!important;filter:none!important;
+}
+nav.bottom-nav>button.nav-item .nav-icon{width:25px!important;height:25px!important;stroke:#f7f8ff!important;opacity:1!important}
+nav.bottom-nav>button.nav-item>span:not(.halloween-pumpkin):not(.halloween-mouse){color:#fff!important;opacity:1!important;text-shadow:0 1px 5px rgba(0,0,0,.4)!important}
+nav.bottom-nav>button.nav-item.nav-item-primary{
+ border-color:rgba(226,247,255,.9)!important;
+ background:linear-gradient(150deg,rgba(232,247,255,.98),rgba(163,207,239,.96) 55%,rgba(112,174,220,.94))!important;
+ color:#10243a!important;
+ box-shadow:inset 0 1px 0 #fff,0 4px 18px rgba(116,190,245,.3)!important;
+}
+nav.bottom-nav>button.nav-item.nav-item-primary .nav-icon,
+nav.bottom-nav>button.nav-item.nav-item-primary>span:not(.halloween-pumpkin):not(.halloween-mouse){color:#10243a!important;stroke:#10243a!important}
+nav.bottom-nav>button.nav-item:active{transform:translateY(1px) scale(.97)!important}
+
 </style>
 </head>
 <body>
