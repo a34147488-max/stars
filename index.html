@@ -1311,3 +1311,59 @@ body.section-page-active .city-shell,body.section-page-active .boxes-modal,body.
 
 </body>
 </html>
+<style id="city-independent-windows"> 
+/* City district cards restored to large framed glass choices */
+.city-backdrop .district-choices{gap:10px!important}
+.city-backdrop .district-choice{
+ min-height:78px!important;padding:14px 15px!important;border:1px solid rgba(210,231,255,.28)!important;
+ border-radius:17px!important;background:linear-gradient(145deg,rgba(255,255,255,.14),rgba(255,255,255,.055))!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 8px 20px rgba(0,0,0,.13)!important;
+}
+.city-backdrop .district-choice.owned{border-color:rgba(94,232,165,.65)!important;background:linear-gradient(120deg,rgba(74,220,145,.2),rgba(255,255,255,.055))!important;box-shadow:inset 3px 0 0 #55dfa0,0 8px 20px rgba(0,0,0,.13)!important}
+.city-backdrop .district-price{padding:8px 11px!important;border:1px solid rgba(211,235,255,.24)!important;border-radius:11px!important;background:rgba(255,255,255,.09)!important;font-size:13px!important}
+.city-backdrop .district-choice:active{transform:scale(.985)!important}
+/* Business actions open as independent overlay windows */
+.city-backdrop #cityShopPanel.open,.city-backdrop #cityWorkPanel.open,.city-backdrop #cityCreatePanel.open,.city-backdrop #cityWorkersPanel.open{
+ display:block!important;position:fixed!important;z-index:45!important;
+ top:calc(env(safe-area-inset-top) + 14px)!important;bottom:calc(env(safe-area-inset-bottom) + 18px)!important;
+ left:12px!important;right:12px!important;max-width:620px!important;margin:auto!important;
+ overflow-y:auto!important;overscroll-behavior:contain!important;
+ padding:20px 16px 26px!important;border:1px solid rgba(205,230,255,.34)!important;border-radius:27px!important;
+ background:linear-gradient(155deg,rgba(20,30,51,.97),rgba(8,15,29,.97))!important;
+ box-shadow:0 24px 80px rgba(0,0,0,.48),inset 0 1px 0 rgba(255,255,255,.16)!important;
+ backdrop-filter:blur(28px)!important;-webkit-backdrop-filter:blur(28px)!important;
+ animation:citySubwindowIn .25s cubic-bezier(.2,.8,.2,1) both!important;
+}
+.city-backdrop #cityShopPanel.open:before,.city-backdrop #cityWorkPanel.open:before,.city-backdrop #cityCreatePanel.open:before,.city-backdrop #cityWorkersPanel.open:before{
+ content:"♛";position:absolute;right:18px;top:48px;font-size:78px;line-height:1;color:rgba(220,232,255,.055);pointer-events:none;transform:rotate(12deg)
+}
+.city-backdrop .city-subwindow-head{position:sticky;top:-20px;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-20px -16px 18px;padding:15px 16px 13px;border-bottom:1px solid rgba(210,231,255,.16);background:rgba(14,23,41,.94);border-radius:26px 26px 0 0}
+.city-backdrop .city-subwindow-title{display:flex;align-items:center;gap:10px;color:#f5f8ff;font-size:15px;font-weight:950;letter-spacing:.035em}
+.city-backdrop .city-subwindow-title svg{width:22px;height:22px;stroke:#c8e7ff;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.city-backdrop .city-subwindow-back{display:flex;align-items:center;gap:6px;padding:9px 12px!important;border:1px solid rgba(190,222,255,.32)!important;border-radius:13px!important;background:rgba(255,255,255,.1)!important;color:#f5f8ff!important;font-size:10px!important;font-weight:900!important;white-space:nowrap}
+.city-backdrop .city-subwindow-back svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2}
+@keyframes citySubwindowIn{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+</style>
+<script id="city-independent-window-headers">
+(function(){
+ const defs=[
+  ['cityShopPanel','МАГАЗИН','<path d="M3 9h18l-1.5-6h-15L3 9Z"/><path d="M5 9v12h14V9M9 21v-7h6v7"/>'],
+  ['cityWorkPanel','РАБОТА','<rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V4h8v3M3 12h18M10 12v2h4v-2"/>'],
+  ['cityCreatePanel','СОЗДАТЬ БИЗНЕС','<path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6M9 9h.01M15 9h.01"/>'],
+  ['cityWorkersPanel','РАБОТНИКИ','<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 5.5a3 3 0 0 1 0 5.8M17 14c2.3.6 4 2.6 4 5"/>']
+ ];
+ function init(){
+  defs.forEach(([id,title,path])=>{
+   const panel=document.getElementById(id);if(!panel||panel.querySelector('.city-subwindow-head'))return;
+   const head=document.createElement('div');head.className='city-subwindow-head';
+   const label=document.createElement('div');label.className='city-subwindow-title';
+   label.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true">'+path+'</svg><span>'+title+'</span>';
+   const back=document.createElement('button');back.type='button';back.className='city-subwindow-back';
+   back.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6M9 12h12"/></svg> НАЗАД К ГОРОДУ';
+   back.addEventListener('click',()=>panel.classList.remove('open'));
+   head.append(label,back);panel.prepend(head);
+  });
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
