@@ -1274,5 +1274,33 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
  });
 })();
 </script>
+
+<style id="section-return-menu-style">
+.section-return-menu{display:flex!important;align-items:center;justify-content:center;gap:9px;width:max-content;max-width:100%;min-height:42px;margin:0 0 18px;padding:0 17px;border:1px solid rgba(255,255,255,.34);border-radius:15px;background:rgba(255,255,255,.13);color:#fff;font:750 13px/1 inherit;letter-spacing:.01em;box-shadow:0 8px 24px rgba(0,0,0,.12);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);cursor:pointer;transition:transform .16s ease,background .16s ease}
+.section-return-menu:before{content:"";width:8px;height:8px;border-left:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);margin-right:2px}
+.section-return-menu:active{transform:scale(.96);background:rgba(255,255,255,.23)}
+body.section-page-active .city-close,body.section-page-active .modal-close#boxesClose,body.section-page-active .modal-close#withdrawClose,body.section-page-active .modal-close#promoClose,body.section-page-active #gameClose{display:none!important}
+body.section-page-active .city-shell,body.section-page-active .boxes-modal,body.section-page-active .withdraw-modal,body.section-page-active .promo-modal,body.section-page-active .game-modal{padding-top:calc(env(safe-area-inset-top) + 16px)!important}
+</style>
+<script id="section-return-menu-script">
+(function(){
+ const configs=[
+  {root:'.city-shell',close:'cityClose'},
+  {root:'.boxes-modal',close:'boxesClose'},
+  {root:'.game-modal',close:'gameClose'},
+  {root:'.withdraw-modal',close:'withdrawClose'},
+  {root:'.promo-modal',close:'promoClose'}
+ ];
+ configs.forEach(({root,close})=>{
+  const host=document.querySelector(root),closer=document.getElementById(close);
+  if(!host||!closer||host.querySelector('.section-return-menu'))return;
+  const b=document.createElement('button');
+  b.type='button';b.className='section-return-menu';b.textContent='Вернуться в меню';
+  b.addEventListener('click',()=>closer.click());
+  host.insertBefore(b,host.firstChild);
+ });
+})();
+</script>
+
 </body>
 </html>
