@@ -1367,3 +1367,61 @@ body.section-page-active .city-shell,body.section-page-active .boxes-modal,body.
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
 </script>
+
+
+<style id="full-page-menus-and-global-rise">
+/* Promocodes, boxes and games are pages, not modal sheets */
+body.section-page-active .promo-backdrop,
+body.section-page-active .boxes-backdrop,
+body.section-page-active .game-backdrop{
+ position:fixed!important;inset:0!important;width:100%!important;height:100vh!important;height:100dvh!important;
+ max-height:100dvh!important;display:flex!important;align-items:stretch!important;justify-content:center!important;
+ padding:0!important;margin:0!important;border:0!important;border-radius:0!important;
+ overflow-x:hidden!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;
+ background:linear-gradient(160deg,#171b2a 0%,#0b0e18 58%,#111525 100%)!important;
+ backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+}
+body.section-page-active .promo-modal,
+body.section-page-active .boxes-modal,
+body.section-page-active .game-modal{
+ position:relative!important;inset:auto!important;width:100%!important;max-width:640px!important;
+ min-height:100%!important;height:auto!important;max-height:none!important;overflow:visible!important;
+ margin:0 auto!important;padding:calc(env(safe-area-inset-top) + 22px) 18px calc(env(safe-area-inset-bottom) + 30px)!important;
+ border:0!important;border-radius:0!important;box-shadow:none!important;
+ background:transparent!important;transform:none!important;opacity:1!important;
+}
+body.section-page-active .boxes-modal,
+body.section-page-active .game-modal{display:block!important}
+body.section-page-active .promo-modal .modal-head,
+body.section-page-active .boxes-modal .modal-head,
+body.section-page-active .game-modal .modal-head{position:relative!important;top:auto!important;padding:8px 0 18px!important;background:transparent!important}
+body.section-page-active .promo-modal .modal-close,
+body.section-page-active .boxes-modal .modal-close,
+body.section-page-active .game-modal .modal-close,
+body.section-page-active #gameClose{position:fixed!important;top:calc(env(safe-area-inset-top) + 10px)!important;right:16px!important;z-index:100!important}
+body.section-page-active .section-return-menu{margin:0 0 14px!important}
+body.section-page-active .promo-backdrop.open .promo-modal,
+body.section-page-active .boxes-backdrop.open .boxes-modal,
+body.section-page-active .game-backdrop.open .game-modal{animation:fullMenuRise .48s cubic-bezier(.18,.78,.22,1) both!important}
+@keyframes fullMenuRise{from{opacity:0;transform:translate3d(0,42px,0)!important}to{opacity:1;transform:translate3d(0,0,0)!important}}
+/* Consistent gentle bottom-up entrance for every menu and submenu */
+.city-backdrop.open .city-shell,
+.withdraw-backdrop.open .withdraw-modal,
+.modal-backdrop.open .modal,
+.promo-backdrop.open .promo-modal,
+.boxes-backdrop.open .boxes-modal,
+.game-backdrop.open .game-modal,
+.city-backdrop .city-subwindow.open{
+ animation:fullMenuRise .48s cubic-bezier(.18,.78,.22,1) both;
+}
+.city-backdrop,.withdraw-backdrop,.modal-backdrop,.promo-backdrop,.boxes-backdrop,.game-backdrop{
+ transition:background-color .28s ease,backdrop-filter .28s ease;
+}
+@media(prefers-reduced-motion:reduce){
+ body.section-page-active .promo-backdrop.open .promo-modal,
+ body.section-page-active .boxes-backdrop.open .boxes-modal,
+ body.section-page-active .game-backdrop.open .game-modal,
+ .city-backdrop.open .city-shell,.withdraw-backdrop.open .withdraw-modal,
+ .modal-backdrop.open .modal,.city-backdrop .city-subwindow.open{animation:none!important}
+}
+</style>
