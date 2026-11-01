@@ -1218,5 +1218,61 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
  retry.addEventListener('click',async()=>{if(busy||!lost)return;busy=true;retry.disabled=true;message.textContent=window.doorFreeAvailable?'Запускаем бесплатную попытку…':'Списываем 400 звёзд и запускаем заново…';try{const d=await api('/api/doors/retry','POST',{});stage=1;lost=false;waitingNext=false;pendingPrize=0;window.doorFreeAvailable=!!d.freeAttemptAvailable;document.getElementById('balance').textContent=fmt(d.balance);message.textContent=d.free?'Бесплатная попытка началась. Выбери одну из двух дверей.':'Новая попытка началась. Выбери одну из двух дверей.';updateStage();}catch(e){message.textContent=e.message;}finally{busy=false;retry.disabled=false;updateStage();}});
 })();
 </script>
-<script>(()=>{const q=id=>document.getElementById(id);async function refreshCashback(){try{const r=await fetch('/api/cashback',{headers:{'X-Telegram-Init-Data':window.Telegram?.WebApp?.initData||''}});const d=await r.json();if(!r.ok||!d.ok)return;q('cashbackBalance').textContent=Number(d.balance||0).toLocaleString('ru-RU');q('cashbackClaim').disabled=!d.canClaim;q('cashbackHint').textContent=d.canClaim?'Можно снять сейчас · во вторник остаток сгорит':'10% от суммы каждой ставки · снятие в воскресенье и понедельник';}catch(e){console.warn('Cashback refresh failed',e)}}document.addEventListener('DOMContentLoaded',()=>{refreshCashback();q('cashbackClaim')?.addEventListener('click',async()=>{const b=q('cashbackClaim');b.disabled=true;try{const r=await fetch('/api/cashback/claim',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':window.Telegram?.WebApp?.initData||''},body:'{}'});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||'Не удалось забрать кешбэк');q('cashbackBalance').textContent='0';q('balance').textContent=Number(d.balance).toLocaleString('ru-RU');q('cashbackHint').textContent='Кешбэк зачислен на основной баланс';}catch(e){q('cashbackHint').textContent=e.message;await refreshCashback();}});});window.addEventListener('focus',refreshCashback);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshCashback()});window.setInterval(refreshCashback,12000);})();</script></body>
+<script>(()=>{const q=id=>document.getElementById(id);async function refreshCashback(){try{const r=await fetch('/api/cashback',{headers:{'X-Telegram-Init-Data':window.Telegram?.WebApp?.initData||''}});const d=await r.json();if(!r.ok||!d.ok)return;q('cashbackBalance').textContent=Number(d.balance||0).toLocaleString('ru-RU');q('cashbackClaim').disabled=!d.canClaim;q('cashbackHint').textContent=d.canClaim?'Можно снять сейчас · во вторник остаток сгорит':'10% от суммы каждой ставки · снятие в воскресенье и понедельник';}catch(e){console.warn('Cashback refresh failed',e)}}document.addEventListener('DOMContentLoaded',()=>{refreshCashback();q('cashbackClaim')?.addEventListener('click',async()=>{const b=q('cashbackClaim');b.disabled=true;try{const r=await fetch('/api/cashback/claim',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':window.Telegram?.WebApp?.initData||''},body:'{}'});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||'Не удалось забрать кешбэк');q('cashbackBalance').textContent='0';q('balance').textContent=Number(d.balance).toLocaleString('ru-RU');q('cashbackHint').textContent='Кешбэк зачислен на основной баланс';}catch(e){q('cashbackHint').textContent=e.message;await refreshCashback();}});});window.addEventListener('focus',refreshCashback);document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshCashback()});window.setInterval(refreshCashback,12000);})();</script><style id="city-button-polish">
+.city-backdrop .city-actions>.city-action,
+.city-backdrop .city-business-actions>.city-action{
+ display:flex!important;align-items:center!important;justify-content:center!important;gap:9px!important;
+ min-height:62px!important;padding:13px 12px!important;border:1.5px solid var(--btn-edge,#8ebcff)!important;
+ border-radius:19px!important;background:linear-gradient(145deg,rgba(255,255,255,.13),rgba(255,255,255,.045))!important;
+ color:#f4f8ff!important;-webkit-text-fill-color:#f4f8ff!important;
+ box-shadow:0 5px 16px rgba(0,0,0,.15),inset 0 1px rgba(255,255,255,.1)!important;
+ font-size:12px!important;font-weight:850!important;letter-spacing:.25px!important;
+ transition:transform .16s cubic-bezier(.2,.8,.2,1),box-shadow .16s ease,background .16s ease!important;
+}
+.city-backdrop .city-actions>.city-action:nth-child(1){--btn-edge:#58c9ff}
+.city-backdrop .city-actions>.city-action:nth-child(2){--btn-edge:#b38aff}
+.city-backdrop .city-actions>.city-action:nth-child(3){--btn-edge:#ffc65c}
+.city-backdrop .city-business-actions>.city-action:nth-child(1){--btn-edge:#65d6a0}
+.city-backdrop .city-business-actions>.city-action:nth-child(2){--btn-edge:#70baff}
+.city-backdrop .city-business-actions>.city-action:nth-child(3){--btn-edge:#f0a4d4}
+.city-backdrop .city-actions>.city-action.primary,
+.city-backdrop .city-business-actions>.city-action.primary{
+ color:#f4f8ff!important;-webkit-text-fill-color:#f4f8ff!important;
+ background:linear-gradient(145deg,rgba(255,255,255,.16),rgba(255,255,255,.055))!important;
+ border-color:var(--btn-edge)!important;box-shadow:0 5px 18px color-mix(in srgb,var(--btn-edge) 22%,transparent)!important;
+}
+.city-backdrop .city-action .city-btn-icon{width:21px;height:21px;flex:0 0 21px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;opacity:.96}
+.city-backdrop .city-actions>.city-action:active,
+.city-backdrop .city-business-actions>.city-action:active{transform:scale(.955)!important;box-shadow:0 1px 5px rgba(0,0,0,.2),inset 0 2px 8px rgba(0,0,0,.12)!important}
+.city-backdrop .city-choice,.city-backdrop .district-choice{
+ border-radius:16px!important;border:1.5px solid var(--choice-edge,#79bfff)!important;
+ background:rgba(255,255,255,.075)!important;color:#f4f8ff!important;
+ transition:transform .16s ease,background .16s ease,box-shadow .16s ease!important;
+}
+.city-backdrop .city-choice{--choice-edge:#65bfff}
+.city-backdrop .district-choice{--choice-edge:#b38aff}
+.city-backdrop .city-choice:active,.city-backdrop .district-choice:active{transform:scale(.975)!important;background:rgba(255,255,255,.14)!important}
+.city-backdrop .city-choice-name,.city-backdrop .district-choice strong{color:#f4f8ff!important}
+.city-backdrop .city-choice-desc,.city-backdrop .district-choice small{color:#cbd8e8!important}
+.city-backdrop .city-choice-cost,.city-backdrop .district-price{color:#f4f8ff!important}
+</style>
+<script id="city-button-icons">
+(function(){
+ const icons={
+  cityMoveOpen:'<path d="M3 12h17M13 5l7 7-7 7"/><path d="M4 5v14"/>',
+  cityDistrictOpen:'<path d="M4 5h16M4 12h16M4 19h16"/><circle cx="8" cy="5" r="1.5"/><circle cx="16" cy="12" r="1.5"/><circle cx="10" cy="19" r="1.5"/>',
+  cityTopOpen:'<path d="m3 18 5-6 4 3 8-10"/><path d="M14 5h6v6"/>',
+  cityShopOpen:'<path d="M3 10h18l-1.5-6h-15L3 10Z"/><path d="M5 10v10h14V10M9 20v-6h6v6"/>',
+  cityWorkOpen:'<path d="M3 8h18v12H3z"/><path d="M8 8V5h8v3M3 13h18M10 13v2h4v-2"/>',
+  cityCreateOpen:'<path d="M12 5v14M5 12h14"/><circle cx="12" cy="12" r="9"/>'
+ };
+ Object.entries(icons).forEach(([id,path])=>{
+  const b=document.getElementById(id);if(!b||b.querySelector('.city-btn-icon'))return;
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('class','city-btn-icon');svg.setAttribute('aria-hidden','true');svg.innerHTML=path;
+  b.prepend(svg);
+ });
+})();
+</script>
+</body>
 </html>
