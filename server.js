@@ -468,12 +468,12 @@ app.post('/api/penalty/play',async(req,res)=>{
  if(!['left','center','right'].includes(direction))return res.status(400).json({ok:false,error:'Выбери направление удара.'});
  const c=await pool.connect();
  try{await ensureDb();await c.query('BEGIN');const row=await c.query('SELECT balance FROM stars_users WHERE telegram_id=$1 FOR UPDATE',[String(user.id)]);const current=Number(row.rows[0]?.balance||0);if(current<bet){await c.query('ROLLBACK');return res.status(400).json({ok:false,error:'Недостаточно звёзд на основном балансе.'});}
- const goal=crypto.randomInt(100)<8,payout=goal?bet*8:0;
+ const goal=crypto.randomInt(100)<8,payout=goal?bet*6:0;
  await addCashback(c,user.id,bet);const updated=await c.query('UPDATE stars_users SET balance=balance-$2+$3,updated_at=NOW() WHERE telegram_id=$1 RETURNING balance',[String(user.id),bet,payout]);
  await c.query('COMMIT');return res.json({ok:true,goal,direction,bet,payout,balance:Number(updated.rows[0].balance)});
  }catch(e){try{await c.query('ROLLBACK')}catch(_){}console.error('Penalty game error:',e.message);return res.status(503).json({ok:false,error:'Не удалось выполнить пенальти.'})}finally{c.release()}
 });
-app.post('/api/cups/play', async (req,res) => { const client=await pool.connect(); try { await ensureDb(); const user=validateTelegramInitData(req.get('X-Telegram-Init-Data'),process.env.BOT_TOKEN); if(!user)return res.status(401).json({ok:false,error:'Открой приложение через Telegram-бота.'}); const bet=Number(req.body&&req.body.bet),choice=Number(req.body&&req.body.choice); if(!Number.isSafeInteger(bet)||bet<1||bet>1000000000)return res.status(400).json({ok:false,error:'Ставка должна быть целым числом от 1.'}); if(!Number.isInteger(choice)||choice<0||choice>4)return res.status(400).json({ok:false,error:'Выбери один из пяти стаканчиков.'}); await client.query('BEGIN'); const row=await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1 FOR UPDATE',[String(user.id)]); const current=Number(row.rows[0]?.balance||0); if(current<bet){await client.query('ROLLBACK');return res.status(400).json({ok:false,error:'Недостаточно звёзд на балансе.'});} const winningCup=crypto.randomInt(0,5),won=choice===winningCup,payout=won?bet*4:0; await client.query('UPDATE stars_users SET balance=balance-$2+$3,updated_at=NOW() WHERE telegram_id=$1',[String(user.id),bet,payout]); await addCashback(client,user.id,bet); if(won)await client.query('INSERT INTO stars_cup_wins(telegram_id,total_won) VALUES($1,$2) ON CONFLICT(telegram_id) DO UPDATE SET total_won=stars_cup_wins.total_won+EXCLUDED.total_won,updated_at=NOW()',[String(user.id),payout]); const updated=await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1',[String(user.id)]); await client.query('COMMIT'); return res.json({ok:true,winningCup,won,payout,bet,balance:Number(updated.rows[0]?.balance||0)}); } catch(e){try{await client.query('ROLLBACK')}catch(_){} console.error('Cups game error:',e.message); return res.status(503).json({ok:false,error:'Не удалось сыграть.'});} finally{client.release();} });
+app.post('/api/cups/play', async (req,res) => { const client=await pool.connect(); try { await ensureDb(); const user=validateTelegramInitData(req.get('X-Telegram-Init-Data'),process.env.BOT_TOKEN); if(!user)return res.status(401).json({ok:false,error:'Открой приложение через Telegram-бота.'}); const bet=Number(req.body&&req.body.bet),choice=Number(req.body&&req.body.choice); if(!Number.isSafeInteger(bet)||bet<1||bet>1000000000)return res.status(400).json({ok:false,error:'Ставка должна быть целым числом от 1.'}); if(!Number.isInteger(choice)||choice<0||choice>4)return res.status(400).json({ok:false,error:'Выбери один из пяти стаканчиков.'}); await client.query('BEGIN'); const row=await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1 FOR UPDATE',[String(user.id)]); const current=Number(row.rows[0]?.balance||0); if(current<bet){await client.query('ROLLBACK');return res.status(400).json({ok:false,error:'Недостаточно звёзд на балансе.'});} const winningCup=crypto.randomInt(0,5),won=choice===winningCup,payout=won?bet*3:0; await client.query('UPDATE stars_users SET balance=balance-$2+$3,updated_at=NOW() WHERE telegram_id=$1',[String(user.id),bet,payout]); await addCashback(client,user.id,bet); if(won)await client.query('INSERT INTO stars_cup_wins(telegram_id,total_won) VALUES($1,$2) ON CONFLICT(telegram_id) DO UPDATE SET total_won=stars_cup_wins.total_won+EXCLUDED.total_won,updated_at=NOW()',[String(user.id),payout]); const updated=await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1',[String(user.id)]); await client.query('COMMIT'); return res.json({ok:true,winningCup,won,payout,bet,balance:Number(updated.rows[0]?.balance||0)}); } catch(e){try{await client.query('ROLLBACK')}catch(_){} console.error('Cups game error:',e.message); return res.status(503).json({ok:false,error:'Не удалось сыграть.'});} finally{client.release();} });
 app.post('/api/starsdouble/spin', async (req, res) => {
   try {
     await ensureDb();
@@ -522,7 +522,8 @@ app.post('/api/nvuti/play', async (req,res) => {
     const roll=crypto.randomInt(1,101),resultColor=roll<=threshold?'green':'red';
     const winChance=color==='green'?threshold:100-threshold;
     const won=resultColor===color;
-    const multiplier=won&&winChance>0?Math.floor(9500/winChance)/100:0;
+    // Transparent 80% gross return factor; displayed outcome probability is unchanged.
+    const multiplier=won&&winChance>0?Math.floor(8000/winChance)/100:0;
     const payout=won?Math.floor(bet*multiplier):0;
     client=await pool.connect();await client.query('BEGIN');
     const row=await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1 FOR UPDATE',[String(user.id)]);
@@ -696,13 +697,23 @@ app.post('/api/telegram/webhook', async (req, res) => {
           await telegramApi('sendMessage',{chat_id:chatId,text:'Рассылка не найдена или уже обработана.'});
         } else {
           adminStates.delete(String(sender.id));
-          const users = await pool.query("SELECT telegram_id FROM stars_users WHERE is_blocked=FALSE AND last_seen_at >= NOW()-INTERVAL '7 days' ORDER BY last_seen_at DESC");
+          const users = await pool.query('SELECT telegram_id FROM stars_users ORDER BY registered_at ASC');
           let sent = 0, failed = 0;
           for (const u of users.rows) {
-            try { await telegramApi('copyMessage',{chat_id:u.telegram_id,from_chat_id:state.sourceChatId,message_id:state.sourceMessageId}); sent++; }
-            catch (_) { failed++; }
+            let delivered=false;
+            for(let attempt=0;attempt<4&&!delivered;attempt++){
+              try {
+                await telegramApi('copyMessage',{chat_id:u.telegram_id,from_chat_id:state.sourceChatId,message_id:state.sourceMessageId});
+                sent++;delivered=true;
+              } catch(err) {
+                const retry=String(err.message||'').match(/retry after (\d+)/i);
+                if(retry&&attempt<3) await new Promise(resolve=>setTimeout(resolve,(Number(retry[1])+1)*1000));
+                else failed++;
+              }
+            }
+            await new Promise(resolve=>setTimeout(resolve,50));
           }
-          await telegramApi('sendMessage',{chat_id:chatId,text:'Рассылка завершена. Успешно: '+sent+'. Не доставлено: '+failed+'.'});
+          await telegramApi('sendMessage',{chat_id:chatId,text:'Рассылка завершена для всех зарегистрированных аккаунтов.\nВсего в базе: '+users.rows.length+'.\nУспешно доставлено: '+sent+'.\nНе доставлено (бот заблокирован, аккаунт недоступен или другая ошибка): '+failed+'.'});
         }
       } else if (action === 'adm:broadcast') {
         await pool.query("INSERT INTO stars_admins (telegram_id,username) VALUES ($1,$2) ON CONFLICT (telegram_id) DO NOTHING",[String(sender.id),String(sender.username||'admin')]);
@@ -857,9 +868,8 @@ app.post('/api/telegram/webhook', async (req, res) => {
         if (!hasText && !hasMedia) { await telegramApi('sendMessage',{chat_id:chatId,text:'Отправь текст, картинку с подписью или голосовое сообщение. Форматирование и подпись сохранятся.'}); return res.sendStatus(200); }
         adminStates.set(String(sender.id),{mode:'broadcast_confirm',sourceMessageId:Number(incoming.message_id),sourceChatId:incoming.chat.id});
         await telegramApi('copyMessage',{chat_id:chatId,from_chat_id:incoming.chat.id,message_id:incoming.message_id});
-        const activeCount=await pool.query("SELECT COUNT(*)::int AS count FROM stars_users WHERE is_blocked=FALSE AND last_seen_at >= NOW()-INTERVAL '7 days'");
-         const totalRegistered=await pool.query('SELECT COUNT(*)::int AS count FROM stars_users');
-         await telegramApi('sendMessage',{chat_id:chatId,text:'Предпросмотр выше.\n\nАктивных пользователей за последние 7 дней: '+Number(activeCount.rows[0]?.count||0).toLocaleString('ru-RU')+'\nВсего зарегистрировано: '+Number(totalRegistered.rows[0]?.count||0).toLocaleString('ru-RU')+'\n\nОтправить рассылку активным пользователям?',reply_markup:{inline_keyboard:[[{text:'Подтвердить рассылку',callback_data:'adm:broadcast:confirm'},{text:'Отмена',callback_data:'adm:cancel'}]]}});
+        const totalRegistered=await pool.query('SELECT COUNT(*)::int AS count FROM stars_users');
+         await telegramApi('sendMessage',{chat_id:chatId,text:'Предпросмотр выше.\n\nПолучателей: все зарегистрированные аккаунты — '+Number(totalRegistered.rows[0]?.count||0).toLocaleString('ru-RU')+'\n\nTelegram не доставит сообщение пользователям, заблокировавшим бота или недоступным аккаунтам.\n\nОтправить всем зарегистрированным?',reply_markup:{inline_keyboard:[[{text:'Подтвердить рассылку всем',callback_data:'adm:broadcast:confirm'},{text:'Отмена',callback_data:'adm:cancel'}]]}});
         return res.sendStatus(200);
       }
       if (state.mode === 'add' || state.mode === 'remove' || state.mode === 'cityadd') {
