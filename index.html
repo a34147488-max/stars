@@ -375,6 +375,65 @@ body.section-page-active .city-close{position:fixed!important;top:calc(env(safe-
 .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!important}
 @media(max-width:360px){.bottom-nav{gap:4px!important;padding-left:6px!important;padding-right:6px!important}.bottom-nav>button.nav-item{height:62px!important;min-height:62px!important;font-size:9px!important}.bottom-nav .nav-icon{width:23px!important;height:23px!important}}
 
+/* MAIN MENU RESTORE — explicit selectors for every real menu button */
+nav.bottom-nav[aria-label="Главное меню"]{
+ position:fixed!important;display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+ align-items:stretch!important;gap:7px!important;z-index:99999!important;
+ left:50%!important;right:auto!important;bottom:0!important;top:auto!important;
+ width:min(100%,520px)!important;min-height:88px!important;height:auto!important;
+ padding:10px 9px calc(env(safe-area-inset-bottom) + 9px)!important;margin:0!important;
+ transform:translate3d(-50%,0,0)!important;box-sizing:border-box!important;
+ border:1px solid rgba(235,244,255,.34)!important;border-bottom:0!important;
+ border-radius:25px 25px 0 0!important;
+ background:linear-gradient(135deg,rgba(35,45,66,.94),rgba(15,22,39,.94))!important;
+ box-shadow:0 -12px 36px rgba(0,0,0,.32),inset 0 1px 0 rgba(255,255,255,.25)!important;
+ backdrop-filter:blur(28px) saturate(170%)!important;-webkit-backdrop-filter:blur(28px) saturate(170%)!important;
+}
+nav.bottom-nav[aria-label="Главное меню"]>button.nav-item,
+nav.bottom-nav[aria-label="Главное меню"]>button#cityOpen,
+nav.bottom-nav[aria-label="Главное меню"]>button#boxesOpen,
+nav.bottom-nav[aria-label="Главное меню"]>button#gameOpen,
+nav.bottom-nav[aria-label="Главное меню"]>button#withdrawOpen,
+nav.bottom-nav[aria-label="Главное меню"]>button#promoOpen{
+ appearance:none!important;-webkit-appearance:none!important;box-sizing:border-box!important;
+ position:relative!important;display:flex!important;flex-direction:column!important;
+ align-items:center!important;justify-content:center!important;gap:5px!important;
+ width:100%!important;min-width:0!important;height:66px!important;min-height:66px!important;
+ margin:0!important;padding:6px 2px!important;
+ border:1px solid rgba(229,240,255,.48)!important;border-radius:16px!important;
+ outline:0!important;
+ background:linear-gradient(150deg,rgba(160,184,218,.34),rgba(75,96,130,.26))!important;
+ color:#fff!important;-webkit-text-fill-color:#fff!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.23),inset 0 -1px 0 rgba(255,255,255,.08),0 4px 14px rgba(0,0,0,.2)!important;
+ font-family:inherit!important;font-size:10px!important;font-weight:800!important;line-height:1.15!important;
+ text-align:center!important;text-shadow:0 1px 5px rgba(0,0,0,.35)!important;
+ opacity:1!important;filter:none!important;cursor:pointer!important;
+}
+nav.bottom-nav[aria-label="Главное меню"]>button.nav-item>svg.nav-icon{
+ display:block!important;visibility:visible!important;opacity:1!important;
+ width:25px!important;height:25px!important;flex:0 0 25px!important;
+ fill:none!important;stroke:currentColor!important;stroke-width:1.8!important;
+ stroke-linecap:round!important;stroke-linejoin:round!important;
+}
+nav.bottom-nav[aria-label="Главное меню"]>button.nav-item>span:not(.halloween-mouse):not(.halloween-pumpkin){
+ display:block!important;visibility:visible!important;opacity:1!important;
+ color:inherit!important;-webkit-text-fill-color:currentColor!important;
+}
+nav.bottom-nav[aria-label="Главное меню"]>button#gameOpen{
+ border-color:rgba(232,248,255,.95)!important;
+ background:linear-gradient(150deg,#f1f8ff 0%,#c4e3f8 54%,#91c5e9 100%)!important;
+ color:#152a43!important;-webkit-text-fill-color:#152a43!important;
+ text-shadow:none!important;box-shadow:inset 0 1px 0 #fff,0 4px 20px rgba(125,195,240,.32)!important;
+}
+nav.bottom-nav[aria-label="Главное меню"]>button#gameOpen>svg.nav-icon{stroke:#152a43!important}
+nav.bottom-nav[aria-label="Главное меню"]>button.nav-item:active{transform:scale(.96)!important}
+.app{padding-bottom:calc(env(safe-area-inset-bottom) + 120px)!important}
+@media(max-width:360px){
+ nav.bottom-nav[aria-label="Главное меню"]{gap:4px!important;padding-left:6px!important;padding-right:6px!important}
+ nav.bottom-nav[aria-label="Главное меню"]>button.nav-item{height:62px!important;min-height:62px!important;font-size:9px!important}
+ nav.bottom-nav[aria-label="Главное меню"]>button.nav-item>svg.nav-icon{width:23px!important;height:23px!important;flex-basis:23px!important}
+}
+
 /* City controls: consistent iOS glass buttons across every city theme */
 .city-backdrop button:not(.city-tap):not(.city-close){
  -webkit-appearance:none!important;appearance:none!important;font-family:inherit!important;
