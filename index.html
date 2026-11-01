@@ -560,7 +560,7 @@ body.section-page-active .city-close{position:fixed!important;top:calc(env(safe-
   <div class="low-balance-title" id="lowBalanceTitle">Звёздочки почти закончились</div>
   <p class="low-balance-copy">На балансе осталось <strong id="lowBalanceAmount">меньше 10</strong> наших звёзд. Пополни баланс или пригласи друзей, чтобы продолжить игру.</p>
   <div class="low-balance-bonus"><b>Бонус для первого пополнения</b>Пополни первый раз и получи <strong>+5%</strong> к пополнению</div>
-  <div class="low-balance-actions"><button class="low-balance-primary" id="lowBalanceTopUp" type="button">Пополнить баланс</button><button class="low-balance-secondary" id="lowBalanceInvite" type="button">Пригласить друзей</button></div>
+  <div class="low-balance-actions"><button class="low-balance-primary" id="lowBalanceTopUp" type="button">Пополнить баланс</button><button class="low-balance-secondary" id="lowBalanceInvite" type="button">БОНУС</button></div>
   <div class="low-balance-footnote">Напоминание появится снова, когда баланс вновь опустится ниже 10 звёзд.</div>
  </section>
 </div>
@@ -707,7 +707,7 @@ body.section-page-active .city-close{position:fixed!important;top:calc(env(safe-
  lowBalanceClose&&lowBalanceClose.addEventListener('click',closeLowBalance);
  lowBalanceBackdrop&&lowBalanceBackdrop.addEventListener('click',function(e){if(e.target===lowBalanceBackdrop)closeLowBalance();});
  lowBalanceTopUp&&lowBalanceTopUp.addEventListener('click',function(){closeLowBalance();const target=document.getElementById('depositButton');if(target){target.scrollIntoView({behavior:'smooth',block:'center'});target.focus({preventScroll:true});}});
- lowBalanceInvite&&lowBalanceInvite.addEventListener('click',function(){closeLowBalance();const shareUrl='https://t.me/share/url?url='+encodeURIComponent(window.location.href)+'&text='+encodeURIComponent('Заходи в Stars — давай играть вместе!');if(tg&&typeof tg.openTelegramLink==='function')tg.openTelegramLink(shareUrl);else window.open(shareUrl,'_blank','noopener');});
+ lowBalanceInvite&&lowBalanceInvite.addEventListener('click',async function(){try{const response=await fetch('/api/referral/link',{headers:{'X-Telegram-Init-Data':tg?.initData||''}}),data=await response.json();if(!response.ok||!data.ok)throw new Error(data.error||'Не удалось создать ссылку');const shareUrl='https://t.me/share/url?url='+encodeURIComponent(data.link)+'&text='+encodeURIComponent(data.message);if(tg&&typeof tg.openTelegramLink==='function')tg.openTelegramLink(shareUrl);else window.open(shareUrl,'_blank','noopener');closeLowBalance();}catch(e){lowBalanceInvite.textContent=e.message||'Ошибка';}});
  if(lowBalanceNode&&window.MutationObserver){new MutationObserver(function(){checkLowBalance(Number(lowBalanceNode.textContent.replace(/[^0-9,.-]/g,'').replace(',','.')));}).observe(lowBalanceNode,{childList:true,characterData:true,subtree:true});}
  if(tg&&tg.initData){fetch('/api/balance',{headers:{'X-Telegram-Init-Data':tg.initData}}).then(function(r){return r.json();}).then(function(d){if(d&&d.ok){const n=Number(d.balance)||0;lowBalanceLastValue=n;if(lowBalanceNode)lowBalanceNode.textContent=n.toLocaleString('ru-RU');checkLowBalance(n);}}).catch(function(){});}
 
