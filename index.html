@@ -536,6 +536,31 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
 .city-mine-progress{display:flex;align-items:center;gap:8px;margin-top:11px;color:#a9c9e5;font-size:9px;font-weight:850;letter-spacing:.1em}.city-mine-progress strong{color:#fff;font-size:12px;font-variant-numeric:tabular-nums}.city-mine-progress .mine-reward{margin-left:auto;color:#d9efff;font-size:12px;letter-spacing:0}.mine-reward small{display:block;color:#9fb8d1;font-size:7px;letter-spacing:.08em;text-align:right}.city-mine-message{margin-top:8px;color:#aebed0;font-size:10px;line-height:1.45;text-align:center}
 @media(prefers-reduced-motion:reduce){.city-snowflake,.city-mine-button.hit .mine-pickaxe,.city-mine-button.hit .mine-stone,.city-mine-button.breaking .mine-stone{animation:none!important}}
 </style>
+
+<style id="cashback-frame-compact-polish">
+.home-action-frame{gap:7px!important;padding:6px 8px!important}
+.home-frame-cashback{flex:1 1 0!important;min-width:0!important;max-width:none!important;grid-template-columns:minmax(0,1fr) auto!important;column-gap:3px!important;row-gap:2px!important;overflow:hidden!important}
+.home-frame-cashback-label{font-size:8px!important;letter-spacing:.12em!important}
+.home-frame-cashback strong,#cashbackBalance{display:block!important;min-width:0!important;max-width:100%!important;font-size:clamp(7px,2.35vw,11px)!important;line-height:1.05!important;letter-spacing:-.035em!important;white-space:normal!important;overflow-wrap:anywhere!important;word-break:break-all!important;font-variant-numeric:tabular-nums!important;text-shadow:0 0 7px #ffd52b55!important}
+.home-frame-cashback .cashback-star{font-size:10px!important}
+.home-frame-cashback button{grid-column:1/-1!important;justify-self:start!important;padding:2px 6px!important;font-size:7px!important;line-height:1.1!important}
+.home-frame-cashback small{grid-column:1/-1!important;max-width:100%!important;font-size:6px!important;line-height:1.15!important;white-space:normal!important}
+.home-frame-actions{flex:0 0 auto!important;gap:4px!important}
+.home-frame-actions button,.home-frame-actions button:last-child{width:88px!important;min-width:0!important;height:27px!important;padding:0 5px!important;gap:4px!important;font-size:8px!important;border-radius:9px!important;line-height:1!important}
+.home-frame-actions button svg{width:11px!important;height:11px!important;flex:0 0 11px!important}
+.home-frame-actions #homeTopUp{background:linear-gradient(135deg,#fff28a,#ffd21c 55%,#eeb300)!important;color:#352900!important;border:1px solid #fff3a0!important;box-shadow:0 2px 9px #ffcf3545,inset 0 1px 0 #fff!important}
+.home-frame-actions #withdrawOpen{background:linear-gradient(145deg,#48433a,#24232a 70%,#171820)!important;color:#e0d6b8!important;border:1px solid #887b58!important;box-shadow:inset 0 1px #ffffff18,0 2px 7px #0005!important}
+.home-frame-actions #homeMore{height:23px!important;background:#ffffff12!important;color:#e5d8a8!important;border-color:#ffffff26!important;box-shadow:none!important}
+@media(max-width:380px){
+ .home-action-frame{gap:5px!important;padding:5px 6px!important}
+ .home-frame-actions{gap:3px!important}
+ .home-frame-actions button,.home-frame-actions button:last-child{width:76px!important;height:25px!important;padding:0 3px!important;font-size:7px!important}
+ .home-frame-actions button svg{width:10px!important;height:10px!important;flex-basis:10px!important}
+ .home-frame-cashback strong,#cashbackBalance{font-size:clamp(6px,2vw,9px)!important}
+ .home-frame-cashback small{font-size:5px!important}
+}
+</style>
+
 </head>
 <body>
 <div id="stars-puzzle-loader" aria-label="Загрузка STARS">
