@@ -821,6 +821,24 @@ body{background:#292a2e!important}
 @media(prefers-reduced-motion:reduce){.home-action-frame{animation:none!important}}
 </style>
 
+<style id="withdraw-methods-and-silver-blue-polish">
+.withdraw-methods{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:8px 0 15px;padding:5px;border:1px solid #ffffff1c;border-radius:15px;background:#ffffff08}
+.withdraw-method{min-width:0;padding:10px 5px;border:1px solid transparent;border-radius:11px;background:transparent;color:#aeb5c4;font:inherit;font-size:12px;font-weight:800}
+.withdraw-method.active{border-color:#d5dfed55;background:linear-gradient(145deg,#ffffff28,#9eacc51c);color:#fff;box-shadow:inset 0 1px 0 #ffffff30,0 3px 12px #0003}
+.crypto-empty{padding:22px 12px;text-align:center;border:1px dashed #ffffff25;border-radius:15px;color:#aeb5c4;font-size:13px}
+#withdrawSbpFields[hidden],#withdrawTgFields[hidden],#withdrawCryptoFields[hidden]{display:none!important}
+#withdrawSbpBank{color-scheme:dark}#withdrawSbpBank option{background:#20232d;color:#fff}
+.home-action-frame{border:1.5px solid rgba(160,169,183,.78)!important;background:linear-gradient(132deg,rgba(76,83,94,.54),rgba(39,44,53,.68) 52%,rgba(88,96,108,.46))!important;box-shadow:0 10px 34px #0006,0 0 18px #a0abbc22,inset 0 1px 0 #e2e9f044,inset 0 -14px 28px #0004!important;backdrop-filter:blur(24px) saturate(135%)!important;-webkit-backdrop-filter:blur(24px) saturate(135%)!important;animation:homeFrameSilverPulse 4.6s ease-in-out infinite!important}
+.home-action-frame:before{background:linear-gradient(115deg,#687384,#dce3ed,#46505f,#9ba7b8,#687384)!important;opacity:.72!important}
+.home-frame-shine{background:linear-gradient(90deg,transparent,#ebf1fa38,transparent)!important}
+.home-frame-actions button{border-color:#a4b0c277!important;background:linear-gradient(145deg,#707b8c52,#363e4b61)!important;color:#e4e9f1!important}
+.home-frame-actions button:last-child{background:#6874862e!important;border-color:#a4b0c255!important;color:#c4ccd9!important}
+@keyframes homeFrameSilverPulse{0%,100%{box-shadow:0 10px 34px #0006,0 0 13px #a0abbc18,inset 0 1px 0 #e2e9f033}50%{box-shadow:0 10px 38px #0007,0 0 22px #a0abbc30,inset 0 1px 0 #e2e9f04a}}
+.puzzle-wrap span{background:linear-gradient(180deg,#f2fbff 0%,#a9dcff 18%,#58b6f5 48%,#1680d4 72%,#07529b 100%)!important;background-size:100% 180%!important;background-position:50% 20%!important;filter:drop-shadow(0 2px 1px #061b35) drop-shadow(0 5px 5px #0009) drop-shadow(0 0 12px #49baff55)!important;animation:blueStarsShimmer 3.6s ease-in-out infinite!important}
+.puzzle-wrap span:before{top:-4px!important;height:6px!important;background:linear-gradient(180deg,#fff,#f4fbff 35%,#d7eaff 68%,#a9c9e8)!important;box-shadow:0 2px 3px #071a2e88,0 0 7px #e9f7ff99,inset 0 1px 1px #fff!important;filter:drop-shadow(0 1px 1px #071a2e)!important}
+.puzzle-wrap span:after{top:-6px!important;height:4px!important;background:linear-gradient(90deg,transparent,#fff 22%,#e9f7ff 65%,transparent)!important;filter:blur(.55px)!important;opacity:.98!important}
+@keyframes blueStarsShimmer{0%,100%{background-position:50% 16%;filter:drop-shadow(0 2px 1px #061b35) drop-shadow(0 5px 5px #0009) drop-shadow(0 0 10px #49baff44)}50%{background-position:50% 82%;filter:drop-shadow(0 2px 1px #061b35) drop-shadow(0 6px 7px #000a) drop-shadow(0 0 17px #8bd5ff88)}}
+</style>
 </head>
 <body>
 <div id="stars-puzzle-loader" aria-label="Загрузка STARS">
@@ -973,12 +991,21 @@ body{background:#292a2e!important}
 <div class="modal-backdrop" id="withdrawBackdrop" aria-hidden="true">
  <section class="withdraw-modal" role="dialog" aria-modal="true" aria-labelledby="withdrawTitle">
   <div class="modal-head"><div class="modal-title" id="withdrawTitle">Вывод звёзд</div><button class="modal-close" id="withdrawClose" type="button" aria-label="Закрыть">×</button></div>
-  <div class="modal-description">Минимальный вывод — 1000 наших звёзд. Курс: 500 наших звёзд = 30 Telegram Stars. Заявка отправится на проверку.</div>
-  <label class="withdraw-label" for="withdrawTarget">Telegram username получателя</label>
-  <input class="withdraw-input" id="withdrawTarget" type="text" autocomplete="off" autocapitalize="off" placeholder="@username">
-  <label class="withdraw-label" for="withdrawAmount">Сколько наших звёзд вывести</label>
-  <input class="withdraw-input" id="withdrawAmount" type="number" inputmode="numeric" min="1000" step="1" placeholder="От 1000">
-  <div class="payout-preview"><span>Получишь настоящих Telegram Stars</span><span class="payout-number"><svg class="mini-star" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 3c2 0 3.5 3 4.8 7.8 1.2 4.5 2.4 5.7 6.9 6.9C40.5 19 43 20.3 43 22.5s-2.5 3.5-7.3 4.8c-4.5 1.2-5.7 2.4-6.9 6.9C27.5 39 26 42 24 42s-3.5-3-4.8-7.8c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 26 5 24.7 5 22.5s2.5-3.5 7.3-4.8c4.5-1.2 5.7-2.4 6.9-6.9C20.5 6 22 3 24 3Z" fill="#fff"/></svg><span id="withdrawPayout">0</span></span></div>
+  <div class="withdraw-methods" role="tablist" aria-label="Способ вывода">
+   <button type="button" class="withdraw-method active" data-method="tg">TG Stars</button><button type="button" class="withdraw-method" data-method="sbp">СБП</button><button type="button" class="withdraw-method" data-method="crypto">Crypto</button>
+  </div>
+  <div class="modal-description" id="withdrawDescription">Минимальный вывод — 1000 наших звёзд. Курс: 500 наших звёзд = 30 Telegram Stars. Заявка отправится на проверку.</div>
+  <div id="withdrawTgFields">
+   <label class="withdraw-label" for="withdrawTarget">Telegram username получателя</label><input class="withdraw-input" id="withdrawTarget" type="text" autocomplete="off" autocapitalize="off" placeholder="@username">
+   <label class="withdraw-label" for="withdrawAmount">Сколько наших звёзд вывести</label><input class="withdraw-input" id="withdrawAmount" type="number" inputmode="numeric" min="1000" step="1" placeholder="От 1000">
+   <div class="payout-preview"><span>Получишь настоящие Telegram Stars</span><span class="payout-number"><svg class="mini-star" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 3c2 0 3.5 3 4.8 7.8 1.2 4.5 2.4 5.7 6.9 6.9C40.5 19 43 20.3 43 22.5s-2.5 3.5-7.3 4.8c-4.5 1.2-5.7 2.4-6.9 6.9C27.5 39 26 42 24 42s-3.5-3-4.8-7.8c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 26 5 24.7 5 22.5s2.5-3.5 7.3-4.8c4.5-1.2 5.7-2.4 6.9-6.9C20.5 6 22 3 24 3Z" fill="#fff"/></svg><span id="withdrawPayout">0</span></span></div>
+  </div>
+  <div id="withdrawSbpFields" hidden>
+   <label class="withdraw-label" for="withdrawSbpAmount">Сколько наших звёзд вывести</label><input class="withdraw-input" id="withdrawSbpAmount" type="number" inputmode="numeric" min="5000" step="1" placeholder="От 5000">
+   <div class="payout-preview"><span>К получению · 500 звёзд = 77,65 ₽</span><span class="payout-number" id="withdrawSbpPayout">0,00 ₽</span></div>
+   <label class="withdraw-label" for="withdrawSbpBank">Банк для получения</label><select class="withdraw-input" id="withdrawSbpBank"><option value="">Выбери банк</option><option>ОЗОН</option><option>Т БАНК</option><option>СБЕРБАНК</option><option>ЮМАНИ</option><option>ВТБ</option></select>
+  </div>
+  <div id="withdrawCryptoFields" hidden><div class="crypto-empty">Вывод в Crypto пока недоступен</div></div>
   <button class="withdraw-submit" id="withdrawSubmit" type="button">Создать заявку</button>
   <div class="withdraw-message" id="withdrawMessage">Звёзды будут зарезервированы до решения по заявке.</div>
   <div class="request-section-title">Мои заявки</div>
@@ -1108,6 +1135,16 @@ body{background:#292a2e!important}
  const withdrawTarget=document.getElementById('withdrawTarget');
  const withdrawAmount=document.getElementById('withdrawAmount');
  const withdrawPayout=document.getElementById('withdrawPayout');
+ const withdrawSbpAmount=document.getElementById('withdrawSbpAmount'),withdrawSbpPayout=document.getElementById('withdrawSbpPayout'),withdrawSbpBank=document.getElementById('withdrawSbpBank');
+ const withdrawDescription=document.getElementById('withdrawDescription'),withdrawTgFields=document.getElementById('withdrawTgFields'),withdrawSbpFields=document.getElementById('withdrawSbpFields'),withdrawCryptoFields=document.getElementById('withdrawCryptoFields');
+ let withdrawMethod='tg';
+ document.querySelectorAll('.withdraw-method').forEach(button=>button.addEventListener('click',()=>{
+  withdrawMethod=button.dataset.method;document.querySelectorAll('.withdraw-method').forEach(item=>item.classList.toggle('active',item===button));
+  withdrawTgFields.hidden=withdrawMethod!=='tg';withdrawSbpFields.hidden=withdrawMethod!=='sbp';withdrawCryptoFields.hidden=withdrawMethod!=='crypto';
+  withdrawDescription.textContent=withdrawMethod==='tg'?'Минимальный вывод — 1000 наших звёзд. Курс: 500 наших звёзд = 30 Telegram Stars. Заявка отправится на проверку.':withdrawMethod==='sbp'?'Минимальный вывод по СБП — 5000 наших звёзд. Курс: 500 наших звёзд = 77,65 ₽. Выбери банк для получения.':'Вывод в Crypto пока недоступен.';
+  withdrawSubmit.disabled=withdrawMethod==='crypto';withdrawMessage.textContent=withdrawMethod==='crypto'?'Этот способ пока недоступен.':'Заявка отправится на проверку.';
+ }));
+ function updateSbpPayout(){const amount=Math.max(0,Number(withdrawSbpAmount?.value)||0);if(withdrawSbpPayout)withdrawSbpPayout.textContent=(amount*77.65/500).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2})+' ₽';}
  const withdrawSubmit=document.getElementById('withdrawSubmit');
  const withdrawMessage=document.getElementById('withdrawMessage');
  const withdrawRequests=document.getElementById('withdrawRequests');
@@ -1130,7 +1167,8 @@ body{background:#292a2e!important}
     const adminLine=data.isAdmin?'<div class="request-meta">Заявитель: '+escapeHtml((r.username?'@'+r.username+' · ':'')+(r.first_name||'')+' · ID '+r.telegram_id)+'</div>':'';
     const actions=data.isAdmin&&r.status==='pending'?'<div class="admin-actions"><button type="button" data-withdraw-status="paid" data-withdraw-id="'+Number(r.id)+'">Выплачено</button><button type="button" data-withdraw-status="rejected" data-withdraw-id="'+Number(r.id)+'">Отказать</button></div>':'';
     const date=r.created_at?new Date(r.created_at).toLocaleString('ru-RU'):'';
-    return '<article class="request-card"><div class="request-top"><div class="request-name">#'+Number(r.id)+' · '+escapeHtml(r.target_username)+'</div><span class="request-status '+escapeHtml(r.status)+'">'+escapeHtml(statusText[r.status]||r.status)+'</span></div><div class="request-meta">Списано: '+Number(r.amount).toLocaleString('ru-RU')+' наших звёзд · К выплате: '+Number(r.payout_stars).toLocaleString('ru-RU')+' Telegram Stars<br>'+escapeHtml(date)+'</div>'+adminLine+actions+'</article>';
+    const payoutLine=r.method==='sbp'?'СБП · '+escapeHtml(r.bank_name||r.target_username)+' · К выплате: '+Number(r.payout_rub||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2})+' ₽':'TG Stars · '+escapeHtml(r.target_username)+' · К выплате: '+Number(r.payout_stars).toLocaleString('ru-RU')+' Telegram Stars';
+    return '<article class="request-card"><div class="request-top"><div class="request-name">#'+Number(r.id)+' · '+(r.method==='sbp'?'СБП':'TG Stars')+'</div><span class="request-status '+escapeHtml(r.status)+'">'+escapeHtml(statusText[r.status]||r.status)+'</span></div><div class="request-meta">Списано: '+Number(r.amount).toLocaleString('ru-RU')+' наших звёзд<br>'+payoutLine+'<br>'+escapeHtml(date)+'</div>'+adminLine+actions+'</article>';
    }).join('');
   }catch(e){withdrawRequests.innerHTML='<div class="no-requests">'+escapeHtml(e.message||'Не удалось загрузить заявки.')+'</div>';}
  }
@@ -1148,15 +1186,18 @@ body{background:#292a2e!important}
  if(withdrawClose)withdrawClose.addEventListener('click',closeWithdraw);
  if(withdrawBackdrop)withdrawBackdrop.addEventListener('click',event=>{if(event.target===withdrawBackdrop)closeWithdraw();});
  if(withdrawAmount)withdrawAmount.addEventListener('input',updatePayout);
+ if(withdrawSbpAmount)withdrawSbpAmount.addEventListener('input',updateSbpPayout);
  if(withdrawSubmit)withdrawSubmit.addEventListener('click',async()=>{
   if(!withdrawalTg||!withdrawalTg.initData){withdrawMessage.textContent='Открой приложение через Telegram-бота.';return;}
-  const target=String(withdrawTarget.value||'').trim();
-  const amount=Number(withdrawAmount.value);
-  if(!target){withdrawMessage.textContent='Укажи Telegram username получателя.';return;}
-  if(!Number.isSafeInteger(amount)||amount<1000){withdrawMessage.textContent='Минимальная сумма вывода — 1000 наших звёзд.';return;}
+  if(withdrawMethod==='crypto'){withdrawMessage.textContent='Вывод в Crypto пока недоступен.';return;}
+  const amount=Number(withdrawMethod==='sbp'?withdrawSbpAmount.value:withdrawAmount.value);
+  const payload=withdrawMethod==='sbp'?{method:'sbp',amount,bank:withdrawSbpBank.value}:{method:'tg',amount,targetUsername:String(withdrawTarget.value||'').trim()};
+  if(withdrawMethod==='tg'&&!payload.targetUsername){withdrawMessage.textContent='Укажи Telegram username получателя.';return;}
+  if(!Number.isSafeInteger(amount)||amount<(withdrawMethod==='sbp'?5000:1000)){withdrawMessage.textContent=withdrawMethod==='sbp'?'Минимальная сумма вывода по СБП — 5000 наших звёзд.':'Минимальная сумма вывода — 1000 наших звёзд.';return;}
+  if(withdrawMethod==='sbp'&&!payload.bank){withdrawMessage.textContent='Выбери банк для получения.';return;}
   withdrawSubmit.disabled=true;withdrawMessage.textContent='Создаём заявку…';
   try{
-   const response=await fetch('/api/withdrawals',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':withdrawalTg.initData},body:JSON.stringify({targetUsername:target,amount})});
+   const response=await fetch('/api/withdrawals',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':withdrawalTg.initData},body:JSON.stringify(payload)});
    const data=await response.json();
    if(!response.ok||!data.ok)throw new Error(data.error||'Не удалось создать заявку.');
    withdrawMessage.textContent='Заявка #'+data.request.id+' создана. Статус: ожидание.';
@@ -1164,7 +1205,7 @@ body{background:#292a2e!important}
     const balanceNode=document.getElementById('balance');
     if(balanceNode){const responseBalance=await fetch('/api/balance',{headers:{'X-Telegram-Init-Data':withdrawalTg.initData}});const balanceData=await responseBalance.json();if(responseBalance.ok&&balanceData.ok)balanceNode.textContent=Number(balanceData.balance).toLocaleString('ru-RU');}
    }
-   withdrawAmount.value='';updatePayout();await loadWithdrawals();
+   if(withdrawMethod==='sbp'){withdrawSbpAmount.value='';updateSbpPayout();withdrawSbpBank.value='';}else{withdrawAmount.value='';updatePayout();}await loadWithdrawals();
   }catch(e){withdrawMessage.textContent=e.message||'Ошибка создания заявки.';}
   finally{withdrawSubmit.disabled=false;}
  });
