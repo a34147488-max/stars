@@ -780,6 +780,14 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
 .balance-card>*{position:relative;z-index:1}
 .balance-card:before{z-index:0}
 </style>
+<style id="home-online-count-style">
+.home-online-count{display:flex;align-items:center;justify-content:center;gap:5px;margin:7px auto 0;color:rgba(232,239,255,.62);font-size:9px;font-weight:750;letter-spacing:.12em;line-height:1}
+.home-online-count .home-online-star{font-size:10px;color:#9de8bf;text-shadow:0 0 7px #9de8bf99}
+.home-online-count strong{font-size:10px;font-weight:850;letter-spacing:.04em;color:rgba(245,249,255,.88);font-variant-numeric:tabular-nums}
+</style>
+<script id="home-online-count-rotation">
+(()=>{const init=()=>{const el=document.getElementById('homeOnlineCount');if(!el||el.dataset.rotationReady==='1')return;el.dataset.rotationReady='1';let previous=29;const update=()=>{let next;do{next=29+Math.floor(Math.random()*39)}while(next===previous);previous=next;el.textContent=String(next)};update();window.setInterval(update,300000)};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init()})();
+</script>
 </head>
 <body>
 <div id="stars-puzzle-loader" aria-label="Загрузка STARS">
@@ -833,6 +841,7 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
 <div class="city-balance-mini home-city-balance-mini"><span>Баланс города</span><strong id="homeCityBalance">0</strong><span>★</span><button class="city-exchange-small" id="cityExchangeOpen" type="button" aria-label="Обмен городских звёзд" title="Обмен">↔</button></div>
 <div class="balance-card">
 <div class="balance-label">Всего накоплено</div>
+<div class="home-online-count" aria-label="Онлайн"><span class="home-online-star" aria-hidden="true">✦</span><span>ОНЛАЙН</span><strong id="homeOnlineCount">29</strong></div>
 <div class="balance-row">
 <div class="balance" id="balance">0</div>
 <div class="star-wrap" aria-label="Telegram Premium Star">
