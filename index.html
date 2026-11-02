@@ -509,6 +509,33 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
 #soonNav:disabled{opacity:.55;cursor:default}
 @media(max-width:380px){.home-frame-actions{gap:3px!important}.home-frame-actions button,.home-frame-actions button:last-child{padding:0 5px!important;font-size:8px!important}}
 </style>
+
+<style id="city-winter-mining-style">
+.city-backdrop{background:radial-gradient(ellipse at 50% 0%,rgba(125,177,220,.20),transparent 52%),linear-gradient(180deg,#0a1726f2,#07111ff5)!important}
+.city-backdrop .city-shell{position:relative;overflow:hidden;background:linear-gradient(165deg,rgba(21,42,62,.97),rgba(7,15,28,.98))!important;border-color:rgba(190,224,255,.28)!important;box-shadow:0 28px 90px #020813bb,inset 0 1px #ffffff18!important}
+.city-backdrop .city-shell:before{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;background:radial-gradient(ellipse at 12% 8%,#b9e4ff1c,transparent 38%),radial-gradient(ellipse at 90% 28%,#8fcaff12,transparent 42%)}
+.city-backdrop .city-shell>*{position:relative;z-index:1}
+.city-snow-layer{position:absolute!important;inset:0;z-index:2!important;pointer-events:none;overflow:hidden}
+.city-snowflake{position:absolute;top:-14px;width:4px;height:4px;border-radius:50%;background:#e8f6ff;box-shadow:0 0 8px #c5e8ffb0;opacity:var(--snow-opacity,.65);animation:citySnowFall var(--snow-duration,9s) linear infinite;animation-delay:var(--snow-delay,0s)}
+@keyframes citySnowFall{0%{transform:translate3d(0,-12px,0) rotate(0);opacity:0}8%{opacity:var(--snow-opacity,.65)}90%{opacity:var(--snow-opacity,.65)}100%{transform:translate3d(var(--snow-drift,28px),calc(100vh + 30px),0) rotate(240deg);opacity:0}}
+.city-backdrop .city-hero{border-color:#b9ddff42!important;background:linear-gradient(145deg,#c9e8ff1c,#6e9dc01a)!important;box-shadow:inset 0 1px #ffffff20,0 12px 35px #0003!important}
+.city-backdrop .city-mine-card{margin:14px 0 17px;padding:15px;border:1px solid #c7e6ff3c;border-radius:23px;background:linear-gradient(145deg,rgba(178,218,250,.14),rgba(45,76,108,.13));box-shadow:inset 0 1px #ffffff16,0 15px 35px #0003;backdrop-filter:blur(20px)}
+.city-backdrop .city-mine-card[hidden]{display:none!important}
+.city-mine-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px}.city-mine-kicker{font-size:9px;font-weight:900;letter-spacing:.16em;color:#c4e6ff}.city-mine-business{max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;font-weight:850;color:#f2f8ff}
+.city-mine-button{position:relative;width:100%;height:154px;display:flex;align-items:center;justify-content:center;border:1px solid #c5e5ff55;border-radius:19px;background:radial-gradient(ellipse at 50% 80%,#a9d5ff1e,transparent 65%),linear-gradient(145deg,#d7edff1b,#6b8aa91b);box-shadow:inset 0 1px #ffffff24,0 9px 24px #0003;overflow:hidden;touch-action:manipulation}
+.city-mine-button:before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 22%,#ffffff12 48%,transparent 67%);transform:translateX(-100%);transition:transform .45s}
+.city-mine-button:active:before{transform:translateX(100%)}
+.mine-stone{position:absolute;width:116px;height:100px;left:50%;top:19px;transform:translateX(-50%);filter:drop-shadow(0 12px 13px #0008);transition:filter .2s,transform .2s}
+.mine-stone svg{width:100%;height:100%;overflow:visible}.stone-cracks{opacity:0;transition:opacity .18s}.city-mine-button.cracked .stone-cracks{opacity:1}.city-mine-button.cracked .mine-stone{filter:drop-shadow(0 0 9px #d6edff88)}
+.mine-pickaxe{position:absolute;z-index:2;width:84px;height:84px;left:calc(50% - 53px);top:5px;transform-origin:78% 76%;transform:rotate(-47deg);filter:drop-shadow(0 5px 7px #0008);transition:transform .16s cubic-bezier(.2,.8,.2,1)}.mine-pickaxe svg{width:100%;height:100%}.city-mine-button.hit .mine-pickaxe{animation:pickaxeStrike .32s cubic-bezier(.2,.7,.25,1)}
+@keyframes pickaxeStrike{0%{transform:rotate(-47deg) translateY(-5px)}48%{transform:rotate(27deg) translate(13px,23px)}72%{transform:rotate(12deg) translate(5px,10px)}100%{transform:rotate(-47deg) translateY(0)}}
+.city-mine-button.hit .mine-stone{animation:stoneImpact .3s ease}.city-mine-button.breaking .mine-stone{animation:stoneBreak .55s ease forwards}.city-mine-button.breaking .mine-pickaxe{animation:pickaxeStrike .32s ease}
+@keyframes stoneImpact{0%,100%{transform:translateX(-50%)}35%{transform:translateX(calc(-50% + 5px)) rotate(2deg)}70%{transform:translateX(calc(-50% - 3px)) rotate(-2deg)}}
+@keyframes stoneBreak{0%{transform:translateX(-50%) scale(1);opacity:1}45%{transform:translateX(-50%) scale(1.08) rotate(4deg);filter:brightness(1.8)}100%{transform:translateX(-50%) scale(.3) rotate(-16deg);opacity:0}}
+.mine-hit-label{position:absolute;bottom:12px;left:0;right:0;text-align:center;color:#e7f4ff;font-size:10px;font-weight:950;letter-spacing:.14em;text-shadow:0 2px 9px #0008}
+.city-mine-progress{display:flex;align-items:center;gap:8px;margin-top:11px;color:#a9c9e5;font-size:9px;font-weight:850;letter-spacing:.1em}.city-mine-progress strong{color:#fff;font-size:12px;font-variant-numeric:tabular-nums}.city-mine-progress .mine-reward{margin-left:auto;color:#d9efff;font-size:12px;letter-spacing:0}.mine-reward small{display:block;color:#9fb8d1;font-size:7px;letter-spacing:.08em;text-align:right}.city-mine-message{margin-top:8px;color:#aebed0;font-size:10px;line-height:1.45;text-align:center}
+@media(prefers-reduced-motion:reduce){.city-snowflake,.city-mine-button.hit .mine-pickaxe,.city-mine-button.hit .mine-stone,.city-mine-button.breaking .mine-stone{animation:none!important}}
+</style>
 </head>
 <body>
 <div id="stars-puzzle-loader" aria-label="Загрузка STARS">
@@ -586,6 +613,16 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
   </section>
   
   <div class="city-message" id="cityMessage">Каждые 10 кликов — новый уровень.</div>
+  <section class="city-mine-card" id="cityMineCard" hidden>
+   <div class="city-mine-heading"><span class="city-mine-kicker">РАБОЧАЯ СМЕНА</span><span class="city-mine-business" id="cityMineBusiness">ТВОЙ БИЗНЕС</span></div>
+   <button class="city-mine-button" id="cityMineButton" type="button" aria-label="Ударить киркой по камню">
+    <span class="mine-pickaxe" aria-hidden="true"><svg viewBox="0 0 90 90"><path d="M18 74 53 34l9 8-35 40Z" fill="#a9c9e8" stroke="#eff8ff" stroke-width="2"/><path d="m10 31 8-13 20-8 15 8 9 15-12 8-12-12-16 10Z" fill="#dceeff" stroke="#fff" stroke-width="3" stroke-linejoin="round"/><path d="m21 28 19-10" stroke="#8da9c7" stroke-width="3" stroke-linecap="round"/></svg></span>
+    <span class="mine-stone" aria-hidden="true"><svg viewBox="0 0 120 100"><path class="stone-shape" d="m17 72 4-30 20-23 33-7 27 18 7 31-18 26-43 4Z" fill="url(#mineStoneGradient)" stroke="#d5e8f7" stroke-width="3" stroke-linejoin="round"/><path d="m41 23 17 11-7 15 13 9-9 18" class="stone-cracks" fill="none" stroke="#e9f5ff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="mineStoneGradient" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#9eb2c8"/><stop offset="1" stop-color="#43556b"/></linearGradient></defs></svg></span>
+    <span class="mine-hit-label">ДОБЫТЬ КАМЕНЬ</span>
+   </button>
+   <div class="city-mine-progress"><span>УДАРЫ</span><strong id="cityMineHits">0 / 10</strong><span class="mine-reward">+33 <small>ГОРОДСКИХ ЗВЁЗД</small></span></div>
+   <div class="city-mine-message" id="cityMineMessage">Каждый десятый удар раскалывает камень и приносит награду.</div>
+  </section>
   
   <div class="city-actions city-business-actions"><button class="city-action primary" id="cityShopOpen" type="button">МАГАЗИН</button><button class="city-action" id="cityWorkOpen" type="button">РАБОТА</button><button class="city-action" id="cityCreateOpen" type="button">СОЗДАТЬ БИЗНЕС</button><button class="city-action" id="cityWorkersOpen" type="button">РАБОТНИКИ</button></div>
   <section class="city-panel" id="cityShopPanel"><div class="city-panel-title">Магазин города</div><div id="cityShopList" class="city-business-list">Загружаем бизнесы…</div></section>
@@ -1529,5 +1566,37 @@ html body nav.bottom-nav>button.nav-item:not(#gameOpen).nav-fragment-pulse>svg.n
  document.getElementById('lowBalanceTopUp')?.addEventListener('click',()=>{setTimeout(openDeposit,0);});
 })();
 </script>
+
+<script id="city-winter-mining-controller">
+(function(){
+ const tg=window.Telegram&&window.Telegram.WebApp,init=()=>tg&&tg.initData;
+ const q=id=>document.getElementById(id),shell=document.querySelector('.city-shell');
+ const mineCard=q('cityMineCard'),mineButton=q('cityMineButton'),mineHits=q('cityMineHits'),mineMsg=q('cityMineMessage');
+ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ let busy=false,jobId=null,cityData=null;
+ async function api(path,options={}){if(!init())throw new Error('Открой приложение через Telegram.');const r=await fetch(path,{...options,headers:{'X-Telegram-Init-Data':init(),'Content-Type':'application/json',...(options.headers||{})}});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||'Не удалось выполнить действие.');return d;}
+ function showPanel(id){['cityShopPanel','cityWorkPanel','cityCreatePanel','cityWorkersPanel','cityMovePanel','districtPanel','cityTopPanel'].forEach(x=>q(x)?.classList.toggle('open',x===id));}
+ function paintCity(d){cityData=d;if(q('cityBalance'))q('cityBalance').textContent=Number(d.cityBalance??d.balance??0).toLocaleString('ru-RU',{maximumFractionDigits:2});if(q('cityClicks'))q('cityClicks').textContent=Number(d.clicks||0).toLocaleString('ru-RU');if(q('cityLevel'))q('cityLevel').textContent=Number(d.level||1);if(q('cityName')&&d.cities?.[d.city]?.name)q('cityName').textContent=d.cities[d.city].name.toUpperCase();if(q('cityRate'))q('cityRate').textContent=Number(d.cities?.[d.city]?.rate||0).toFixed(2).replace('.',',');if(q('cityDistrictSmall'))q('cityDistrictSmall').textContent=d.district||'Район не куплен';}
+ async function loadCity(){try{const d=await api('/api/cities');paintCity(d);await loadBusinesses();}catch(e){if(q('cityMessage'))q('cityMessage').textContent=e.message;}}
+ function renderBusinesses(d){jobId=d.job?.businessId||null;const mine=mineCard;if(mine){mine.hidden=!jobId;if(jobId){const b=d.businesses?.find(x=>Number(x.id)===Number(jobId));q('cityMineBusiness').textContent=b?.name||'РАБОТА В БИЗНЕСЕ';mineHits.textContent=(Number(d.job?.mineHits)||0)+' / 10';mineButton.classList.toggle('cracked',Number(d.job?.mineHits||0)>=5);mineMsg.textContent='За полный камень: тебе +33, владельцу бизнеса +16,66 городских звёзд.';}}
+ const work=q('cityWorkList'),shop=q('cityShopList');const list=Array.isArray(d.businesses)?d.businesses:[];
+ const card=(b,mode)=>{const products=Array.isArray(b.products)?b.products:[];const productsHtml=products.map((p,i)=>'<div class="city-business-product"><span>'+esc(p.name)+' · '+Number(p.price).toLocaleString('ru-RU')+'</span>'+(mode==='shop'?'<button class="business-buy-button" data-buy-business="'+Number(b.id)+'" data-buy-product="'+i+'">КУПИТЬ</button>':'')+'</div>').join('');const action=mode==='work'?(jobId===Number(b.id)?'<span class="city-job-status">ТЫ УЖЕ РАБОТАЕШЬ</span>':'<button class="city-action primary" data-work-business="'+Number(b.id)+'">УСТРОИТЬСЯ</button>'):'';return '<article class="compact-business-card"><div class="city-business-title">'+esc(b.name)+'</div><div class="city-footnote">'+esc(b.owner||'Владелец')+' · '+esc(b.cityName||b.city||'Город')+' · работников: '+Number(b.workers||0)+'</div><div class="city-business-products">'+productsHtml+'</div><div class="business-total-revenue">Доход бизнеса: '+Number(b.totalRevenue||0).toLocaleString('ru-RU')+'</div>'+action+'</article>';};
+ if(work)work.innerHTML=list.length?list.map(b=>card(b,'work')).join(''):'Пока нет доступных вакансий.';
+ if(shop)shop.innerHTML=list.length?list.map(b=>card(b,'shop')).join(''):'В городе пока нет магазинов.';
+ const status=q('cityJobStatus');if(status)status.textContent=jobId?'Ты работаешь в бизнесе. Добывай камни кнопкой ниже.':'Выбери бизнес и устройся на работу, чтобы открыть добычу камня.';
+ }
+ async function loadBusinesses(){try{const d=await api('/api/cities/businesses');renderBusinesses(d);}catch(e){if(q('cityWorkList'))q('cityWorkList').textContent=e.message;}}
+ q('cityShopOpen')?.addEventListener('click',async()=>{showPanel('cityShopPanel');await loadBusinesses();});
+ q('cityWorkOpen')?.addEventListener('click',async()=>{showPanel('cityWorkPanel');await loadBusinesses();});
+ q('cityWorkersOpen')?.addEventListener('click',async()=>{showPanel('cityWorkersPanel');await loadBusinesses();const list=q('cityWorkersList');if(list)list.textContent='Список работников доступен владельцу бизнеса.';});
+ q('cityOpen')?.addEventListener('click',()=>{loadCity();});
+ q('cityWorkList')?.addEventListener('click',async e=>{const b=e.target.closest('[data-work-business]');if(!b)return;b.disabled=true;try{await api('/api/cities/businesses/work',{method:'POST',body:JSON.stringify({businessId:Number(b.dataset.workBusiness)})});await loadBusinesses();await loadCity();if(mineMsg)mineMsg.textContent='Ты устроился на работу. Теперь добывай камни киркой.';}catch(err){if(q('cityJobStatus'))q('cityJobStatus').textContent=err.message;}finally{b.disabled=false;}});
+ q('cityShopList')?.addEventListener('click',async e=>{const b=e.target.closest('[data-buy-business]');if(!b)return;b.disabled=true;try{const d=await api('/api/cities/businesses/purchase',{method:'POST',body:JSON.stringify({businessId:Number(b.dataset.buyBusiness),productIndex:Number(b.dataset.buyProduct)})});await loadCity();await loadBusinesses();const n=q('cityMessage');if(n)n.textContent='Покупка оплачена: '+Number(d.paid).toLocaleString('ru-RU')+' городских звёзд автоматически зачислено бизнесу и работникам.';}catch(err){if(q('cityMessage'))q('cityMessage').textContent=err.message;}finally{b.disabled=false;}});
+ mineButton?.addEventListener('click',async()=>{if(busy)return;if(!jobId){mineMsg.textContent='Сначала устройся на работу.';return;}busy=true;mineButton.disabled=true;mineButton.classList.remove('hit');void mineButton.offsetWidth;mineButton.classList.add('hit');try{const d=await api('/api/cities/mine',{method:'POST',body:'{}'});mineHits.textContent=d.hits+' / 10';mineButton.classList.toggle('cracked',!!d.cracked);if(d.broken){mineButton.classList.add('breaking');mineMsg.textContent='Камень расколот! Тебе начислено 33, владельцу '+Number(d.ownerReceived).toFixed(2).replace('.',',')+' городских звёзд.';if(tg?.HapticFeedback)tg.HapticFeedback.notificationOccurred('success');await new Promise(r=>setTimeout(r,560));mineButton.classList.remove('breaking');mineButton.classList.remove('cracked');mineHits.textContent='0 / 10';}else{mineMsg.textContent=d.hits>=5?'Камень треснул. Ещё '+(10-d.hits)+' ударов до раскола.':'Удар засчитан. Осталось '+(10-d.hits)+' до раскола.';if(tg?.HapticFeedback)tg.HapticFeedback.impactOccurred('light');}const fresh=await api('/api/cities');paintCity(fresh);}catch(e){mineMsg.textContent=e.message;}finally{mineButton.classList.remove('hit');mineButton.disabled=false;busy=false;}});
+ if(shell&&!shell.querySelector('.city-snow-layer')){const layer=document.createElement('div');layer.className='city-snow-layer';layer.setAttribute('aria-hidden','true');for(let i=0;i<34;i++){const f=document.createElement('i');f.className='city-snowflake';f.style.left=(Math.random()*100)+'%';f.style.setProperty('--snow-duration',(7+Math.random()*8)+'s');f.style.setProperty('--snow-delay',(-Math.random()*14)+'s');f.style.setProperty('--snow-drift',(-35+Math.random()*70)+'px');f.style.setProperty('--snow-opacity',(0.25+Math.random()*.55).toFixed(2));f.style.width=f.style.height=(2+Math.random()*3)+'px';layer.appendChild(f);}shell.prepend(layer);}
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&q('cityBackdrop')?.classList.contains('open'))loadCity();});
+})();
+</script>
+
 </body>
 </html>
