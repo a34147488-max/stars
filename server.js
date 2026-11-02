@@ -436,7 +436,7 @@ app.post('/api/withdrawals/:id/status', async (req, res) => {
       result = {...row,status};
       await client.query('COMMIT');
     } catch(e) { await client.query('ROLLBACK'); throw e; } finally { client.release(); }
-    try { await telegramApi('sendMessage',{chat_id:String(result.telegram_id),text:'Заявка на вывод #'+id+': '+(status==='paid'?'выплачено. Получено: '+result.payout_stars+' Telegram Stars.':'отказано. Сумма возвращена на игровой баланс. Причина: '+(comment||'Причина отказа не указана.'))}); } catch(e) { console.error('User withdrawal status notification failed:',e.message); }
+    try { await telegramApi('sendMessage',{chat_id:String(result.telegram_id),text:'Заявка на вывод #'+id+': '+(status==='paid'?(result.method==='sbp'?'выплачено. Получено: '+Number(result.payout_rub||0).toFixed(2)+' ₽.':'выплачено. Получено: '+result.payout_stars+' Telegram Stars.'):'отказано. Сумма возвращена на игровой баланс. Причина: '+(comment||'Причина отказа не указана.'))}); } catch(e) { console.error('User withdrawal status notification failed:',e.message); }
     return res.json({ok:true,id,status});
   } catch(e) { console.error('Withdrawal status error:',e.message); return res.status(503).json({ok:false,error:'Не удалось изменить статус заявки.'}); }
 });
