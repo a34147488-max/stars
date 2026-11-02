@@ -795,13 +795,11 @@ app.post('/api/telegram/webhook', async (req, res) => {
     };
     const getOpenMegaRound = async () => {
       let r=await pool.query("SELECT * FROM stars_megawheel_rounds WHERE status='open' AND closes_at>NOW() ORDER BY id DESC LIMIT 1");
-      if(r.rowCount)return r.rows[0];
-      const ins=await pool.query("INSERT INTO stars_megawheel_rounds(status,closes_at) VALUES('open',NOW()+INTERVAL '15 seconds') RETURNING *");
-      const round=ins.rows[0];
-      if(!megaWheelTimers.has(String(round.id))){const timer=setTimeout(()=>{megaWheelTimers.delete(String(round.id));settleMegaRound(round.id).catch(e=>console.error(e));},15000);megaWheelTimers.set(String(round.id),timer);}
+      const round=r.rowCount?r.rows[0]:(await pool.query("INSERT INTO stars_megawheel_rounds(status,closes_at) VALUES('open',NOW()+INTERVAL '15 seconds') RETURNING *")).rows[0];
+      if(!megaWheelTimers.has(String(round.id))){const delay=Math.max(0,new Date(round.closes_at).getTime()-Date.now());const timer=setTimeout(()=>{megaWheelTimers.delete(String(round.id));settleMegaRound(round.id).catch(e=>console.error(e));},delay);megaWheelTimers.set(String(round.id),timer);}
       return round;
     };
-    if(incoming && /^\\/start(?:@\\w+)?(?:\\s|$)/i.test(text)){
+    if(incoming && (text==='/start'||text.startsWith('/start ')||text.startsWith('/start@'))){
       await pool.query('INSERT INTO stars_users(telegram_id,username,first_name) VALUES($1,$2,$3) ON CONFLICT(telegram_id) DO UPDATE SET username=EXCLUDED.username,first_name=EXCLUDED.first_name,updated_at=NOW()',[String(sender.id),sender.username||null,sender.first_name||null]);
       await telegramApi('sendMessage',{chat_id:chatId,text:'Добро пожаловать в Stars! Выбери действие в меню ниже.',reply_markup:botMenu});
       return res.sendStatus(200);
