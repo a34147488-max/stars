@@ -98,6 +98,7 @@ async function ensureDb() {
     ALTER TABLE stars_withdrawals ADD COLUMN IF NOT EXISTS method TEXT NOT NULL DEFAULT 'tg';
     ALTER TABLE stars_withdrawals ADD COLUMN IF NOT EXISTS payout_rub NUMERIC(14,2);
     ALTER TABLE stars_withdrawals ADD COLUMN IF NOT EXISTS bank_name TEXT;
+    ALTER TABLE stars_withdrawals ADD COLUMN IF NOT EXISTS phone_number TEXT;
     ALTER TABLE stars_users ADD COLUMN IF NOT EXISTS avatar_url TEXT;
     ALTER TABLE stars_users ALTER COLUMN balance TYPE NUMERIC(20,2) USING balance::numeric;
     CREATE TABLE IF NOT EXISTS stars_city_stats (
@@ -368,12 +369,34 @@ app.get('/api/withdrawals', async (req, res) => {
     const admin = await pool.query('SELECT 1 FROM stars_admins WHERE telegram_id=$1', [String(user.id)]);
     const rows = await pool.query(
       admin.rowCount
-        ? "SELECT id, telegram_id, username, first_name, target_username, amount, payout_stars, method, payout_rub, bank_name, status, created_at FROM stars_withdrawals ORDER BY created_at DESC LIMIT 200"
-        : "SELECT id, target_username, amount, payout_stars, method, payout_rub, bank_name, status, created_at FROM stars_withdrawals WHERE telegram_id=$1 ORDER BY created_at DESC",
+        ? "SELECT id, telegram_id, username, first_name, target_username, amount, payout_stars, method, payout_rub, bank_name, phone_number, status, created_at FROM stars_withdrawals ORDER BY created_at DESC LIMIT 200"
+        : "SELECT id, target_username, amount, payout_stars, method, payout_rub, bank_name, phone_number, status, created_at FROM stars_withdrawals WHERE telegram_id=$1 ORDER BY created_at DESC",
       admin.rowCount ? [] : [String(user.id)]
     );
     return res.json({ok:true, isAdmin:Boolean(admin.rowCount), requests:rows.rows});
   } catch(e) { console.error('Withdrawals list error:',e.message); return res.status(503).json({ok:false,error:'Не удалось загрузить заявки.'}); }
+});
+app.get('/api/reserves', async (_req, res) => {
+  const client = await pool.connect();
+  try {
+    await ensureDb();
+    await client.query('BEGIN');
+    const defaults = [['reserve_rub','47466.32'],['reserve_stars','12330'],['reserve_last_tick',new Date().toISOString()]];
+    for (const [key,value] of defaults) await client.query('INSERT INTO stars_settings(key,value) VALUES($1,$2) ON CONFLICT(key) DO NOTHING',[key,value]);
+    const rows = await client.query("SELECT key,value FROM stars_settings WHERE key IN ('reserve_rub','reserve_stars','reserve_last_tick') FOR UPDATE");
+    const settings = Object.fromEntries(rows.rows.map(row=>[row.key,row.value]));
+    let rub=Number(settings.reserve_rub), stars=Number(settings.reserve_stars), last=new Date(settings.reserve_last_tick);
+    const interval=7200000, ticks=Math.floor((Date.now()-last.getTime())/interval);
+    if (!Number.isFinite(rub)||!Number.isFinite(stars)||!Number.isFinite(last.getTime())) throw new Error('Invalid reserve settings');
+    if(ticks>0){
+      for(let i=1;i<=ticks;i++){rub-=630;stars-=530;if(i%2===0){rub+=1780.54;stars+=779;}}
+      last=new Date(last.getTime()+ticks*interval);
+      await client.query("UPDATE stars_settings SET value=CASE key WHEN 'reserve_rub' THEN $1 WHEN 'reserve_stars' THEN $2 WHEN 'reserve_last_tick' THEN $3 END,updated_at=NOW() WHERE key IN ('reserve_rub','reserve_stars','reserve_last_tick')",[rub.toFixed(2),String(Math.trunc(stars)),last.toISOString()]);
+    }
+    await client.query('COMMIT');
+    return res.json({ok:true,rub:Number(rub.toFixed(2)),stars:Math.trunc(stars)});
+  }catch(e){await client.query('ROLLBACK');console.error('Reserve balances error:',e.message);return res.status(503).json({ok:false,error:'Не удалось загрузить резервы.'});}
+  finally{client.release();}
 });
 app.post('/api/withdrawals', async (req, res) => {
   try {
@@ -383,7 +406,7 @@ app.post('/api/withdrawals', async (req, res) => {
     const method = String(req.body && req.body.method || 'tg');
     const amount = Number(req.body && req.body.amount);
     if (!Number.isSafeInteger(amount)) return res.status(400).json({ok:false,error:'Укажи целое количество наших звёзд.'});
-    let target, payoutStars=0, payoutRub=null, bank=null;
+    let target, payoutStars=0, payoutRub=null, bank=null, phone=null;
     if (method === 'tg') {
       target = String(req.body && req.body.targetUsername || '').trim().replace(/^@/,'');
       if (amount < 1000) return res.status(400).json({ok:false,error:'Минимальный вывод — 1000 наших звёзд.'});
@@ -395,6 +418,9 @@ app.post('/api/withdrawals', async (req, res) => {
       const allowedBanks = ['ОЗОН','Т БАНК','СБЕРБАНК','ЮМАНИ','ВТБ'];
       if (amount < 5000) return res.status(400).json({ok:false,error:'Минимальный вывод по СБП — 5000 наших звёзд.'});
       if (!allowedBanks.includes(bank)) return res.status(400).json({ok:false,error:'Выбери банк из списка.'});
+      phone = String(req.body && req.body.phone || '').trim();
+      const phoneDigits = phone.replace(/\D/g,'');
+      if (!/^\+?[0-9()\s-]{10,20}$/.test(phone) || ![10,11].includes(phoneDigits.length)) return res.status(400).json({ok:false,error:'Укажи корректный номер телефона для СБП.'});
       payoutRub = Math.round((amount * 77.65 / 500) * 100) / 100; target = bank;
     } else return res.status(400).json({ok:false,error:'Этот способ вывода пока недоступен.'});
     const client = await pool.connect(); let request;
@@ -404,11 +430,11 @@ app.post('/api/withdrawals', async (req, res) => {
       const balance = Number(bal.rows[0]?.balance || 0);
       if (balance < amount) { await client.query('ROLLBACK'); return res.status(400).json({ok:false,error:'Недостаточно звёзд на балансе.'}); }
       await client.query('UPDATE stars_users SET balance=balance-$2, updated_at=NOW() WHERE telegram_id=$1',[String(user.id),amount]);
-      const inserted = await client.query("INSERT INTO stars_withdrawals (telegram_id,username,first_name,target_username,amount,payout_stars,method,payout_rub,bank_name,status) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,'pending') RETURNING id, target_username, amount, payout_stars, method, payout_rub, bank_name, status, created_at",[String(user.id),user.username||null,user.first_name||null,method==='tg'?'@'+target:bank,amount,payoutStars,method,payoutRub,bank]);
+      const inserted = await client.query("INSERT INTO stars_withdrawals (telegram_id,username,first_name,target_username,amount,payout_stars,method,payout_rub,bank_name,phone_number,status) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'pending') RETURNING id, target_username, amount, payout_stars, method, payout_rub, bank_name, phone_number, status, created_at",[String(user.id),user.username||null,user.first_name||null,method==='tg'?'@'+target:bank,amount,payoutStars,method,payoutRub,bank,phone]);
       request = inserted.rows[0]; await client.query('COMMIT');
     } catch(e) { await client.query('ROLLBACK'); throw e; } finally { client.release(); }
     const admins = await pool.query('SELECT telegram_id FROM stars_admins');
-    const paymentLine = method==='sbp' ? 'Способ: СБП\nБанк: '+bank+'\nК выплате: '+payoutRub.toFixed(2)+' ₽' : 'Способ: TG Stars\nПолучатель: @'+target+'\nК выплате: '+payoutStars+' Telegram Stars';
+    const paymentLine = method==='sbp' ? 'Способ: СБП\nБанк: '+bank+'\nТелефон: '+phone+'\nК выплате: '+payoutRub.toFixed(2)+' ₽' : 'Способ: TG Stars\nПолучатель: @'+target+'\nК выплате: '+payoutStars+' Telegram Stars';
     const msg = 'Новая заявка на вывод #'+request.id+'\nПользователь: '+(user.username?'@'+user.username:'без username')+' (ID '+user.id+')\n'+paymentLine+'\nСумма списания: '+amount+' наших звёзд\nСтатус: ожидание';
     for (const a of admins.rows) { try { await telegramApi('sendMessage',{chat_id:a.telegram_id,text:msg}); } catch(e) { console.error('Admin notification failed:',e.message); } }
     return res.json({ok:true,request,balanceUpdated:true});
