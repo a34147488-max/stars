@@ -1009,10 +1009,34 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
   if(keep!=='gameBackdrop')closeGameModes();
   if(keep!=='cityBackdrop')['cityMovePanel','cityTopPanel','districtPanel','cityShopPanel','cityWorkPanel','cityCreatePanel'].forEach(id=>document.getElementById(id)?.classList.remove('open'));
   ['exchangeSoonBackdrop','sbpBankBackdrop','sbpBackdrop','lowBalanceBackdrop','bigWinBackdrop'].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.remove('open');el.setAttribute('aria-hidden','true');}});
-  document.body.style.overflow='hidden';
+  document.body.style.overflow=keep?'hidden':'';
  }
- Object.entries(routes).forEach(([id,target])=>{const b=document.getElementById(id);if(b)b.addEventListener('click',()=>{closeOthers(target);document.body.classList.add('section-page-active');},true);});
- ['cityClose','gameClose','withdrawClose','promoClose'].forEach(id=>{const b=document.getElementById(id);if(b)b.addEventListener('click',()=>{setTimeout(()=>{if(!panels.some(id=>document.getElementById(id)?.classList.contains('open'))){document.body.classList.remove('section-page-active');document.body.style.overflow='';}},0);},true);});
+ // Switching tabs always dismisses the previous section before the new one opens.
+ Object.entries(routes).forEach(([id,target])=>{
+  const b=document.getElementById(id);
+  if(b)b.addEventListener('click',()=>{
+   closeOthers(target);
+   document.body.classList.add('section-page-active');
+  },true);
+ });
+ // The Menu tab is a true home action: close every section and return to the main screen.
+ const home=document.getElementById('menuHome');
+ if(home)home.addEventListener('click',()=>{
+  closeOthers(null);
+  document.body.classList.remove('section-page-active');
+  document.body.style.overflow='';
+ },true);
+ ['cityClose','gameClose','withdrawClose','promoClose'].forEach(id=>{
+  const b=document.getElementById(id);
+  if(b)b.addEventListener('click',()=>{
+   setTimeout(()=>{
+    if(!panels.some(id=>document.getElementById(id)?.classList.contains('open'))){
+     document.body.classList.remove('section-page-active');
+     document.body.style.overflow='';
+    }
+   },0);
+  },true);
+ });
 })();
 </script>
 <script>
@@ -1397,6 +1421,6 @@ html body nav.bottom-nav>button.nav-item:not(#gameOpen).nav-fragment-pulse>svg.n
 (function(){const tg=window.Telegram&&window.Telegram.WebApp;document.addEventListener('click',function(event){const control=event.target&&event.target.closest&&event.target.closest('button,[role="button"],.nav-item');if(!control||control.disabled||control.getAttribute('aria-disabled')==='true')return;if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.impactOccurred('light');return}catch(_){}}if(navigator.vibrate){try{navigator.vibrate(9)}catch(_){}}},true)})();
 </script>
 <script id="stars-nav-fragment-feedback">(function(){const nav=document.querySelector('.bottom-nav');if(!nav)return;nav.querySelectorAll('button.nav-item:not(#gameOpen)').forEach(button=>{button.addEventListener('click',()=>{button.classList.remove('nav-fragment-pulse');void button.offsetWidth;button.classList.add('nav-fragment-pulse');window.setTimeout(()=>button.classList.remove('nav-fragment-pulse'),700);});});})();</script>
-<script id="stars-puzzle-loader-script">(function(){var el=document.getElementById("stars-puzzle-loader");if(!el)return;window.setTimeout(function(){el.classList.add("hide");window.setTimeout(function(){el.remove()},240)},1050)})();</script>
+<script id="stars-puzzle-loader-script">(function(){var el=document.getElementById("stars-puzzle-loader");if(!el)return;window.setTimeout(function(){el.classList.add("hide");window.setTimeout(function(){el.remove()},240)},2600)})();</script>
 </body>
 </html>
