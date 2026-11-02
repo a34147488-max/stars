@@ -1578,9 +1578,21 @@ html body button:not(:disabled):active{transform:translateY(1px) scale(.975)!imp
 html body button:focus-visible{outline:2px solid #d9e4ffbb!important;outline-offset:3px!important}
 @media(hover:hover) and (pointer:fine){html body button:not(:disabled):hover{border-color:#ffffff55;filter:brightness(1.08)}}
 @media(prefers-reduced-motion:reduce){html body button:not(:disabled){transition:none!important}}
+
+/* Frameless main-menu fragments; blue glow on tap. The Play button is excluded. */
+html body nav.bottom-nav>button.nav-item:not(#gameOpen){border:0!important;border-color:transparent!important;border-radius:14px!important;background:transparent!important;box-shadow:none!important;outline:none!important;color:#d7dbea!important;-webkit-text-fill-color:#d7dbea!important}
+html body nav.bottom-nav>button.nav-item:not(#gameOpen)>svg.nav-icon{stroke:#d7dbea!important;fill:none!important;filter:none!important;transition:stroke .18s ease,filter .18s ease,transform .18s ease!important}
+html body nav.bottom-nav>button.nav-item:not(#gameOpen)>span{color:#c5cada!important;-webkit-text-fill-color:#c5cada!important;transition:color .18s ease!important}
+html body nav.bottom-nav>button.nav-item:not(#gameOpen):active{background:transparent!important;border:0!important;box-shadow:none!important;transform:scale(.96)!important}
+html body nav.bottom-nav>button.nav-item:not(#gameOpen):active>svg.nav-icon,html body nav.bottom-nav>button.nav-item:not(#gameOpen).nav-fragment-pulse>svg.nav-icon{stroke:#65aaff!important;filter:drop-shadow(0 0 5px #1687ff) drop-shadow(0 0 12px #1687ff99)!important;transform:scale(1.09)!important}
+html body nav.bottom-nav>button.nav-item:not(#gameOpen):active>span,html body nav.bottom-nav>button.nav-item:not(#gameOpen).nav-fragment-pulse>span{color:#e5f1ff!important;-webkit-text-fill-color:#e5f1ff!important}
+html body nav.bottom-nav>button.nav-item:not(#gameOpen).nav-fragment-pulse>svg.nav-icon{animation:navFragmentBluePulse .65s ease-out!important}
+@keyframes navFragmentBluePulse{0%{stroke:#d7dbea;filter:none;transform:scale(1)}35%{stroke:#55a5ff;filter:drop-shadow(0 0 7px #1687ff) drop-shadow(0 0 15px #1687ffbb);transform:scale(1.16)}100%{stroke:#d7dbea;filter:none;transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){html body nav.bottom-nav>button.nav-item:not(#gameOpen)>svg.nav-icon{animation:none!important;transition:none!important}}
 </style>
 <script id="stars-soft-haptics">
 (function(){const tg=window.Telegram&&window.Telegram.WebApp;document.addEventListener('click',function(event){const control=event.target&&event.target.closest&&event.target.closest('button,[role="button"],.nav-item');if(!control||control.disabled||control.getAttribute('aria-disabled')==='true')return;if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.impactOccurred('light');return}catch(_){}}if(navigator.vibrate){try{navigator.vibrate(9)}catch(_){}}},true)})();
 </script>
+<script id="stars-nav-fragment-feedback">(function(){const nav=document.querySelector('.bottom-nav');if(!nav)return;nav.querySelectorAll('button.nav-item:not(#gameOpen)').forEach(button=>{button.addEventListener('click',()=>{button.classList.remove('nav-fragment-pulse');void button.offsetWidth;button.classList.add('nav-fragment-pulse');window.setTimeout(()=>button.classList.remove('nav-fragment-pulse'),700);});});})();</script>
 </body>
 </html>
