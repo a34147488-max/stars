@@ -99,7 +99,8 @@ async function ensureDbInternal() {
     CREATE TABLE IF NOT EXISTS stars_door_game_state (telegram_id BIGINT PRIMARY KEY REFERENCES stars_users(telegram_id) ON DELETE CASCADE, stage INTEGER NOT NULL DEFAULT 1 CHECK(stage BETWEEN 1 AND 3), lost BOOLEAN NOT NULL DEFAULT FALSE, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
     ALTER TABLE stars_door_game_state ADD COLUMN IF NOT EXISTS free_attempt_at TIMESTAMPTZ;
     ALTER TABLE stars_door_game_state ADD COLUMN IF NOT EXISTS pending_reward NUMERIC(20,2) NOT NULL DEFAULT 0;
-    CREATE TABLE IF NOT EXISTS stars_sbp_topups (id BIGSERIAL PRIMARY KEY, telegram_id BIGINT NOT NULL REFERENCES stars_users(telegram_id) ON DELETE CASCADE, amount_rub NUMERIC(12,2) NOT NULL CHECK(amount_rub>=100), status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','paid','expired','rejected')), expires_at TIMESTAMPTZ NOT NULL DEFAULT NOW()+INTERVAL '20 minutes', created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
+    CREATE TABLE IF NOT EXISTS stars_sbp_topups (id BIGSERIAL PRIMARY KEY, telegram_id BIGINT NOT NULL REFERENCES stars_users(telegram_id) ON DELETE CASCADE, amount_rub NUMERIC(12,2) NOT NULL CHECK(amount_rub>=100), status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','paid','expired','rejected')), expires_at TIMESTAMPTZ NOT NULL DEFAULT NOW()+INTERVAL '15 minutes', created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
+    ALTER TABLE stars_sbp_topups ADD COLUMN IF NOT EXISTS payment_reported_at TIMESTAMPTZ;
     CREATE TABLE IF NOT EXISTS stars_bot_clans (id BIGSERIAL PRIMARY KEY, owner_id BIGINT NOT NULL UNIQUE REFERENCES stars_users(telegram_id) ON DELETE CASCADE, name TEXT NOT NULL UNIQUE, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
     CREATE TABLE IF NOT EXISTS stars_bot_clan_members (clan_id BIGINT NOT NULL REFERENCES stars_bot_clans(id) ON DELETE CASCADE, telegram_id BIGINT NOT NULL REFERENCES stars_users(telegram_id) ON DELETE CASCADE, joined_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), PRIMARY KEY(clan_id,telegram_id), UNIQUE(telegram_id));
     CREATE TABLE IF NOT EXISTS stars_bot_clan_requests (id BIGSERIAL PRIMARY KEY, clan_id BIGINT NOT NULL REFERENCES stars_bot_clans(id) ON DELETE CASCADE, telegram_id BIGINT NOT NULL REFERENCES stars_users(telegram_id) ON DELETE CASCADE, status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','approved','rejected')), created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), UNIQUE(clan_id,telegram_id));
@@ -834,7 +835,8 @@ app.post('/api/telegram/webhook', async (req, res) => {
       return res.sendStatus(200);
     }
     if(incoming && ['🎮 Играть','Играть'].includes(text)){
-      await telegramApi('sendMessage',{chat_id:chatId,text:'Выбери игровой режим:',reply_markup:{inline_keyboard:[[{text:'DreamCatcher',callback_data:'bot:game:dream'},{text:'Dice',callback_data:'bot:game:dice'}],[{text:'Wheel',callback_data:'bot:game:wheel'},{text:'MegaWheel',callback_data:'bot:game:mega'}],[{text:'Double',callback_data:'bot:game:double'}]]}});
+      const appUrl=(process.env.WEB_APP_URL||process.env.APP_URL||'https://bot-production-f025.up.railway.app').replace(/\/$/,'');
+      await telegramApi('sendMessage',{chat_id:chatId,text:'Выбери, где хочешь играть:',reply_markup:{inline_keyboard:[[{text:'Играть в приложении',web_app:{url:appUrl}}],[{text:'DreamCatcher',callback_data:'bot:game:dream'},{text:'Dice',callback_data:'bot:game:dice'}],[{text:'Wheel',callback_data:'bot:game:wheel'},{text:'MegaWheel',callback_data:'bot:game:mega'}],[{text:'Double',callback_data:'bot:game:double'}]]}});
       return res.sendStatus(200);
     }
     if(incoming && ['👤 Профиль','Профиль'].includes(text)){
@@ -850,6 +852,21 @@ app.post('/api/telegram/webhook', async (req, res) => {
       const data=String(callback.data),id=String(sender.id);
       await telegramApi('answerCallbackQuery',{callback_query_id:callback.id});
       if(data==='bot:cancel'){botUserStates.delete(id);await botMainMenu(id,chatId);return res.sendStatus(200);}
+      if(data.startsWith('bot:sbp:paid:')){
+        const requestId=Number(data.split(':')[3]);
+        if(!Number.isSafeInteger(requestId)||requestId<1){await telegramApi('sendMessage',{chat_id:chatId,text:'Не удалось найти заявку.'});return res.sendStatus(200);}
+        const reported=await pool.query("UPDATE stars_sbp_topups SET payment_reported_at=COALESCE(payment_reported_at,NOW()) WHERE id=$1 AND telegram_id=$2 AND status='pending' AND expires_at>NOW() RETURNING amount_rub",[requestId,id]);
+        if(!reported.rowCount){await telegramApi('sendMessage',{chat_id:chatId,text:'Заявка не найдена или время оплаты истекло. Если ты уже перевёл деньги, свяжись с поддержкой.'});return res.sendStatus(200);}
+        await telegramApi('sendMessage',{chat_id:chatId,text:'Проверка оплаты (до 5 минут). Не отправляй повторный перевод.'});
+        const admins=await pool.query('SELECT telegram_id FROM stars_admins');
+        for(const a of admins.rows){try{await telegramApi('sendMessage',{chat_id:a.telegram_id,text:'Пользователь сообщил об оплате СБП. Заявка #'+requestId+'\nID игрока: '+id+'\nСумма: '+Number(reported.rows[0].amount_rub).toFixed(2)+' ₽\nПроверь поступление платежа.'});}catch(e){console.error('SBP payment report admin notification failed:',e.message);}}
+        return res.sendStatus(200);
+      }
+      if(data.startsWith('bot:sbp:cancel:')){
+        const requestId=Number(data.split(':')[3]);
+        if(Number.isSafeInteger(requestId)&&requestId>0) await pool.query("UPDATE stars_sbp_topups SET status='expired' WHERE id=$1 AND telegram_id=$2 AND status='pending'",[requestId,id]);
+        botUserStates.delete(id);await botMainMenu(id,chatId);return res.sendStatus(200);
+      }
       if(data.startsWith('bot:wd:')){
         const method=data.split(':')[2];botUserStates.set(id,{mode:method==='tg'?'withdraw_tg_target':'withdraw_sbp_bank'});
         if(method==='tg')await telegramApi('sendMessage',{chat_id:chatId,text:'Введи Telegram username получателя (например @username).'});
@@ -858,8 +875,8 @@ app.post('/api/telegram/webhook', async (req, res) => {
       }
       if(data.startsWith('bot:topup:')){
         const v=data.split(':')[2];
-        if(v==='sbp'){botUserStates.set(id,{mode:'topup_sbp_amount'});await telegramApi('sendMessage',{chat_id:chatId,text:'Введи сумму пополнения в рублях (целое число). После этого бот создаст заявку. Реквизиты СБП должны быть настроены администрацией.'});}
-        else {const pack=PACKAGES[Number(v)];if(!pack){await telegramApi('sendMessage',{chat_id:chatId,text:'Пакет не найден.'});return res.sendStatus(200);}const payload=JSON.stringify({userId:id,stars:pack.stars,coins:pack.coins,nonce:crypto.randomBytes(16).toString('hex')});const link=await telegramApi('createInvoiceLink',{title:pack.title,description:'Пополнение баланса Stars на '+pack.coins+' игровых звёзд.',payload,currency:'XTR',prices:[{label:pack.title,amount:pack.stars}]});await telegramApi('sendMessage',{chat_id:chatId,text:'Оплати счёт. После успешной оплаты баланс автоматически обновится и в боте, и в приложении.',reply_markup:{inline_keyboard:[[{text:'Оплатить '+pack.stars+' Telegram Stars',url:link}]]}});}
+        if(v==='sbp'){botUserStates.set(id,{mode:'topup_sbp_amount'});await telegramApi('sendMessage',{chat_id:chatId,text:'Введи сумму пополнения в рублях (от 100 ₽).'});}
+        else {const pack=PACKAGES[Number(v)];if(!pack){await telegramApi('sendMessage',{chat_id:chatId,text:'Пакет не найден.'});return res.sendStatus(200);}const payload=JSON.stringify({userId:id,stars:pack.stars,coins:pack.coins,nonce:crypto.randomBytes(16).toString('hex')});const link=await telegramApi('createInvoiceLink',{title:pack.title,description:'Пополнение баланса Stars на '+pack.coins+' игровых звёзд.',payload,currency:'XTR',prices:[{label:pack.title,amount:pack.stars}]});await telegramApi('sendMessage',{chat_id:chatId,text:'После оплаты на баланс поступит '+pack.coins.toLocaleString('ru-RU')+' игровых звёзд.',reply_markup:{inline_keyboard:[[{text:'Оплатить',url:link}]]}});}
         return res.sendStatus(200);
       }
       if(data==='bot:game:mega'){
@@ -915,9 +932,11 @@ app.post('/api/telegram/webhook', async (req, res) => {
         const c=await pool.connect();try{await c.query('BEGIN');const user=await c.query('SELECT balance FROM stars_users WHERE telegram_id=$1 FOR UPDATE',[id]);if(!user.rowCount||Number(user.rows[0].balance)<777){await c.query('ROLLBACK');await telegramApi('sendMessage',{chat_id:chatId,text:'Для создания клана нужно 777 игровых звёзд. Баланс: '+Number(user.rows[0]?.balance||0).toLocaleString('ru-RU')+'.'});return res.sendStatus(200);}const exists=await c.query('SELECT 1 FROM stars_bot_clans WHERE owner_id=$1 UNION SELECT 1 FROM stars_bot_clan_members WHERE telegram_id=$1',[id]);if(exists.rowCount){await c.query('ROLLBACK');botUserStates.delete(id);await telegramApi('sendMessage',{chat_id:chatId,text:'Ты уже состоишь в клане или владеешь им.'});return res.sendStatus(200);}await c.query('UPDATE stars_users SET balance=balance-777,updated_at=NOW() WHERE telegram_id=$1',[id]);await c.query('INSERT INTO stars_bot_clans(owner_id,name) VALUES($1,$2)',[id,name]);await c.query('COMMIT');botUserStates.delete(id);await telegramApi('sendMessage',{chat_id:chatId,text:'Клан «'+name+'» создан! Списано 777 звёзд. Теперь ты владелец клана.',reply_markup:{keyboard:botMenu,resize_keyboard:true}});}catch(e){await c.query('ROLLBACK');await telegramApi('sendMessage',{chat_id:chatId,text:'Не удалось создать клан. Название может быть занято. Баланс не списан.'});}finally{c.release();}return res.sendStatus(200);
       }
       if(state.mode==='topup_sbp_amount'){
-        const rub=Number(text);if(!Number.isSafeInteger(rub)||rub<100){await telegramApi('sendMessage',{chat_id:chatId,text:'Введи сумму целым числом от 100 ₽.'});return res.sendStatus(200);}
-        const req=await pool.query("INSERT INTO stars_sbp_topups(telegram_id,amount_rub,expires_at) VALUES($1,$2,NOW()+INTERVAL '20 minutes') RETURNING id,expires_at",[id,rub]);botUserStates.delete(id);const admins=await pool.query('SELECT telegram_id FROM stars_admins');for(const a of admins.rows){try{await telegramApi('sendMessage',{chat_id:a.telegram_id,text:'Заявка на пополнение по СБП #'+req.rows[0].id+'\nИгрок: '+id+'\nСумма: '+rub+' ₽\nСрок оплаты: 20 минут\nНужна проверка поступления и ручное зачисление.'});}catch(_){}}
-        await telegramApi('sendMessage',{chat_id:chatId,text:'Заявка на пополнение #'+req.rows[0].id+' на '+rub+' ₽ создана. Срок оплаты — 20 минут. Реквизиты и подтверждение поступления должен предоставить администратор; до проверки баланс не меняется.',reply_markup:botMenu});return res.sendStatus(200);
+        const rub=Number(text.replace(',','.'));if(!/^\\d+(?:[.,]\\d{1,2})?$/.test(text)||!Number.isFinite(rub)||rub<100||rub>1000000){await telegramApi('sendMessage',{chat_id:chatId,text:'Введи сумму от 100 до 1 000 000 ₽ (можно с копейками).'});return res.sendStatus(200);}
+        const amount=Math.round(rub*100)/100;
+        const req=await pool.query("INSERT INTO stars_sbp_topups(telegram_id,amount_rub,expires_at) VALUES($1,$2,NOW()+INTERVAL '15 minutes') RETURNING id,expires_at",[id,amount]);botUserStates.delete(id);
+        const admins=await pool.query('SELECT telegram_id FROM stars_admins');for(const a of admins.rows){try{await telegramApi('sendMessage',{chat_id:a.telegram_id,text:'Новая заявка на пополнение по СБП #'+req.rows[0].id+'\\nИгрок: '+id+'\\nСумма: '+amount.toFixed(2)+' ₽\\nСрок оплаты: 15 минут.'});}catch(e){console.error('SBP request admin notification failed:',e.message);}}
+        await telegramApi('sendMessage',{chat_id:chatId,text:'Заявка на пополнение #'+req.rows[0].id+'\\nСумма к оплате: '+amount.toFixed(2)+' ₽\\n\\nБанк: Т-Банк\\nНомер для перевода по СБП: +79959351914\\nПолучатель: как отображается в банковском приложении\\n\\nОплати точную сумму в течение 15 минут. После перевода нажми «Оплатил». Баланс будет зачислен только после проверки поступления.',reply_markup:{inline_keyboard:[[{text:'Оплатил',callback_data:'bot:sbp:paid:'+req.rows[0].id},{text:'Отмена',callback_data:'bot:sbp:cancel:'+req.rows[0].id}]]}});return res.sendStatus(200);
       }
     }
     if (callback && adminRow.rowCount) {
