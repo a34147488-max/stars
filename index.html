@@ -907,7 +907,7 @@ body{background:#292a2e!important}
 </div>
 </div>
 <button class="ad-watch-open" id="adWatchOpen" type="button">
- <span class="ad-watch-icon">▶</span><span class="ad-watch-label"><strong>ПОСМОТРЕТЬ РЕКЛАМУ</strong><small>15 секунд · бонус 99 Stars</small></span><span class="ad-watch-reward">+99 ✦</span>
+ <span class="ad-watch-icon"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="1.6" opacity=".42"/><path d="M16 8v8l5 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 3h12M10 29h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span><span class="ad-watch-label"><strong>ПОСМОТРЕТЬ РЕКЛАМУ</strong><small id="adWatchSubline">15 секунд · бонус 99 Stars</small></span><span class="ad-watch-reward" id="adWatchReward">+99 <i>✦</i></span>
 </button>
 <div class="ad-watch-toast" id="adWatchToast" role="status" aria-live="polite">✦ Получено 99 Stars!</div>
 
@@ -2098,12 +2098,12 @@ html body nav.bottom-nav>button.nav-item:not(#gameOpen).nav-fragment-pulse>svg.n
 @media(prefers-reduced-motion:reduce){.ad-watch-open,.ad-watch-open:after,.ad-watch-orbit,.ad-watch-coin,.ad-particle{animation:none}}
 </style>
 <script id="ad-watch-controller">
-(()=>{const init=()=>{const q=id=>document.getElementById(id),openBtn=q('adWatchOpen'),backdrop=q('adWatchBackdrop'),timer=q('adWatchTimer'),progress=q('adWatchProgress'),closeBtn=q('adWatchClose'),go=q('adWatchGo'),order=q('adWatchOrder'),toast=q('adWatchToast');if(!openBtn||!backdrop||openBtn.dataset.ready==='1')return;openBtn.dataset.ready='1';const tg=window.Telegram&&window.Telegram.WebApp;let interval=null,startedAt=0,remaining=15,claiming=false;
+(()=>{const init=()=>{const q=id=>document.getElementById(id),openBtn=q('adWatchOpen'),backdrop=q('adWatchBackdrop'),timer=q('adWatchTimer'),progress=q('adWatchProgress'),closeBtn=q('adWatchClose'),go=q('adWatchGo'),order=q('adWatchOrder'),toast=q('adWatchToast');if(!openBtn||!backdrop||openBtn.dataset.ready==='1')return;openBtn.dataset.ready='1';const tg=window.Telegram&&window.Telegram.WebApp;let interval=null,cooldownInterval=null,startedAt=0,remaining=15,claiming=false;
 const api=async(path,method='GET')=>{if(!tg?.initData)throw new Error('Открой приложение через Telegram.');const r=await fetch(path,{method,headers:{'X-Telegram-Init-Data':tg.initData,'Content-Type':'application/json'},...(method==='POST'?{body:'{}'}:{})});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||'Не удалось выполнить действие.');return d};
 const paint=()=>{timer.textContent=remaining+' сек.';progress.style.width=((15-remaining)/15*100)+'%';closeBtn.disabled=remaining>0;closeBtn.textContent=remaining>0?'Подождите '+remaining+' секунд':'ЗАКРЫТЬ И ПОЛУЧИТЬ 99 ✦'};
 const stop=()=>{if(interval)clearInterval(interval);interval=null};
 const close=()=>{stop();backdrop.classList.remove('open');backdrop.setAttribute('aria-hidden','true');document.body.style.overflow=''};
-const start=async()=>{try{const d=await api('/api/ad-watch/start','POST');if(d.cooldownSeconds>0){toast.textContent='Следующий просмотр рекламы через '+Math.ceil(d.cooldownSeconds/60)+' мин.';toast.classList.remove('show');void toast.offsetWidth;toast.classList.add('show');return}remaining=15;startedAt=Date.now();paint();backdrop.classList.add('open');backdrop.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';q('adWatchTimerLabel').textContent='Реклама закончится через';interval=setInterval(()=>{remaining=Math.max(0,15-Math.floor((Date.now()-startedAt)/1000));paint();if(remaining===0)stop()},200)}catch(e){alert(e.message)}};
+const start=async()=>{try{const d=await api('/api/ad-watch/start','POST');if(d.cooldownSeconds>0){let left=Math.max(1,Math.ceil(d.cooldownSeconds));const icon=q('adWatchOpen').querySelector('.ad-watch-icon'),sub=q('adWatchSubline');q('adWatchOpen').classList.add('is-cooldown');if(icon)icon.innerHTML='<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="1.5" opacity=".24"/><circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="75.4" stroke-dashoffset="'+(75.4*(1-left/900))+'" transform="rotate(-90 16 16)"/><path d="M16 8v8l5 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';const draw=()=>{const m=Math.floor(left/60),sec=left%60;if(sub)sub.textContent='Повтор через '+m+':'+String(sec).padStart(2,'0')};draw();if(cooldownInterval)clearInterval(cooldownInterval);cooldownInterval=setInterval(()=>{left=Math.max(0,left-1);draw();if(left===0){clearInterval(cooldownInterval);cooldownInterval=null;q('adWatchOpen').classList.remove('is-cooldown');if(sub)sub.textContent='15 секунд · бонус 99 Stars';if(icon)icon.innerHTML='<svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="12" fill="none" stroke="currentColor" stroke-width="1.6" opacity=".42"/><path d="M16 8v8l5 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M10 3h12M10 29h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';if(q('adWatchReward'))q('adWatchReward').innerHTML='+99 <i>✦</i>'}},1000);return}remaining=15;startedAt=Date.now();paint();backdrop.classList.add('open');backdrop.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';q('adWatchTimerLabel').textContent='Реклама закончится через';interval=setInterval(()=>{remaining=Math.max(0,15-Math.floor((Date.now()-startedAt)/1000));paint();if(remaining===0)stop()},200)}catch(e){alert(e.message)}};
 openBtn.addEventListener('click',start);
 closeBtn.addEventListener('click',async()=>{if(closeBtn.disabled||claiming)return;claiming=true;closeBtn.disabled=true;closeBtn.textContent='Начисляем бонус…';try{const d=await api('/api/ad-watch/claim','POST');close();const balance=q('balance');if(balance&&Number.isFinite(Number(d.balance)))balance.textContent=Number(d.balance).toLocaleString('ru-RU');toast.classList.remove('show');void toast.offsetWidth;toast.classList.add('show');}catch(e){closeBtn.disabled=false;closeBtn.textContent='Повторить получение';alert(e.message)}finally{claiming=false}});
 go.addEventListener('click',()=>window.location.assign('https://t.me/wcggbot/app'));
@@ -2112,5 +2112,42 @@ backdrop.addEventListener('click',e=>{if(e.target===backdrop)e.preventDefault()}
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&backdrop.classList.contains('open'))e.preventDefault()});
 };if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init()})();
 </script>
-</body>
+
+<style id="premium-casino-ui-upgrade">
+:root{--lux-blue:#86baff;--lux-gold:#f3ca79}
+button{position:relative;isolation:isolate;overflow:hidden;transform:translateZ(0);transition:transform .22s cubic-bezier(.2,.8,.2,1),filter .22s,box-shadow .22s,border-color .22s!important}
+button:before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;background:linear-gradient(115deg,transparent 12%,rgba(255,255,255,.17) 48%,transparent 76%);transform:translateX(-135%);transition:transform .65s cubic-bezier(.2,.7,.2,1);pointer-events:none}
+button:hover:before{transform:translateX(135%)}
+button:not(:disabled):hover{filter:brightness(1.13) saturate(1.12);box-shadow:0 9px 26px #0005,inset 0 1px #ffffff45!important}
+button:not(:disabled):active{transform:translateY(2px) scale(.975)!important;filter:brightness(1.2)}
+button:disabled{filter:saturate(.55)}
+.modal-backdrop.open,.sbp-modal-backdrop.open,.update-info-backdrop.open,.ad-watch-backdrop.open,.exchange-soon-backdrop.open{animation:luxBackdropIn .24s ease both}
+.withdraw-modal,.sbp-modal,.update-info-modal,.ad-watch-modal,.exchange-soon-modal,.game-modal,.promo-modal,.city-shell{box-shadow:0 30px 100px #000b,0 0 0 1px #ffffff0b,inset 0 1px #ffffff28!important}
+.withdraw-modal,.sbp-modal,.update-info-modal,.ad-watch-modal,.exchange-soon-modal{animation:luxModalIn .38s cubic-bezier(.16,1,.3,1) both}
+@keyframes luxBackdropIn{from{opacity:0}to{opacity:1}}
+@keyframes luxModalIn{from{opacity:0;transform:translateY(22px) scale(.965);filter:blur(5px)}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0)}}
+.app:before{content:"";position:fixed;z-index:-1;inset:12% -30% auto;height:46vh;pointer-events:none;background:radial-gradient(ellipse,#7baeff16 0%,#9d8bff0a 36%,transparent 72%);filter:blur(30px);animation:luxAurora 11s ease-in-out infinite alternate}
+@keyframes luxAurora{to{transform:translate3d(5%,14px,0) scale(1.08);filter:blur(42px) hue-rotate(28deg)}}
+.balance-card{border-color:#d9e7ff55!important;background:linear-gradient(145deg,rgba(255,255,255,.19),rgba(124,151,205,.09) 42%,rgba(255,255,255,.045))!important;box-shadow:inset 0 1px 0 #ffffff38,inset 0 -18px 38px #7faeff09,0 24px 70px #0007,0 0 36px #80aaff13!important}
+.balance-card:after{content:"";position:absolute;inset:1px;border-radius:inherit;border:1px solid #ffffff0b;pointer-events:none}
+.balance{background:linear-gradient(180deg,#fff 10%,#e1e9ff 72%,#aebcda);background-clip:text;-webkit-background-clip:text;color:transparent;text-shadow:0 7px 28px #d9e6ff20}
+.profile-chip{border-color:#d8e6ff40!important;background:linear-gradient(135deg,#ffffff20,#ffffff08 60%,#8daeff0b)!important;box-shadow:inset 0 1px #ffffff2e,0 12px 32px #0004,0 0 20px #83b5ff0b!important}
+html body .bottom-nav{gap:8px!important;padding:10px!important;border:1px solid #e2edff45!important;border-radius:25px!important;background:linear-gradient(145deg,rgba(38,45,65,.82),rgba(12,16,28,.9))!important;box-shadow:0 20px 55px #0009,inset 0 1px #ffffff32,inset 0 -12px 24px #0003,0 0 28px #86baff12!important;backdrop-filter:blur(34px) saturate(175%)!important;-webkit-backdrop-filter:blur(34px) saturate(175%)!important}
+html body .bottom-nav>button.nav-item{height:70px!important;min-height:70px!important;border:1px solid #dce8ff30!important;border-radius:18px!important;background:linear-gradient(155deg,#ffffff22,#ffffff08 58%,#8db4ff0a)!important;box-shadow:inset 0 1px #ffffff32,inset 0 -9px 16px #0002,0 6px 15px #0004!important;gap:5px!important;font-size:10px!important;letter-spacing:.015em!important}
+html body .bottom-nav>button.nav-item>svg.nav-icon{width:27px!important;height:27px!important;flex-basis:27px!important;filter:drop-shadow(0 2px 5px #0005)!important}
+html body .bottom-nav>button.nav-item>span:last-child{font-weight:850!important;text-shadow:0 2px 8px #0008!important}
+html body .bottom-nav>button#gameOpen{border:1px solid #b9ffe4!important;background:linear-gradient(145deg,#effff9,#9cf2d0 48%,#36c994)!important;color:#073b2b!important;box-shadow:0 8px 22px #27d89a44,inset 0 1px #fff,inset 0 -7px 15px #08794d22!important;transform:translateY(-5px)!important}
+html body .bottom-nav>button#gameOpen>svg.nav-icon{stroke:#073b2b!important}
+html body .bottom-nav>button.nav-item:active{transform:translateY(1px) scale(.94)!important}
+html body .bottom-nav>button#gameOpen:active{transform:translateY(-2px) scale(.95)!important}
+@media(max-width:380px){html body .bottom-nav{gap:5px!important;padding:8px!important}html body .bottom-nav>button.nav-item{height:65px!important;min-height:65px!important;border-radius:15px!important}}
+.ad-watch-open.is-cooldown{border-color:#a8c8ee70!important;background:linear-gradient(115deg,#26384bd9,#1b2432f2 55%,#26364abd)!important;color:#dcecff!important;box-shadow:0 8px 28px #0006,0 0 24px #7ebaff20,inset 0 1px #ffffff2c!important;animation:none!important}
+.ad-watch-open.is-cooldown .ad-watch-icon{background:linear-gradient(145deg,#dcecff35,#8db9ec12)!important;border:1px solid #b8d7ff45!important;color:#c8e0ff!important;box-shadow:inset 0 1px #ffffff30,0 0 18px #8dbfff18!important}
+.ad-watch-icon svg{width:25px;height:25px;display:block;opacity:.9}
+.ad-watch-open.is-cooldown .ad-watch-label small{color:#b8cde5!important;font-variant-numeric:tabular-nums}
+.ad-watch-open.is-cooldown .ad-watch-reward{color:#c7dcf7!important;text-shadow:none!important}
+.ad-watch-reward i{font-style:normal}
+.ad-watch-open:not(.is-cooldown){box-shadow:0 10px 30px #0006,0 0 28px #e6b54b30,inset 0 1px #fff8c955!important}
+@media(prefers-reduced-motion:reduce){button,.withdraw-modal,.sbp-modal,.update-info-modal,.ad-watch-modal,.exchange-soon-modal,.app:before{animation:none!important;transition:none!important}}
+</style></body>
 </html>
