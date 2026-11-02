@@ -619,6 +619,16 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
 .withdraw-modal #withdrawClose{position:absolute!important;top:12px!important;right:12px!important;z-index:6!important;display:grid!important;place-items:center!important;width:36px!important;height:36px!important;border:1px solid #ffffff55!important;border-radius:50%!important;background:#ffffff18!important;color:#fff!important;font-size:25px!important;line-height:1!important;box-shadow:0 4px 18px #0005!important;cursor:pointer!important}
 @media(max-width:380px){.home-more-sheet{padding-left:13px!important;padding-right:13px!important}.home-more-links button{min-height:55px!important}.withdraw-modal{padding-top:58px!important}}
 </style>
+
+<style id="home-frame-diagonal-stars-brand">
+.home-frame-brand{position:absolute;z-index:4;top:5px;right:15px;transform:rotate(-13deg);transform-origin:center;display:flex;align-items:baseline;gap:0;padding:1px 7px 2px;font-family:ui-rounded,system-ui,sans-serif;font-size:12px;line-height:1;font-weight:1000;letter-spacing:.075em;font-style:italic;pointer-events:none;white-space:nowrap;text-shadow:0 0 5px #fff8,0 1px 5px #0008;filter:drop-shadow(0 0 4px #ffdf5c55)}
+.home-frame-brand-blue{color:#19aaff;background:linear-gradient(180deg,#a9eaff 0%,#24b6ff 38%,#0875ff 100%);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:homeBrandBlueShimmer 3s ease-in-out infinite}
+.home-frame-brand-gold{color:#ffd32a;background:linear-gradient(180deg,#fff7a8 0%,#ffe044 38%,#ffad08 100%);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:homeBrandGoldShimmer 3s ease-in-out infinite}
+.home-frame-brand i{position:absolute;left:2px;top:-3px;width:24px;height:5px;border-radius:100% 100% 45% 45%;background:linear-gradient(180deg,#fff 0%,#eaf8ff 65%,#b8d8ef 100%);box-shadow:0 1px 3px #6b9abbaa,0 0 5px #fff;transform:rotate(-5deg);clip-path:polygon(0 45%,12% 12%,25% 35%,39% 0,54% 35%,69% 8%,83% 38%,100% 20%,94% 100%,5% 100%)}
+@keyframes homeBrandBlueShimmer{0%,100%{filter:brightness(1) drop-shadow(0 0 2px #16aaff88)}50%{filter:brightness(1.55) drop-shadow(0 0 7px #20baff)}}
+@keyframes homeBrandGoldShimmer{0%,100%{filter:brightness(1) drop-shadow(0 0 2px #ffd52b88)}50%{filter:brightness(1.5) drop-shadow(0 0 7px #ffdf45)}}
+@media(max-width:380px){.home-frame-brand{right:11px;top:4px;font-size:10px}}
+</style>
 </head>
 <body>
 <div id="stars-puzzle-loader" aria-label="Загрузка STARS">
@@ -652,6 +662,7 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
 </header>
 <section class="home-action-frame" aria-label="Быстрые действия">
  <div class="home-frame-shine" aria-hidden="true"></div>
+ <div class="home-frame-brand" aria-label="STARS"><span class="home-frame-brand-blue">sta</span><span class="home-frame-brand-gold">rs</span><i aria-hidden="true"></i></div>
  <button class="home-profile-avatar" id="profileAvatarButton" type="button" aria-label="Открыть меню профиля"><span class="avatar" id="userAvatar" aria-hidden="true">U</span></button>
  
  <div class="home-frame-actions"><button type="button" id="homeTopUp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5m-6 6 6-6 6 6M4 20h16"/></svg>Пополнить</button><button type="button" id="withdrawOpen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6M4 20h16"/></svg>Вывести</button><button type="button" id="homeMore">Ещё</button></div>
