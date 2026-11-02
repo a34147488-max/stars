@@ -941,7 +941,7 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
  }
  function openWithdraw(){
   if(!withdrawBackdrop)return;
-  withdrawBackdrop.classList.add('open');withdrawBackdrop.setAttribute('aria-hidden','false');
+  withdrawBackdrop.classList.add('open');withdrawBackdrop.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
   if(withdrawalTg&&typeof withdrawalTg.expand==='function')withdrawalTg.expand();
   loadWithdrawals();
  }
