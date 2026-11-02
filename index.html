@@ -501,6 +501,14 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
 }
 </style>
 
+<style id="withdraw-action-frame-polish">
+.home-frame-actions{gap:5px!important}
+.home-frame-actions button,.home-frame-actions button:last-child{padding:0 7px!important;font-size:9px!important;min-width:0!important}
+.home-frame-actions #withdrawOpen{height:30px!important;border:1px solid #fff3a0!important;border-radius:10px!important;background:linear-gradient(135deg,#fff28a,#ffd21c 55%,#f4b900)!important;color:#352900!important;font-weight:900!important;box-shadow:0 3px 14px #ffcf3555,inset 0 1px 0 #fff!important}
+.home-frame-actions #withdrawOpen svg{width:13px!important;height:13px!important}
+#soonNav:disabled{opacity:.55;cursor:default}
+@media(max-width:380px){.home-frame-actions{gap:3px!important}.home-frame-actions button,.home-frame-actions button:last-child{padding:0 5px!important;font-size:8px!important}}
+</style>
 </head>
 <body>
 <div id="stars-puzzle-loader" aria-label="Загрузка STARS">
@@ -536,7 +544,7 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
  <div class="home-frame-shine" aria-hidden="true"></div>
  <button class="home-profile-avatar" id="profileAvatarButton" type="button" aria-label="Открыть меню профиля"><span class="avatar" id="userAvatar" aria-hidden="true">U</span></button>
  <div class="home-frame-cashback" id="cashbackMini"><span class="home-frame-cashback-label">КЕШБЭК</span><strong id="cashbackBalance">0</strong><span class="cashback-star">✦</span><button type="button" id="cashbackClaim" disabled>Забрать</button><small id="cashbackHint">10% от каждой ставки · снятие по воскресеньям</small></div>
- <div class="home-frame-actions"><button type="button" id="homeTopUp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5m-6 6 6-6 6 6M4 20h16"/></svg>Пополнить</button><button type="button" id="homeMore">Ещё</button></div>
+ <div class="home-frame-actions"><button type="button" id="homeTopUp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5m-6 6 6-6 6 6M4 20h16"/></svg>Пополнить</button><button type="button" id="withdrawOpen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6M4 20h16"/></svg>Вывести</button><button type="button" id="homeMore">Ещё</button></div>
 </section>
 <section class="center" aria-label="Баланс">
 <div class="eyebrow">Ваш баланс</div>
@@ -560,7 +568,7 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
 <button class="nav-item" id="cityOpen" type="button"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="m14.8 9.2-2 5.6-3.6 1 2-5.6 3.6-1Z"/><path d="M12 3.5v2M20.5 12h-2M12 20.5v-2M3.5 12h2"/></svg><span>Города</span></button>
 <button class="nav-item" id="menuHome" type="button"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V21h13V9.5M9 21v-7h6v7"/></svg><span>Меню</span></button>
 <button class="nav-item nav-item-primary" id="gameOpen" type="button"><span class="halloween-mouse" aria-hidden="true"><svg viewBox="0 0 120 68"><path d="M4 54Q29 35 55 48" fill="none" stroke="#c18b52" stroke-width="4" stroke-linecap="round"/><path d="M4 54l-3 9m8-13-1 12m7-17 1 12" stroke="#d8a66c" stroke-width="2.5" stroke-linecap="round"/><ellipse cx="59" cy="42" rx="20" ry="15" fill="#e3e2ed" stroke="#aaa9bd" stroke-width="1.5"/><circle cx="43" cy="27" r="10" fill="#e3e2ed"/><circle cx="43" cy="27" r="5" fill="#e9a8bd"/><circle cx="70" cy="27" r="10" fill="#e3e2ed"/><circle cx="70" cy="27" r="5" fill="#e9a8bd"/><path d="M53 38q-3 5 1 7m11-7q3 5-1 7" fill="none" stroke="#28283a" stroke-width="2" stroke-linecap="round"/><circle cx="77" cy="44" r="3" fill="#e98c9c"/><path d="M45 18Q54 -3 78 14L86 22H39Z" fill="#27223e" stroke="#a98be1" stroke-width="2"/><path d="M43 19Q60 13 83 23" fill="none" stroke="#bd9af2" stroke-width="3"/><path d="M64 17l8-9 7 11" fill="#e0a64c" stroke="#f4ca7a" stroke-width="2"/><path d="M83 21l11 4-11 4" fill="#27233e"/></svg></span><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2.5 1.9 6.1L20 11l-6.1 1.9L12 19l-1.9-6.1L4 11l6.1-2.4L12 2.5Z"/><path d="m19 14 .9 2.5 2.6 1-2.6.9L19 21l-.9-2.6-2.6-.9 2.6-1L19 14ZM5 2l.8 2.2L8 5l-2.2.8L5 8l-.8-2.2L2 5l2.2-.8L5 2Z"/></svg><span>Играть</span><span class="halloween-pumpkin" aria-hidden="true"><svg viewBox="0 0 44 44"><path d="M22 10c-3-6 1-8 5-8-1 4-2 6-5 8" fill="#78965c"/><path d="M22 9C9 3 2 16 5 28c2 9 10 13 17 10 7 3 15-1 17-10 3-12-4-25-17-19Z" fill="#e68b43" stroke="#ffc17d" stroke-width="1.5"/><path d="m13 20 6 3-6 4Zm18 0-6 3 6 4Z" fill="#fff0b2"/><path d="M15 31q7 8 14 0" fill="none" stroke="#fff0b2" stroke-width="3" stroke-linecap="round"/></svg></span></button>
-<button class="nav-item" id="withdrawOpen" type="button"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20V4M6 10l6-6 6 6"/><path d="M4 20h16"/></svg><span>Вывести</span></button>
+<button class="nav-item" id="soonNav" type="button" disabled aria-label="Скоро"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Скоро</span></button>
 <button class="nav-item" id="promoOpen" type="button"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 13.5 13 21l-10-10V3h8l9.5 10.5Z"/><circle cx="7.5" cy="7.5" r="1.2"/></svg><span>Промокоды</span></button>
 </nav>
 <div class="status-pill" id="maintenanceBanner" style="display:none;border-color:#ffd36b66;color:#ffe5a3"><span class="status-dot" style="background:#ffd36b;box-shadow:0 0 10px #ffd36b"></span><span>Ведутся технические работы. Действия в приложении временно ограничены.</span></div><div class="status-pill"><span class="status-dot"></span>Баланс отображается в реальном времени</div>
