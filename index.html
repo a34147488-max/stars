@@ -561,6 +561,41 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
 }
 </style>
 
+<style id="home-more-cashback-and-city-snow-polish">
+.home-more-backdrop{position:fixed;inset:0;z-index:180;display:none;align-items:flex-end;justify-content:center;padding:14px 14px calc(env(safe-area-inset-bottom) + 14px);background:rgba(5,7,12,.76);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
+.home-more-backdrop.open{display:flex}
+.home-more-sheet{width:100%;max-width:440px;padding:20px 18px 17px;border:1px solid #ffffff26;border-radius:27px;background:linear-gradient(155deg,#292d35 0%,#171a20 58%,#101217 100%);box-shadow:0 25px 90px #000b,inset 0 1px #ffffff16;color:#f5f6f8}
+.home-more-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.home-more-eyebrow,.home-more-section-label{font-size:9px;font-weight:900;letter-spacing:.17em;color:#aeb5c1}
+.home-more-title{margin-top:4px;font-size:25px;font-weight:900;letter-spacing:-.05em}
+.home-more-close{width:35px;height:35px;border:1px solid #ffffff24;border-radius:50%;background:#ffffff0c;color:#fff;font-size:23px}
+.home-more-cashback-slot{padding:15px;border:1px solid #ffffff24;border-radius:19px;background:linear-gradient(145deg,#ffffff10,#ffffff04);box-shadow:inset 0 1px #ffffff12}
+.home-more-section-label{margin-bottom:12px;color:#e1e5eb}
+#cashbackMini.home-frame-cashback{display:grid!important;grid-template-columns:auto auto auto!important;align-items:center!important;justify-content:start!important;gap:7px 8px!important;min-width:0!important;max-width:100%!important;overflow:visible!important;color:#f3f5f8!important}
+#cashbackMini .home-frame-cashback-label{grid-column:1/-1!important;color:#c7cdd7!important;font-size:9px!important}
+#cashbackMini strong,#cashbackBalance{font-size:25px!important;line-height:1.1!important;color:#fff!important;text-shadow:0 0 14px #ffffff30!important;overflow-wrap:anywhere!important;word-break:break-word!important}
+#cashbackMini .cashback-star{font-size:17px!important;color:#e8edf5!important}
+#cashbackMini button{grid-column:1/-1!important;justify-self:start!important;padding:8px 14px!important;border:1px solid #ffffff38!important;border-radius:12px!important;background:linear-gradient(135deg,#f0f2f5,#c9ced7)!important;color:#20242b!important;font-size:11px!important;font-weight:900!important}
+#cashbackMini button:disabled{opacity:.4!important}
+#cashbackMini small{grid-column:1/-1!important;max-width:100%!important;color:#aeb6c2!important;font-size:9px!important;line-height:1.35!important}
+.home-more-note{margin:15px 2px 0;color:#929aa7;font-size:11px;text-align:center}
+.city-backdrop{background:radial-gradient(ellipse at 50% -8%,#ffffff20,transparent 45%),linear-gradient(180deg,#34383f 0%,#20242a 48%,#111419 100%)!important}
+.city-backdrop .city-shell{background:linear-gradient(160deg,rgba(62,67,75,.98),rgba(34,38,45,.985) 48%,rgba(20,23,28,.99))!important;border-color:#ffffff42!important;box-shadow:0 28px 90px #000c,inset 0 1px #ffffff20!important}
+.city-backdrop .city-shell:before{background:radial-gradient(ellipse at 10% 4%,#ffffff20,transparent 38%),radial-gradient(ellipse at 92% 30%,#dce3ec12,transparent 44%),linear-gradient(180deg,#ffffff08,transparent 38%)!important}
+.city-backdrop .city-garland{border-color:#d9dee6!important;filter:drop-shadow(0 0 7px #fff8)!important}
+.city-backdrop .city-garland:after{background:radial-gradient(circle at 6% 70%,#fff 0 3px,transparent 4px),radial-gradient(circle at 20% 30%,#d9e0e9 0 3px,transparent 4px),radial-gradient(circle at 36% 70%,#fff 0 3px,transparent 4px),radial-gradient(circle at 51% 25%,#c4ccd7 0 3px,transparent 4px),radial-gradient(circle at 68% 70%,#fff 0 3px,transparent 4px),radial-gradient(circle at 84% 30%,#d9e0e9 0 3px,transparent 4px),radial-gradient(circle at 96% 70%,#fff 0 3px,transparent 4px)!important;filter:drop-shadow(0 0 6px #fff)!important}
+.city-backdrop .city-title,.city-backdrop .city-kicker,.city-backdrop .city-rate,.city-backdrop .city-balance{color:#f7f8fa!important}
+.city-backdrop .city-subtitle,.city-backdrop .city-stat span,.city-backdrop .city-message{color:#c0c6cf!important}
+.city-backdrop .city-hero,.city-backdrop .city-stat,.city-backdrop .city-mine-card,.city-backdrop .compact-business-card{border-color:#ffffff30!important;background:linear-gradient(145deg,#ffffff16,#ffffff06)!important;box-shadow:inset 0 1px #ffffff18,0 12px 35px #0004!important}
+.city-backdrop .city-snow-layer{z-index:4!important;mask-image:linear-gradient(180deg,#000 0%,#000 88%,transparent 100%);-webkit-mask-image:linear-gradient(180deg,#000 0%,#000 88%,transparent 100%)}
+.city-backdrop .city-snow-layer:before,.city-backdrop .city-snow-layer:after{content:"";position:absolute;left:-12%;width:124%;height:42px;pointer-events:none;filter:blur(13px);background:linear-gradient(180deg,transparent,#f4f7fb35)}
+.city-backdrop .city-snow-layer:before{top:0;height:85px;opacity:.45}
+.city-backdrop .city-snow-layer:after{bottom:-13px;height:75px;opacity:.55}
+.city-backdrop .city-snowflake{background:#fff!important;box-shadow:0 0 5px #fff,0 0 13px #edf4ffb8!important;border:1px solid #ffffffaa}
+.city-backdrop .city-snowflake:nth-child(5n){filter:blur(.6px);box-shadow:0 0 10px #fff,0 0 20px #fff!important}
+.city-backdrop .city-snowflake:nth-child(7n){border-radius:1px;transform:rotate(45deg);box-shadow:0 0 8px #fff!important}
+@media(prefers-reduced-motion:reduce){.city-backdrop .city-snowflake{opacity:.35!important}}
+</style>
 </head>
 <body>
 <div id="stars-puzzle-loader" aria-label="Загрузка STARS">
@@ -595,9 +630,19 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
 <section class="home-action-frame" aria-label="Быстрые действия">
  <div class="home-frame-shine" aria-hidden="true"></div>
  <button class="home-profile-avatar" id="profileAvatarButton" type="button" aria-label="Открыть меню профиля"><span class="avatar" id="userAvatar" aria-hidden="true">U</span></button>
- <div class="home-frame-cashback" id="cashbackMini"><span class="home-frame-cashback-label">КЕШБЭК</span><strong id="cashbackBalance">0</strong><span class="cashback-star">✦</span><button type="button" id="cashbackClaim" disabled>Забрать</button><small id="cashbackHint">10% от каждой ставки · снятие по воскресеньям</small></div>
+ 
  <div class="home-frame-actions"><button type="button" id="homeTopUp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5m-6 6 6-6 6 6M4 20h16"/></svg>Пополнить</button><button type="button" id="withdrawOpen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6M4 20h16"/></svg>Вывести</button><button type="button" id="homeMore">Ещё</button></div>
 </section>
+<div class="home-more-backdrop" id="homeMorePanel" aria-hidden="true">
+ <section class="home-more-sheet" role="dialog" aria-modal="true" aria-labelledby="homeMoreTitle">
+  <div class="home-more-head"><div><div class="home-more-eyebrow">ДОПОЛНИТЕЛЬНО</div><div class="home-more-title" id="homeMoreTitle">Ещё</div></div><button class="home-more-close" id="homeMoreClose" type="button" aria-label="Закрыть">×</button></div>
+  <div class="home-more-cashback-slot">
+   <div class="home-more-section-label">ТВОЙ КЕШБЭК</div>
+   <div class="home-frame-cashback" id="cashbackMini"><span class="home-frame-cashback-label">НАКОПЛЕНО</span><strong id="cashbackBalance">0</strong><span class="cashback-star">✦</span><button type="button" id="cashbackClaim" disabled>Забрать кешбэк</button><small id="cashbackHint">10% от каждой ставки · снятие по воскресеньям</small></div>
+  </div>
+  <p class="home-more-note">Новые возможности скоро появятся здесь</p>
+ </section>
+</div>
 <section class="center" aria-label="Баланс">
 <div class="eyebrow">Ваш баланс</div>
 <div class="city-balance-mini home-city-balance-mini"><span>Баланс города</span><strong id="homeCityBalance">0</strong><span>★</span><button class="city-exchange-small" id="cityExchangeOpen" type="button" aria-label="Обмен городских звёзд" title="Обмен">↔</button></div>
@@ -1587,7 +1632,12 @@ html body nav.bottom-nav>button.nav-item:not(#gameOpen).nav-fragment-pulse>svg.n
  }
  function openDeposit(){if(!section)return;section.classList.add('deposit-modal-open');document.body.style.overflow='hidden';}
  topup?.addEventListener('click',openDeposit);
- more?.addEventListener('click',()=>{more.animate?.([{transform:'scale(1)'},{transform:'scale(.94)'},{transform:'scale(1)'}],220);let note=document.getElementById('homeMoreNotice');if(!note){note=document.createElement('div');note.id='homeMoreNotice';note.textContent='Новые возможности скоро появятся здесь';note.style.cssText='position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 105px);transform:translateX(-50%);z-index:100020;padding:11px 16px;border:1px solid #ffe36b66;border-radius:14px;background:#171b29;color:#fff0a8;font-size:12px;font-weight:700;box-shadow:0 8px 30px #0008;white-space:nowrap;opacity:0;transition:opacity .2s';document.body.appendChild(note);}note.style.opacity='1';window.clearTimeout(note._hideTimer);note._hideTimer=window.setTimeout(()=>{note.style.opacity='0';},1800);});
+ const morePanel=document.getElementById('homeMorePanel');
+ function closeMore(){morePanel?.classList.remove('open');morePanel?.setAttribute('aria-hidden','true');document.body.style.overflow='';}
+ more?.addEventListener('click',()=>{more.animate?.([{transform:'scale(1)'},{transform:'scale(.94)'},{transform:'scale(1)'}],220);morePanel?.classList.add('open');morePanel?.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';});
+ document.getElementById('homeMoreClose')?.addEventListener('click',closeMore);
+ morePanel?.addEventListener('click',e=>{if(e.target===morePanel)closeMore();});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMore();});
  document.getElementById('lowBalanceTopUp')?.addEventListener('click',()=>{setTimeout(openDeposit,0);});
 })();
 </script>
@@ -1618,7 +1668,7 @@ html body nav.bottom-nav>button.nav-item:not(#gameOpen).nav-fragment-pulse>svg.n
  q('cityWorkList')?.addEventListener('click',async e=>{const b=e.target.closest('[data-work-business]');if(!b)return;b.disabled=true;try{await api('/api/cities/businesses/work',{method:'POST',body:JSON.stringify({businessId:Number(b.dataset.workBusiness)})});await loadBusinesses();await loadCity();if(mineMsg)mineMsg.textContent='Ты устроился на работу. Теперь добывай камни киркой.';}catch(err){if(q('cityJobStatus'))q('cityJobStatus').textContent=err.message;}finally{b.disabled=false;}});
  q('cityShopList')?.addEventListener('click',async e=>{const b=e.target.closest('[data-buy-business]');if(!b)return;b.disabled=true;try{const d=await api('/api/cities/businesses/purchase',{method:'POST',body:JSON.stringify({businessId:Number(b.dataset.buyBusiness),productIndex:Number(b.dataset.buyProduct)})});await loadCity();await loadBusinesses();const n=q('cityMessage');if(n)n.textContent='Покупка оплачена: '+Number(d.paid).toLocaleString('ru-RU')+' городских звёзд автоматически зачислено бизнесу и работникам.';}catch(err){if(q('cityMessage'))q('cityMessage').textContent=err.message;}finally{b.disabled=false;}});
  mineButton?.addEventListener('click',async()=>{if(busy)return;if(!jobId){mineMsg.textContent='Сначала устройся на работу.';return;}busy=true;mineButton.disabled=true;mineButton.classList.remove('hit');void mineButton.offsetWidth;mineButton.classList.add('hit');try{const d=await api('/api/cities/mine',{method:'POST',body:'{}'});mineHits.textContent=d.hits+' / 10';mineButton.classList.toggle('cracked',!!d.cracked);if(d.broken){mineButton.classList.add('breaking');mineMsg.textContent='Камень расколот! Тебе начислено 33, владельцу '+Number(d.ownerReceived).toFixed(2).replace('.',',')+' городских звёзд.';if(tg?.HapticFeedback)tg.HapticFeedback.notificationOccurred('success');await new Promise(r=>setTimeout(r,560));mineButton.classList.remove('breaking');mineButton.classList.remove('cracked');mineHits.textContent='0 / 10';}else{mineMsg.textContent=d.hits>=5?'Камень треснул. Ещё '+(10-d.hits)+' ударов до раскола.':'Удар засчитан. Осталось '+(10-d.hits)+' до раскола.';if(tg?.HapticFeedback)tg.HapticFeedback.impactOccurred('light');}const fresh=await api('/api/cities');paintCity(fresh);}catch(e){mineMsg.textContent=e.message;}finally{mineButton.classList.remove('hit');mineButton.disabled=false;busy=false;}});
- if(shell&&!shell.querySelector('.city-snow-layer')){const layer=document.createElement('div');layer.className='city-snow-layer';layer.setAttribute('aria-hidden','true');for(let i=0;i<34;i++){const f=document.createElement('i');f.className='city-snowflake';f.style.left=(Math.random()*100)+'%';f.style.setProperty('--snow-duration',(7+Math.random()*8)+'s');f.style.setProperty('--snow-delay',(-Math.random()*14)+'s');f.style.setProperty('--snow-drift',(-35+Math.random()*70)+'px');f.style.setProperty('--snow-opacity',(0.25+Math.random()*.55).toFixed(2));f.style.width=f.style.height=(2+Math.random()*3)+'px';layer.appendChild(f);}shell.prepend(layer);}
+ if(shell&&!shell.querySelector('.city-snow-layer')){const layer=document.createElement('div');layer.className='city-snow-layer';layer.setAttribute('aria-hidden','true');for(let i=0;i<110;i++){const f=document.createElement('i');f.className='city-snowflake';f.style.left=(Math.random()*100)+'%';f.style.setProperty('--snow-duration',(5+Math.random()*8)+'s');f.style.setProperty('--snow-delay',(-Math.random()*13)+'s');f.style.setProperty('--snow-drift',(-55+Math.random()*110)+'px');f.style.setProperty('--snow-opacity',(0.35+Math.random()*.6).toFixed(2));f.style.width=f.style.height=(2+Math.random()*4)+'px';layer.appendChild(f);}shell.prepend(layer);}
  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&q('cityBackdrop')?.classList.contains('open'))loadCity();});
 })();
 </script>
