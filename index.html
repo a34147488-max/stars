@@ -2103,13 +2103,13 @@ const api=async(path,method='GET')=>{if(!tg?.initData)throw new Error('Откр�
 const paint=()=>{timer.textContent=remaining+' сек.';progress.style.width=((15-remaining)/15*100)+'%';closeBtn.disabled=remaining>0;closeBtn.textContent=remaining>0?'Подождите '+remaining+' секунд':'ЗАКРЫТЬ И ПОЛУЧИТЬ 99 ✦'};
 const stop=()=>{if(interval)clearInterval(interval);interval=null};
 const close=()=>{stop();backdrop.classList.remove('open');backdrop.setAttribute('aria-hidden','true');document.body.style.overflow=''};
-const start=async()=>{try{const d=await api('/api/ad-watch/start','POST');remaining=15;startedAt=Date.now();paint();backdrop.classList.add('open');backdrop.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';if(d.cooldownSeconds>0){remaining=0;timer.textContent='Доступно через '+Math.ceil(d.cooldownSeconds/60)+' мин.';q('adWatchTimerLabel').textContent='Следующий просмотр';progress.style.width='100%';closeBtn.disabled=true;closeBtn.textContent='Реклама пока недоступна';return}q('adWatchTimerLabel').textContent='Реклама закончится через';interval=setInterval(()=>{remaining=Math.max(0,15-Math.floor((Date.now()-startedAt)/1000));paint();if(remaining===0)stop()},200)}catch(e){alert(e.message)}};
+const start=async()=>{try{const d=await api('/api/ad-watch/start','POST');if(d.cooldownSeconds>0){toast.textContent='Следующий просмотр рекламы через '+Math.ceil(d.cooldownSeconds/60)+' мин.';toast.classList.remove('show');void toast.offsetWidth;toast.classList.add('show');return}remaining=15;startedAt=Date.now();paint();backdrop.classList.add('open');backdrop.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';q('adWatchTimerLabel').textContent='Реклама закончится через';interval=setInterval(()=>{remaining=Math.max(0,15-Math.floor((Date.now()-startedAt)/1000));paint();if(remaining===0)stop()},200)}catch(e){alert(e.message)}};
 openBtn.addEventListener('click',start);
 closeBtn.addEventListener('click',async()=>{if(closeBtn.disabled||claiming)return;claiming=true;closeBtn.disabled=true;closeBtn.textContent='Начисляем бонус…';try{const d=await api('/api/ad-watch/claim','POST');close();const balance=q('balance');if(balance&&Number.isFinite(Number(d.balance)))balance.textContent=Number(d.balance).toLocaleString('ru-RU');toast.classList.remove('show');void toast.offsetWidth;toast.classList.add('show');}catch(e){closeBtn.disabled=false;closeBtn.textContent='Повторить получение';alert(e.message)}finally{claiming=false}});
 go.addEventListener('click',()=>window.location.assign('https://t.me/wcggbot/app'));
 order.addEventListener('click',()=>window.open('https://t.me/vladubrat7','_blank'));
-backdrop.addEventListener('click',e=>{if(e.target===backdrop&&remaining===0)close()});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&backdrop.classList.contains('open')&&remaining===0)close()});
+backdrop.addEventListener('click',e=>{if(e.target===backdrop)e.preventDefault()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&backdrop.classList.contains('open'))e.preventDefault()});
 };if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init()})();
 </script>
 </body>
