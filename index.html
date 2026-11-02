@@ -681,7 +681,14 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
 .city-backdrop .city-mine-button.gold-stone.cracked .mine-stone{filter:drop-shadow(0 0 12px #ffd34eaa) drop-shadow(0 8px 10px #0009)!important}
 .city-backdrop .city-mine-button.gold-stone .mine-hit-label{color:#ffe18a!important;text-shadow:0 1px 9px #c58b16aa}
 .city-backdrop .city-mine-button.breaking .mine-stone{filter:brightness(1.5) drop-shadow(0 0 14px #fff)!important}
-</style></head>
+</style>
+<style id="city-remove-rate-and-intro">
+/* Убираем подпись ставки за клик и вводный баннер над городом */
+.city-backdrop .city-hero .city-rate{display:none!important}
+.city-backdrop .city-head>div>.city-subtitle{display:none!important}
+.city-backdrop .city-head{background:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:none!important;border:0!important}
+</style>
+</head>
 <body>
 <div id="stars-puzzle-loader" aria-label="Загрузка STARS">
  <div class="puzzle-wrap">
