@@ -844,16 +844,22 @@ body{background:#292a2e!important}
 <body>
 <div id="stars-puzzle-loader" aria-label="Загрузка STARS">
  <div class="puzzle-wrap">
-  <svg viewBox="0 0 100 100" aria-hidden="true">
-   <path class="puzzle-part part-a" d="M50 50 L50 5 L60 37 Z"/>
-   <path class="puzzle-part part-b" d="M50 50 L60 37 L94 38 L67 58 Z"/>
-   <path class="puzzle-part part-c" d="M50 50 L67 58 L78 92 L50 72 Z"/>
-   <path class="puzzle-part part-d" d="M50 50 L50 72 L22 92 L33 58 Z"/>
-   <path class="puzzle-part part-e" d="M50 50 L33 58 L6 38 L40 37 Z"/>
-   <path class="puzzle-part part-f" d="M50 50 L40 37 L50 5 Z"/>
-   <circle class="puzzle-spark spark-a" cx="50" cy="50" r="1.8"/><circle class="puzzle-spark spark-b" cx="50" cy="50" r="1.4"/><circle class="puzzle-spark spark-c" cx="50" cy="50" r="1.6"/><circle class="puzzle-spark spark-d" cx="50" cy="50" r="1.3"/>
-  </svg>
-  <span>STARS</span>
+  <div class="loading-star-stage" aria-hidden="true">
+   <svg class="loading-blue-star" viewBox="0 0 120 120">
+    <defs>
+     <linearGradient id="loadingStarFill" x1="18" y1="12" x2="101" y2="108" gradientUnits="userSpaceOnUse"><stop stop-color="#f1fbff"/><stop offset=".22" stop-color="#8bd7ff"/><stop offset=".58" stop-color="#318dff"/><stop offset="1" stop-color="#1550dc"/></linearGradient>
+     <radialGradient id="loadingStarCore"><stop stop-color="#fff"/><stop offset=".35" stop-color="#b8eaff"/><stop offset="1" stop-color="#398fff" stop-opacity="0"/></radialGradient>
+     <filter id="loadingStarGlow" x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+    <path class="loading-star-outline" d="M60 7 73.8 43.2 112 46.1 82.7 70.8 92.1 108 60 87.4 27.9 108 37.3 70.8 8 46.1 46.2 43.2Z"/>
+    <path class="loading-star-fill" d="M60 7 73.8 43.2 112 46.1 82.7 70.8 92.1 108 60 87.4 27.9 108 37.3 70.8 8 46.1 46.2 43.2Z"/>
+    <path class="loading-star-facet" d="M60 7 73.8 43.2 60 58Z M73.8 43.2 112 46.1 60 58Z M112 46.1 82.7 70.8 60 58Z M82.7 70.8 92.1 108 60 58Z M92.1 108 60 87.4 60 58Z M60 87.4 27.9 108 60 58Z M27.9 108 37.3 70.8 60 58Z M37.3 70.8 8 46.1 60 58Z M8 46.1 46.2 43.2 60 58Z M46.2 43.2 60 7 60 58Z"/>
+    <circle class="loading-star-core" cx="60" cy="58" r="26"/>
+   </svg>
+   <i class="loading-star-particle particle-one"></i><i class="loading-star-particle particle-two"></i><i class="loading-star-particle particle-three"></i><i class="loading-star-particle particle-four"></i><i class="loading-star-particle particle-five"></i><i class="loading-star-particle particle-six"></i>
+  </div>
+  <span class="loading-caption">stars - loading</span>
+  <div class="startup-progress"><i id="startupProgressFill"></i></div>
  </div>
 </div>
 <div class="app-background" aria-hidden="true"></div>
@@ -1943,7 +1949,21 @@ html body nav.bottom-nav>button.nav-item:not(#gameOpen).nav-fragment-pulse>svg.n
 (function(){const tg=window.Telegram&&window.Telegram.WebApp;document.addEventListener('click',function(event){const control=event.target&&event.target.closest&&event.target.closest('button,[role="button"],.nav-item');if(!control||control.disabled||control.getAttribute('aria-disabled')==='true')return;if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.impactOccurred('light');return}catch(_){}}if(navigator.vibrate){try{navigator.vibrate(9)}catch(_){}}},true)})();
 </script>
 <script id="stars-nav-fragment-feedback">(function(){const nav=document.querySelector('.bottom-nav');if(!nav)return;nav.querySelectorAll('button.nav-item:not(#gameOpen)').forEach(button=>{button.addEventListener('click',()=>{button.classList.remove('nav-fragment-pulse');void button.offsetWidth;button.classList.add('nav-fragment-pulse');window.setTimeout(()=>button.classList.remove('nav-fragment-pulse'),700);});});})();</script>
-<script id="stars-puzzle-loader-script">(function(){var el=document.getElementById("stars-puzzle-loader");if(!el)return;window.setTimeout(function(){el.classList.add("hide");window.setTimeout(function(){el.remove()},240)},2600)})();</script>
+<script id="stars-puzzle-loader-script">(function(){
+ var el=document.getElementById("stars-puzzle-loader"),fill=document.getElementById("startupProgressFill");
+ if(!el||!fill)return;
+ var duration=4000+Math.floor(Math.random()*2001),start=performance.now(),done=false;
+ el.classList.remove("hide");
+ function frame(now){
+  if(done)return;
+  var progress=Math.min(1,(now-start)/duration);
+  fill.style.width=(progress*100).toFixed(2)+"%";
+  el.style.setProperty("--load-progress",progress);
+  if(progress>=1){done=true;el.classList.add("complete");window.setTimeout(function(){el.classList.add("hide");window.setTimeout(function(){el.remove()},320)},360);return;}
+  requestAnimationFrame(frame);
+ }
+ requestAnimationFrame(frame);
+})();</script>
 <script id="home-frame-actions-script">
 (function(){
  const topup=document.getElementById('homeTopUp'),more=document.getElementById('homeMore'),section=document.querySelector('.deposit-section');
@@ -2189,7 +2209,7 @@ html body .bottom-nav>button#gameOpen{background:linear-gradient(145deg,#e7fff5,
 </style>
 <style id="stars-premium-gamecraft-v3">
 /* Hide the oversized blue/yellow STARS splash wordmark above the app. */
-#stars-puzzle-loader{display:none!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important}
+/* Startup loader is enabled by the startup sequence below. */
 :root{--craft-ink:#09131a;--craft-emerald:#153b36;--craft-mint:#9be5c5;--craft-gold:#f0d18a;--craft-line:#c9e8d64a}
 html,body,button,input,select,textarea,.game-mode-name,.game-mode-desc,.modal-title,.wheel-result,.door-title,.door-subtitle,.door-message,.wheel-bet-label,.wheel-pill{font-family:"Avenir Next","SF Pro Display",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;font-optical-sizing:auto;font-synthesis:none;text-rendering:optimizeLegibility}
 button{font-weight:760;letter-spacing:-.018em}
@@ -2249,5 +2269,33 @@ button{font-weight:760;letter-spacing:-.018em}
 button:focus-visible{outline:2px solid #d7f3e5!important;outline-offset:3px}
 @media(max-width:370px){#cupsChoices{gap:5px!important;padding:8px!important}#cupsChoices button{min-height:80px!important}.door-choice{min-height:112px!important}}
 @media(prefers-reduced-motion:reduce){#cupsChoices button,#cupsChoices button svg,.door-choice,.door-frame,.door-choice.winner,.door-safe{animation:none!important;transition:none!important}}
-</style></body>
+</style><style id="stars-startup-loading-v4">
+#stars-puzzle-loader{position:fixed!important;inset:0!important;z-index:999999!important;display:grid!important;place-items:center!important;visibility:visible;opacity:1;pointer-events:auto;background:radial-gradient(ellipse at 50% 42%,#102d59 0%,#09172f 37%,#050914 78%)!important;transition:opacity .32s ease,visibility .32s ease!important}
+#stars-puzzle-loader:before{content:"";position:absolute;width:min(78vw,340px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#2e8cff35 0%,#1768d41b 42%,transparent 72%);filter:blur(4px);animation:startupAura 2.5s ease-in-out infinite alternate}
+#stars-puzzle-loader:after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;background-image:radial-gradient(1px 1px at 16% 24%,#d5ebff 99%,transparent),radial-gradient(1.5px 1.5px at 78% 18%,#8fc9ff 99%,transparent),radial-gradient(1px 1px at 84% 76%,#d5ebff 99%,transparent),radial-gradient(1px 1px at 23% 82%,#8fc9ff 99%,transparent),radial-gradient(1px 1px at 52% 12%,#fff 99%,transparent)}
+#stars-puzzle-loader.hide{opacity:0!important;visibility:hidden!important;pointer-events:none!important}
+#stars-puzzle-loader .puzzle-wrap{position:relative;z-index:1;width:min(76vw,310px);display:flex;flex-direction:column;align-items:center;gap:25px;background:none!important;border:0!important;box-shadow:none!important}
+.loading-star-stage{position:relative;width:150px;height:150px;display:grid;place-items:center}
+.loading-star-stage:before{content:"";position:absolute;inset:12px;border:1px solid #64b4ff22;border-radius:50%;box-shadow:0 0 55px #187aff28,inset 0 0 35px #218aff18;animation:startupRing 3s ease-in-out infinite}
+.loading-blue-star{position:relative;width:116px;height:116px;overflow:visible;filter:drop-shadow(0 0 7px #399cffaa);animation:startupStarFloat 2.4s ease-in-out infinite}
+.loading-star-outline{fill:none;stroke:#9ddaff;stroke-width:2;stroke-linejoin:round;stroke-dasharray:330;stroke-dashoffset:330;animation:startupStarDraw 1.5s cubic-bezier(.16,.8,.2,1) .12s forwards}
+.loading-star-fill{fill:url(#loadingStarFill);opacity:0;transform-origin:60px 58px;animation:startupStarFill .9s cubic-bezier(.16,.8,.2,1) .95s forwards;filter:url(#loadingStarGlow)}
+.loading-star-facet{fill:none;stroke:#dff5ff;stroke-width:1.2;stroke-linejoin:round;opacity:0;animation:startupFacet 1s ease 1.35s forwards}
+.loading-star-core{fill:url(#loadingStarCore);opacity:0;animation:startupCore .9s ease 1.25s forwards}
+.loading-star-particle{position:absolute;left:50%;top:50%;width:7px;height:7px;border-radius:50%;background:#a9dcff;box-shadow:0 0 12px 4px #298dff;opacity:0;animation:startupParticle 1.5s cubic-bezier(.16,.8,.2,1) forwards}
+.particle-one{--px:-75px;--py:-52px;animation-delay:.08s}.particle-two{--px:76px;--py:-48px;animation-delay:.28s}.particle-three{--px:82px;--py:38px;animation-delay:.45s}.particle-four{--px:-72px;--py:57px;animation-delay:.6s}.particle-five{--px:8px;--py:-83px;animation-delay:.76s}.particle-six{--px:0px;--py:82px;animation-delay:.9s}
+.loading-caption{font-size:12px!important;font-weight:850!important;letter-spacing:.24em!important;text-transform:lowercase;color:#d8edff!important;text-shadow:0 0 18px #4aa6ff88;opacity:0;animation:startupCaption .5s ease .55s forwards}
+.startup-progress{width:100%;height:5px;overflow:hidden;border-radius:99px;background:#ffffff20;box-shadow:0 0 0 1px #8fcaff20,inset 0 1px 3px #0008}
+.startup-progress i{display:block;width:0;height:100%;border-radius:inherit;background:linear-gradient(90deg,#1873ff,#75c9ff 55%,#d8f4ff);box-shadow:0 0 14px #3b9dff,0 0 25px #237dff88;transition:width .08s linear}
+#stars-puzzle-loader.complete .loading-blue-star{animation:startupStarComplete .5s cubic-bezier(.16,1,.3,1) both}
+#stars-puzzle-loader.complete .loading-star-fill{filter:url(#loadingStarGlow) drop-shadow(0 0 15px #5bb5ff)}
+@keyframes startupAura{to{transform:scale(1.2);opacity:.7}}@keyframes startupRing{50%{transform:scale(1.08);opacity:.45}}
+@keyframes startupStarDraw{to{stroke-dashoffset:0}}@keyframes startupStarFill{0%{opacity:0;transform:scale(.12)}70%{opacity:1;transform:scale(1.12)}100%{opacity:1;transform:scale(1)}}
+@keyframes startupFacet{to{opacity:.72}}@keyframes startupCore{to{opacity:.9}}
+@keyframes startupParticle{0%{opacity:0;transform:translate(var(--px),var(--py)) scale(.15);filter:blur(4px)}35%{opacity:1}100%{opacity:0;transform:translate(0,0) scale(.1);filter:blur(0)}}
+@keyframes startupCaption{to{opacity:1}}@keyframes startupStarFloat{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-5px) rotate(2deg)}}
+@keyframes startupStarComplete{0%{transform:scale(1)}45%{transform:scale(1.22) rotate(8deg)}100%{transform:scale(1.08)}}
+@media(prefers-reduced-motion:reduce){#stars-puzzle-loader *{animation-duration:.01ms!important;animation-iteration-count:1!important}}
+</style>
+</body>
 </html>
