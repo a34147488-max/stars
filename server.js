@@ -932,11 +932,23 @@ app.post('/api/telegram/webhook', async (req, res) => {
         const c=await pool.connect();try{await c.query('BEGIN');const user=await c.query('SELECT balance FROM stars_users WHERE telegram_id=$1 FOR UPDATE',[id]);if(!user.rowCount||Number(user.rows[0].balance)<777){await c.query('ROLLBACK');await telegramApi('sendMessage',{chat_id:chatId,text:'Для создания клана нужно 777 игровых звёзд. Баланс: '+Number(user.rows[0]?.balance||0).toLocaleString('ru-RU')+'.'});return res.sendStatus(200);}const exists=await c.query('SELECT 1 FROM stars_bot_clans WHERE owner_id=$1 UNION SELECT 1 FROM stars_bot_clan_members WHERE telegram_id=$1',[id]);if(exists.rowCount){await c.query('ROLLBACK');botUserStates.delete(id);await telegramApi('sendMessage',{chat_id:chatId,text:'Ты уже состоишь в клане или владеешь им.'});return res.sendStatus(200);}await c.query('UPDATE stars_users SET balance=balance-777,updated_at=NOW() WHERE telegram_id=$1',[id]);await c.query('INSERT INTO stars_bot_clans(owner_id,name) VALUES($1,$2)',[id,name]);await c.query('COMMIT');botUserStates.delete(id);await telegramApi('sendMessage',{chat_id:chatId,text:'Клан «'+name+'» создан! Списано 777 звёзд. Теперь ты владелец клана.',reply_markup:{keyboard:botMenu,resize_keyboard:true}});}catch(e){await c.query('ROLLBACK');await telegramApi('sendMessage',{chat_id:chatId,text:'Не удалось создать клан. Название может быть занято. Баланс не списан.'});}finally{c.release();}return res.sendStatus(200);
       }
       if(state.mode==='topup_sbp_amount'){
-        const rub=Number(text.replace(',','.'));if(!/^\\d+(?:[.,]\\d{1,2})?$/.test(text)||!Number.isFinite(rub)||rub<100||rub>1000000){await telegramApi('sendMessage',{chat_id:chatId,text:'Введи сумму от 100 до 1 000 000 ₽ (можно с копейками).'});return res.sendStatus(200);}
+        const rawAmount=String(text||'').trim().replace(/\s+/g,'').replace(',','.');
+        const rub=Number(rawAmount);
+        if(!/^\d+(?:\.\d{1,2})?$/.test(rawAmount)||!Number.isFinite(rub)||rub<100||rub>1000000){
+          await telegramApi('sendMessage',{chat_id:chatId,text:'Введи сумму от 100 до 1 000 000 ₽ (можно с копейками). Например: 100 или 250,50.'});
+          return res.sendStatus(200);
+        }
         const amount=Math.round(rub*100)/100;
-        const req=await pool.query("INSERT INTO stars_sbp_topups(telegram_id,amount_rub,expires_at) VALUES($1,$2,NOW()+INTERVAL '15 minutes') RETURNING id,expires_at",[id,amount]);botUserStates.delete(id);
-        const admins=await pool.query('SELECT telegram_id FROM stars_admins');for(const a of admins.rows){try{await telegramApi('sendMessage',{chat_id:a.telegram_id,text:'Новая заявка на пополнение по СБП #'+req.rows[0].id+'\\nИгрок: '+id+'\\nСумма: '+amount.toFixed(2)+' ₽\\nСрок оплаты: 15 минут.'});}catch(e){console.error('SBP request admin notification failed:',e.message);}}
-        await telegramApi('sendMessage',{chat_id:chatId,text:'Заявка на пополнение #'+req.rows[0].id+'\\nСумма к оплате: '+amount.toFixed(2)+' ₽\\n\\nБанк: Т-Банк\\nНомер для перевода по СБП: +79959351914\\nПолучатель: как отображается в банковском приложении\\n\\nОплати точную сумму в течение 15 минут. После перевода нажми «Оплатил». Баланс будет зачислен только после проверки поступления.',reply_markup:{inline_keyboard:[[{text:'Оплатил',callback_data:'bot:sbp:paid:'+req.rows[0].id},{text:'Отмена',callback_data:'bot:sbp:cancel:'+req.rows[0].id}]]}});return res.sendStatus(200);
+        const req=await pool.query("INSERT INTO stars_sbp_topups(telegram_id,amount_rub,expires_at) VALUES($1,$2,NOW()+INTERVAL '15 minutes') RETURNING id,expires_at",[id,amount]);
+        botUserStates.delete(id);
+        const admins=await pool.query('SELECT telegram_id FROM stars_admins');
+        for(const a of admins.rows){
+          try{
+            await telegramApi('sendMessage',{chat_id:a.telegram_id,text:'Новая заявка на пополнение по СБП #'+req.rows[0].id+'\nИгрок: '+id+'\nСумма: '+amount.toFixed(2)+' ₽\nСрок оплаты: 15 минут.'});
+          }catch(e){console.error('SBP request admin notification failed:',e.message);}
+        }
+        await telegramApi('sendMessage',{chat_id:chatId,text:'Заявка на пополнение #'+req.rows[0].id+'\nСумма к оплате: '+amount.toFixed(2)+' ₽\n\nБанк: Т-Банк\nНомер для перевода по СБП: +79959351914\nПолучатель: проверь имя, которое покажет банковское приложение перед подтверждением перевода.\n\nОплати точную сумму в течение 15 минут. После перевода нажми «Оплатил». Зачисление произойдёт после проверки поступления.',reply_markup:{inline_keyboard:[[{text:'Оплатил',callback_data:'bot:sbp:paid:'+req.rows[0].id},{text:'Отмена',callback_data:'bot:sbp:cancel:'+req.rows[0].id}]]}});
+        return res.sendStatus(200);
       }
     }
     if (callback && adminRow.rowCount) {
