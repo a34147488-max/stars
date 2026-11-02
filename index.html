@@ -427,6 +427,19 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
 </style>
 </head>
 <body>
+<div id="stars-puzzle-loader" aria-label="Загрузка STARS">
+ <div class="puzzle-wrap">
+  <svg viewBox="0 0 100 100" aria-hidden="true">
+   <path class="puzzle-part part-a" d="M50 50 L50 5 L60 37 Z"/>
+   <path class="puzzle-part part-b" d="M50 50 L60 37 L94 38 L67 58 Z"/>
+   <path class="puzzle-part part-c" d="M50 50 L67 58 L78 92 L50 72 Z"/>
+   <path class="puzzle-part part-d" d="M50 50 L50 72 L22 92 L33 58 Z"/>
+   <path class="puzzle-part part-e" d="M50 50 L33 58 L6 38 L40 37 Z"/>
+   <path class="puzzle-part part-f" d="M50 50 L40 37 L50 5 Z"/>
+  </svg>
+  <span>STARS</span>
+ </div>
+</div>
 <div class="app-background" aria-hidden="true"></div>
 <div class="cube-field" aria-hidden="true">
 <span class="float-cube" style="left:4%;--cube-size:27px;--cube-duration:26s;--cube-delay:-13s;--cube-drift:42px"></span>
@@ -1367,10 +1380,23 @@ html body nav.bottom-nav>button.nav-item:not(#gameOpen):active>span,html body na
 html body nav.bottom-nav>button.nav-item:not(#gameOpen).nav-fragment-pulse>svg.nav-icon{animation:navFragmentBluePulse .65s ease-out!important}
 @keyframes navFragmentBluePulse{0%{stroke:#d7dbea;filter:none;transform:scale(1)}35%{stroke:#55a5ff;filter:drop-shadow(0 0 7px #1687ff) drop-shadow(0 0 15px #1687ffbb);transform:scale(1.16)}100%{stroke:#d7dbea;filter:none;transform:scale(1)}}
 @media(prefers-reduced-motion:reduce){html body nav.bottom-nav>button.nav-item:not(#gameOpen)>svg.nav-icon{animation:none!important;transition:none!important}}
+
+#stars-puzzle-loader{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;background:radial-gradient(ellipse at center,#252b40,#090b13 72%);transition:opacity .22s ease,visibility .22s ease}
+#stars-puzzle-loader.hide{opacity:0;visibility:hidden;pointer-events:none}
+.puzzle-wrap{display:flex;flex-direction:column;align-items:center;gap:15px}
+.puzzle-wrap svg{width:92px;height:92px;overflow:visible;filter:drop-shadow(0 0 15px #dceaff66)}
+.puzzle-part{fill:#f5f7ff;stroke:#c9d9ff;stroke-width:1.3;stroke-linejoin:round;opacity:0;animation:starsPuzzleIn .48s cubic-bezier(.2,.8,.2,1) forwards}
+.part-a{--x:-30px;--y:-30px;animation-delay:.02s}.part-b{--x:36px;--y:-20px;animation-delay:.07s}.part-c{--x:30px;--y:34px;animation-delay:.12s}.part-d{--x:-25px;--y:35px;animation-delay:.17s}.part-e{--x:-38px;--y:-10px;animation-delay:.22s}.part-f{--x:0px;--y:-42px;animation-delay:.27s}
+@keyframes starsPuzzleIn{0%{opacity:0;transform:translate(var(--x),var(--y)) scale(.7) rotate(-20deg)}75%{opacity:1;transform:translate(0,0) scale(1.06)}100%{opacity:1;transform:translate(0,0) scale(1)}}
+.puzzle-wrap span{font-size:12px;font-weight:900;letter-spacing:.42em;padding-left:.42em;color:#edf2ff;opacity:0;animation:starsPuzzleText .25s ease .35s forwards}
+@keyframes starsPuzzleText{to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.puzzle-part,.puzzle-wrap span{animation:none;opacity:1}}
+
 </style>
 <script id="stars-soft-haptics">
 (function(){const tg=window.Telegram&&window.Telegram.WebApp;document.addEventListener('click',function(event){const control=event.target&&event.target.closest&&event.target.closest('button,[role="button"],.nav-item');if(!control||control.disabled||control.getAttribute('aria-disabled')==='true')return;if(tg&&tg.HapticFeedback){try{tg.HapticFeedback.impactOccurred('light');return}catch(_){}}if(navigator.vibrate){try{navigator.vibrate(9)}catch(_){}}},true)})();
 </script>
 <script id="stars-nav-fragment-feedback">(function(){const nav=document.querySelector('.bottom-nav');if(!nav)return;nav.querySelectorAll('button.nav-item:not(#gameOpen)').forEach(button=>{button.addEventListener('click',()=>{button.classList.remove('nav-fragment-pulse');void button.offsetWidth;button.classList.add('nav-fragment-pulse');window.setTimeout(()=>button.classList.remove('nav-fragment-pulse'),700);});});})();</script>
+<script id="stars-puzzle-loader-script">(function(){var el=document.getElementById("stars-puzzle-loader");if(!el)return;window.setTimeout(function(){el.classList.add("hide");window.setTimeout(function(){el.remove()},240)},1050)})();</script>
 </body>
 </html>
