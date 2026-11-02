@@ -425,6 +425,32 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
 .city-backdrop .city-panel-title{font-size:18px!important;margin-bottom:10px!important}
 .city-backdrop .district-panel .city-footnote{display:none!important}
 </style>
+<style id="home-frame-and-deposit-modal">
+.home-action-frame{position:relative;isolation:isolate;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:12px;width:calc(100% - 30px);max-width:430px;min-height:88px;margin:-22px auto 26px;padding:13px 14px;border-radius:19px;border:1.5px solid #ffe34f;background:linear-gradient(115deg,rgba(255,220,45,.22),rgba(255,191,0,.11) 48%,rgba(255,237,125,.19));box-shadow:0 0 12px #ffdf3c55,0 0 28px #ffc92826,inset 0 1px 0 #fff9a8aa,inset 0 -12px 30px #ffca2810;animation:homeFramePulse 3.2s ease-in-out infinite}
+.home-action-frame:before{content:"";position:absolute;inset:-2px;border-radius:inherit;padding:1.5px;background:linear-gradient(115deg,#fff8a0,#ffcc00,#fff47a,#e9a900,#fff8a0);background-size:250% 100%;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:homeFrameBorder 4s linear infinite;pointer-events:none;z-index:-1}
+.home-frame-shine{position:absolute;top:-70%;bottom:-70%;left:-45%;width:32%;background:linear-gradient(90deg,transparent,#fff9b866,transparent);transform:rotate(18deg);animation:homeFrameShine 4.8s ease-in-out infinite;pointer-events:none}
+.home-frame-cashback{position:relative;display:grid;grid-template-columns:auto auto auto;align-items:center;justify-content:start;column-gap:5px;row-gap:2px;min-width:0;color:#fff5bf}
+.home-frame-cashback-label{grid-column:1/-1;font-size:9px;font-weight:900;letter-spacing:.15em;color:#ffe76a}
+.home-frame-cashback strong{font-size:21px;line-height:1.1;font-weight:900;color:#fff9d5;text-shadow:0 0 12px #ffd52b88}
+.home-frame-cashback .cashback-star{font-size:15px;color:#ffec83}
+.home-frame-cashback button{grid-column:1/-1;justify-self:start;padding:3px 8px;border:1px solid #ffe16a66;border-radius:20px;background:#fff2a51a;color:#fff0a3;font-size:9px;font-weight:800}
+.home-frame-cashback button:disabled{opacity:.5}
+.home-frame-cashback small{grid-column:1/-1;max-width:165px;font-size:8px;line-height:1.25;color:#fff1b2aa}
+.home-frame-actions{display:flex;flex-direction:column;gap:7px;flex:none}
+.home-frame-actions button{display:flex;align-items:center;justify-content:center;gap:6px;min-width:112px;height:34px;padding:0 11px;border:1px solid #fff3a0;border-radius:11px;background:linear-gradient(135deg,#fff28a,#ffd21c 55%,#f4b900);color:#352900;font-size:11px;font-weight:900;box-shadow:0 3px 14px #ffcf3555,inset 0 1px 0 #fff}
+.home-frame-actions button:last-child{height:27px;background:#fff1a51b;color:#fff1a5;border-color:#ffe66a77;box-shadow:none}
+.home-frame-actions svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@keyframes homeFramePulse{0%,100%{box-shadow:0 0 12px #ffdf3c44,0 0 25px #ffc92820,inset 0 1px 0 #fff9a8aa}50%{box-shadow:0 0 19px #ffdf3c88,0 0 38px #ffc92845,inset 0 1px 0 #fff9a8dd}}
+@keyframes homeFrameBorder{to{background-position:250% 0}}
+@keyframes homeFrameShine{0%,20%{left:-45%;opacity:0}42%{opacity:.9}65%,100%{left:130%;opacity:0}}
+#stars-puzzle-loader,.puzzle-wrap,.puzzle-wrap svg{background:transparent!important;border:0!important;box-shadow:none!important}
+#stars-puzzle-loader{contain:paint}
+.deposit-section{display:none!important}
+.deposit-section.deposit-modal-open{display:block!important;position:fixed!important;z-index:100010!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;width:calc(100% - 28px)!important;max-width:430px!important;max-height:82dvh!important;overflow-y:auto!important;margin:0!important;padding:21px 17px 20px!important;border:1px solid #ffffff35!important;border-radius:23px!important;background:linear-gradient(155deg,#202538,#10131e)!important;box-shadow:0 0 0 100vmax #050711c9,0 20px 80px #000b!important}
+.deposit-modal-close{position:sticky;float:right;top:0;z-index:3;width:30px;height:30px;border:1px solid #ffffff35;border-radius:50%;background:#ffffff12;color:#fff;font-size:21px;line-height:1}
+@media(max-width:380px){.home-action-frame{width:calc(100% - 24px);padding:11px;gap:8px}.home-frame-actions button{min-width:100px}.home-frame-cashback small{max-width:145px}}
+@media(prefers-reduced-motion:reduce){.home-action-frame,.home-action-frame:before,.home-frame-shine{animation:none!important}}
+</style>
 </head>
 <body>
 <div id="stars-puzzle-loader" aria-label="Загрузка STARS">
@@ -461,6 +487,11 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
 </div>
 <div class="top-note" id="onlineCount">ОНЛАЙН: —</div><div class="profile-menu" id="profileMenu" hidden><button id="soundToggle" type="button"><span class="profile-menu-icon">♫</span><span id="soundLabel">Включить звук</span><span class="menu-state" id="soundState">ВЫКЛ</span></button><button id="profileOpen" type="button"><span class="profile-menu-icon">◎</span>Профиль</button><button id="agreementOpen" type="button"><span class="profile-menu-icon">§</span>Соглашение</button></div>
 </header>
+<section class="home-action-frame" aria-label="Быстрые действия">
+ <div class="home-frame-shine" aria-hidden="true"></div>
+ <div class="home-frame-cashback" id="cashbackMini"><span class="home-frame-cashback-label">КЕШБЭК</span><strong id="cashbackBalance">0</strong><span class="cashback-star">✦</span><button type="button" id="cashbackClaim" disabled>Забрать</button><small id="cashbackHint">10% от каждой ставки · снятие по воскресеньям</small></div>
+ <div class="home-frame-actions"><button type="button" id="homeTopUp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5m-6 6 6-6 6 6M4 20h16"/></svg>Пополнить</button><button type="button" id="homeMore">Ещё</button></div>
+</section>
 <section class="center" aria-label="Баланс">
 <div class="eyebrow">Ваш баланс</div>
 <div class="city-balance-mini home-city-balance-mini"><span>Баланс города</span><strong id="homeCityBalance">0</strong><span>★</span><button class="city-exchange-small" id="cityExchangeOpen" type="button" aria-label="Обмен городских звёзд" title="Обмен">↔</button></div>
@@ -476,7 +507,7 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
 </svg>
 </div>
 </div>
-<div class="cashback-mini" id="cashbackMini"><span>Кешбэк</span><strong id="cashbackBalance">0</strong><span class="cashback-star">✦</span><button type="button" id="cashbackClaim" disabled>Забрать</button><small id="cashbackHint">10% от каждой игровой ставки · доступен по воскресеньям</small></div>
+
 </div>
 
 <nav class="bottom-nav" role="navigation" aria-label="Главное меню">
@@ -1017,6 +1048,8 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
   const b=document.getElementById(id);
   if(b)b.addEventListener('click',()=>{
    closeOthers(target);
+   const panel=document.getElementById(target);
+   if(panel){panel.classList.add('open');panel.setAttribute('aria-hidden','false');}
    document.body.classList.add('section-page-active');
   },true);
  });
@@ -1429,5 +1462,18 @@ html body nav.bottom-nav>button.nav-item:not(#gameOpen).nav-fragment-pulse>svg.n
 </script>
 <script id="stars-nav-fragment-feedback">(function(){const nav=document.querySelector('.bottom-nav');if(!nav)return;nav.querySelectorAll('button.nav-item:not(#gameOpen)').forEach(button=>{button.addEventListener('click',()=>{button.classList.remove('nav-fragment-pulse');void button.offsetWidth;button.classList.add('nav-fragment-pulse');window.setTimeout(()=>button.classList.remove('nav-fragment-pulse'),700);});});})();</script>
 <script id="stars-puzzle-loader-script">(function(){var el=document.getElementById("stars-puzzle-loader");if(!el)return;window.setTimeout(function(){el.classList.add("hide");window.setTimeout(function(){el.remove()},240)},2600)})();</script>
+<script id="home-frame-actions-script">
+(function(){
+ const topup=document.getElementById('homeTopUp'),more=document.getElementById('homeMore'),section=document.querySelector('.deposit-section');
+ if(section&&!section.querySelector('.deposit-modal-close')){
+  const close=document.createElement('button');close.type='button';close.className='deposit-modal-close';close.textContent='×';close.setAttribute('aria-label','Закрыть пополнение');section.prepend(close);
+  close.addEventListener('click',()=>{section.classList.remove('deposit-modal-open');document.body.style.overflow='';});
+ }
+ function openDeposit(){if(!section)return;section.classList.add('deposit-modal-open');document.body.style.overflow='hidden';}
+ topup?.addEventListener('click',openDeposit);
+ more?.addEventListener('click',()=>{const b=more;b.animate?.([{transform:'scale(1)'},{transform:'scale(.94)'},{transform:'scale(1)'}],220);});
+ document.getElementById('lowBalanceTopUp')?.addEventListener('click',()=>{setTimeout(openDeposit,0);});
+})();
+</script>
 </body>
 </html>
