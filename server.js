@@ -95,6 +95,9 @@ async function ensureDb() {
     CREATE TABLE IF NOT EXISTS stars_cup_wins (telegram_id BIGINT PRIMARY KEY, total_won BIGINT NOT NULL DEFAULT 0, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
     CREATE TABLE IF NOT EXISTS stars_settings (key TEXT PRIMARY KEY, value TEXT NOT NULL, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
     ALTER TABLE stars_withdrawals ADD COLUMN IF NOT EXISTS rejection_comment TEXT;
+    ALTER TABLE stars_withdrawals ADD COLUMN IF NOT EXISTS method TEXT NOT NULL DEFAULT 'tg';
+    ALTER TABLE stars_withdrawals ADD COLUMN IF NOT EXISTS payout_rub NUMERIC(14,2);
+    ALTER TABLE stars_withdrawals ADD COLUMN IF NOT EXISTS bank_name TEXT;
     ALTER TABLE stars_users ADD COLUMN IF NOT EXISTS avatar_url TEXT;
     ALTER TABLE stars_users ALTER COLUMN balance TYPE NUMERIC(20,2) USING balance::numeric;
     CREATE TABLE IF NOT EXISTS stars_city_stats (
@@ -365,8 +368,8 @@ app.get('/api/withdrawals', async (req, res) => {
     const admin = await pool.query('SELECT 1 FROM stars_admins WHERE telegram_id=$1', [String(user.id)]);
     const rows = await pool.query(
       admin.rowCount
-        ? "SELECT id, telegram_id, username, first_name, target_username, amount, payout_stars, status, created_at FROM stars_withdrawals ORDER BY created_at DESC LIMIT 200"
-        : "SELECT id, target_username, amount, payout_stars, status, created_at FROM stars_withdrawals WHERE telegram_id=$1 ORDER BY created_at DESC",
+        ? "SELECT id, telegram_id, username, first_name, target_username, amount, payout_stars, method, payout_rub, bank_name, status, created_at FROM stars_withdrawals ORDER BY created_at DESC LIMIT 200"
+        : "SELECT id, target_username, amount, payout_stars, method, payout_rub, bank_name, status, created_at FROM stars_withdrawals WHERE telegram_id=$1 ORDER BY created_at DESC",
       admin.rowCount ? [] : [String(user.id)]
     );
     return res.json({ok:true, isAdmin:Boolean(admin.rowCount), requests:rows.rows});
@@ -377,26 +380,36 @@ app.post('/api/withdrawals', async (req, res) => {
     await ensureDb();
     const user = authUser(req);
     if (!user) return res.status(401).json({ok:false,error:'Открой приложение через Telegram-бота.'});
+    const method = String(req.body && req.body.method || 'tg');
     const amount = Number(req.body && req.body.amount);
-    const target = String(req.body && req.body.targetUsername || '').trim().replace(/^@/,'');
-    if (!Number.isSafeInteger(amount) || amount < 1000) return res.status(400).json({ok:false,error:'Минимальный вывод — 1000 наших звёзд.'});
-    if (!/^[A-Za-z0-9_]{5,32}$/.test(target)) return res.status(400).json({ok:false,error:'Укажи корректный Telegram username получателя.'});
-    const payout = Math.floor(amount * 30 / 500);
-    if (payout < 1) return res.status(400).json({ok:false,error:'Сумма вывода слишком мала.'});
-    const client = await pool.connect();
-    let request;
+    if (!Number.isSafeInteger(amount)) return res.status(400).json({ok:false,error:'Укажи целое количество наших звёзд.'});
+    let target, payoutStars=0, payoutRub=null, bank=null;
+    if (method === 'tg') {
+      target = String(req.body && req.body.targetUsername || '').trim().replace(/^@/,'');
+      if (amount < 1000) return res.status(400).json({ok:false,error:'Минимальный вывод — 1000 наших звёзд.'});
+      if (!/^[A-Za-z0-9_]{5,32}$/.test(target)) return res.status(400).json({ok:false,error:'Укажи корректный Telegram username получателя.'});
+      payoutStars = Math.floor(amount * 30 / 500);
+      if (payoutStars < 1) return res.status(400).json({ok:false,error:'Сумма вывода слишком мала.'});
+    } else if (method === 'sbp') {
+      bank = String(req.body && req.body.bank || '');
+      const allowedBanks = ['ОЗОН','Т БАНК','СБЕРБАНК','ЮМАНИ','ВТБ'];
+      if (amount < 5000) return res.status(400).json({ok:false,error:'Минимальный вывод по СБП — 5000 наших звёзд.'});
+      if (!allowedBanks.includes(bank)) return res.status(400).json({ok:false,error:'Выбери банк из списка.'});
+      payoutRub = Math.round((amount * 77.65 / 500) * 100) / 100; target = bank;
+    } else return res.status(400).json({ok:false,error:'Этот способ вывода пока недоступен.'});
+    const client = await pool.connect(); let request;
     try {
       await client.query('BEGIN');
       const bal = await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1 FOR UPDATE',[String(user.id)]);
       const balance = Number(bal.rows[0]?.balance || 0);
       if (balance < amount) { await client.query('ROLLBACK'); return res.status(400).json({ok:false,error:'Недостаточно звёзд на балансе.'}); }
       await client.query('UPDATE stars_users SET balance=balance-$2, updated_at=NOW() WHERE telegram_id=$1',[String(user.id),amount]);
-      const inserted = await client.query("INSERT INTO stars_withdrawals (telegram_id,username,first_name,target_username,amount,payout_stars,status) VALUES ($1,$2,$3,$4,$5,$6,'pending') RETURNING id, target_username, amount, payout_stars, status, created_at",[String(user.id),user.username||null,user.first_name||null,'@'+target,amount,payout]);
-      request = inserted.rows[0];
-      await client.query('COMMIT');
+      const inserted = await client.query("INSERT INTO stars_withdrawals (telegram_id,username,first_name,target_username,amount,payout_stars,method,payout_rub,bank_name,status) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,'pending') RETURNING id, target_username, amount, payout_stars, method, payout_rub, bank_name, status, created_at",[String(user.id),user.username||null,user.first_name||null,method==='tg'?'@'+target:bank,amount,payoutStars,method,payoutRub,bank]);
+      request = inserted.rows[0]; await client.query('COMMIT');
     } catch(e) { await client.query('ROLLBACK'); throw e; } finally { client.release(); }
     const admins = await pool.query('SELECT telegram_id FROM stars_admins');
-    const msg = 'Новая заявка на вывод #'+request.id+'\nПользователь: '+(user.username?'@'+user.username:'без username')+' (ID '+user.id+')\nПолучатель: @'+target+'\nСумма списания: '+amount+' наших звёзд\nК выплате: '+payout+' Telegram Stars\nСтатус: ожидание';
+    const paymentLine = method==='sbp' ? 'Способ: СБП\nБанк: '+bank+'\nК выплате: '+payoutRub.toFixed(2)+' ₽' : 'Способ: TG Stars\nПолучатель: @'+target+'\nК выплате: '+payoutStars+' Telegram Stars';
+    const msg = 'Новая заявка на вывод #'+request.id+'\nПользователь: '+(user.username?'@'+user.username:'без username')+' (ID '+user.id+')\n'+paymentLine+'\nСумма списания: '+amount+' наших звёзд\nСтатус: ожидание';
     for (const a of admins.rows) { try { await telegramApi('sendMessage',{chat_id:a.telegram_id,text:msg}); } catch(e) { console.error('Admin notification failed:',e.message); } }
     return res.json({ok:true,request,balanceUpdated:true});
   } catch(e) { console.error('Withdrawal creation error:',e.message); return res.status(503).json({ok:false,error:'Не удалось создать заявку.'}); }
