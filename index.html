@@ -822,6 +822,7 @@ body{background:#292a2e!important}
 </style>
 
 <style id="withdraw-methods-and-silver-blue-polish">
+ .reserve-mini{display:flex;justify-content:center;align-items:center;gap:12px 18px;flex-wrap:wrap;margin:-10px auto 15px;color:#bfc5d4;font-size:10px;font-weight:650;letter-spacing:.015em}.reserve-mini span{white-space:nowrap}.reserve-mini strong{margin-left:3px;color:#f5f6fc;font-size:11px;font-weight:850;font-variant-numeric:tabular-nums;text-shadow:0 0 12px #ffffff20}
 .withdraw-methods{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:8px 0 15px;padding:5px;border:1px solid #ffffff1c;border-radius:15px;background:#ffffff08}
 .withdraw-method{min-width:0;padding:10px 5px;border:1px solid transparent;border-radius:11px;background:transparent;color:#aeb5c4;font:inherit;font-size:12px;font-weight:800}
 .withdraw-method.active{border-color:#d5dfed55;background:linear-gradient(145deg,#ffffff28,#9eacc51c);color:#fff;box-shadow:inset 0 1px 0 #ffffff30,0 3px 12px #0003}
@@ -889,6 +890,7 @@ body{background:#292a2e!important}
 </div>
 <section class="center" aria-label="Баланс">
 <div class="eyebrow">Ваш баланс</div>
+<div class="reserve-mini" aria-label="Резерв выплат"><span>Резерв ₽ : <strong id="reserveRub">47 466,32</strong></span><span>Резерв Stars : <strong id="reserveStars">12 330</strong></span></div>
 <div class="city-balance-mini home-city-balance-mini"><span>Баланс города</span><strong id="homeCityBalance">0</strong><span>★</span><button class="city-exchange-small" id="cityExchangeOpen" type="button" aria-label="Обмен городских звёзд" title="Обмен">↔</button></div>
 <div class="balance-card">
 <div class="balance-label">Всего накоплено</div>
@@ -1003,6 +1005,7 @@ body{background:#292a2e!important}
   <div id="withdrawSbpFields" hidden>
    <label class="withdraw-label" for="withdrawSbpAmount">Сколько наших звёзд вывести</label><input class="withdraw-input" id="withdrawSbpAmount" type="number" inputmode="numeric" min="5000" step="1" placeholder="От 5000">
    <div class="payout-preview"><span>К получению · 500 звёзд = 77,65 ₽</span><span class="payout-number" id="withdrawSbpPayout">0,00 ₽</span></div>
+   <label class="withdraw-label" for="withdrawSbpPhone">Номер телефона для получения</label><input class="withdraw-input" id="withdrawSbpPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 900 000-00-00">
    <label class="withdraw-label" for="withdrawSbpBank">Банк для получения</label><select class="withdraw-input" id="withdrawSbpBank"><option value="">Выбери банк</option><option>ОЗОН</option><option>Т БАНК</option><option>СБЕРБАНК</option><option>ЮМАНИ</option><option>ВТБ</option></select>
   </div>
   <div id="withdrawCryptoFields" hidden><div class="crypto-empty">Вывод в Crypto пока недоступен</div></div>
@@ -1135,7 +1138,7 @@ body{background:#292a2e!important}
  const withdrawTarget=document.getElementById('withdrawTarget');
  const withdrawAmount=document.getElementById('withdrawAmount');
  const withdrawPayout=document.getElementById('withdrawPayout');
- const withdrawSbpAmount=document.getElementById('withdrawSbpAmount'),withdrawSbpPayout=document.getElementById('withdrawSbpPayout'),withdrawSbpBank=document.getElementById('withdrawSbpBank');
+ const withdrawSbpAmount=document.getElementById('withdrawSbpAmount'),withdrawSbpPayout=document.getElementById('withdrawSbpPayout'),withdrawSbpBank=document.getElementById('withdrawSbpBank'),withdrawSbpPhone=document.getElementById('withdrawSbpPhone');
  const withdrawDescription=document.getElementById('withdrawDescription'),withdrawTgFields=document.getElementById('withdrawTgFields'),withdrawSbpFields=document.getElementById('withdrawSbpFields'),withdrawCryptoFields=document.getElementById('withdrawCryptoFields');
  let withdrawMethod='tg';
  document.querySelectorAll('.withdraw-method').forEach(button=>button.addEventListener('click',()=>{
@@ -1167,7 +1170,7 @@ body{background:#292a2e!important}
     const adminLine=data.isAdmin?'<div class="request-meta">Заявитель: '+escapeHtml((r.username?'@'+r.username+' · ':'')+(r.first_name||'')+' · ID '+r.telegram_id)+'</div>':'';
     const actions=data.isAdmin&&r.status==='pending'?'<div class="admin-actions"><button type="button" data-withdraw-status="paid" data-withdraw-id="'+Number(r.id)+'">Выплачено</button><button type="button" data-withdraw-status="rejected" data-withdraw-id="'+Number(r.id)+'">Отказать</button></div>':'';
     const date=r.created_at?new Date(r.created_at).toLocaleString('ru-RU'):'';
-    const payoutLine=r.method==='sbp'?'СБП · '+escapeHtml(r.bank_name||r.target_username)+' · К выплате: '+Number(r.payout_rub||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2})+' ₽':'TG Stars · '+escapeHtml(r.target_username)+' · К выплате: '+Number(r.payout_stars).toLocaleString('ru-RU')+' Telegram Stars';
+    const payoutLine=r.method==='sbp'?'СБП · '+escapeHtml(r.bank_name||r.target_username)+' · Телефон: '+escapeHtml(r.phone_number||'не указан')+' · К выплате: '+Number(r.payout_rub||0).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2})+' ₽':'TG Stars · '+escapeHtml(r.target_username)+' · К выплате: '+Number(r.payout_stars).toLocaleString('ru-RU')+' Telegram Stars';
     return '<article class="request-card"><div class="request-top"><div class="request-name">#'+Number(r.id)+' · '+(r.method==='sbp'?'СБП':'TG Stars')+'</div><span class="request-status '+escapeHtml(r.status)+'">'+escapeHtml(statusText[r.status]||r.status)+'</span></div><div class="request-meta">Списано: '+Number(r.amount).toLocaleString('ru-RU')+' наших звёзд<br>'+payoutLine+'<br>'+escapeHtml(date)+'</div>'+adminLine+actions+'</article>';
    }).join('');
   }catch(e){withdrawRequests.innerHTML='<div class="no-requests">'+escapeHtml(e.message||'Не удалось загрузить заявки.')+'</div>';}
@@ -1191,9 +1194,10 @@ body{background:#292a2e!important}
   if(!withdrawalTg||!withdrawalTg.initData){withdrawMessage.textContent='Открой приложение через Telegram-бота.';return;}
   if(withdrawMethod==='crypto'){withdrawMessage.textContent='Вывод в Crypto пока недоступен.';return;}
   const amount=Number(withdrawMethod==='sbp'?withdrawSbpAmount.value:withdrawAmount.value);
-  const payload=withdrawMethod==='sbp'?{method:'sbp',amount,bank:withdrawSbpBank.value}:{method:'tg',amount,targetUsername:String(withdrawTarget.value||'').trim()};
+  const payload=withdrawMethod==='sbp'?{method:'sbp',amount,bank:withdrawSbpBank.value,phone:String(withdrawSbpPhone.value||'').trim()}:{method:'tg',amount,targetUsername:String(withdrawTarget.value||'').trim()};
   if(withdrawMethod==='tg'&&!payload.targetUsername){withdrawMessage.textContent='Укажи Telegram username получателя.';return;}
   if(!Number.isSafeInteger(amount)||amount<(withdrawMethod==='sbp'?5000:1000)){withdrawMessage.textContent=withdrawMethod==='sbp'?'Минимальная сумма вывода по СБП — 5000 наших звёзд.':'Минимальная сумма вывода — 1000 наших звёзд.';return;}
+  if(withdrawMethod==='sbp'&&!/^\+?[0-9()\s-]{10,20}$/.test(payload.phone)){withdrawMessage.textContent='Укажи корректный номер телефона для СБП.';return;}
   if(withdrawMethod==='sbp'&&!payload.bank){withdrawMessage.textContent='Выбери банк для получения.';return;}
   withdrawSubmit.disabled=true;withdrawMessage.textContent='Создаём заявку…';
   try{
@@ -1205,7 +1209,7 @@ body{background:#292a2e!important}
     const balanceNode=document.getElementById('balance');
     if(balanceNode){const responseBalance=await fetch('/api/balance',{headers:{'X-Telegram-Init-Data':withdrawalTg.initData}});const balanceData=await responseBalance.json();if(responseBalance.ok&&balanceData.ok)balanceNode.textContent=Number(balanceData.balance).toLocaleString('ru-RU');}
    }
-   if(withdrawMethod==='sbp'){withdrawSbpAmount.value='';updateSbpPayout();withdrawSbpBank.value='';}else{withdrawAmount.value='';updatePayout();}await loadWithdrawals();
+   if(withdrawMethod==='sbp'){withdrawSbpAmount.value='';updateSbpPayout();withdrawSbpBank.value='';withdrawSbpPhone.value='';}else{withdrawAmount.value='';updatePayout();}await loadWithdrawals();
   }catch(e){withdrawMessage.textContent=e.message||'Ошибка создания заявки.';}
   finally{withdrawSubmit.disabled=false;}
  });
@@ -1222,6 +1226,17 @@ body{background:#292a2e!important}
    await loadWithdrawals();
   }catch(e){withdrawMessage.textContent=e.message||'Не удалось изменить статус.';button.disabled=false;}
  });
+ async function loadReserveBalances(){
+  const rubNode=document.getElementById('reserveRub'),starsNode=document.getElementById('reserveStars');
+  try{
+   const response=await fetch('/api/reserves',{cache:'no-store'}),data=await response.json();
+   if(!response.ok||!data.ok)throw new Error('reserve fetch failed');
+   if(rubNode)rubNode.textContent=Number(data.rub).toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});
+   if(starsNode)starsNode.textContent=Number(data.stars).toLocaleString('ru-RU');
+  }catch(e){console.warn('Reserve balances unavailable:',e.message);}
+ }
+ loadReserveBalances();
+ setInterval(loadReserveBalances,60000);
  updatePayout();
 
  // Keep the app balance synchronized with rewards credited by the Telegram bot.
