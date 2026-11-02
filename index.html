@@ -688,6 +688,18 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
 .city-backdrop .city-head>div>.city-subtitle{display:none!important}
 .city-backdrop .city-head{background:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:none!important;border:0!important}
 </style>
+
+<style id="city-submenus-touch-and-layer-fix">
+/* Подменю городов: отдельный верхний слой, скрываем основной заголовок */
+.city-backdrop:has(.city-panel.open) .city-head{visibility:hidden!important;opacity:0!important;pointer-events:none!important}
+.city-backdrop .city-panel.open{position:fixed!important;z-index:1000!important;top:calc(env(safe-area-inset-top) + 8px)!important;right:8px!important;bottom:calc(env(safe-area-inset-bottom) + 8px)!important;left:8px!important;width:auto!important;height:auto!important;max-height:none!important;min-height:0!important;margin:0 auto!important;display:block!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;touch-action:pan-y!important;pointer-events:auto!important;transform:none!important;contain:none!important}
+.city-backdrop .city-panel.open .city-subwindow-head{position:sticky!important;top:-18px!important;z-index:1002!important;display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;min-height:66px!important;margin:-18px -15px 16px!important;padding:12px 12px!important;background:rgba(12,22,38,.99)!important;pointer-events:auto!important}
+.city-backdrop .city-panel.open .city-subwindow-back{position:relative!important;z-index:1003!important;display:flex!important;align-items:center!important;justify-content:center!important;min-height:44px!important;padding:10px 12px!important;pointer-events:auto!important;touch-action:manipulation!important;cursor:pointer!important}
+.city-backdrop .city-panel.open button,.city-backdrop .city-panel.open input,.city-backdrop .city-panel.open select{pointer-events:auto!important;touch-action:manipulation}
+</style>
+<script id="city-submenu-back-delegation-fix">
+(()=>{document.addEventListener('click',e=>{const b=e.target.closest('.city-subwindow-back');if(!b)return;const p=b.closest('.city-panel');if(!p)return;e.preventDefault();e.stopPropagation();p.classList.remove('open');},{capture:true});})();
+</script>
 </head>
 <body>
 <div id="stars-puzzle-loader" aria-label="Загрузка STARS">
