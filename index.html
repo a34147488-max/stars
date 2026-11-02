@@ -1471,7 +1471,7 @@ html body nav.bottom-nav>button.nav-item:not(#gameOpen).nav-fragment-pulse>svg.n
  }
  function openDeposit(){if(!section)return;section.classList.add('deposit-modal-open');document.body.style.overflow='hidden';}
  topup?.addEventListener('click',openDeposit);
- more?.addEventListener('click',()=>{const b=more;b.animate?.([{transform:'scale(1)'},{transform:'scale(.94)'},{transform:'scale(1)'}],220);});
+ more?.addEventListener('click',()=>{more.animate?.([{transform:'scale(1)'},{transform:'scale(.94)'},{transform:'scale(1)'}],220);let note=document.getElementById('homeMoreNotice');if(!note){note=document.createElement('div');note.id='homeMoreNotice';note.textContent='Новые возможности скоро появятся здесь';note.style.cssText='position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 105px);transform:translateX(-50%);z-index:100020;padding:11px 16px;border:1px solid #ffe36b66;border-radius:14px;background:#171b29;color:#fff0a8;font-size:12px;font-weight:700;box-shadow:0 8px 30px #0008;white-space:nowrap;opacity:0;transition:opacity .2s';document.body.appendChild(note);}note.style.opacity='1';window.clearTimeout(note._hideTimer);note._hideTimer=window.setTimeout(()=>{note.style.opacity='0';},1800);});
  document.getElementById('lowBalanceTopUp')?.addEventListener('click',()=>{setTimeout(openDeposit,0);});
 })();
 </script>
