@@ -90,6 +90,7 @@ async function ensureDb() {
     CREATE TABLE IF NOT EXISTS stars_door_game_state (telegram_id BIGINT PRIMARY KEY REFERENCES stars_users(telegram_id) ON DELETE CASCADE, stage INTEGER NOT NULL DEFAULT 1 CHECK(stage BETWEEN 1 AND 3), lost BOOLEAN NOT NULL DEFAULT FALSE, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
     ALTER TABLE stars_door_game_state ADD COLUMN IF NOT EXISTS free_attempt_at TIMESTAMPTZ;
     ALTER TABLE stars_door_game_state ADD COLUMN IF NOT EXISTS pending_reward NUMERIC(20,2) NOT NULL DEFAULT 0;
+    CREATE TABLE IF NOT EXISTS stars_sbp_topups (id BIGSERIAL PRIMARY KEY, telegram_id BIGINT NOT NULL REFERENCES stars_users(telegram_id) ON DELETE CASCADE, amount_rub NUMERIC(12,2) NOT NULL CHECK(amount_rub>=100), status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','paid','expired','rejected')), expires_at TIMESTAMPTZ NOT NULL DEFAULT NOW()+INTERVAL '20 minutes', created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
     CREATE TABLE IF NOT EXISTS stars_bot_clans (id BIGSERIAL PRIMARY KEY, owner_id BIGINT NOT NULL UNIQUE REFERENCES stars_users(telegram_id) ON DELETE CASCADE, name TEXT NOT NULL UNIQUE, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
     CREATE TABLE IF NOT EXISTS stars_megawheel_rounds (id BIGSERIAL PRIMARY KEY, status TEXT NOT NULL DEFAULT 'open' CHECK(status IN ('open','closed')), closes_at TIMESTAMPTZ NOT NULL, result INTEGER, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
     CREATE TABLE IF NOT EXISTS stars_megawheel_bets (id BIGSERIAL PRIMARY KEY, round_id BIGINT NOT NULL REFERENCES stars_megawheel_rounds(id) ON DELETE CASCADE, telegram_id BIGINT NOT NULL REFERENCES stars_users(telegram_id) ON DELETE CASCADE, selection TEXT NOT NULL, amount BIGINT NOT NULL CHECK(amount>0), won BOOLEAN, payout BIGINT, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
@@ -885,8 +886,8 @@ app.post('/api/telegram/webhook', async (req, res) => {
       }
       if(state.mode==='topup_sbp_amount'){
         const rub=Number(text);if(!Number.isSafeInteger(rub)||rub<100){await telegramApi('sendMessage',{chat_id:chatId,text:'Введи сумму целым числом от 100 ₽.'});return res.sendStatus(200);}
-        botUserStates.delete(id);const admins=await pool.query('SELECT telegram_id FROM stars_admins');for(const a of admins.rows){try{await telegramApi('sendMessage',{chat_id:a.telegram_id,text:'Запрос пополнения по СБП\\nИгрок: '+id+'\\nСумма: '+rub+' ₽\\nНужна проверка поступления и ручное зачисление.'});}catch(_){}}
-        await telegramApi('sendMessage',{chat_id:chatId,text:'Заявка на пополнение '+rub+' ₽ создана и отправлена на проверку. Автоматическая оплата пока недоступна: реквизиты получателя не настроены.',reply_markup:botMenu});return res.sendStatus(200);
+        const req=await pool.query("INSERT INTO stars_sbp_topups(telegram_id,amount_rub,expires_at) VALUES($1,$2,NOW()+INTERVAL '20 minutes') RETURNING id,expires_at",[id,rub]);botUserStates.delete(id);const admins=await pool.query('SELECT telegram_id FROM stars_admins');for(const a of admins.rows){try{await telegramApi('sendMessage',{chat_id:a.telegram_id,text:'Заявка на пополнение по СБП #'+req.rows[0].id+'\\nИгрок: '+id+'\\nСумма: '+rub+' ₽\\nСрок оплаты: 20 минут\\nНужна проверка поступления и ручное зачисление.'});}catch(_){}}
+        await telegramApi('sendMessage',{chat_id:chatId,text:'Заявка на пополнение #'+req.rows[0].id+' на '+rub+' ₽ создана. Срок оплаты — 20 минут. Реквизиты и подтверждение поступления должен предоставить администратор; до проверки баланс не меняется.',reply_markup:botMenu});return res.sendStatus(200);
       }
     }
     if (callback && adminRow.rowCount) {
