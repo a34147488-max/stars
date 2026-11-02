@@ -476,6 +476,31 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
  .home-frame-actions button,.home-frame-actions button:last-child{height:31px!important;padding:0 8px!important;font-size:10px!important}
 }
 </style>
+
+<style id="gold-frame-avatar-layout">
+/* Compact top placement: profile avatar now lives inside the gold action strip. */
+.app{padding-top:calc(env(safe-area-inset-top) + 8px)!important}
+.topbar{position:relative!important;height:0!important;min-height:0!important;margin:0!important;padding:0!important}
+.profile-menu{position:fixed!important;top:calc(env(safe-area-inset-top) + 72px)!important;left:18px!important;z-index:100020!important}
+.home-action-frame{width:calc(100% - 12px)!important;max-width:560px!important;min-height:52px!important;margin:0 auto 20px!important;padding:6px 9px!important;gap:9px!important;border-radius:14px!important}
+.home-profile-avatar{position:relative!important;z-index:2!important;display:grid!important;place-items:center!important;flex:0 0 35px!important;width:35px!important;height:35px!important;padding:0!important;border:1px solid #fff0a0!important;border-radius:50%!important;background:linear-gradient(145deg,#fff0a044,#b77b1422)!important;box-shadow:0 0 10px #ffd84a55,inset 0 1px #fff8!important}
+.home-profile-avatar .avatar{width:29px!important;height:29px!important;border:1px solid #fff9!important;border-radius:50%!important;font-size:12px!important}
+.home-frame-cashback{flex:1 1 0!important;min-width:0!important;column-gap:3px!important}
+.home-frame-cashback-label{font-size:7px!important}
+.home-frame-cashback strong{font-size:15px!important}
+.home-frame-cashback button{font-size:8px!important;padding:3px 6px!important}
+.home-frame-actions{flex:0 0 auto!important;gap:5px!important}
+.home-frame-actions button,.home-frame-actions button:last-child{height:30px!important;padding:0 8px!important;font-size:10px!important}
+@media(max-width:380px){
+ .home-action-frame{width:calc(100% - 8px)!important;padding:5px 6px!important;gap:6px!important}
+ .home-profile-avatar{flex-basis:32px!important;width:32px!important;height:32px!important}
+ .home-profile-avatar .avatar{width:27px!important;height:27px!important}
+ .home-frame-cashback strong{font-size:13px!important}
+ .home-frame-cashback button{padding:3px 4px!important;font-size:7px!important}
+ .home-frame-actions button,.home-frame-actions button:last-child{padding:0 6px!important;font-size:9px!important}
+}
+</style>
+
 </head>
 <body>
 <div id="stars-puzzle-loader" aria-label="Загрузка STARS">
@@ -505,15 +530,11 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
 </div>
 <main class="app">
 <header class="topbar">
-<div class="profile-chip" aria-label="Профиль пользователя">
-<div class="avatar" id="userAvatar" aria-hidden="true">U</div>
-<div class="profile-copy"><div class="online-label"><span class="online-dot"></span>ОНЛАЙН</div><div class="profile-name" id="userName">Юзер</div></div>
-<svg class="profile-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m7 10 5 5 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-</div>
-<div class="top-note" id="onlineCount">ОНЛАЙН: —</div><div class="profile-menu" id="profileMenu" hidden><button id="soundToggle" type="button"><span class="profile-menu-icon">♫</span><span id="soundLabel">Включить звук</span><span class="menu-state" id="soundState">ВЫКЛ</span></button><button id="profileOpen" type="button"><span class="profile-menu-icon">◎</span>Профиль</button><button id="agreementOpen" type="button"><span class="profile-menu-icon">§</span>Соглашение</button></div>
+<div class="profile-menu" id="profileMenu" hidden><button id="soundToggle" type="button"><span class="profile-menu-icon">♫</span><span id="soundLabel">Включить звук</span><span class="menu-state" id="soundState">ВЫКЛ</span></button><button id="profileOpen" type="button"><span class="profile-menu-icon">◎</span>Профиль</button><button id="agreementOpen" type="button"><span class="profile-menu-icon">§</span>Соглашение</button></div>
 </header>
 <section class="home-action-frame" aria-label="Быстрые действия">
  <div class="home-frame-shine" aria-hidden="true"></div>
+ <button class="home-profile-avatar" id="profileAvatarButton" type="button" aria-label="Открыть меню профиля"><span class="avatar" id="userAvatar" aria-hidden="true">U</span></button>
  <div class="home-frame-cashback" id="cashbackMini"><span class="home-frame-cashback-label">КЕШБЭК</span><strong id="cashbackBalance">0</strong><span class="cashback-star">✦</span><button type="button" id="cashbackClaim" disabled>Забрать</button><small id="cashbackHint">10% от каждой ставки · снятие по воскресеньям</small></div>
  <div class="home-frame-actions"><button type="button" id="homeTopUp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5m-6 6 6-6 6 6M4 20h16"/></svg>Пополнить</button><button type="button" id="homeMore">Ещё</button></div>
 </section>
@@ -726,7 +747,7 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
  }
 
  // Profile dropdown, gentle ambient tone and modal controls.
- const chip=document.querySelector('.profile-chip'),pm=document.getElementById('profileMenu');chip?.setAttribute('role','button');chip?.setAttribute('tabindex','0');chip?.addEventListener('click',()=>{pm.hidden=!pm.hidden;chip.setAttribute('aria-expanded',String(!pm.hidden));});document.addEventListener('click',e=>{if(pm&&!pm.hidden&&!pm.contains(e.target)&&!chip?.contains(e.target))pm.hidden=true;});
+ const chip=document.getElementById('profileAvatarButton'),pm=document.getElementById('profileMenu');chip?.setAttribute('role','button');chip?.setAttribute('tabindex','0');chip?.addEventListener('click',()=>{pm.hidden=!pm.hidden;chip.setAttribute('aria-expanded',String(!pm.hidden));});document.addEventListener('click',e=>{if(pm&&!pm.hidden&&!pm.contains(e.target)&&!chip?.contains(e.target))pm.hidden=true;});
  let sound=false,ctx=null,master=null,ambientNodes=[],birdTimer=null,spookTimer=null;
  function tone(freq,duration,volume,type='sine',delay=0){if(!ctx||!master||!sound)return;const t=ctx.currentTime+delay,o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.setValueAtTime(freq,t);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(volume,t+.04);g.gain.exponentialRampToValueAtTime(.0001,t+duration);o.connect(g);g.connect(master);o.start(t);o.stop(t+duration+.03);ambientNodes.push(o,g);}
  function forestBird(){if(!sound||!ctx||!master)return;const base=1700+Math.random()*1300;for(let j=0;j<3;j++){const t=ctx.currentTime+j*.14,o=ctx.createOscillator(),g=ctx.createGain(),f=ctx.createBiquadFilter();o.type='sine';o.frequency.setValueAtTime(base,t);o.frequency.exponentialRampToValueAtTime(base*1.5,t+.12);f.type='bandpass';f.frequency.value=base;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.025,t+.025);g.gain.exponentialRampToValueAtTime(.0001,t+.16);o.connect(f);f.connect(g);g.connect(master);o.start(t);o.stop(t+.18);ambientNodes.push(o,f,g);}}
