@@ -1782,5 +1782,9 @@ html body nav.bottom-nav>button.nav-item:not(#gameOpen).nav-fragment-pulse>svg.n
  document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeExchange();if(backdrop?.classList.contains('open')){const active=panelIds.find(id=>q(id)?.classList.contains('open'));if(active)q(active).classList.remove('open');}}});
  initCreate();
 })();
-</script></body>
+</script><style id="withdraw-close-visible-fix">
+#withdrawBackdrop.open #withdrawClose{display:grid!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;position:fixed!important;top:calc(env(safe-area-inset-top) + 12px)!important;right:14px!important;z-index:10020!important;width:42px!important;height:42px!important;place-items:center!important;border:1px solid rgba(255,255,255,.42)!important;border-radius:14px!important;background:rgba(20,24,34,.72)!important;color:#fff!important;font-size:30px!important;line-height:1!important;box-shadow:0 8px 24px rgba(0,0,0,.24)!important;backdrop-filter:blur(18px)!important;-webkit-backdrop-filter:blur(18px)!important;cursor:pointer!important}
+#withdrawBackdrop.open #withdrawClose:active{transform:scale(.92)!important;background:rgba(55,75,110,.9)!important}
+</style>
+</body>
 </html>
