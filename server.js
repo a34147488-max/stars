@@ -33,6 +33,8 @@ const PACKAGES = {
 const pool = process.env.DATABASE_URL ? new Pool({ connectionString: process.env.DATABASE_URL, ssl: process.env.DATABASE_SSL === 'false' ? false : { rejectUnauthorized: false }, max: 5 }) : null;
 let dbReady = false;
 const adminStates = new Map();
+const botUserStates = new Map();
+const megaWheelTimers = new Map();
 const activeAppUsers = new Map();
 app.get('/api/online-counter', async (req,res) => {
   if(!pool)return res.status(503).json({ok:false});
@@ -88,6 +90,9 @@ async function ensureDb() {
     CREATE TABLE IF NOT EXISTS stars_door_game_state (telegram_id BIGINT PRIMARY KEY REFERENCES stars_users(telegram_id) ON DELETE CASCADE, stage INTEGER NOT NULL DEFAULT 1 CHECK(stage BETWEEN 1 AND 3), lost BOOLEAN NOT NULL DEFAULT FALSE, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
     ALTER TABLE stars_door_game_state ADD COLUMN IF NOT EXISTS free_attempt_at TIMESTAMPTZ;
     ALTER TABLE stars_door_game_state ADD COLUMN IF NOT EXISTS pending_reward NUMERIC(20,2) NOT NULL DEFAULT 0;
+    CREATE TABLE IF NOT EXISTS stars_bot_clans (id BIGSERIAL PRIMARY KEY, owner_id BIGINT NOT NULL UNIQUE REFERENCES stars_users(telegram_id) ON DELETE CASCADE, name TEXT NOT NULL UNIQUE, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
+    CREATE TABLE IF NOT EXISTS stars_megawheel_rounds (id BIGSERIAL PRIMARY KEY, status TEXT NOT NULL DEFAULT 'open' CHECK(status IN ('open','closed')), closes_at TIMESTAMPTZ NOT NULL, result INTEGER, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
+    CREATE TABLE IF NOT EXISTS stars_megawheel_bets (id BIGSERIAL PRIMARY KEY, round_id BIGINT NOT NULL REFERENCES stars_megawheel_rounds(id) ON DELETE CASCADE, telegram_id BIGINT NOT NULL REFERENCES stars_users(telegram_id) ON DELETE CASCADE, selection TEXT NOT NULL, amount BIGINT NOT NULL CHECK(amount>0), won BOOLEAN, payout BIGINT, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
     CREATE TABLE IF NOT EXISTS stars_daily_games (telegram_id BIGINT NOT NULL, game TEXT NOT NULL CHECK (game IN ('dice','darts','slots')), played_on DATE NOT NULL DEFAULT CURRENT_DATE, choice TEXT, value INTEGER, won BOOLEAN NOT NULL DEFAULT FALSE, payout BIGINT NOT NULL DEFAULT 0, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), PRIMARY KEY (telegram_id,game,played_on));
     CREATE TABLE IF NOT EXISTS stars_referrals (referred_id BIGINT PRIMARY KEY, referrer_id BIGINT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), CHECK (referred_id <> referrer_id));
     CREATE TABLE IF NOT EXISTS stars_slot_wins (telegram_id BIGINT PRIMARY KEY, total_won BIGINT NOT NULL DEFAULT 0, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
@@ -744,23 +749,152 @@ app.post('/api/telegram/webhook', async (req, res) => {
     const adminRow = sender.id ? await pool.query('SELECT 1 FROM stars_admins WHERE telegram_id=$1',[String(sender.id)]) : {rowCount:0};
     const maintenanceSetting = await pool.query("SELECT value FROM stars_settings WHERE key='maintenance'");
     if (maintenanceSetting.rows[0]?.value === 'on' && !adminRow.rowCount && (incoming || callback)) { await telegramApi('sendMessage',{chat_id:chatId,text:'Ведутся технические работы. Действия в приложении временно ограничены.'}); return res.sendStatus(200); }
-    if (callback && String(callback.data||'').startsWith('daily:')) {
-      await telegramApi('answerCallbackQuery',{callback_query_id:callback.id}); const data=String(callback.data), id=String(sender.id);
-      if(data==='daily:open'||data==='daily:dice'||data==='daily:darts') { const game=data.split(':')[1]; if(game==='dice'||game==='darts'){const used=await pool.query('SELECT 1 FROM stars_daily_games WHERE telegram_id=$1 AND game=$2 AND played_on=CURRENT_DATE',[id,game]);if(used.rowCount){await telegramApi('sendMessage',{chat_id:chatId,text:'Сегодня эта игра уже использована. Попробуй завтра.'});return res.sendStatus(200);}} await telegramApi('sendMessage',{chat_id:chatId,text:'Выбери игру. Одна бесплатная попытка в сутки; расчётная ставка 25 игровых звёзд не списывается.',reply_markup:{inline_keyboard:data==='daily:open'?[[{text:'🎲 Кубик',callback_data:'daily:dice'},{text:'🎯 Дартс',callback_data:'daily:darts'},{text:'🎰 Слоты',callback_data:'daily:slots'}]]:game==='dice'?[[{text:'Чётное',callback_data:'daily:dice:even'},{text:'Нечётное',callback_data:'daily:dice:odd'}]]:[[{text:'Красное',callback_data:'daily:darts:red'},{text:'Белое',callback_data:'daily:darts:white'}]]}}); }
-      else { const p=data.split(':'),game=p[1],choice=p[2]||'free'; const ins=await pool.query('INSERT INTO stars_daily_games(telegram_id,game,choice) VALUES($1,$2,$3) ON CONFLICT DO NOTHING RETURNING telegram_id',[id,game,choice]); if(!ins.rowCount) await telegramApi('sendMessage',{chat_id:chatId,text:'Сегодня эта игра уже использована. Попробуй завтра.'}); else {const emoji=game==='dice'?'🎲':game==='darts'?'🎯':'🎰';const roll=await telegramApi('sendDice',{chat_id:chatId,emoji});const value=Number(roll.dice?.value||0);const won=game==='dice'?((value%2===0)===(choice==='even')):game==='darts'?((value<=3)===(choice==='red')):[1,22,43].includes(value);const payout=won?50:0;const c=await pool.connect();let balance=0;try{await c.query('BEGIN');await c.query('INSERT INTO stars_users(telegram_id,username,first_name) VALUES($1,$2,$3) ON CONFLICT(telegram_id) DO UPDATE SET username=EXCLUDED.username,first_name=EXCLUDED.first_name',[id,sender.username||null,sender.first_name||null]);if(won)await c.query('UPDATE stars_users SET balance=balance+50,updated_at=NOW() WHERE telegram_id=$1',[id]);await c.query('UPDATE stars_daily_games SET value=$3,won=$4,payout=$5 WHERE telegram_id=$1 AND game=$2 AND played_on=CURRENT_DATE',[id,game,value,won,payout]);if(game==='slots'&&won)await c.query('INSERT INTO stars_slot_wins(telegram_id,total_won) VALUES($1,50) ON CONFLICT(telegram_id) DO UPDATE SET total_won=stars_slot_wins.total_won+50,updated_at=NOW()',[id]);const b=await c.query('SELECT balance FROM stars_users WHERE telegram_id=$1',[id]);balance=Number(b.rows[0]?.balance||0);await c.query('COMMIT');}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}await telegramApi('sendMessage',{chat_id:chatId,text:(won?'Победа! x2, начислено 50 игровых звёзд.':'В этот раз без выигрыша.')+'\nРезультат: '+value+'. Баланс: '+balance+'.'+(balance<10?'\nБаланс ниже 10 — пополни в приложении.':''),reply_markup:balance<10?{inline_keyboard:[[{text:'Открыть приложение',web_app:{url:(process.env.WEB_APP_URL||process.env.APP_URL||'').replace(/\/$/,'')}}]]}:undefined});}}
+
+    const botMenu = {keyboard:[
+      [{text:'💸 Вывести'},{text:'➕ Пополнить'}],
+      [{text:'🎮 Играть'},{text:'👤 Профиль'}],
+      [{text:'⚔️ Создать клан'}]
+    ],resize_keyboard:true,is_persistent:true};
+    const botMainMenu = async (id,chat) => {
+      const b=await pool.query('SELECT balance,username,first_name FROM stars_users WHERE telegram_id=$1',[String(id)]);
+      await telegramApi('sendMessage',{chat_id:chat,text:'Stars — главное меню\\nБаланс: '+Number(b.rows[0]?.balance||0).toLocaleString('ru-RU')+' ⭐',reply_markup:botMenu});
+    };
+    const rouletteColor = n => n===0?'green':([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36].includes(n)?'red':'black');
+    const rouletteLabel = n => rouletteColor(n)==='green'?'зелёное':rouletteColor(n)==='red'?'красное':'чёрное';
+    const settleMegaRound = async roundId => {
+      const client=await pool.connect();
+      try {
+        await client.query('BEGIN');
+        const rr=await client.query("SELECT * FROM stars_megawheel_rounds WHERE id=$1 AND status='open' FOR UPDATE",[roundId]);
+        if(!rr.rowCount){await client.query('ROLLBACK');return;}
+        const result=Math.floor(Math.random()*37),color=rouletteColor(result),even=result!==0&&result%2===0;
+        const bets=await client.query('SELECT * FROM stars_megawheel_bets WHERE round_id=$1 FOR UPDATE',[roundId]);
+        const grouped=new Map();
+        for(const bet of bets.rows){
+          const sel=bet.selection; let won=false,mult=0;
+          if(/^n:(?:[0-9]|[12][0-9]|3[0-6])$/.test(sel)){won=result===Number(sel.slice(2));mult=36;}
+          else if(sel==='range:13-24'||sel==='range:25-36'){const [a,b]=sel.slice(6).split('-').map(Number);won=result>=a&&result<=b;mult=3;}
+          else if(sel==='range:1-18'||sel==='range:19-36'){const [a,b]=sel.slice(6).split('-').map(Number);won=result>=a&&result<=b;mult=2;}
+          else if(sel==='even'||sel==='odd'){won=result!==0&&((result%2===0)===(sel==='even'));mult=2;}
+          else if(sel==='red'||sel==='black'){won=result!==0&&color===sel;mult=2;}
+          const payout=won?Number(bet.amount)*mult:0;
+          await client.query('UPDATE stars_megawheel_bets SET won=$2,payout=$3 WHERE id=$1',[bet.id,won,payout]);
+          if(payout) await client.query('UPDATE stars_users SET balance=balance+$2,updated_at=NOW() WHERE telegram_id=$1',[String(bet.telegram_id),payout]);
+          if(!grouped.has(String(bet.telegram_id)))grouped.set(String(bet.telegram_id),[]);
+          grouped.get(String(bet.telegram_id)).push({selection:sel,amount:Number(bet.amount),won,payout});
+        }
+        await client.query("UPDATE stars_megawheel_rounds SET status='closed',result=$2 WHERE id=$1",[roundId,result]);
+        await client.query('COMMIT');
+        const title='🎡 MEGAWHEEL — раунд #'+roundId+'\\nВыпало: '+result+' • '+rouletteLabel(result)+' • '+(result===0?'ноль':result%2===0?'чётное':'нечётное');
+        for(const [uid,items] of grouped){
+          const lines=items.map(x=>(x.won?'✅':'❌')+' '+x.selection.replace('range:','')+' — ставка '+x.amount+', '+(x.won?'выигрыш '+x.payout:'проигрыш'));
+          const bal=await pool.query('SELECT balance FROM stars_users WHERE telegram_id=$1',[uid]);
+          try{await telegramApi('sendMessage',{chat_id:uid,text:title+'\\n\\nТвои ставки:\\n'+lines.join('\\n')+'\\n\\nБаланс: '+Number(bal.rows[0]?.balance||0).toLocaleString('ru-RU')+' ⭐'});}catch(_){}
+        }
+      }catch(e){await client.query('ROLLBACK');console.error('MegaWheel settlement failed:',e.message);}finally{client.release();}
+    };
+    const getOpenMegaRound = async () => {
+      let r=await pool.query("SELECT * FROM stars_megawheel_rounds WHERE status='open' AND closes_at>NOW() ORDER BY id DESC LIMIT 1");
+      if(r.rowCount)return r.rows[0];
+      const ins=await pool.query("INSERT INTO stars_megawheel_rounds(status,closes_at) VALUES('open',NOW()+INTERVAL '15 seconds') RETURNING *");
+      const round=ins.rows[0];
+      if(!megaWheelTimers.has(String(round.id))){const timer=setTimeout(()=>{megaWheelTimers.delete(String(round.id));settleMegaRound(round.id).catch(e=>console.error(e));},15000);megaWheelTimers.set(String(round.id),timer);}
+      return round;
+    };
+    if(incoming && /^\\/start(?:@\\w+)?(?:\\s|$)/i.test(text)){
+      await pool.query('INSERT INTO stars_users(telegram_id,username,first_name) VALUES($1,$2,$3) ON CONFLICT(telegram_id) DO UPDATE SET username=EXCLUDED.username,first_name=EXCLUDED.first_name,updated_at=NOW()',[String(sender.id),sender.username||null,sender.first_name||null]);
+      await telegramApi('sendMessage',{chat_id:chatId,text:'Добро пожаловать в Stars! Выбери действие в меню ниже.',reply_markup:botMenu});
       return res.sendStatus(200);
     }
-    if (incoming && text === 'БОНУС💎') {
-      const me = await telegramApi('getMe',{});
-      const link = 'https://t.me/' + me.username + '?start=ref_' + sender.id;
-      const refs = await pool.query('SELECT COUNT(*)::int AS n FROM stars_referrals WHERE referrer_id=$1',[String(sender.id)]);
-      const invited = Number(refs.rows[0]?.n || 0);
-      const firstOffer = invited === 0 ? '\n\nЗа первого приглашённого дополнительно получишь 2 бесплатных бокса Stars 1, город РЕЖ и 30 уровень.' : '';
-      const campaign=await pool.query("SELECT GREATEST(0,EXTRACT(EPOCH FROM (value::timestamptz-NOW()))) AS seconds FROM stars_settings WHERE key='city_referral_campaign_expires_at'");
-      const promoSeconds=Number(campaign.rows[0]?.seconds||0);
-      const promoText=promoSeconds>0?'\n\nАКЦИЯ 24 ЧАСА: за каждого нового друга по твоей ссылке — +250 городских звёзд!':'\n\nАкция +250 городских звёзд завершена.';
-      await telegramApi('sendMessage',{chat_id:chatId,text:'Твоя реферальная ссылка:\n'+link+'\n\nЗа каждого нового пользователя, который впервые перейдёт по ссылке, ты получишь 77 звёзд на основной баланс.'+promoText+firstOffer+'\n\nДруг получит 1 бесплатный бокс Stars 1.',reply_markup:{inline_keyboard:[[{text:'Поделиться ссылкой',url:'https://t.me/share/url?url='+encodeURIComponent(link)}]]}});
+    if(incoming && ['💸 Вывести','Вывести'].includes(text)){
+      botUserStates.set(String(sender.id),{mode:'withdraw_method'});
+      await telegramApi('sendMessage',{chat_id:chatId,text:'Выбери способ вывода. Минимальная сумма — 5000 игровых звёзд.',reply_markup:{inline_keyboard:[[{text:'TG Stars',callback_data:'bot:wd:tg'},{text:'СБП',callback_data:'bot:wd:sbp'}],[{text:'Отмена',callback_data:'bot:cancel'}]]}});
       return res.sendStatus(200);
+    }
+    if(incoming && ['➕ Пополнить','Пополнить'].includes(text)){
+      await telegramApi('sendMessage',{chat_id:chatId,text:'Выбери пакет пополнения Telegram Stars или СБП.',reply_markup:{inline_keyboard:[[50,75,100].map(n=>({text:n+' ⭐',callback_data:'bot:topup:'+n}))],[159,200,500].map(n=>({text:n+' ⭐',callback_data:'bot:topup:'+n})),[{text:'Пополнить по СБП',callback_data:'bot:topup:sbp'}]]}});
+      return res.sendStatus(200);
+    }
+    if(incoming && ['🎮 Играть','Играть'].includes(text)){
+      await telegramApi('sendMessage',{chat_id:chatId,text:'Выбери игровой режим:',reply_markup:{inline_keyboard:[[{text:'DreamCatcher',callback_data:'bot:game:dream'},{text:'Dice',callback_data:'bot:game:dice'}],[{text:'Wheel',callback_data:'bot:game:wheel'},{text:'MegaWheel',callback_data:'bot:game:mega'}],[{text:'Double',callback_data:'bot:game:double'}]]}});
+      return res.sendStatus(200);
+    }
+    if(incoming && ['👤 Профиль','Профиль'].includes(text)){
+      const p=await pool.query('SELECT balance,username,first_name,registered_at FROM stars_users WHERE telegram_id=$1',[String(sender.id)]);
+      await telegramApi('sendMessage',{chat_id:chatId,text:'👤 Профиль Stars\\nИмя: '+(p.rows[0]?.first_name||sender.first_name||'—')+'\\nUsername: '+(p.rows[0]?.username?'@'+p.rows[0].username:'—')+'\\nID: '+sender.id+'\\nБаланс: '+Number(p.rows[0]?.balance||0).toLocaleString('ru-RU')+' ⭐'});
+      return res.sendStatus(200);
+    }
+    if(incoming && ['⚔️ Создать клан','Создать клан'].includes(text)){
+      botUserStates.set(String(sender.id),{mode:'clan_name'});
+      await telegramApi('sendMessage',{chat_id:chatId,text:'Введи название клана (3–20 символов). Создание клана пока бесплатное.'});
+      return res.sendStatus(200);
+    }
+    if(callback && String(callback.data||'').startsWith('bot:')){
+      const data=String(callback.data),id=String(sender.id);
+      await telegramApi('answerCallbackQuery',{callback_query_id:callback.id});
+      if(data==='bot:cancel'){botUserStates.delete(id);await botMainMenu(id,chatId);return res.sendStatus(200);}
+      if(data.startsWith('bot:wd:')){
+        const method=data.split(':')[2];botUserStates.set(id,{mode:method==='tg'?'withdraw_tg_target':'withdraw_sbp_bank'});
+        if(method==='tg')await telegramApi('sendMessage',{chat_id:chatId,text:'Введи Telegram username получателя (например @username).'});
+        else await telegramApi('sendMessage',{chat_id:chatId,text:'Выбери банк для СБП:',reply_markup:{keyboard:[[{text:'СБЕРБАНК'},{text:'Т БАНК'}],[{text:'ВТБ'},{text:'ОЗОН'}],[{text:'ЮМАНИ'},{text:'Отмена'}]],resize_keyboard:true}});
+        return res.sendStatus(200);
+      }
+      if(data.startsWith('bot:topup:')){
+        const v=data.split(':')[2];
+        if(v==='sbp'){botUserStates.set(id,{mode:'topup_sbp_amount'});await telegramApi('sendMessage',{chat_id:chatId,text:'Введи сумму пополнения в рублях (целое число). После этого бот создаст заявку. Реквизиты СБП должны быть настроены администрацией.'});}
+        else {const pack=PACKAGES[Number(v)];if(!pack){await telegramApi('sendMessage',{chat_id:chatId,text:'Пакет не найден.'});return res.sendStatus(200);}const payload=JSON.stringify({userId:id,stars:pack.stars,coins:pack.coins,nonce:crypto.randomBytes(16).toString('hex')});const link=await telegramApi('createInvoiceLink',{title:pack.title,description:'Пополнение баланса Stars на '+pack.coins+' игровых звёзд.',payload,currency:'XTR',prices:[{label:pack.title,amount:pack.stars}]});await telegramApi('sendMessage',{chat_id:chatId,text:'Оплати счёт. После успешной оплаты баланс автоматически обновится и в боте, и в приложении.',reply_markup:{inline_keyboard:[[{text:'Оплатить '+pack.stars+' Telegram Stars',url:link}]]}});}
+        return res.sendStatus(200);
+      }
+      if(data==='bot:game:mega'){
+        const round=await getOpenMegaRound();
+        await telegramApi('sendMessage',{chat_id:chatId,text:'🎡 MEGAWHEEL\\nСтавки принимаются 15 секунд. Можно выбрать несколько исходов подряд.\\nРаунд #'+round.id+' открыт до '+new Date(round.closes_at).toLocaleTimeString('ru-RU')+'.\\n\\nВыбери исход:',reply_markup:{inline_keyboard:[[{text:'0',callback_data:'bot:mw:n:0'},{text:'1–18 ×2',callback_data:'bot:mw:range:1-18'},{text:'19–36 ×2',callback_data:'bot:mw:range:19-36'}],[{text:'13–24 ×3',callback_data:'bot:mw:range:13-24'},{text:'25–36 ×3',callback_data:'bot:mw:range:25-36'}],[{text:'Чётное ×2',callback_data:'bot:mw:even'},{text:'Нечётное ×2',callback_data:'bot:mw:odd'}],[{text:'Красное ×2',callback_data:'bot:mw:red'},{text:'Чёрное ×2',callback_data:'bot:mw:black'}],[{text:'Выбрать число 1–36',callback_data:'bot:mw:number'}]]}});
+        return res.sendStatus(200);
+      }
+      if(data==='bot:mw:number'){botUserStates.set(id,{mode:'mw_number'});await telegramApi('sendMessage',{chat_id:chatId,text:'Введи число от 0 до 36.'});return res.sendStatus(200);}
+      if(data.startsWith('bot:mw:')){
+        const p=data.split(':'),selection=p[2]==='range'?'range:'+p[3]:p[2]==='n'?'n:'+p[3]:p[2];
+        botUserStates.set(id,{mode:'mw_amount',selection});
+        await telegramApi('sendMessage',{chat_id:chatId,text:'Введи сумму ставки в игровых звёздах. Баланс общий с приложением.'});
+        return res.sendStatus(200);
+      }
+      if(data.startsWith('bot:game:')){
+        const game=data.split(':')[2];
+        if(game==='mega')return res.sendStatus(200);
+        await telegramApi('sendMessage',{chat_id:chatId,text:'Режим '+({dream:'DreamCatcher',dice:'Dice',wheel:'Wheel',double:'Double'}[game]||game)+' выбран. Игровая механика этого режима ещё подключается.'});
+        return res.sendStatus(200);
+      }
+    }
+    if(incoming && botUserStates.has(String(sender.id))){
+      const state=botUserStates.get(String(sender.id)),id=String(sender.id);
+      if(state.mode==='withdraw_tg_target'){
+        const target=text.replace(/^@/,'');if(!/^[A-Za-z0-9_]{5,32}$/.test(target)){await telegramApi('sendMessage',{chat_id:chatId,text:'Некорректный username. Попробуй ещё раз.'});return res.sendStatus(200);}
+        state.target=target;state.mode='withdraw_amount';botUserStates.set(id,state);await telegramApi('sendMessage',{chat_id:chatId,text:'Введи сумму вывода в игровых звёздах (от 5000).'});return res.sendStatus(200);
+      }
+      if(state.mode==='withdraw_sbp_bank'){
+        if(!['СБЕРБАНК','Т БАНК','ВТБ','ОЗОН','ЮМАНИ'].includes(text.toUpperCase())){await telegramApi('sendMessage',{chat_id:chatId,text:'Выбери банк кнопкой.'});return res.sendStatus(200);}
+        state.bank=text.toUpperCase();state.mode='withdraw_sbp_phone';botUserStates.set(id,state);await telegramApi('sendMessage',{chat_id:chatId,text:'Введи номер телефона, привязанный к СБП.'});return res.sendStatus(200);
+      }
+      if(state.mode==='withdraw_sbp_phone'){state.phone=text;state.mode='withdraw_amount';botUserStates.set(id,state);await telegramApi('sendMessage',{chat_id:chatId,text:'Введи сумму вывода в игровых звёздах (от 5000).'});return res.sendStatus(200);}
+      if(state.mode==='withdraw_amount'){
+        const amount=Number(text);if(!Number.isSafeInteger(amount)||amount<5000){await telegramApi('sendMessage',{chat_id:chatId,text:'Минимум 5000. Введи целую сумму.'});return res.sendStatus(200);}
+        const c=await pool.connect();try{await c.query('BEGIN');const u=await c.query('SELECT balance FROM stars_users WHERE telegram_id=$1 FOR UPDATE',[id]);if(Number(u.rows[0]?.balance||0)<amount){await c.query('ROLLBACK');await telegramApi('sendMessage',{chat_id:chatId,text:'Недостаточно средств. Баланс: '+Number(u.rows[0]?.balance||0)});return res.sendStatus(200);}const method=state.bank?'sbp':'tg',payoutStars=method==='tg'?Math.floor(amount*30/500):0,payoutRub=method==='sbp'?Math.round(amount*77.65/500*100)/100:null;await c.query('UPDATE stars_users SET balance=balance-$2,updated_at=NOW() WHERE telegram_id=$1',[id,amount]);const ins=await c.query("INSERT INTO stars_withdrawals(telegram_id,username,first_name,target_username,amount,payout_stars,method,payout_rub,bank_name,phone_number,status) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'pending') RETURNING id",[id,sender.username||null,sender.first_name||null,method==='tg'?'@'+state.target:state.bank,amount,payoutStars,method,payoutRub,state.bank||null,state.phone||null]);await c.query('COMMIT');const admins=await pool.query('SELECT telegram_id FROM stars_admins');for(const a of admins.rows){try{await telegramApi('sendMessage',{chat_id:a.telegram_id,text:'Заявка на вывод #'+ins.rows[0].id+'\\nИгрок: '+id+'\\nСумма: '+amount+' звёзд\\nСпособ: '+(method==='tg'?'TG Stars @'+state.target:'СБП '+state.bank+' '+state.phone)+'\\nК выплате: '+(method==='tg'?payoutStars+' TG Stars':payoutRub+' ₽')});}catch(_){}}botUserStates.delete(id);await telegramApi('sendMessage',{chat_id:chatId,text:'Заявка на вывод #'+ins.rows[0].id+' создана. Сумма зарезервирована, статус — ожидание.',reply_markup:botMenu});}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}return res.sendStatus(200);
+      }
+      if(state.mode==='mw_number'){
+        const n=Number(text);if(!Number.isInteger(n)||n<0||n>36){await telegramApi('sendMessage',{chat_id:chatId,text:'Нужно число от 0 до 36.'});return res.sendStatus(200);}state.mode='mw_amount';state.selection='n:'+n;botUserStates.set(id,state);await telegramApi('sendMessage',{chat_id:chatId,text:'Сумма ставки на '+n+' (коэффициент ×36):'});return res.sendStatus(200);
+      }
+      if(state.mode==='mw_amount'){
+        const amount=Number(text);if(!Number.isSafeInteger(amount)||amount<1){await telegramApi('sendMessage',{chat_id:chatId,text:'Введи целую положительную ставку.'});return res.sendStatus(200);}
+        const round=await getOpenMegaRound(),c=await pool.connect();try{await c.query('BEGIN');const bal=await c.query('SELECT balance FROM stars_users WHERE telegram_id=$1 FOR UPDATE',[id]);if(Number(bal.rows[0]?.balance||0)<amount){await c.query('ROLLBACK');await telegramApi('sendMessage',{chat_id:chatId,text:'Недостаточно звёзд. Баланс: '+Number(bal.rows[0]?.balance||0)});return res.sendStatus(200);}const open=await c.query("SELECT 1 FROM stars_megawheel_rounds WHERE id=$1 AND status='open' AND closes_at>NOW() FOR UPDATE",[round.id]);if(!open.rowCount){await c.query('ROLLBACK');botUserStates.delete(id);await telegramApi('sendMessage',{chat_id:chatId,text:'Раунд уже закрыт. Открой следующий.'});return res.sendStatus(200);}await c.query('UPDATE stars_users SET balance=balance-$2,updated_at=NOW() WHERE telegram_id=$1',[id,amount]);await c.query('INSERT INTO stars_megawheel_bets(round_id,telegram_id,selection,amount) VALUES($1,$2,$3,$4)',[round.id,id,state.selection,amount]);await c.query('COMMIT');}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}botUserStates.delete(id);await telegramApi('sendMessage',{chat_id:chatId,text:'Ставка принята в раунд #'+round.id+'. Можно добавить ещё одну ставку, пока не истекли 15 секунд.',reply_markup:{inline_keyboard:[[{text:'Добавить ставку',callback_data:'bot:game:mega'}]]}});return res.sendStatus(200);
+      }
+      if(state.mode==='clan_name'){
+        if(text.length<3||text.length>20){await telegramApi('sendMessage',{chat_id:chatId,text:'Название должно содержать от 3 до 20 символов.'});return res.sendStatus(200);}
+        try{const ins=await pool.query('INSERT INTO stars_bot_clans(owner_id,name) VALUES($1,$2) RETURNING id',[id,text]);botUserStates.delete(id);await telegramApi('sendMessage',{chat_id:chatId,text:'Клан «'+text+'» создан! ID: '+ins.rows[0].id,reply_markup:botMenu});}catch(e){await telegramApi('sendMessage',{chat_id:chatId,text:'Не удалось создать клан: возможно, название занято или у тебя уже есть клан.'});}return res.sendStatus(200);
+      }
+      if(state.mode==='topup_sbp_amount'){
+        const rub=Number(text);if(!Number.isSafeInteger(rub)||rub<100){await telegramApi('sendMessage',{chat_id:chatId,text:'Введи сумму целым числом от 100 ₽.'});return res.sendStatus(200);}
+        botUserStates.delete(id);const admins=await pool.query('SELECT telegram_id FROM stars_admins');for(const a of admins.rows){try{await telegramApi('sendMessage',{chat_id:a.telegram_id,text:'Запрос пополнения по СБП\\nИгрок: '+id+'\\nСумма: '+rub+' ₽\\nНужна проверка поступления и ручное зачисление.'});}catch(_){}}
+        await telegramApi('sendMessage',{chat_id:chatId,text:'Заявка на пополнение '+rub+' ₽ создана и отправлена на проверку. Автоматическая оплата пока недоступна: реквизиты получателя не настроены.',reply_markup:botMenu});return res.sendStatus(200);
+      }
     }
     if (callback && adminRow.rowCount) {
       const action = String(callback.data || '');
@@ -1020,7 +1154,7 @@ app.post('/api/telegram/webhook', async (req, res) => {
         return res.sendStatus(200);
       }
     }
-    if (update.message && /^\/start(?:@\w+)?(?:\s|$)/i.test(String(update.message.text || ''))) { const raw=String(update.message.text||'').trim(),ref=raw.match(/^\/start(?:@\w+)?\s+ref_(\d+)/i),cityRef=raw.match(/^\/start(?:@\w+)?\s+cityref_(\d+)/i),bonusLink=raw.match(/^\/start(?:@\w+)?\s+bonus_([A-F0-9]{18})/i),refId=cityRef&&cityRef[1]||ref&&ref[1],isCityRef=!!cityRef,chat=update.message.chat?.id,u=update.message.from||{}; if(chat){await pool.query('INSERT INTO stars_users(telegram_id,username,first_name) VALUES($1,$2,$3) ON CONFLICT(telegram_id) DO UPDATE SET username=EXCLUDED.username,first_name=EXCLUDED.first_name,updated_at=NOW()',[String(u.id),u.username||null,u.first_name||null]);if(bonusLink){const client=await pool.connect();try{await client.query('BEGIN');const bonus=await client.query('SELECT * FROM stars_bonus_links WHERE token=$1 FOR UPDATE',[bonusLink[1]]);if(!bonus.rowCount){await client.query('ROLLBACK');await telegramApi('sendMessage',{chat_id:chat,text:'Бонус-ссылка не найдена.'});}else{const b=bonus.rows[0],used=await client.query('SELECT 1 FROM stars_bonus_link_uses WHERE token=$1 AND telegram_id=$2',[b.token,String(u.id)]);if(used.rowCount){await client.query('COMMIT');await telegramApi('sendMessage',{chat_id:chat,text:'Ты уже активировал эту бонус-ссылку.'});}else if(Number(b.activations)>=Number(b.max_activations)){await client.query('COMMIT');await telegramApi('sendMessage',{chat_id:chat,text:'У этой бонус-ссылки закончились активации.'});}else{await client.query('INSERT INTO stars_bonus_link_uses(token,telegram_id) VALUES($1,$2)',[b.token,String(u.id)]);if(b.balance_type==='city'){await client.query('INSERT INTO stars_city_stats(telegram_id,balance) VALUES($1,$2) ON CONFLICT(telegram_id) DO UPDATE SET balance=stars_city_stats.balance+EXCLUDED.balance,updated_at=NOW()',[String(u.id),b.reward]);}else{await client.query('UPDATE stars_users SET balance=balance+$2,updated_at=NOW() WHERE telegram_id=$1',[String(u.id),b.reward]);}await client.query('UPDATE stars_bonus_links SET activations=activations+1 WHERE token=$1',[b.token]);await client.query('COMMIT');try{const adminChatId=process.env.ADMIN_TELEGRAM_ID||'8782131397',who=(u.username?'@'+u.username:(u.first_name||'Без имени'))+' (ID '+u.id+')',remaining=Math.max(0,Number(b.max_activations)-Number(b.activations)-1);await telegramApi('sendMessage',{chat_id:adminChatId,text:'Пользователь активировал бонус-ссылку.\nСсылка-токен: '+b.token+'\nПользователь: '+who+'\nНачислено: '+Number(b.reward).toLocaleString('ru-RU')+' звёзд ('+(b.balance_type==='city'?'городской':'основной')+' баланс)\nОсталось активаций: '+remaining+' из '+b.max_activations});}catch(notifyError){console.error('Admin bonus-link notification failed:',notifyError.message);}await telegramApi('sendMessage',{chat_id:chat,text:'Бонус активирован! Начислено '+Number(b.reward).toLocaleString('ru-RU')+' звёзд на '+(b.balance_type==='city'?'городской':'основной')+' баланс.',reply_markup:{inline_keyboard:[[{text:'Открыть приложение',web_app:{url:(process.env.WEB_APP_URL||process.env.APP_URL||'').replace(/\/$/,'')}}]]}});}}}catch(e){await client.query('ROLLBACK');throw e;}finally{client.release();}}if(refId&&refId!==String(u.id)){const c=await pool.connect();try{await c.query('BEGIN');const prior=await c.query('SELECT COUNT(*)::int AS n FROM stars_referrals WHERE referrer_id=$1',[refId]);const firstReferral=Number(prior.rows[0]?.n||0)===0;const r=await c.query('INSERT INTO stars_referrals(referred_id,referrer_id) VALUES($1,$2) ON CONFLICT(referred_id) DO NOTHING RETURNING referrer_id',[String(u.id),refId]);if(r.rowCount){await c.query('UPDATE stars_users SET balance=balance+77,updated_at=NOW() WHERE telegram_id=$1',[refId]);const campaign=await c.query(`SELECT (value::timestamptz>NOW()) AS active FROM stars_settings WHERE key='city_referral_campaign_expires_at'`);if(campaign.rows[0]?.active)await c.query('INSERT INTO stars_city_stats(telegram_id,balance) VALUES($1,250) ON CONFLICT(telegram_id) DO UPDATE SET balance=stars_city_stats.balance+250,updated_at=NOW()',[refId]);if(firstReferral){await c.query("INSERT INTO stars_box_promos(telegram_id,code,activated_at,expires_at,free_spins_remaining) VALUES($1,'REFERRAL-77',NOW(),NOW()+INTERVAL '10 years',2) ON CONFLICT(telegram_id) DO UPDATE SET expires_at=GREATEST(stars_box_promos.expires_at,EXCLUDED.expires_at),free_spins_remaining=stars_box_promos.free_spins_remaining+2",[refId]);}await c.query("INSERT INTO stars_box_promos(telegram_id,code,activated_at,expires_at,free_spins_remaining) VALUES($1,'REFERRAL-GIFT',NOW(),NOW()+INTERVAL '10 years',1) ON CONFLICT(telegram_id) DO UPDATE SET expires_at=GREATEST(stars_box_promos.expires_at,EXCLUDED.expires_at),free_spins_remaining=stars_box_promos.free_spins_remaining+1",[String(u.id)]);if(firstReferral){await c.query("INSERT INTO stars_city_stats(telegram_id,city,level) VALUES($1,'rezh',30) ON CONFLICT(telegram_id) DO UPDATE SET city='rezh',level=GREATEST(stars_city_stats.level,30),updated_at=NOW()",[refId]);}}await c.query('COMMIT');}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}}if(String(u.username||'').toLowerCase()==='vladubrat7')await pool.query('INSERT INTO stars_admins(telegram_id,username) VALUES($1,$2) ON CONFLICT(telegram_id) DO UPDATE SET username=EXCLUDED.username',[String(u.id),'vladubrat7']);await telegramApi('sendMessage',{chat_id:chat,text:'Добро пожаловать в Stars! Нажми «БОНУС💎», чтобы получить реферальную ссылку и узнать условия акции.',reply_markup:{keyboard:[[{text:'БОНУС💎'}]],resize_keyboard:true,is_persistent:true}});const b=await pool.query('SELECT balance FROM stars_users WHERE telegram_id=$1',[String(u.id)]);if(Number(b.rows[0]?.balance||0)<10){const app=(process.env.WEB_APP_URL||process.env.APP_URL||'').replace(/\/$/,'');if(app&&/^https:\/\//i.test(app))await telegramApi('sendMessage',{chat_id:chat,text:'Баланс ниже 10 игровых звёзд. Пополни его настоящими Telegram Stars.',reply_markup:{inline_keyboard:[[{text:'Пополнить',web_app:{url:app}}]]}});}}return res.sendStatus(200);}
+    if (update.message && /^\/start(?:@\w+)?(?:\s|$)/i.test(String(update.message.text || ''))) { const raw=String(update.message.text||'').trim(),ref=raw.match(/^\/start(?:@\w+)?\s+ref_(\d+)/i),cityRef=raw.match(/^\/start(?:@\w+)?\s+cityref_(\d+)/i),bonusLink=raw.match(/^\/start(?:@\w+)?\s+bonus_([A-F0-9]{18})/i),refId=cityRef&&cityRef[1]||ref&&ref[1],isCityRef=!!cityRef,chat=update.message.chat?.id,u=update.message.from||{}; if(chat){await pool.query('INSERT INTO stars_users(telegram_id,username,first_name) VALUES($1,$2,$3) ON CONFLICT(telegram_id) DO UPDATE SET username=EXCLUDED.username,first_name=EXCLUDED.first_name,updated_at=NOW()',[String(u.id),u.username||null,u.first_name||null]);if(bonusLink){const client=await pool.connect();try{await client.query('BEGIN');const bonus=await client.query('SELECT * FROM stars_bonus_links WHERE token=$1 FOR UPDATE',[bonusLink[1]]);if(!bonus.rowCount){await client.query('ROLLBACK');await telegramApi('sendMessage',{chat_id:chat,text:'Бонус-ссылка не найдена.'});}else{const b=bonus.rows[0],used=await client.query('SELECT 1 FROM stars_bonus_link_uses WHERE token=$1 AND telegram_id=$2',[b.token,String(u.id)]);if(used.rowCount){await client.query('COMMIT');await telegramApi('sendMessage',{chat_id:chat,text:'Ты уже активировал эту бонус-ссылку.'});}else if(Number(b.activations)>=Number(b.max_activations)){await client.query('COMMIT');await telegramApi('sendMessage',{chat_id:chat,text:'У этой бонус-ссылки закончились активации.'});}else{await client.query('INSERT INTO stars_bonus_link_uses(token,telegram_id) VALUES($1,$2)',[b.token,String(u.id)]);if(b.balance_type==='city'){await client.query('INSERT INTO stars_city_stats(telegram_id,balance) VALUES($1,$2) ON CONFLICT(telegram_id) DO UPDATE SET balance=stars_city_stats.balance+EXCLUDED.balance,updated_at=NOW()',[String(u.id),b.reward]);}else{await client.query('UPDATE stars_users SET balance=balance+$2,updated_at=NOW() WHERE telegram_id=$1',[String(u.id),b.reward]);}await client.query('UPDATE stars_bonus_links SET activations=activations+1 WHERE token=$1',[b.token]);await client.query('COMMIT');try{const adminChatId=process.env.ADMIN_TELEGRAM_ID||'8782131397',who=(u.username?'@'+u.username:(u.first_name||'Без имени'))+' (ID '+u.id+')',remaining=Math.max(0,Number(b.max_activations)-Number(b.activations)-1);await telegramApi('sendMessage',{chat_id:adminChatId,text:'Пользователь активировал бонус-ссылку.\nСсылка-токен: '+b.token+'\nПользователь: '+who+'\nНачислено: '+Number(b.reward).toLocaleString('ru-RU')+' звёзд ('+(b.balance_type==='city'?'городской':'основной')+' баланс)\nОсталось активаций: '+remaining+' из '+b.max_activations});}catch(notifyError){console.error('Admin bonus-link notification failed:',notifyError.message);}await telegramApi('sendMessage',{chat_id:chat,text:'Бонус активирован! Начислено '+Number(b.reward).toLocaleString('ru-RU')+' звёзд на '+(b.balance_type==='city'?'городской':'основной')+' баланс.',reply_markup:{inline_keyboard:[[{text:'Открыть приложение',web_app:{url:(process.env.WEB_APP_URL||process.env.APP_URL||'').replace(/\/$/,'')}}]]}});}}}catch(e){await client.query('ROLLBACK');throw e;}finally{client.release();}}if(refId&&refId!==String(u.id)){const c=await pool.connect();try{await c.query('BEGIN');const prior=await c.query('SELECT COUNT(*)::int AS n FROM stars_referrals WHERE referrer_id=$1',[refId]);const firstReferral=Number(prior.rows[0]?.n||0)===0;const r=await c.query('INSERT INTO stars_referrals(referred_id,referrer_id) VALUES($1,$2) ON CONFLICT(referred_id) DO NOTHING RETURNING referrer_id',[String(u.id),refId]);if(r.rowCount){await c.query('UPDATE stars_users SET balance=balance+77,updated_at=NOW() WHERE telegram_id=$1',[refId]);const campaign=await c.query(`SELECT (value::timestamptz>NOW()) AS active FROM stars_settings WHERE key='city_referral_campaign_expires_at'`);if(campaign.rows[0]?.active)await c.query('INSERT INTO stars_city_stats(telegram_id,balance) VALUES($1,250) ON CONFLICT(telegram_id) DO UPDATE SET balance=stars_city_stats.balance+250,updated_at=NOW()',[refId]);if(firstReferral){await c.query("INSERT INTO stars_box_promos(telegram_id,code,activated_at,expires_at,free_spins_remaining) VALUES($1,'REFERRAL-77',NOW(),NOW()+INTERVAL '10 years',2) ON CONFLICT(telegram_id) DO UPDATE SET expires_at=GREATEST(stars_box_promos.expires_at,EXCLUDED.expires_at),free_spins_remaining=stars_box_promos.free_spins_remaining+2",[refId]);}await c.query("INSERT INTO stars_box_promos(telegram_id,code,activated_at,expires_at,free_spins_remaining) VALUES($1,'REFERRAL-GIFT',NOW(),NOW()+INTERVAL '10 years',1) ON CONFLICT(telegram_id) DO UPDATE SET expires_at=GREATEST(stars_box_promos.expires_at,EXCLUDED.expires_at),free_spins_remaining=stars_box_promos.free_spins_remaining+1",[String(u.id)]);if(firstReferral){await c.query("INSERT INTO stars_city_stats(telegram_id,city,level) VALUES($1,'rezh',30) ON CONFLICT(telegram_id) DO UPDATE SET city='rezh',level=GREATEST(stars_city_stats.level,30),updated_at=NOW()",[refId]);}}await c.query('COMMIT');}catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}}if(String(u.username||'').toLowerCase()==='vladubrat7')await pool.query('INSERT INTO stars_admins(telegram_id,username) VALUES($1,$2) ON CONFLICT(telegram_id) DO UPDATE SET username=EXCLUDED.username',[String(u.id),'vladubrat7']);await telegramApi('sendMessage',{chat_id:chat,text:'Добро пожаловать в Stars! Выбери действие в меню ниже.',reply_markup:{keyboard:[[{text:'💸 Вывести'},{text:'➕ Пополнить'}],[{text:'🎮 Играть'},{text:'👤 Профиль'}],[{text:'⚔️ Создать клан'}]],resize_keyboard:true,is_persistent:true}});const b=await pool.query('SELECT balance FROM stars_users WHERE telegram_id=$1',[String(u.id)]);if(Number(b.rows[0]?.balance||0)<10){const app=(process.env.WEB_APP_URL||process.env.APP_URL||'').replace(/\/$/,'');if(app&&/^https:\/\//i.test(app))await telegramApi('sendMessage',{chat_id:chat,text:'Баланс ниже 10 игровых звёзд. Пополни его настоящими Telegram Stars.',reply_markup:{inline_keyboard:[[{text:'Пополнить',web_app:{url:app}}]]}});}}return res.sendStatus(200);}
     if (update.pre_checkout_query) {
       const q = update.pre_checkout_query;
       let valid = false;
