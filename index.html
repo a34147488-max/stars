@@ -892,6 +892,7 @@ body{background:#292a2e!important}
 <div class="eyebrow">Ваш баланс</div>
 <div class="reserve-mini" aria-label="Резерв выплат"><span>Резерв ₽ : <strong id="reserveRub">47 466,32</strong></span><span>Резерв Stars : <strong id="reserveStars">12 330</strong></span></div>
 <div class="city-balance-mini home-city-balance-mini"><span>Баланс города</span><strong id="homeCityBalance">0</strong><span>★</span><button class="city-exchange-small" id="cityExchangeOpen" type="button" aria-label="Обмен городских звёзд" title="Обмен">↔</button></div>
+<button class="update-info-open" id="updateInfoOpen" type="button"><span class="update-info-icon">✦</span><span><strong>ОБНОВЛЕНИЕ</strong><small>Посмотри, что нового появилось в STARS</small></span><span class="update-info-arrow">↗</span></button>
 <div class="balance-card">
 <div class="balance-label">Всего накоплено</div>
 <div class="home-online-count" aria-label="Онлайн"><span class="home-online-star" aria-hidden="true">✦</span><span>ОНЛАЙН</span><strong id="homeOnlineCount">29</strong></div>
@@ -951,6 +952,31 @@ body{background:#292a2e!important}
   <section class="city-panel" id="cityTopPanel"><div class="city-panel-title">Топ игроков по балансу</div><div id="cityTopList">Загружаем рейтинг…</div></section>
   
  </div>
+</div>
+<div class="update-info-backdrop" id="updateInfoBackdrop" aria-hidden="true">
+ <section class="update-info-modal" role="dialog" aria-modal="true" aria-labelledby="updateInfoTitle">
+  <button class="update-info-close" id="updateInfoClose" type="button" aria-label="Закрыть">×</button>
+  <div class="update-info-topline"><span class="update-info-spark">✦</span><span>STARS · НОВЫЕ ВОЗМОЖНОСТИ</span></div>
+  <h2 id="updateInfoTitle">Большое обновление</h2>
+  <p class="update-info-intro">Мы развиваем STARS не только как приложение с играми. Теперь здесь появляются новые способы получать, использовать и обменивать игровые звёзды.</p>
+  <article class="update-info-card update-wcg">
+   <div class="update-info-card-head"><span class="update-info-symbol">W</span><div><span class="update-info-tag">НОВЫЙ СПОСОБ ЗАРАБОТКА</span><h3>WCG — играй и получай монеты</h3></div></div>
+   <p>Переходи в <b>WCG</b>, участвуй в игре и пробуй выигрывать монеты. Полученные монеты можно <b>выставлять на продажу</b> — так игровой результат превращается в возможность заработать.</p>
+  </article>
+  <article class="update-info-card update-city">
+   <div class="update-info-card-head"><span class="update-info-symbol">⌂</span><div><span class="update-info-tag">РАЗВИТИЕ ГОРОДОВ</span><h3>Создавай собственный бизнес</h3></div></div>
+   <p>В разделе <b>«Города»</b> можно открыть свой бизнес, придумать ему название, добавить товары и назначить цены. Затем выставляй свои продукты на продажу другим игрокам, развивай дело и строй собственную городскую экономику.</p>
+  </article>
+  <article class="update-info-card update-sbp">
+   <div class="update-info-card-head"><span class="update-info-symbol">₽</span><div><span class="update-info-tag">УДОБНЫЕ ПЛАТЕЖИ</span><h3>Пополнение и вывод по СБП</h3></div></div>
+   <p>Добавили работу с <b>Системой быстрых платежей</b>: пополняй баланс удобным способом и оформляй заявки на вывод. Для вывода укажи банк и номер телефона — статус заявки можно отслеживать в приложении.</p>
+  </article>
+  <article class="update-info-card update-reserve">
+   <div class="update-info-card-head"><span class="update-info-symbol">◇</span><div><span class="update-info-tag">ПРОЗРАЧНОСТЬ</span><h3>Резервы выплат</h3></div></div>
+   <p>На главном экране теперь отображаются резервы в рублях и Stars. Можно сразу видеть актуальные показатели резервов, которые регулярно обновляются.</p>
+  </article>
+  <div class="update-info-footer"><span>STARS</span><b>Больше возможностей. Больше движения.</b></div>
+ </section>
 </div>
 <div class="wcg-backdrop" id="wcgBackdrop" aria-hidden="true"><section class="wcg-modal" role="dialog" aria-modal="true" aria-labelledby="wcgTitle"><button class="wcg-close" id="wcgClose" type="button" aria-label="Закрыть">×</button><div class="wcg-emblem" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="m32 5 7.4 15 16.6 2.4-12 11.7 2.8 16.5L32 42.8 17.2 50.6 20 34.1 8 22.4 24.6 20 32 5Z" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linejoin="round"/><path d="m23 31 6 6 13-14" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="wcg-kicker">STARS × WCG</div><div class="wcg-title" id="wcgTitle">WCG</div><div class="wcg-copy">Готов к игре?</div><button class="wcg-play" id="wcgPlay" type="button">ИГРАТЬ В WCG</button></section></div><div class="exchange-soon-backdrop" id="exchangeSoonBackdrop" aria-hidden="true"><section class="exchange-soon-modal" role="dialog" aria-modal="true"><div class="exchange-soon-title">Обмен звёзд</div><div class="exchange-soon-copy">100 наших звёзд = 50 городских звёзд. Обмен только в одну сторону.</div><label class="custom-amount-label" for="cityExchangeAmount">Сколько наших звёзд обменять?</label><div class="custom-amount-input-wrap"><input id="cityExchangeAmount" type="number" inputmode="numeric" min="1" step="1" placeholder="Например, 100"><span>★</span></div><div class="custom-amount-preview" id="cityExchangePreview">Получишь 50 городских звёзд</div><div class="custom-amount-hint" id="cityExchangeBalances">Загружаем балансы…</div><div style="display:flex;gap:9px;margin-top:16px"><button class="exchange-soon-close" id="exchangeSoonClose" type="button" style="flex:1">Отмена</button><button class="exchange-soon-close" id="cityExchangeSubmit" type="button" style="flex:1">Обменять</button></div><div class="custom-amount-hint" id="cityExchangeMessage" role="status" aria-live="polite"></div></section></div>
 <section class="deposit-section" aria-label="Пополнение баланса">
@@ -2000,5 +2026,36 @@ html body nav.bottom-nav>button.nav-item:not(#gameOpen).nav-fragment-pulse>svg.n
 #withdrawBackdrop.open #withdrawClose{display:grid!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;position:fixed!important;top:calc(env(safe-area-inset-top) + 12px)!important;right:14px!important;z-index:10020!important;width:42px!important;height:42px!important;place-items:center!important;border:1px solid rgba(255,255,255,.42)!important;border-radius:14px!important;background:rgba(20,24,34,.72)!important;color:#fff!important;font-size:30px!important;line-height:1!important;box-shadow:0 8px 24px rgba(0,0,0,.24)!important;backdrop-filter:blur(18px)!important;-webkit-backdrop-filter:blur(18px)!important;cursor:pointer!important}
 #withdrawBackdrop.open #withdrawClose:active{transform:scale(.92)!important;background:rgba(55,75,110,.9)!important}
 </style>
+
+<style id="update-info-modal-style">
+.update-info-open{position:relative;display:flex;align-items:center;gap:11px;width:100%;max-width:390px;margin:0 auto 13px;padding:12px 14px;text-align:left;border:1px solid rgba(178,207,255,.48);border-radius:17px;background:linear-gradient(115deg,rgba(55,105,174,.35),rgba(255,255,255,.09) 48%,rgba(90,145,220,.18));box-shadow:inset 0 1px 0 #ffffff25,0 8px 26px #0003,0 0 20px #438ce51c;backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);color:#f4f8ff}
+.update-info-open:before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(110deg,transparent 20%,#ffffff16 48%,transparent 72%);transform:translateX(-110%);animation:updateButtonShine 5s ease-in-out infinite;pointer-events:none}
+.update-info-icon{display:grid;place-items:center;flex:none;width:35px;height:35px;border:1px solid #a8ccff70;border-radius:12px;background:linear-gradient(145deg,#8dc2ff42,#2865a733);color:#b9d8ff;font-size:21px;text-shadow:0 0 12px #68aaff;box-shadow:inset 0 1px #ffffff30}
+.update-info-open>span:nth-child(2){display:flex;flex:1;min-width:0;flex-direction:column;gap:3px}.update-info-open strong{font-size:12px;letter-spacing:.13em;color:#dcecff}.update-info-open small{font-size:10px;font-weight:550;color:#aabbd4}.update-info-arrow{color:#a9ccff;font-size:19px;font-weight:800}
+@keyframes updateButtonShine{0%,65%{transform:translateX(-110%)}85%,100%{transform:translateX(110%)}}
+.update-info-backdrop{position:fixed;inset:0;z-index:100300;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(3,5,12,.82);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.update-info-backdrop.open{display:flex;animation:updateInfoFade .2s ease both}
+.update-info-modal{position:relative;width:100%;max-width:470px;max-height:min(88svh,820px);overflow:auto;overscroll-behavior:contain;padding:25px 18px 18px;border:1px solid #b6c9e34a;border-radius:27px;background:radial-gradient(ellipse at 10% 0%,#4776b52a,transparent 42%),linear-gradient(155deg,#252b39,#121722 68%,#0c111b);box-shadow:0 28px 90px #000b,inset 0 1px #ffffff20;color:#f4f7ff}
+.update-info-close{position:sticky;float:right;top:0;z-index:2;display:grid;place-items:center;width:34px;height:34px;margin:-8px -5px 0 8px;border:1px solid #ffffff30;border-radius:50%;background:#ffffff12;color:#f4f7ff;font-size:23px;line-height:1}
+.update-info-topline{display:flex;align-items:center;gap:8px;color:#91bfff;font-size:9px;font-weight:900;letter-spacing:.18em}.update-info-spark{font-size:18px;text-shadow:0 0 12px #70aaff}
+.update-info-modal h2{margin:12px 0 7px;font-size:27px;line-height:1.1;font-weight:950;letter-spacing:-.045em;background:linear-gradient(100deg,#fff,#a9ceff 70%,#d9e7ff);background-clip:text;-webkit-background-clip:text;color:transparent}
+.update-info-intro{margin:0 0 17px;color:#b9c5d8;font-size:12px;line-height:1.6}
+.update-info-card{margin-top:10px;padding:14px;border:1px solid #ffffff1d;border-radius:18px;background:linear-gradient(145deg,#ffffff0e,#ffffff04);box-shadow:inset 0 1px #ffffff0b}
+.update-info-card-head{display:flex;align-items:center;gap:11px}.update-info-symbol{display:grid;place-items:center;flex:none;width:39px;height:39px;border-radius:13px;font-size:20px;font-weight:950}
+.update-info-tag{display:block;margin-bottom:4px;font-size:8px;font-weight:900;letter-spacing:.15em}.update-info-card h3{margin:0;font-size:14px;line-height:1.25;font-weight:850;color:#f5f7ff}
+.update-info-card p{margin:10px 0 0;color:#c0c9d8;font-size:11px;line-height:1.6}.update-info-card p b{font-weight:850}
+.update-wcg{border-color:#e9c36c38}.update-wcg .update-info-symbol{background:#e6b64c20;border:1px solid #f3cd7a55;color:#f3ce82}.update-wcg .update-info-tag{color:#edc779}.update-wcg p b{color:#f3d28e}
+.update-city{border-color:#75d5a33b}.update-city .update-info-symbol{background:#52c98b1b;border:1px solid #83e2b255;color:#8de7b5}.update-city .update-info-tag{color:#8de7b5}.update-city p b{color:#9ce9bd}
+.update-sbp{border-color:#72b9ff3b}.update-sbp .update-info-symbol{background:#4c9fff1b;border:1px solid #83c2ff55;color:#9dccff}.update-sbp .update-info-tag{color:#9dccff}.update-sbp p b{color:#a9d4ff}
+.update-reserve{border-color:#c2b0ff35}.update-reserve .update-info-symbol{background:#9a83ff1b;border:1px solid #c0adff55;color:#c8b8ff}.update-reserve .update-info-tag{color:#c8b8ff}.update-reserve p b{color:#d0c4ff}
+.update-info-footer{display:flex;flex-direction:column;gap:4px;margin-top:16px;padding:13px 5px 2px;border-top:1px solid #ffffff1c;text-align:center}.update-info-footer span{font-size:10px;font-weight:950;letter-spacing:.24em;color:#91bfff}.update-info-footer b{font-size:11px;color:#e0e8f5}
+@keyframes updateInfoFade{from{opacity:0}to{opacity:1}}
+@media(max-width:370px){.update-info-modal{padding:22px 14px 15px}.update-info-modal h2{font-size:24px}.update-info-card{padding:12px}}
+@media(prefers-reduced-motion:reduce){.update-info-open:before{animation:none}}
+</style>
+<script id="update-info-modal-actions">
+(()=>{const init=()=>{const b=document.getElementById('updateInfoOpen'),o=document.getElementById('updateInfoBackdrop'),c=document.getElementById('updateInfoClose');if(!b||!o||!c||b.dataset.ready==='1')return;b.dataset.ready='1';const open=()=>{o.classList.add('open');o.setAttribute('aria-hidden','false');document.body.style.overflow='hidden'};const close=()=>{o.classList.remove('open');o.setAttribute('aria-hidden','true');document.body.style.overflow=''};b.addEventListener('click',open);c.addEventListener('click',close);o.addEventListener('click',e=>{if(e.target===o)close()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&o.classList.contains('open'))close()})};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init()})();
+</script>
+
 </body>
 </html>
