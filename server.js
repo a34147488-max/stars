@@ -70,7 +70,16 @@ app.get('/api/online-counter', async (req,res) => {
 app.post('/api/presence', async (req,res) => { const user=validateTelegramInitData(req.get('X-Telegram-Init-Data'),process.env.BOT_TOKEN); if(!user)return res.status(401).json({ok:false}); const now=Date.now(); for(const [id,t] of activeAppUsers)if(now-t>90000)activeAppUsers.delete(id); activeAppUsers.set(String(user.id),now); return res.json({ok:true,online:activeAppUsers.size}); });
 app.get('/api/referral/link',async(req,res)=>{try{const user=authUser(req);if(!user)return res.status(401).json({ok:false,error:'Открой приложение через Telegram.'});const me=await telegramApi('getMe',{});const r=await pool.query("SELECT GREATEST(0,EXTRACT(EPOCH FROM (value::timestamptz-NOW()))) AS seconds FROM stars_settings WHERE key='city_referral_campaign_expires_at'");return res.json({ok:true,link:'https://t.me/'+me.username+'?start=ref_'+user.id,message:Number(r.rows[0]?.seconds||0)>0?'Заходи в Stars! За приглашённого друга +250 городских звёзд в течение акции.':'Заходи в Stars!'})}catch(e){return res.status(503).json({ok:false,error:'Не удалось создать ссылку.'})}});
 app.get('/api/status', async (req,res) => { try { await ensureDb(); const r=await pool.query("SELECT value FROM stars_settings WHERE key='maintenance'"); const user=validateTelegramInitData(req.get('X-Telegram-Init-Data'),process.env.BOT_TOKEN); const admin=user?await pool.query('SELECT 1 FROM stars_admins WHERE telegram_id=$1',[String(user.id)]):{rowCount:0}; return res.json({ok:true,maintenance:r.rows[0]?.value==='on',isAdmin:Boolean(admin.rowCount),online:activeAppUsers.size}); } catch(e) { return res.json({ok:true,maintenance:false,isAdmin:false,online:activeAppUsers.size}); } });
-async function ensureDb() {
+let dbInitPromise = null;
+function ensureDb() {
+  if (!pool) return Promise.reject(new Error('DATABASE_URL is not configured'));
+  if (dbReady) return Promise.resolve();
+  if (!dbInitPromise) {
+    dbInitPromise = ensureDbInternal().catch(error => { dbInitPromise = null; throw error; });
+  }
+  return dbInitPromise;
+}
+async function ensureDbInternal() {
   if (!pool) throw new Error('DATABASE_URL is not configured');
   if (dbReady) return;
   await pool.query(`
