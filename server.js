@@ -269,7 +269,7 @@ app.post('/api/cities/mine',async(req,res)=>{
   await ensureDb();await c.query('BEGIN');await ensureCityUser(c,user);
   const q=await c.query('SELECT j.business_id,j.mine_hits,j.mine_gold,b.owner_id,b.name FROM stars_city_jobs j JOIN stars_city_businesses b ON b.id=j.business_id WHERE j.telegram_id=$1 FOR UPDATE OF j,b',[String(user.id)]);
   if(!q.rowCount){await c.query('ROLLBACK');return res.status(400).json({ok:false,error:'Сначала устройся на работу в одном из городских бизнесов.'});}
-  const job=q.rows[0],previousHits=Number(job.mine_hits||0),gold=previousHits===0?(Math.random()<0.05):!!job.mine_gold,limit=gold?20:10,crackAt=gold?15:5,hits=previousHits+1,broken=hits>=limit,nextHits=broken?0:hits;
+  const job=q.rows[0],previousHits=Number(job.mine_hits||0),gold=previousHits===0?(Math.random()<0.01):!!job.mine_gold,limit=gold?20:10,crackAt=gold?15:5,hits=previousHits+1,broken=hits>=limit,nextHits=broken?0:hits;
   await c.query('UPDATE stars_city_jobs SET mine_hits=$2,mine_gold=$3 WHERE telegram_id=$1',[String(user.id),nextHits,broken?false:gold]);
   let employeeBalance=null,ownerBalance=null;
   if(broken){
@@ -283,7 +283,7 @@ app.post('/api/cities/mine',async(req,res)=>{
    employeeBalance=Number(emp.rows[0]?.balance||0);
   }
   await c.query('COMMIT');
-  return res.json({ok:true,hits:nextHits,cracked:nextHits>=crackAt,gold:broken?false:gold,wasGold:gold,requiredHits:limit,crackAt,broken,balance:employeeBalance,ownerReceived:broken?16.66:0,businessName:job.name});
+  return res.json({ok:true,hits:nextHits,cracked:nextHits>=crackAt,gold:broken?false:gold,wasGold:gold,requiredHits:limit,crackAt,broken,balance:employeeBalance,employeeReceived:broken?(gold?122:33):0,ownerReceived:broken?16.66:0,businessName:job.name});
  }catch(e){try{await c.query('ROLLBACK')}catch(_){}console.error('City mine error:',e.message);return res.status(503).json({ok:false,error:'Не удалось засчитать удар.'});}finally{c.release()}
 });
 app.post('/api/cities/businesses/quit',async(req,res)=>{const user=authUser(req);if(!user)return res.status(401).json({ok:false,error:'Открой приложение через Telegram.'});try{await ensureDb();await pool.query('DELETE FROM stars_city_jobs WHERE telegram_id=$1',[String(user.id)]);return res.json({ok:true})}catch(e){return res.status(503).json({ok:false,error:'Не удалось уволиться.'})}});
