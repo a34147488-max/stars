@@ -700,6 +700,26 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
 <script id="city-submenu-back-delegation-fix">
 (()=>{document.addEventListener('click',e=>{const b=e.target.closest('.city-subwindow-back');if(!b)return;const p=b.closest('.city-panel');if(!p)return;e.preventDefault();e.stopPropagation();p.classList.remove('open');},{capture:true});})();
 </script>
+
+<style id="doors-mode-full-interface-restore">
+/* Восстанавливаем полноценный экран режима «Двери» внутри игрового окна */
+#gameBackdrop.open:has(#doorGamePanel.active){display:block!important;overflow-x:hidden!important;overflow-y:auto!important;padding:0!important;align-items:stretch!important}
+#gameBackdrop.open:has(#doorGamePanel.active) .game-modal{display:block!important;position:relative!important;width:100%!important;max-width:640px!important;min-height:100dvh!important;height:auto!important;max-height:none!important;margin:0 auto!important;padding:calc(env(safe-area-inset-top) + 18px) 16px calc(env(safe-area-inset-bottom) + 28px)!important;overflow:visible!important;transform:none!important;opacity:1!important}
+#gameBackdrop.open:has(#doorGamePanel.active) #gameMenu{display:none!important}
+#gameBackdrop #doorGamePanel.active{display:block!important;visibility:visible!important;opacity:1!important;width:100%!important;min-height:0!important;height:auto!important;position:relative!important;margin:0!important;padding:12px 0 24px!important;overflow:visible!important;transform:none!important;}
+#doorGamePanel.active>.modal-head,#doorGamePanel.active>.door-intro,#doorGamePanel.active>.door-stage,#doorGamePanel.active>.door-grid,#doorGamePanel.active>.door-steps,#doorGamePanel.active>.door-message,#doorGamePanel.active>.door-action{display:flex!important;visibility:visible!important;opacity:1!important;}
+#doorGamePanel.active>.door-intro{display:block!important;text-align:center!important;margin:12px 0 22px!important}
+#doorGamePanel.active>.door-stage{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important}
+#doorGamePanel.active>.door-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;min-height:130px!important}
+#doorGamePanel.active>.door-grid.count-5,#doorGamePanel.active>.door-grid.count-10{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:7px!important}
+#doorGamePanel.active .door-choice{display:block!important;min-height:126px!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important}
+#doorGamePanel.active .door-steps{display:flex!important;justify-content:center!important;gap:8px!important}
+#doorGamePanel.active .door-message{display:block!important;min-height:42px!important}
+#doorGamePanel.active .door-action:not([hidden]){display:block!important;width:100%!important;margin:8px 0!important}
+#doorGamePanel.active .door-action[hidden]{display:none!important}
+#doorGamePanel.active .modal-close{display:grid!important;place-items:center!important;z-index:20!important}
+@media(max-width:390px){#doorGamePanel.active>.door-grid.count-5,#doorGamePanel.active>.door-grid.count-10{gap:5px!important}#doorGamePanel.active .door-choice{min-height:88px!important}}
+</style>
 </head>
 <body>
 <div id="stars-puzzle-loader" aria-label="Загрузка STARS">
