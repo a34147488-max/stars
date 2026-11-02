@@ -799,11 +799,6 @@ app.post('/api/telegram/webhook', async (req, res) => {
       if(!megaWheelTimers.has(String(round.id))){const delay=Math.max(0,new Date(round.closes_at).getTime()-Date.now());const timer=setTimeout(()=>{megaWheelTimers.delete(String(round.id));settleMegaRound(round.id).catch(e=>console.error(e));},delay);megaWheelTimers.set(String(round.id),timer);}
       return round;
     };
-    if(incoming && (text==='/start'||text.startsWith('/start ')||text.startsWith('/start@'))){
-      await pool.query('INSERT INTO stars_users(telegram_id,username,first_name) VALUES($1,$2,$3) ON CONFLICT(telegram_id) DO UPDATE SET username=EXCLUDED.username,first_name=EXCLUDED.first_name,updated_at=NOW()',[String(sender.id),sender.username||null,sender.first_name||null]);
-      await telegramApi('sendMessage',{chat_id:chatId,text:'Добро пожаловать в Stars! Выбери действие в меню ниже.',reply_markup:botMenu});
-      return res.sendStatus(200);
-    }
     if(incoming && ['💸 Вывести','Вывести'].includes(text)){
       botUserStates.set(String(sender.id),{mode:'withdraw_method'});
       await telegramApi('sendMessage',{chat_id:chatId,text:'Выбери способ вывода. Минимальная сумма — 5000 игровых звёзд.',reply_markup:{inline_keyboard:[[{text:'TG Stars',callback_data:'bot:wd:tg'},{text:'СБП',callback_data:'bot:wd:sbp'}],[{text:'Отмена',callback_data:'bot:cancel'}]]}});
