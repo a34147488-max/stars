@@ -800,9 +800,11 @@ app.post('/api/telegram/webhook', async (req, res) => {
       const lock=await pool.connect();let round;
       try{
         await lock.query('SELECT pg_advisory_lock(928347)');
-        const r=await lock.query("SELECT * FROM stars_megawheel_rounds WHERE status='open' AND closes_at>NOW() ORDER BY id DESC LIMIT 1");
-        round=r.rowCount?r.rows[0]:(await lock.query("INSERT INTO stars_megawheel_rounds(status,closes_at) VALUES('open',NOW()+INTERVAL '15 seconds') RETURNING *")).rows[0];
+        const expired=await lock.query("SELECT id FROM stars_megawheel_rounds WHERE status='open' AND closes_at<=NOW() ORDER BY id LIMIT 1");
+        if(expired.rowCount)round={id:expired.rows[0].id,expired:true};
+        else{const r=await lock.query("SELECT * FROM stars_megawheel_rounds WHERE status='open' AND closes_at>NOW() ORDER BY id DESC LIMIT 1");round=r.rowCount?r.rows[0]:(await lock.query("INSERT INTO stars_megawheel_rounds(status,closes_at) VALUES('open',NOW()+INTERVAL '15 seconds') RETURNING *")).rows[0];}
       }finally{try{await lock.query('SELECT pg_advisory_unlock(928347)');}catch(_){}lock.release();}
+      if(round.expired){await settleMegaRound(round.id);return getOpenMegaRound();}
       if(!megaWheelTimers.has(String(round.id))){const delay=Math.max(0,new Date(round.closes_at).getTime()-Date.now());const timer=setTimeout(()=>{megaWheelTimers.delete(String(round.id));settleMegaRound(round.id).catch(e=>console.error(e));},delay);megaWheelTimers.set(String(round.id),timer);}
       return round;
     };
