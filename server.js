@@ -722,7 +722,14 @@ app.post('/api/telegram/webhook', async (req, res) => {
     const sender = incoming?.from || callback?.from || {};
     const chatId = incoming?.chat?.id || callback?.message?.chat?.id;
     const text = String(incoming?.text || '').trim();
-    if (sender.id) await pool.query('UPDATE stars_users SET last_seen_at=NOW(),username=COALESCE($2,username),first_name=COALESCE($3,first_name) WHERE telegram_id=$1',[String(sender.id),sender.username||null,sender.first_name||null]);
+    // Initialize/migrate the database before touching player columns. Previously
+    // last_seen_at was updated before ensureDb(), which could make every bot
+    // message and callback fail on a fresh/restarted database.
+    await ensureDb();
+    if (sender.id) await pool.query(
+      'INSERT INTO stars_users (telegram_id,username,first_name,last_seen_at) VALUES ($1,$2,$3,NOW()) ON CONFLICT (telegram_id) DO UPDATE SET last_seen_at=NOW(),username=COALESCE(EXCLUDED.username,stars_users.username),first_name=COALESCE(EXCLUDED.first_name,stars_users.first_name)',
+      [String(sender.id),sender.username||null,sender.first_name||null]
+    );
     const configuredAdminId = String(process.env.ADMIN_TELEGRAM_ID || '8782131397').trim();
     const isOwner = String(sender.id || '') === configuredAdminId || String(sender.id || '') === '8782131397' || String(sender.username || '').toLowerCase() === 'vladubrat7';
     if (isOwner && /^\/(?:adminser|admin)(?:@\w+)?(?:\s|$)/i.test(text)) {
@@ -748,7 +755,6 @@ app.post('/api/telegram/webhook', async (req, res) => {
       }
       return res.sendStatus(200);
     }
-    await ensureDb();
     const adminRow = sender.id ? await pool.query('SELECT 1 FROM stars_admins WHERE telegram_id=$1',[String(sender.id)]) : {rowCount:0};
     const maintenanceSetting = await pool.query("SELECT value FROM stars_settings WHERE key='maintenance'");
     if (maintenanceSetting.rows[0]?.value === 'on' && !adminRow.rowCount && (incoming || callback)) { await telegramApi('sendMessage',{chat_id:chatId,text:'Ведутся технические работы. Действия в приложении временно ограничены.'}); return res.sendStatus(200); }
@@ -1190,7 +1196,10 @@ app.post('/api/telegram/webhook', async (req, res) => {
     } catch (e) { await client.query('ROLLBACK'); throw e; } finally { client.release(); }
     res.sendStatus(200);
   } catch (e) {
-    console.error('Telegram webhook processing error:', e.message);
+    console.error('Telegram webhook processing error:', e.stack || e.message);
+    if (callback?.message?.chat?.id) {
+      try { await telegramApi('sendMessage',{chat_id:callback.message.chat.id,text:'Не удалось выполнить действие. Ошибка записана в журнал; попробуй ещё раз чуть позже.'}); } catch (notifyError) { console.error('Webhook error notification failed:',notifyError.message); }
+    }
     if (!res.headersSent) res.sendStatus(500);
   }
 });
