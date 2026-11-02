@@ -806,7 +806,7 @@ app.post('/api/telegram/webhook', async (req, res) => {
       return res.sendStatus(200);
     }
     if(incoming && ['➕ Пополнить','Пополнить'].includes(text)){
-      await telegramApi('sendMessage',{chat_id:chatId,text:'Выбери пакет пополнения Telegram Stars или СБП.',reply_markup:{inline_keyboard:[[50,75,100].map(n=>({text:n+' ⭐',callback_data:'bot:topup:'+n}))],[159,200,500].map(n=>({text:n+' ⭐',callback_data:'bot:topup:'+n})),[{text:'Пополнить по СБП',callback_data:'bot:topup:sbp'}]]}});
+      await telegramApi('sendMessage',{chat_id:chatId,text:'Выбери пакет пополнения Telegram Stars или СБП.',reply_markup:{inline_keyboard:[[50,75,100].map(n=>({text:n+' ⭐',callback_data:'bot:topup:'+n})),[159,200,500].map(n=>({text:n+' ⭐',callback_data:'bot:topup:'+n})),[{text:'Пополнить по СБП',callback_data:'bot:topup:sbp'}]]}});
       return res.sendStatus(200);
     }
     if(incoming && ['🎮 Играть','Играть'].includes(text)){
