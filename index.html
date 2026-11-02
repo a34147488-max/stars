@@ -106,7 +106,7 @@ body{position:relative;isolation:isolate;background:#090a12}
 @media(max-width:370px){.packages{gap:8px}.pack{padding:13px 10px}.pack-amount{font-size:22px}.deposit-title{font-size:16px}}
 
 /* StarsSlots — iOS 26 glass interface */
-.action-row{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:9px;margin-top:14px;overflow:visible}.action-row #boxesOpen{display:inline-flex!important;visibility:visible!important;opacity:1!important;align-items:center;justify-content:center;min-height:30px;min-width:76px;position:relative;z-index:2;flex:none}
+.action-row{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:9px;margin-top:14px;overflow:visible}.action-row #menuHome{display:inline-flex!important;visibility:visible!important;opacity:1!important;align-items:center;justify-content:center;min-height:30px;min-width:76px;position:relative;z-index:2;flex:none}
 .action-row .withdraw-open{margin:0;min-width:76px}
 .game-open{padding:6px 13px;border:1px solid #ffffffb8;border-radius:999px;background:#fff;color:#161720;font-size:11px;font-weight:800;letter-spacing:.01em;cursor:pointer;box-shadow:0 3px 14px #ffffff12;transition:transform .15s}
 .game-open:active{transform:scale(.96)}
@@ -183,8 +183,8 @@ body{position:relative;isolation:isolate;background:#090a12}
 .profile-chip{cursor:pointer}.profile-menu{position:absolute;top:calc(env(safe-area-inset-top) + 78px);left:22px;z-index:20;width:min(250px,calc(100vw - 44px));padding:8px;border:1px solid #ffffff28;border-radius:20px;background:linear-gradient(155deg,#242735f5,#10111bf7);box-shadow:0 20px 60px #0008;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);animation:menuDrop .24s ease both}.profile-menu[hidden]{display:none}.profile-menu button{display:flex;align-items:center;gap:11px;width:100%;padding:13px 12px;border:1px solid transparent;border-radius:13px;background:transparent;color:#f7f8ff;text-align:left;font:inherit;font-size:13px;font-weight:750}.menu-state{margin-left:auto;color:#9de8bf;font-size:10px}.profile-menu-icon{width:31px;height:31px;display:grid;place-items:center;border:1px solid #ffffff20;border-radius:10px;background:#ffffff0a;flex:none}.profile-backdrop,.agreement-backdrop{position:fixed;inset:0;z-index:75;display:none;align-items:flex-end;justify-content:center;padding:12px;background:#05060bdc;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}.profile-backdrop.open,.agreement-backdrop.open{display:flex;animation:overlayFadeIn .3s ease both}.profile-modal,.agreement-modal{width:100%;max-width:480px;max-height:88svh;overflow:auto;padding:20px 16px calc(20px + env(safe-area-inset-bottom));border:1px solid #ffffff30;border-radius:28px;background:linear-gradient(155deg,#242735f7,#10111bf9 78%);box-shadow:0 24px 80px #0009;animation:sheetRise .4s cubic-bezier(.2,.85,.25,1) both}.profile-summary{display:flex;align-items:center;gap:12px;padding:13px;border:1px solid #ffffff20;border-radius:18px;background:#ffffff09;margin-bottom:13px}.profile-summary .avatar{width:49px;height:49px}.profile-summary-name{font-size:16px;font-weight:850}.stats-section-title{font-size:10px;letter-spacing:.12em;font-weight:850;color:#9ea4ba;margin:17px 2px 8px}.stats-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.stat-tile{padding:12px;border:1px solid #ffffff20;border-radius:16px;background:#ffffff08}.stat-label{font-size:10px;color:#aeb2c3}.stat-value{font-size:19px;font-weight:850;margin-top:7px}.stat-value.positive{color:#9de8bf}.stat-value.negative{color:#ffabb7}.profile-edit{margin-top:14px;padding:14px;border:1px solid #ffffff20;border-radius:17px;background:#ffffff07}.profile-edit label{display:block;color:#aeb2c3;font-size:11px;margin-bottom:8px}.profile-edit-row{display:flex;gap:8px}.profile-edit input{min-width:0;flex:1;padding:12px;border:1px solid #ffffff25;border-radius:12px;background:#07081080;color:#fff;font:inherit}.profile-edit button,.agreement-ok{padding:12px 14px;border:0;border-radius:12px;background:#fff;color:#151620;font:inherit;font-size:12px;font-weight:850}.profile-hint,.profile-message{font-size:10px;line-height:1.45;color:#aeb2c3;margin-top:9px}.agreement-copy{font-size:14px;line-height:1.75;color:#e3e5ef;padding:15px;border:1px solid #ffffff20;border-radius:18px;background:#ffffff07}.agreement-ok{width:100%;margin-top:14px}@keyframes menuDrop{from{opacity:0;transform:translateY(-7px)}to{opacity:1;transform:translateY(0)}}
 /* Loot boxes */
 .boxes-open{padding:6px 13px;border:1px solid #ffffffb8;border-radius:999px;background:linear-gradient(135deg,#d9c6ff,#fff);color:#171521;font-size:11px;font-weight:850;cursor:pointer;box-shadow:0 3px 14px #ffffff12;transition:transform .15s;white-space:nowrap}.boxes-open:active{transform:scale(.96)}
-.boxes-backdrop{position:fixed;inset:0;z-index:100;display:none;align-items:flex-end;justify-content:center;padding:12px;background:#05060be8;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}.boxes-backdrop.open{display:flex}
-.boxes-modal{width:100%;max-width:480px;max-height:92svh;overflow:auto;border:1px solid #ffffff35;border-radius:30px;background:linear-gradient(155deg,#29283c,#11121b 72%);padding:19px 15px calc(20px + env(safe-area-inset-bottom));box-shadow:0 25px 90px #000a,inset 0 1px #ffffff20}
+{position:fixed;inset:0;z-index:100;display:none;align-items:flex-end;justify-content:center;padding:12px;background:#05060be8;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}{display:flex}
+{width:100%;max-width:480px;max-height:92svh;overflow:auto;border:1px solid #ffffff35;border-radius:30px;background:linear-gradient(155deg,#29283c,#11121b 72%);padding:19px 15px calc(20px + env(safe-area-inset-bottom));box-shadow:0 25px 90px #000a,inset 0 1px #ffffff20}
 .boxes-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin-top:17px}.loot-box{position:relative;display:flex;flex-direction:column;justify-content:flex-end;align-items:stretch;gap:0;min-width:0;aspect-ratio:1/1.08;overflow:hidden;padding:0;border:1px solid var(--box-accent,#ffffff2e);border-radius:21px;color:#fff;text-align:left;cursor:pointer;font:inherit;isolation:isolate;background:#151827;box-shadow:0 9px 25px #0004;transition:transform .16s,border-color .16s,box-shadow .16s,filter .16s}.loot-box:active{transform:scale(.975)}.loot-box:disabled{opacity:.5;cursor:wait}.loot-box.selected{border:2px solid var(--box-light);box-shadow:0 0 0 2px var(--box-accent),0 0 25px var(--box-glow),inset 0 0 22px var(--box-glow);filter:brightness(1.13)}.loot-box.selected:after{content:'✓ ВЫБРАН';position:absolute;top:8px;left:8px;z-index:5;padding:4px 7px;border-radius:7px;background:var(--box-light);color:#10111a;font-size:9px;font-weight:950;letter-spacing:.04em}.loot-multipliers{position:absolute;z-index:3;top:9px;left:8px;right:8px;display:flex;justify-content:center;gap:5px;flex-wrap:wrap;color:var(--box-light);font-size:9px;font-weight:900;line-height:1.1;text-shadow:0 1px 5px #000b;pointer-events:none}.loot-box.selected .loot-multipliers{top:31px}.loot-multipliers span{padding:3px 4px;border:1px solid var(--box-light);border-radius:5px;background:#080a12b8}
 .loot-art{position:absolute;inset:0;z-index:-2;overflow:hidden;display:grid;place-items:center}.loot-art:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#05060b00 15%,#05060b33 45%,#05060bed 100%);z-index:1}.loot-art:after{content:"";position:absolute;width:72%;aspect-ratio:1;border-radius:50%;border:1px solid #ffffff25;box-shadow:0 0 45px var(--box-glow);background:radial-gradient(circle,#ffffff1a,transparent 68%)}.loot-crate{position:relative;z-index:2;width:76px;height:76px;border-radius:21px;display:grid;place-items:center;border:1px solid #ffffff65;background:linear-gradient(145deg,var(--box-light),var(--box-dark));box-shadow:inset 0 1px #ffffff9c,0 12px 36px var(--box-glow);transform:rotate(-8deg);font-size:31px;font-weight:950;letter-spacing:-.08em}.loot-crate:before,.loot-crate:after{content:"";position:absolute;border:1px solid #ffffff54;border-radius:inherit;inset:7px}.loot-crate:after{inset:15px;border-radius:13px}.loot-box-content{position:relative;z-index:2;padding:12px}.loot-box-name{display:block;font-size:15px;font-weight:900;letter-spacing:-.035em}.loot-box-price{display:block;margin-top:5px;font-size:11px;color:#e2e4ef}.loot-box-price b{color:#fff;font-size:14px}.loot-box:nth-child(1){--box-light:#91caff;--box-dark:#234eab;--box-glow:#579aff66;--box-accent:#579aff}.loot-box:nth-child(2){--box-light:#d7a7ff;--box-dark:#6437a5;--box-glow:#ad68ff66;--box-accent:#ad68ff}.loot-box:nth-child(3){--box-light:#7bf0d0;--box-dark:#147b77;--box-glow:#38e6d066;--box-accent:#38e6d0}.loot-box:nth-child(4){--box-light:#ffc77b;--box-dark:#a44a22;--box-glow:#ff9c4566;--box-accent:#ff9c45}.loot-box:nth-child(5){--box-light:#fff1a4;--box-dark:#a88732;--box-glow:#ffe47777;--box-accent:#ffe477;grid-column:1/-1;aspect-ratio:2.25/1}.loot-box:nth-child(5) .loot-crate{width:68px;height:68px}.loot-box:nth-child(5) .loot-art{place-items:center start;padding-left:18%}
 .boxes-hint{margin-top:14px;color:#aeb2c3;font-size:11px;line-height:1.5;text-align:center}.box-roll-area{display:none;margin-top:20px}.box-roll-area.active{display:block}.box-roll-caption{text-align:center;color:#bfc3d3;font-size:12px;margin-bottom:12px}.box-roll-viewport{position:relative;height:110px;overflow:hidden;border:1px solid #ffffff22;border-radius:17px;background:linear-gradient(90deg,#ffffff04,#ffffff0d,#ffffff04);box-shadow:inset 0 0 30px #0004}.box-roll-viewport:before{content:"";position:absolute;z-index:4;top:0;bottom:0;left:50%;width:3px;transform:translateX(-50%);background:#fff;box-shadow:0 0 12px #fff,0 0 25px #b9a5ff;pointer-events:none}.box-roll-viewport:after{content:"";position:absolute;z-index:3;inset:0;pointer-events:none;background:linear-gradient(90deg,#11121b 0%,transparent 14%,transparent 86%,#11121b 100%)}.box-roll-strip{position:absolute;left:0;top:0;height:100%;display:flex;align-items:center;gap:8px;padding:0 8px;will-change:transform}.box-prize{flex:none;width:78px;height:78px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border:1px solid #ffffff25;border-radius:13px;background:linear-gradient(145deg,#ffffff16,#ffffff05);font-size:18px;font-weight:900}.box-prize small{font-size:10px;color:#bfc3d3}.box-prize.win{border-color:#fff;background:linear-gradient(145deg,#d9c6ff35,#ffffff12);box-shadow:0 0 22px #b69bff40}.box-result{text-align:center;margin-top:17px;min-height:58px}.box-result-mult{font-size:32px;font-weight:950;letter-spacing:-.05em}.box-result-copy{font-size:12px;color:#b9bdcd;margin-top:4px}.box-buy-button{width:100%;margin-top:14px;padding:15px;border:0;border-radius:15px;background:#fff;color:#151620;font:inherit;font-size:14px;font-weight:900;cursor:pointer}.box-buy-button:disabled{opacity:.45}.boxes-status{min-height:18px;margin-top:10px;text-align:center;color:#bfc3d3;font-size:12px;line-height:1.45}
@@ -290,22 +290,22 @@ body{position:relative;isolation:isolate;background:#090a12}
 body.section-page-active{overflow:hidden!important}
 body.section-page-active .bottom-nav{display:none!important}
 body.section-page-active .city-backdrop,
-body.section-page-active .boxes-backdrop,
+body.section-page-active 
 body.section-page-active .game-backdrop,
 body.section-page-active .promo-backdrop,
 body.section-page-active .modal-backdrop{position:fixed!important;inset:0!important;width:100%!important;height:100vh!important;height:100dvh!important;max-height:100dvh!important;border-radius:0!important;overflow-x:hidden!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important}
-body.section-page-active .boxes-modal,
+
 body.section-page-active .withdraw-modal,
 body.section-page-active .promo-modal{position:relative!important;width:100%!important;max-width:640px!important;min-height:100%!important;height:auto!important;margin:0 auto!important;border-radius:0!important;border:0!important;box-shadow:none!important;padding:calc(env(safe-area-inset-top) + 62px) 18px calc(env(safe-area-inset-bottom) + 28px)!important;background:transparent!important}
-body.section-page-active .boxes-modal .modal-head,
+.modal-head,
 body.section-page-active .withdraw-modal .modal-head,
 body.section-page-active .promo-modal .modal-head{position:relative;top:auto;z-index:5;padding:8px 0 14px;background:transparent}
 body.section-page-active .city-backdrop .city-head{position:relative;top:auto;background:transparent}
 body.section-page-active .game-backdrop .modal-head{position:relative;top:auto;background:transparent}
-body.section-page-active .boxes-modal .modal-title,
+.modal-title,
 body.section-page-active .withdraw-modal .modal-title,
 body.section-page-active .promo-modal .modal-title{position:static}
-body.section-page-active .boxes-modal .modal-close,
+.modal-close,
 body.section-page-active .withdraw-modal .modal-close,
 body.section-page-active .promo-modal .modal-close{position:fixed!important;top:calc(env(safe-area-inset-top) + 10px)!important;right:16px!important;z-index:20!important;width:42px!important;height:42px!important;border-radius:50%!important;background:#ffffff20!important;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);font-size:28px!important}
 body.section-page-active .game-backdrop{padding:calc(env(safe-area-inset-top) + 60px) 12px calc(env(safe-area-inset-bottom) + 20px)!important;align-items:flex-start!important}
@@ -467,7 +467,7 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
 
 <nav class="bottom-nav" role="navigation" aria-label="Главное меню">
 <button class="nav-item" id="cityOpen" type="button"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="m14.8 9.2-2 5.6-3.6 1 2-5.6 3.6-1Z"/><path d="M12 3.5v2M20.5 12h-2M12 20.5v-2M3.5 12h2"/></svg><span>Города</span></button>
-<button class="nav-item" id="boxesOpen" type="button"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 8.5h17v12h-17zM2.5 4h19v4.5h-19zM12 8.5v12M7.5 4c-2.8 0-2.8 4.5 0 4.5H12M16.5 4c2.8 0 2.8 4.5 0 4.5H12"/></svg><span>Боксы</span></button>
+<button class="nav-item" id="menuHome" type="button"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V21h13V9.5M9 21v-7h6v7"/></svg><span>Меню</span></button>
 <button class="nav-item nav-item-primary" id="gameOpen" type="button"><span class="halloween-mouse" aria-hidden="true"><svg viewBox="0 0 120 68"><path d="M4 54Q29 35 55 48" fill="none" stroke="#c18b52" stroke-width="4" stroke-linecap="round"/><path d="M4 54l-3 9m8-13-1 12m7-17 1 12" stroke="#d8a66c" stroke-width="2.5" stroke-linecap="round"/><ellipse cx="59" cy="42" rx="20" ry="15" fill="#e3e2ed" stroke="#aaa9bd" stroke-width="1.5"/><circle cx="43" cy="27" r="10" fill="#e3e2ed"/><circle cx="43" cy="27" r="5" fill="#e9a8bd"/><circle cx="70" cy="27" r="10" fill="#e3e2ed"/><circle cx="70" cy="27" r="5" fill="#e9a8bd"/><path d="M53 38q-3 5 1 7m11-7q3 5-1 7" fill="none" stroke="#28283a" stroke-width="2" stroke-linecap="round"/><circle cx="77" cy="44" r="3" fill="#e98c9c"/><path d="M45 18Q54 -3 78 14L86 22H39Z" fill="#27223e" stroke="#a98be1" stroke-width="2"/><path d="M43 19Q60 13 83 23" fill="none" stroke="#bd9af2" stroke-width="3"/><path d="M64 17l8-9 7 11" fill="#e0a64c" stroke="#f4ca7a" stroke-width="2"/><path d="M83 21l11 4-11 4" fill="#27233e"/></svg></span><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2.5 1.9 6.1L20 11l-6.1 1.9L12 19l-1.9-6.1L4 11l6.1-2.4L12 2.5Z"/><path d="m19 14 .9 2.5 2.6 1-2.6.9L19 21l-.9-2.6-2.6-.9 2.6-1L19 14ZM5 2l.8 2.2L8 5l-2.2.8L5 8l-.8-2.2L2 5l2.2-.8L5 2Z"/></svg><span>Играть</span><span class="halloween-pumpkin" aria-hidden="true"><svg viewBox="0 0 44 44"><path d="M22 10c-3-6 1-8 5-8-1 4-2 6-5 8" fill="#78965c"/><path d="M22 9C9 3 2 16 5 28c2 9 10 13 17 10 7 3 15-1 17-10 3-12-4-25-17-19Z" fill="#e68b43" stroke="#ffc17d" stroke-width="1.5"/><path d="m13 20 6 3-6 4Zm18 0-6 3 6 4Z" fill="#fff0b2"/><path d="M15 31q7 8 14 0" fill="none" stroke="#fff0b2" stroke-width="3" stroke-linecap="round"/></svg></span></button>
 <button class="nav-item" id="withdrawOpen" type="button"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20V4M6 10l6-6 6 6"/><path d="M4 20h16"/></svg><span>Вывести</span></button>
 <button class="nav-item" id="promoOpen" type="button"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 13.5 13 21l-10-10V3h8l9.5 10.5Z"/><circle cx="7.5" cy="7.5" r="1.2"/></svg><span>Промокоды</span></button>
@@ -626,20 +626,7 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
 <div class="promo-backdrop" id="promoBackdrop" aria-hidden="true"><section class="promo-modal" role="dialog" aria-modal="true" aria-labelledby="promoTitle"><div class="modal-head"><div class="modal-title" id="promoTitle">Промокоды</div><button class="modal-close" id="promoClose" type="button" aria-label="Закрыть">×</button></div><div class="promo-note">Введи промокод и получи 10 наших звёзд. У каждого кода ограниченное число активаций.</div><form id="promoForm"><label class="withdraw-label" for="promoCode">Промокод</label><input class="promo-input" id="promoCode" name="code" maxlength="32" autocomplete="off" autocapitalize="characters" placeholder="ВВЕДИ ПРОМОКОД" required><button class="promo-submit" id="promoSubmit" type="submit">Активировать</button></form><div class="promo-message" id="promoMessage" aria-live="polite"></div></section></div>
 <div class="big-win-backdrop" id="bigWinBackdrop" aria-hidden="true"><section class="big-win-modal" role="dialog" aria-modal="true"><svg class="big-win-star" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 2.8c2.2 0 3.4 2.7 4.7 7.6 1.2 4.5 2.4 5.7 6.9 6.9 4.9 1.3 7.6 2.5 7.6 4.7s-2.7 3.4-7.6 4.7c-4.5 1.2-5.7 2.4-6.9 6.9-1.3 4.9-2.5 7.6-4.7 7.6s-3.4-2.7-4.7-7.6c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 25.4 4.8 24.2 4.8 22s2.7-3.4 7.6-4.7c4.5-1.2 5.7-2.4 6.9-6.9C20.6 5.5 21.8 2.8 24 2.8Z" fill="#fff"/></svg><div class="big-win-title">Поздравляем!</div><div class="big-win-copy" id="bigWinCopy">Крупный выигрыш в StarsSlots.</div><div class="big-win-amount"><span id="bigWinAmount">0</span><svg class="mini-star" viewBox="0 0 48 48" aria-hidden="true"><path d="M24 3c2 0 3.5 3 4.8 7.8 1.2 4.5 2.4 5.7 6.9 6.9C40.5 19 43 20.3 43 22.5s-2.5 3.5-7.3 4.8c-4.5 1.2-5.7 2.4-6.9 6.9C27.5 39 26 42 24 42s-3.5-3-4.8-7.8c-1.2-4.5-2.4-5.7-6.9-6.9C7.5 26 5 25.4 5 22.5s2.5-3.5 7.3-4.8c4.5-1.2 5.7-2.4 6.9-6.9C20.5 6 22 3 24 3Z" fill="#fff"/></svg></div><button class="withdraw-submit" id="bigWinClose" type="button">Продолжить</button></section></div>
 
-<div class="boxes-backdrop" id="boxesBackdrop" aria-hidden="true"><section class="boxes-modal" role="dialog" aria-modal="true" aria-labelledby="boxesTitle">
-<div class="modal-head"><div class="modal-title" id="boxesTitle">Боксы Stars</div><button class="modal-close" id="boxesClose" type="button" aria-label="Закрыть">×</button></div>
-<div class="modal-description">Открой бокс и проверь, какой множитель попадётся.</div>
-<div class="boxes-grid" id="boxesGrid">
-<button class="loot-box" type="button" data-box="stars1" aria-pressed="false"><span class="loot-multipliers"><span>×0</span><span>×1</span><span>×2</span><span>×5</span><span>×10</span></span><span class="loot-art"><span class="loot-crate">S1</span></span><span class="loot-box-content"><span class="loot-box-name">Stars 1</span><span class="loot-box-price"><b>500</b> наших звёзд</span></span></button>
-<button class="loot-box" type="button" data-box="stars2" aria-pressed="false"><span class="loot-multipliers"><span>×0</span><span>×1</span><span>×5</span><span>×25</span><span>×50</span></span><span class="loot-art"><span class="loot-crate">S2</span></span><span class="loot-box-content"><span class="loot-box-name">Stars 2</span><span class="loot-box-price"><b>900</b> наших звёзд</span></span></button>
-<button class="loot-box" type="button" data-box="stars3" aria-pressed="false"><span class="loot-multipliers"><span>×0</span><span>×5</span><span>×25</span><span>×50</span><span>×75</span></span><span class="loot-art"><span class="loot-crate">S3</span></span><span class="loot-box-content"><span class="loot-box-name">Stars 3</span><span class="loot-box-price"><b>1 500</b> наших звёзд</span></span></button>
-<button class="loot-box" type="button" data-box="stars4" aria-pressed="false"><span class="loot-multipliers"><span>×0</span><span>×10</span><span>×50</span><span>×100</span><span>×150</span></span><span class="loot-art"><span class="loot-crate">S4</span></span><span class="loot-box-content"><span class="loot-box-name">Stars 4</span><span class="loot-box-price"><b>4 000</b> наших звёзд</span></span></button>
-<button class="loot-box" type="button" data-box="starsArc" aria-pressed="false"><span class="loot-multipliers"><span>×0</span><span>×25</span><span>×100</span><span>×200</span><span>×300</span></span><span class="loot-art"><span class="loot-crate">ARC</span></span><span class="loot-box-content"><span class="loot-box-name">Stars Arc</span><span class="loot-box-price"><b>9 000</b> наших звёзд</span></span></button>
-</div>
-<div class="boxes-hint" id="boxesHint">Выбери бокс. Цена спишется только после нажатия кнопки открытия.</div><button class="box-buy-button" id="boxOpenSelected" type="button" disabled>Выбери бокс</button>
-<div class="box-roll-area" id="boxRollArea"><div class="box-roll-caption" id="boxRollCaption">Определяем приз…</div><div class="box-roll-viewport" id="boxRollViewport"><div class="box-roll-strip" id="boxRollStrip"></div></div><div class="box-result" id="boxResult"></div></div>
-<button class="box-buy-button" id="boxBuyButton" type="button" style="display:none">Открыть ещё раз</button><div class="boxes-status" id="boxesStatus" aria-live="polite"></div>
-</section></div>
+
 </main>
 
 <div class="low-balance-backdrop" id="lowBalanceBackdrop" aria-hidden="true">
@@ -995,201 +982,10 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
 </script>
 <script>(function(){const tg=window.Telegram&&window.Telegram.WebApp,init=()=>tg&&tg.initData;const banner=document.getElementById('maintenanceBanner'),online=document.getElementById('onlineCount');async function status(){if(!init())return;try{const p=await fetch('/api/presence',{method:'POST',headers:{'X-Telegram-Init-Data':init()}}),pd=await p.json();if(online)online.textContent='ОНЛАЙН: '+(pd.online||0);const r=await fetch('/api/status',{headers:{'X-Telegram-Init-Data':init()}}),d=await r.json();if(banner)banner.style.display=d.maintenance?'flex':'none';}catch(_){}}status();setInterval(status,15000);const menu=document.getElementById('gameMenu'),panel=document.getElementById('cupsPanel'),double=document.getElementById('doublePanel'),slots=document.getElementById('wheelPanel'),bal=document.getElementById('cupsBalance'),bet=document.getElementById('cupsBet'),result=document.getElementById('cupsResult'),choices=document.getElementById('cupsChoices');function showCups(){menu.style.display='none';double.classList.remove('active');slots.classList.remove('active');panel.style.display='';panel.classList.add('active');bal.textContent=document.getElementById('balance')?.textContent||'0';}function backFromCups(){panel.classList.remove('active');panel.style.display='none';menu.style.display='grid';}document.getElementById('openCups')?.addEventListener('click',showCups);document.getElementById('cupsBack')?.addEventListener('click',backFromCups);choices?.addEventListener('click',async e=>{const b=e.target.closest('[data-cup]');if(!b)return;if(!init()){result.textContent='Открой приложение через Telegram-бота.';return;}const amount=Number(bet.value),choice=Number(b.dataset.cup);if(!Number.isSafeInteger(amount)||amount<1){result.textContent='Введи корректную ставку.';return;}choices.querySelectorAll('button').forEach(x=>x.disabled=true);result.textContent='Перемешиваем стаканчики…';try{const r=await fetch('/api/cups/play',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':init()},body:JSON.stringify({bet:amount,choice})}),d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||'Ошибка игры.');bal.textContent=Number(d.balance).toLocaleString('ru-RU');document.getElementById('balance').textContent=Number(d.balance).toLocaleString('ru-RU');choices.querySelectorAll('[data-cup]').forEach((x,i)=>{x.style.borderColor=i===d.winningCup?'#a8f0c4':i===choice?'#ff9d9d':'#ffffff30';if(i===d.winningCup)x.style.background='#8bdcaf22';});result.textContent=d.won?'Угадал! Начислено '+Number(d.payout).toLocaleString('ru-RU')+' звёзд.':'Не угадал. Звезда была под стаканчиком №'+(d.winningCup+1)+'. Списана ставка '+Number(d.bet).toLocaleString('ru-RU')+'.';}catch(err){result.textContent=err.message||'Не удалось сыграть.';}finally{setTimeout(()=>choices.querySelectorAll('button').forEach(x=>{x.disabled=false;x.style.borderColor='#ffffff30';x.style.background='#ffffff0b';}),1500);}});})();</script>
 
-<script>
-(function(){
- 'use strict';
- const tg=window.Telegram&&window.Telegram.WebApp;
- const backdrop=document.getElementById('boxesBackdrop');
- const open=document.getElementById('boxesOpen');
- const close=document.getElementById('boxesClose');
- const grid=document.getElementById('boxesGrid');
- const hint=document.getElementById('boxesHint');
- const roll=document.getElementById('boxRollArea');
- const strip=document.getElementById('boxRollStrip');
- const caption=document.getElementById('boxRollCaption');
- const result=document.getElementById('boxResult');
- const buy=document.getElementById('boxBuyButton');
- const openSelected=document.getElementById('boxOpenSelected');
- const status=document.getElementById('boxesStatus');
- const viewport=document.getElementById('boxRollViewport');
- let freeBoxSpins=0,freeBoxExpiresAt=null;
- async function refreshBoxPromo(){if(!tg||!tg.initData)return;try{const r=await fetch('/api/boxes/status',{headers:{'X-Telegram-Init-Data':tg.initData}});const d=await r.json();if(r.ok&&d.ok){freeBoxSpins=Number(d.freeSpins)||0;freeBoxExpiresAt=d.expiresAt||null;if(selected)setSelected(selected);if(freeBoxSpins>0)status.textContent='STAR-12BOX: бесплатных Stars 1 осталось '+freeBoxSpins+'. Бонус +1,2% к пополнениям действует 12 часов.';}}catch(_){}}
- const balanceNode=document.getElementById('balance');
- const boxes={
-  stars1:{name:'Stars 1',cost:500,max:10},
-  stars2:{name:'Stars 2',cost:900,max:50},
-  stars3:{name:'Stars 3',cost:1500,max:75},
-  stars4:{name:'Stars 4',cost:4000,max:150},
-  starsArc:{name:'Stars Arc',cost:9000,max:300}
- };
- let selected=null,busy=false;
- function show(){
-  if(!backdrop)return;
-  backdrop.classList.add('open');
-  backdrop.setAttribute('aria-hidden','false');
-  document.body.style.overflow='hidden';
-  if(tg&&tg.HapticFeedback)try{tg.HapticFeedback.impactOccurred('light')}catch(_){}
- }
- function hide(){
-  if(busy||!backdrop)return;
-  backdrop.classList.remove('open');
-  backdrop.setAttribute('aria-hidden','true');
-  document.body.style.overflow='';
- }
- open&&open.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();show();refreshBoxPromo();});
- close&&close.addEventListener('click',hide);
- backdrop&&backdrop.addEventListener('click',function(e){if(e.target===backdrop)hide();});
- document.addEventListener('keydown',function(e){if(e.key==='Escape')hide();});
- function setSelected(key){
-  const box=boxes[key];if(!box||busy)return;
-  selected=key;
-  grid.querySelectorAll('[data-box]').forEach(function(button){
-   const active=button.dataset.box===key;
-   button.classList.toggle('selected',active);
-   button.setAttribute('aria-pressed',active?'true':'false');
-  });
-  openSelected.disabled=false;
-  openSelected.textContent=(key==='stars1'&&freeBoxSpins>0?'Бесплатно открыть Stars 1 · осталось '+freeBoxSpins:'Открыть за '+box.cost.toLocaleString('ru-RU')+' звёзд');
-  status.textContent=key==='stars1'&&freeBoxSpins>0?'STAR-12BOX активен: бесплатных открытий осталось '+freeBoxSpins+'.':box.name+' выбран. Цена: '+box.cost.toLocaleString('ru-RU')+' наших звёзд.';
- }
- function setBusy(value){
-  busy=value;
-  grid.querySelectorAll('[data-box]').forEach(function(button){button.disabled=value;});
-  openSelected.disabled=value||!selected;
-  if(buy)buy.disabled=value;
-  if(close)close.disabled=value;
- }
- function prizeCard(multiplier,win){
-  const el=document.createElement('div');el.className='box-prize'+(win?' win':'');
-  const big=document.createElement('span');big.textContent='×'+multiplier;
-  const small=document.createElement('small');small.textContent=multiplier===0?'Без выплаты':'Множитель';
-  el.append(big,small);return el;
- }
- function resetAnimation(){
-  strip.style.transition='none';strip.style.transform='translateX(0)';
-  result.textContent='';caption.textContent='Бокс открывается…';
- }
- async function openBox(key){
-  if(busy)return;
-  const box=boxes[key];if(!box)return;
-  if(!tg||!tg.initData){
-   status.textContent='Открой приложение через Telegram-бота, чтобы открыть боксы.';
-   return;
-  }
-  selected=key;setBusy(true);
-  status.textContent=(key==='stars1'&&freeBoxSpins>0?'Используем бесплатное открытие…':'Покупаем '+box.name+'…');
-  hint.style.display='none';roll.classList.add('active');result.textContent='';
-  openSelected.textContent='Открываем…';if(buy)buy.style.display='none';
-  try{
-   const response=await fetch('/api/boxes/open',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','X-Telegram-Init-Data':tg.initData},
-    body:JSON.stringify({box:key})
-   });
-   const data=await response.json();
-   if(!response.ok||!data.ok)throw new Error(data.error||'Не удалось открыть бокс.');
-   // Reel is decorative: show the box's possible multipliers while the server alone decides the real outcome.
-   const visualMultipliers=Array.from({length:36},function(_,i){
-    if(i%7===0)return 0;
-    const pool=[1,2,3,5,10,Math.ceil(box.max*.25),Math.ceil(box.max*.5),box.max].filter(function(n){return n>0&&n<=box.max;});
-    return pool[Math.floor(Math.random()*pool.length)];
-   });
-   const items=visualMultipliers.map(function(multiplier){return {multiplier,win:false};});
-   const targetIndex=30;
-   items[targetIndex]={multiplier:Number(data.multiplier),win:true};
-   strip.replaceChildren();
-   items.forEach(function(item){strip.appendChild(prizeCard(item.multiplier,item.win));});
-   resetAnimation();
-   caption.textContent=box.name+' · прокрутка призов';
-   await new Promise(function(resolve){requestAnimationFrame(function(){requestAnimationFrame(function(){
-    const target=strip.children[targetIndex];
-    const distance=Math.max(0,target.offsetLeft+target.offsetWidth/2-viewport.clientWidth/2);
-    strip.style.transition='transform 4.6s cubic-bezier(.08,.78,.12,1)';
-    strip.style.transform='translate3d(-'+distance+'px,0,0)';
-    setTimeout(resolve,4700);
-   });});});
-   const won=Number(data.payout)>0;
-   const mult=document.createElement('div');mult.className='box-result-mult';mult.textContent='×'+Number(data.multiplier);
-   const copy=document.createElement('div');copy.className='box-result-copy';
-   copy.textContent=won?'Выигрыш: '+Number(data.payout).toLocaleString('ru-RU')+' наших звёзд':'Выпал ×0. Выплаты нет.';
-   result.replaceChildren(mult,copy);
-   if(balanceNode)balanceNode.textContent=Number(data.balance).toLocaleString('ru-RU');
-   caption.textContent='Результат';
-   status.textContent=won?'Поздравляем! Баланс обновлён.':'Бокс открыт. Выплаты нет.';
-   freeBoxSpins=Number(data.freeSpinsRemaining)||0;freeBoxExpiresAt=data.promoExpiresAt||null;
-   openSelected.textContent=(key==='stars1'&&freeBoxSpins>0?'Бесплатно открыть Stars 1 · осталось '+freeBoxSpins:'Открыть ещё раз · '+box.cost.toLocaleString('ru-RU')+' звёзд');
-   if(data.freeSpin)status.textContent='Бесплатное открытие использовано. Осталось: '+freeBoxSpins+'.';
-   if(tg&&tg.HapticFeedback)try{tg.HapticFeedback.notificationOccurred(won?'success':'warning')}catch(_){}
-  }catch(e){
-   status.textContent=e&&e.message?e.message:'Ошибка открытия бокса.';
-   if(!strip.children.length){roll.classList.remove('active');hint.style.display='block';}
-   openSelected.textContent='Открыть за '+box.cost.toLocaleString('ru-RU')+' звёзд';
-  }finally{setBusy(false);}
- }
- if(grid){
-  grid.querySelectorAll('[data-box]').forEach(function(button){
-   button.addEventListener('click',function(){setSelected(button.dataset.box);});
-  });
- }
- openSelected&&openSelected.addEventListener('click',function(){if(selected)openBox(selected);});
- buy&&buy.addEventListener('click',function(){if(selected)openBox(selected);});
-})();
-</script>
-<script>
-(function(){
- const tg=window.Telegram&&window.Telegram.WebApp,$=id=>document.getElementById(id),backdrop=$('cityBackdrop');
- if(!backdrop)return;
- const cities=[
-  {id:'egorshino',name:'ЕГОРШИНО',rate:.50,cost:0},
-  {id:'bulanash',name:'БУЛАНАШ',rate:.65,cost:333},
-  {id:'rezh',name:'РЕЖ',rate:.90,cost:444},
-  {id:'alapaevsk',name:'АЛАПАЕВСКИЙ',rate:1.25,cost:999},
-  {id:'berezovsky',name:'БЕРЕЗОВСКИЙ',rate:1.55,cost:1333},
-  {id:'ekaterinburg',name:'ЕКАТЕРИНБУРГ',rate:2.25,cost:2666}
- ];
- let districtOptions=[];
- let state={balance:0,city:'egorshino',clicks:0,level:1,goldenFrame:false},busy=false,queue=0;
- const fmt=n=>Number(n||0).toLocaleString('ru-RU',{maximumFractionDigits:2}),initData=()=>tg&&tg.initData||'';
- const exchangeSoon=$('exchangeSoonBackdrop'),exchangeAmount=$('cityExchangeAmount'),exchangePreview=$('cityExchangePreview'),exchangeBalances=$('cityExchangeBalances'),exchangeMessage=$('cityExchangeMessage'),exchangeSubmit=$('cityExchangeSubmit');
- function refreshExchangePreview(){const amount=Number(exchangeAmount?.value||0);exchangePreview.textContent=Number.isSafeInteger(amount)&&amount>0?'Получишь '+fmt(amount/2)+' городских звёзд':'Укажи целое число наших звёзд';}
- function openCityExchange(){exchangeSoon.classList.add('open');exchangeSoon.setAttribute('aria-hidden','false');exchangeMessage.textContent='';exchangeAmount.value='';refreshExchangePreview();exchangeBalances.textContent='Наш баланс: '+fmt(Number($('balance').textContent.replace(/\\s/g,''))||0)+' · Городской баланс: '+fmt(state.balance);}
- function closeCityExchange(){exchangeSoon.classList.remove('open');exchangeSoon.setAttribute('aria-hidden','true');}
- $('cityExchangeOpen')?.addEventListener('click',openCityExchange);$('exchangeSoonClose')?.addEventListener('click',closeCityExchange);exchangeSoon?.addEventListener('click',e=>{if(e.target===exchangeSoon)closeCityExchange()});exchangeAmount?.addEventListener('input',refreshExchangePreview);
- exchangeSubmit?.addEventListener('click',async()=>{const amount=Number(exchangeAmount.value);if(!Number.isSafeInteger(amount)||amount<1){exchangeMessage.textContent='Введи целое число больше нуля.';return;}exchangeSubmit.disabled=true;exchangeMessage.textContent='Проводим обмен…';try{const out=await api('/api/cities/exchange','POST',{amount});state={...state,balance:Number(out.cityBalance)};$('homeCityBalance').textContent=fmt(state.balance);$('cityBalance').textContent=fmt(state.balance);$('balance').textContent=fmt(out.mainBalance);const stat=$('statBalance');if(stat)stat.textContent=fmt(out.mainBalance);exchangeBalances.textContent='Наш баланс: '+fmt(out.mainBalance)+' · Городской баланс: '+fmt(out.cityBalance);exchangeMessage.textContent='Успешно обменяно: '+fmt(amount)+' наших звёзд → '+fmt(out.cityReceived)+' городских звёзд.';exchangeAmount.value='';refreshExchangePreview();}catch(e){exchangeMessage.textContent=e.message;}finally{exchangeSubmit.disabled=false;}});
-
- async function api(url,method='GET',body){const r=await fetch(url,{method,headers:{'X-Telegram-Init-Data':initData(),'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||'Не удалось выполнить действие.');return d}
- function panel(id,show){$(id).classList.toggle('open',show)}
- function showSuccess(title,copy){const message=$('cityMessage');if(message)message.textContent=title+' — '+copy;}
- function renderDistrictChoices(){const wrap=$('districtChoices');if(!wrap)return;wrap.replaceChildren();for(const d of districtOptions){const b=document.createElement('button');b.type='button';b.className='city-choice';const left=document.createElement('span');left.innerHTML='<span class="city-choice-name"></span><span class="city-choice-desc"></span>';left.querySelector('.city-choice-name').textContent=d.name;left.querySelector('.city-choice-desc').textContent='Автодоход '+fmt((cities.find(x=>x.id===state.city)?.rate||0)*d.autoRate)+' ★/ч';const cost=document.createElement('span');cost.className='city-choice-cost';const owned=state.district===d.name;cost.textContent=owned?'ТВОЙ РАЙОН':fmt(d.cost)+' ★';b.append(left,cost);b.disabled=busy||owned;b.addEventListener('click',async()=>{if(busy||owned)return;busy=true;try{const out=await api('/api/cities/district/buy','POST',{district:d.name});state={...state,balance:out.cityBalance??out.balance,city:out.city,clicks:out.clicks,level:out.level,goldenFrame:out.goldenFrame,district:out.district||null,districtAutoRate:Number(out.districtAutoRate||0)};districtOptions=out.districts||districtOptions;render();showSuccess('Район приобретён','Ты приобрёл район «'+d.name+'». Автоматический доход теперь '+fmt((cities.find(x=>x.id===state.city)?.rate||0)*state.districtAutoRate)+' звёзд в час.')}catch(e){$('cityMessage').textContent=e.message}finally{busy=false;render()}});wrap.appendChild(b)}}
- function render(){const c=cities.find(x=>x.id===state.city)||cities[0];backdrop.classList.remove('city-theme-egorshino','city-theme-bulanash','city-theme-rezh','city-theme-alapaevsk','city-theme-berezovsky','city-theme-ekaterinburg');backdrop.classList.add('city-theme-'+(state.city||'egorshino'));$('homeCityBalance').textContent=fmt(state.balance);$('cityName').textContent=c.name;$('cityRate').textContent=c.rate.toLocaleString('ru-RU',{minimumFractionDigits:2,maximumFractionDigits:2});$('cityBalance').textContent=fmt(state.balance);$('cityLevel').textContent=fmt(state.level);$('cityClicks').textContent=fmt(state.clicks);$('cityNext').textContent=fmt((10-(state.clicks%10))%10||10);const small=$('cityDistrictSmall');if(small)small.textContent=state.district||'Район не куплен';const current=$('districtCurrent');if(current){current.textContent=state.district?'Твой район: '+state.district:'Район ещё не куплен';current.style.color=state.districtColor||''}const income=$('districtIncome');if(income)income.textContent='Автоматический доход: '+fmt((c.rate||0)*(state.districtAutoRate||0))+' звёзд/час';renderDistrictChoices()}
- async function load(){try{const d=await api('/api/cities');state={...state,balance:d.cityBalance??d.balance,city:d.city,clicks:d.clicks,level:d.level,goldenFrame:d.goldenFrame,district:d.district||null,districtAutoRate:Number(d.districtAutoRate||0)};districtOptions=d.districts||[];if(d.mainBalance!==undefined){$('balance').textContent=fmt(d.mainBalance);const sb=$('statBalance');if(sb)sb.textContent=fmt(d.mainBalance)}render()}catch(e){$('cityMessage').textContent=e.message}}
- async function open(){const loader=$('cityLoading');backdrop.classList.add('open');backdrop.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';panel('cityMovePanel',false);panel('cityTopPanel',false);if(loader){loader.classList.add('show');loader.setAttribute('aria-hidden','false')}await load();if(loader){loader.classList.remove('show');loader.setAttribute('aria-hidden','true')}}
- function close(){backdrop.classList.remove('open');backdrop.setAttribute('aria-hidden','true');document.body.style.overflow=''}
- $('cityOpen')?.addEventListener('click',open);$('cityClose').addEventListener('click',close);backdrop.addEventListener('click',e=>{if(e.target===backdrop)close()});
- async function renderChoices(){const wrap=$('cityChoices');wrap.replaceChildren();for(const c of cities){if(c.id==='egorshino')continue;const b=document.createElement('button');b.className='city-choice';b.type='button';b.disabled=c.id===state.city;const left=document.createElement('span');left.innerHTML='<span class="city-choice-name"></span><span class="city-choice-desc"></span>';left.querySelector('.city-choice-name').textContent=c.name;left.querySelector('.city-choice-desc').textContent='Заработок '+c.rate.toLocaleString('ru-RU',{minimumFractionDigits:2})+' ★ за клик';const cost=document.createElement('span');cost.className='city-choice-cost';cost.textContent=c.id===state.city?'ТВОЙ ГОРОД':fmt(c.cost)+' ★';b.append(left,cost);b.addEventListener('click',async()=>{if(busy)return;busy=true;$('cityMessage').textContent='Оформляем переезд…';try{const d=await api('/api/cities/move','POST',{city:c.id});state={...state,balance:d.cityBalance??d.balance,city:d.city,clicks:d.clicks,level:d.level,goldenFrame:d.goldenFrame,district:d.district||null,districtAutoRate:Number(d.districtAutoRate||0)};districtOptions=d.districts||[];render();await renderChoices();showSuccess('Город приобретён','Ты переехал в город «'+c.name+'». Район можно выбрать отдельно в разделе «Районы».')}catch(e){$('cityMessage').textContent=e.message}finally{busy=false;render()}});wrap.appendChild(b)}}
- $('cityMoveOpen').addEventListener('click',async()=>{panel('cityTopPanel',false);panel('districtPanel',false);const openNow=!$('cityMovePanel').classList.contains('open');panel('cityMovePanel',openNow);if(openNow)await renderChoices()});
- $('cityDistrictOpen').addEventListener('click',()=>{panel('cityTopPanel',false);panel('cityMovePanel',false);panel('districtPanel',!$('districtPanel').classList.contains('open'))});
- $('cityTopOpen').addEventListener('click',async()=>{panel('cityMovePanel',false);panel('districtPanel',false);const openNow=!$('cityTopPanel').classList.contains('open');panel('cityTopPanel',openNow);if(!openNow)return;const list=$('cityTopList');list.textContent='Загружаем рейтинг…';try{const d=await api('/api/cities/top');list.replaceChildren();if(!d.players.length){list.textContent='Пока игроков нет.';return}for(const p of d.players){const row=document.createElement('div');row.className='city-top-row'+(p.businessName?(p.isTopBusiness?' business-gold':' business-green'):(p.goldenFrame?' gold':''));const rank=document.createElement('span');rank.className='city-rank';rank.textContent=String(p.rank).padStart(2,'0');const avatar=document.createElement('span');avatar.className='city-top-avatar';avatar.textContent=(p.name||'И').replace(/^@/,'').trim().charAt(0).toUpperCase()||'И';if(p.avatarUrl){avatar.style.backgroundImage='url("'+p.avatarUrl.replace(/\\/g,'\\\\').replace(/"/g,'\\"')+'")';avatar.textContent=''}const info=document.createElement('span');info.className='city-top-name';const name=document.createElement('span');name.textContent=p.name;const meta=document.createElement('div');meta.className='city-top-meta';meta.textContent=p.cityName+(p.district?' · '+p.district:' · Без района')+' · Уровень '+p.level+(p.businessName?' · '+p.businessName+' · доход '+fmt(Math.max(1,Math.floor(p.businessCost*.001)))+' ★/ч · работников '+p.workers:' · Без бизнеса');info.append(name,meta);const balance=document.createElement('span');balance.className='city-top-balance';balance.textContent=fmt(p.balance)+' ★';row.append(rank,avatar,info,balance);list.append(row)}}catch(e){list.textContent=e.message}});
- 
- let businessKind='cars',businessData=null;
- const businessTypeMeta={cars:{label:'АВТОМОБИЛИ',cost:19000,icon:'▰'},shop:{label:'МАГАЗИН',cost:14000,icon:'▤'},stall:{label:'ЛАРЁК',cost:9000,icon:'▱'}};
- function addBusinessProduct(name='',price=''){const wrap=$('businessProducts');if(wrap.children.length>=15)return;const row=document.createElement('div');row.className='city-product-row';const n=document.createElement('input');n.className='city-product-input';n.placeholder='Название товара';n.maxLength=40;n.value=name;const p=document.createElement('input');p.className='city-product-input';p.type='number';p.min='1';p.step='1';p.placeholder='Цена ★';p.value=price;row.append(n,p);wrap.append(row)}
- for(let z=0;z<2;z++)addBusinessProduct();
- $('cityBusinessTypes').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{businessKind=b.dataset.kind;$('cityBusinessTypes').querySelectorAll('button').forEach(x=>x.classList.toggle('selected',x===b));const cityCost=Number(cities.find(x=>x.id===state.city)?.cost||0);const factor=.5+cityCost/2666;$('businessCreateHint').textContent='Стоимость: '+fmt(Math.round(businessTypeMeta[businessKind].cost*factor))+' городских звёзд.';}));
- $('businessAddProduct').addEventListener('click',()=>addBusinessProduct());
- async function loadBusinesses(){const d=await api('/api/cities/businesses');businessData=d;state.balance=d.balance;$('cityBalance').textContent=fmt(d.balance);$('homeCityBalance').textContent=fmt(d.balance);const shop=$('cityShopList'),work=$('cityWorkList');shop.replaceChildren();work.replaceChildren();const me=String(window.Telegram?.WebApp?.initDataUnsafe?.user?.id||'');if(!d.businesses.length){shop.textContent='Пока нет открытых бизнесов.';work.textContent='Пока нет вакансий. Загляни позже.';return}for(const b of d.businesses){const card=(jobMode)=>{const el=document.createElement('article');el.className='city-business-card compact-business-card';const head=document.createElement('div');head.className='city-business-card-head';const title=document.createElement('div');const kind=document.createElement('div');kind.className='city-business-kind';kind.textContent=businessTypeMeta[b.kind]?.label||'БИЗНЕС';const name=document.createElement('div');name.className='city-business-name';name.textContent=b.name;const meta=document.createElement('div');meta.className='city-business-meta';meta.textContent=b.owner+' · '+(cities.find(x=>x.id===b.city)?.name||b.city)+' · работников: '+b.workers+' · посещений: '+b.visits;title.append(kind,name,meta);const cost=document.createElement('strong');cost.className='city-business-income';cost.textContent=fmt(b.cost)+' ★';head.append(title,cost);el.append(head);const revenue=document.createElement('div');revenue.className='business-total-revenue';revenue.textContent='Общий доход бизнеса: '+fmt(b.totalRevenue)+' ★';el.append(revenue);const list=document.createElement('div');list.className='city-business-products compact-products';b.products.forEach((p,i)=>{const row=document.createElement('div');row.className='city-business-product';const label=document.createElement('span');label.textContent=p.name;const right=document.createElement('div');right.className='business-product-buy';const price=document.createElement('strong');price.textContent=fmt(p.price)+' ★';right.append(price);if(!jobMode&&b.ownerId!==me){const buy=document.createElement('button');buy.className='business-buy-button';buy.type='button';buy.textContent='Купить';buy.addEventListener('click',async()=>{buy.disabled=true;try{const r=await api('/api/cities/businesses/purchase','POST',{businessId:b.id,productIndex:i});state.balance=r.balance;$('cityBalance').textContent=fmt(r.balance);$('homeCityBalance').textContent=fmt(r.balance);await loadBusinesses()}catch(e){$('cityShopList').insertAdjacentText('afterbegin',e.message)}finally{buy.disabled=false}});right.append(buy)}row.append(label,right);list.append(row)});el.append(list);if(jobMode&&b.ownerId!==me){const hire=document.createElement('button');hire.className='city-business-action';hire.textContent=d.job?.businessId===b.id?'ТЫ УЖЕ РАБОТАЕШЬ ЗДЕСЬ':'УСТРОИТЬСЯ БЕСПЛАТНО';hire.disabled=d.job?.businessId===b.id;hire.addEventListener('click',async()=>{try{await api('/api/cities/businesses/work','POST',{businessId:b.id});await loadBusinesses()}catch(e){$('cityJobStatus').textContent=e.message}});el.append(hire)}return el};shop.append(card(false));if(b.ownerId!==me)work.append(card(true))}if(!work.children.length)work.textContent='Пока нет вакансий от других владельцев.';$('cityJobStatus').textContent=d.job?'Ты работаешь в выбранном бизнесе. Получаешь 15% от каждой покупки.':'Ты пока нигде не работаешь.';if(d.job){const quit=document.createElement('button');quit.className='city-business-action';quit.textContent='УВОЛИТЬСЯ';quit.addEventListener('click',async()=>{try{await api('/api/cities/businesses/quit','POST',{});await loadBusinesses()}catch(e){$('cityJobStatus').textContent=e.message}});$('cityJobStatus').append(quit)}}
- $('cityShopOpen').addEventListener('click',async()=>{panel('cityWorkPanel',false);panel('cityCreatePanel',false);panel('cityWorkersPanel',false);const show=!$('cityShopPanel').classList.contains('open');panel('cityShopPanel',show);if(show)try{await loadBusinesses()}catch(e){$('cityShopList').textContent=e.message}});
- $('cityWorkOpen').addEventListener('click',async()=>{panel('cityShopPanel',false);panel('cityCreatePanel',false);panel('cityWorkersPanel',false);const show=!$('cityWorkPanel').classList.contains('open');panel('cityWorkPanel',show);if(show)try{await loadBusinesses()}catch(e){$('cityWorkList').textContent=e.message}});
- $('cityWorkersOpen').addEventListener('click',async()=>{panel('cityShopPanel',false);panel('cityWorkPanel',false);panel('cityCreatePanel',false);const show=!$('cityWorkersPanel').classList.contains('open');panel('cityWorkersPanel',show);if(!show)return;const list=$('cityWorkersList');list.textContent='Загружаем список…';try{const d=await api('/api/cities/businesses');if(!d.mine){list.textContent='Бизнес еще не открыт';return}const workers=Array.isArray(d.mineWorkers)?d.mineWorkers:[];if(!workers.length){list.textContent='Пока нет работников';return}list.replaceChildren();workers.forEach((w,i)=>{const row=document.createElement('div');row.className='worker-row';const index=document.createElement('span');index.className='worker-index';index.textContent=String(i+1).padStart(2,'0');const avatar=document.createElement('span');avatar.className='worker-avatar';const label=w.username?'@'+w.username:(w.firstName||'Игрок');avatar.textContent=label.replace(/^@/,'').slice(0,1).toUpperCase();if(w.avatarUrl&&/^https:\/\//i.test(w.avatarUrl)){avatar.style.backgroundImage='url("'+w.avatarUrl.replace(/\\/g,'\\\\').replace(/"/g,'\\"')+'")';avatar.classList.add('has-photo');avatar.textContent=''}const info=document.createElement('span');info.className='worker-info';const username=document.createElement('strong');username.textContent=label;const subtitle=document.createElement('small');subtitle.textContent='Работник бизнеса';info.append(username,subtitle);row.append(index,avatar,info);list.append(row)})}catch(e){list.textContent=e.message||'Не удалось загрузить работников'}});
- $('cityCreateOpen').addEventListener('click',()=>{panel('cityShopPanel',false);panel('cityWorkPanel',false);panel('cityWorkersPanel',false);panel('cityCreatePanel',!$('cityCreatePanel').classList.contains('open'));const cityCost=Number(cities.find(x=>x.id===state.city)?.cost||0);const factor=.5+cityCost/2666;$('businessCreateHint').textContent='Стоимость: '+fmt(Math.round(businessTypeMeta[businessKind].cost*factor))+' городских звёзд.'});
- $('businessCreateSubmit').addEventListener('click',async()=>{const rows=[...$('businessProducts').children],products=rows.map(r=>({name:r.children[0].value.trim(),price:Number(r.children[1].value)}));if(rows.length<2||rows.length>15||products.some(p=>p.name.length<2||!Number.isSafeInteger(p.price)||p.price<1)){$('businessCreateHint').textContent='Заполни от 2 до 15 товаров и укажи цену каждого.';return}const b=$('businessCreateSubmit');b.disabled=true;try{const d=await api('/api/cities/businesses/create','POST',{kind:businessKind,name:$('businessName').value,products});state.balance=d.balance;render();$('businessCreateHint').textContent='Бизнес создан! Списано '+fmt(d.cost)+' городских звёзд.';await loadBusinesses()}catch(e){$('businessCreateHint').textContent=e.message}finally{b.disabled=false}});
- load();
-})();
-</script>
 <script id="section-navigation-fix">
 (function(){
- const routes={cityOpen:'cityBackdrop',boxesOpen:'boxesBackdrop',gameOpen:'gameBackdrop',withdrawOpen:'withdrawBackdrop',promoOpen:'promoBackdrop'};
- const panels=['cityBackdrop','boxesBackdrop','gameBackdrop','withdrawBackdrop','promoBackdrop'];
+ const routes={cityOpen:'cityBackdrop',gameOpen:'gameBackdrop',withdrawOpen:'withdrawBackdrop',promoOpen:'promoBackdrop'};
+ const panels=['cityBackdrop','gameBackdrop','withdrawBackdrop','promoBackdrop'];
  function closeGameModes(){
   ['wheelPanel','doublePanel','nvutiPanel','penaltyPanel','doorGamePanel','cupsPanel'].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.remove('active');if(id==='cupsPanel')el.style.display='none';}});
   const menu=document.getElementById('gameMenu');if(menu)menu.style.display='grid';
@@ -1286,25 +1082,38 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
 .section-return-menu{display:flex!important;align-items:center;justify-content:center;gap:9px;width:max-content;max-width:100%;min-height:42px;margin:0 0 18px;padding:0 17px;border:1px solid rgba(255,255,255,.34);border-radius:15px;background:rgba(255,255,255,.13);color:#fff;font:750 13px/1 inherit;letter-spacing:.01em;box-shadow:0 8px 24px rgba(0,0,0,.12);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);cursor:pointer;transition:transform .16s ease,background .16s ease}
 .section-return-menu:before{content:"";width:8px;height:8px;border-left:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);margin-right:2px}
 .section-return-menu:active{transform:scale(.96);background:rgba(255,255,255,.23)}
-body.section-page-active .city-close,body.section-page-active .modal-close#boxesClose,body.section-page-active .modal-close#withdrawClose,body.section-page-active .modal-close#promoClose,body.section-page-active #gameClose{display:none!important}
-body.section-page-active .city-shell,body.section-page-active .boxes-modal,body.section-page-active .withdraw-modal,body.section-page-active .promo-modal,body.section-page-active .game-modal{padding-top:calc(env(safe-area-inset-top) + 16px)!important}
+body.section-page-active .city-close,body.section-page-active .modal-close#withdrawClose,body.section-page-active .modal-close#promoClose,body.section-page-active #gameClose{display:none!important}
+body.section-page-active .city-shell,body.section-page-active .withdraw-modal,body.section-page-active .promo-modal,body.section-page-active .game-modal{padding-top:calc(env(safe-area-inset-top) + 16px)!important}
 </style>
-<script id="section-return-menu-script">
+<style id="persistent-menu-control">
+#persistentMenuHome{display:none;position:fixed;top:calc(env(safe-area-inset-top) + 12px);left:14px;z-index:9999;min-height:42px;padding:0 16px 0 13px;border:1px solid #ffffff45;border-radius:15px;background:rgba(24,28,42,.78);color:#fff;font:800 13px/1 inherit;letter-spacing:.01em;box-shadow:0 8px 26px #0005;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+#persistentMenuHome:before{content:"";display:inline-block;width:8px;height:8px;margin-right:9px;border-left:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);vertical-align:1px}
+body.section-page-active #persistentMenuHome{display:block}
+body.section-page-active .section-return-menu{display:none!important}
+</style>
+<button id="persistentMenuHome" type="button" aria-label="Вернуться в главное меню">Меню</button>
+<script id="persistent-menu-control-script">
 (function(){
- const configs=[
-  {root:'.city-shell',close:'cityClose'},
-  {root:'.boxes-modal',close:'boxesClose'},
-  {root:'.game-modal',close:'gameClose'},
-  {root:'.withdraw-modal',close:'withdrawClose'},
-  {root:'.promo-modal',close:'promoClose'}
- ];
- configs.forEach(({root,close})=>{
-  const host=document.querySelector(root),closer=document.getElementById(close);
-  if(!host||!closer||host.querySelector('.section-return-menu'))return;
-  const b=document.createElement('button');
-  b.type='button';b.className='section-return-menu';b.textContent='Вернуться в меню';
-  b.addEventListener('click',()=>closer.click());
-  host.insertBefore(b,host.firstChild);
+ const menu=document.getElementById('persistentMenuHome');
+ if(!menu)return;
+ menu.addEventListener('click',function(){
+  ['cityBackdrop','gameBackdrop','withdrawBackdrop','promoBackdrop'].forEach(function(id){
+   const el=document.getElementById(id);
+   if(el){el.classList.remove('open');el.setAttribute('aria-hidden','true');}
+  });
+  ['wheelPanel','doublePanel','nvutiPanel','penaltyPanel','doorGamePanel','cupsPanel'].forEach(function(id){
+   const el=document.getElementById(id);
+   if(el){el.classList.remove('active');if(id==='cupsPanel')el.style.display='none';}
+  });
+  const gameMenu=document.getElementById('gameMenu');
+  if(gameMenu)gameMenu.style.display='grid';
+  document.body.classList.remove('section-page-active');
+  document.body.style.overflow='';
+  window.scrollTo(0,0);
+ });
+ const home=document.getElementById('menuHome');
+ if(home)home.addEventListener('click',function(){
+  if(document.body.classList.contains('section-page-active'))menu.click();
  });
 })();
 </script>
@@ -1370,7 +1179,7 @@ body.section-page-active .city-shell,body.section-page-active .boxes-modal,body.
 <style id="full-page-menus-and-global-rise">
 /* Promocodes, boxes and games are pages, not modal sheets */
 body.section-page-active .promo-backdrop.open,
-body.section-page-active .boxes-backdrop.open,
+body.section-page-active 
 body.section-page-active .game-backdrop.open{
  position:fixed!important;inset:0!important;width:100%!important;height:100vh!important;height:100dvh!important;
  max-height:100dvh!important;display:flex!important;align-items:stretch!important;justify-content:center!important;
@@ -1380,7 +1189,7 @@ body.section-page-active .game-backdrop.open{
  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
 }
 body.section-page-active .promo-modal,
-body.section-page-active .boxes-modal,
+
 body.section-page-active .game-modal{
  position:relative!important;inset:auto!important;width:100%!important;max-width:640px!important;
  min-height:100%!important;height:auto!important;max-height:none!important;overflow:visible!important;
@@ -1388,18 +1197,18 @@ body.section-page-active .game-modal{
  border:0!important;border-radius:0!important;box-shadow:none!important;
  background:transparent!important;transform:none!important;opacity:1!important;
 }
-body.section-page-active .boxes-modal,
+
 body.section-page-active .game-modal{display:block!important}
 body.section-page-active .promo-modal .modal-head,
-body.section-page-active .boxes-modal .modal-head,
+.modal-head,
 body.section-page-active .game-modal .modal-head{position:relative!important;top:auto!important;padding:8px 0 18px!important;background:transparent!important}
 body.section-page-active .promo-modal .modal-close,
-body.section-page-active .boxes-modal .modal-close,
+.modal-close,
 body.section-page-active .game-modal .modal-close,
 body.section-page-active #gameClose{position:fixed!important;top:calc(env(safe-area-inset-top) + 10px)!important;right:16px!important;z-index:100!important}
 body.section-page-active .section-return-menu{margin:0 0 14px!important}
 body.section-page-active .promo-backdrop.open .promo-modal,
-body.section-page-active .boxes-backdrop.open .boxes-modal,
+
 body.section-page-active .game-backdrop.open .game-modal{animation:fullMenuRise .48s cubic-bezier(.18,.78,.22,1) both!important}
 @keyframes fullMenuRise{from{opacity:0;transform:translate3d(0,42px,0)!important}to{opacity:1;transform:translate3d(0,0,0)!important}}
 /* Consistent gentle bottom-up entrance for every menu and submenu */
@@ -1407,17 +1216,17 @@ body.section-page-active .game-backdrop.open .game-modal{animation:fullMenuRise 
 .withdraw-backdrop.open .withdraw-modal,
 .modal-backdrop.open .modal,
 .promo-backdrop.open .promo-modal,
-.boxes-backdrop.open .boxes-modal,
+
 .game-backdrop.open .game-modal,
 .city-backdrop .city-subwindow.open{
  animation:fullMenuRise .48s cubic-bezier(.18,.78,.22,1) both;
 }
-.city-backdrop,.withdraw-backdrop,.modal-backdrop,.promo-backdrop,.boxes-backdrop,.game-backdrop{
+.city-backdrop,.withdraw-backdrop,.modal-backdrop,.promo-backdrop,.game-backdrop{
  transition:background-color .28s ease,backdrop-filter .28s ease;
 }
 @media(prefers-reduced-motion:reduce){
  body.section-page-active .promo-backdrop.open .promo-modal,
- body.section-page-active .boxes-backdrop.open .boxes-modal,
+ 
  body.section-page-active .game-backdrop.open .game-modal,
  .city-backdrop.open .city-shell,.withdraw-backdrop.open .withdraw-modal,
  .modal-backdrop.open .modal,.city-backdrop .city-subwindow.open{animation:none!important}
@@ -1498,10 +1307,10 @@ body.section-page-active #withdrawBackdrop.open .withdraw-modal>*{
 
 <style id="boxes-workers-business-price-fix">
 /* Боксы: единая прокрутка страницы, чтобы кнопка открытия всегда была доступна */
-body.section-page-active .boxes-backdrop.open{display:block!important;align-items:initial!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior-y:contain!important;touch-action:pan-y!important;-webkit-overflow-scrolling:touch!important}
-body.section-page-active .boxes-backdrop.open .boxes-modal{display:block!important;width:100%!important;max-width:640px!important;min-height:100dvh!important;height:auto!important;max-height:none!important;overflow:visible!important;margin:0 auto!important;padding:calc(env(safe-area-inset-top) + 62px) 18px calc(env(safe-area-inset-bottom) + 36px)!important;touch-action:pan-y!important}
-body.section-page-active .boxes-backdrop.open .boxes-modal>*{touch-action:pan-y!important}
-body.section-page-active .boxes-backdrop.open #boxOpenSelected,body.section-page-active .boxes-backdrop.open #boxBuyButton{position:relative!important;display:block;width:100%;min-height:54px;margin:18px 0 12px!important}
+body.section-page-active {display:block!important;align-items:initial!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior-y:contain!important;touch-action:pan-y!important;-webkit-overflow-scrolling:touch!important}
+{display:block!important;width:100%!important;max-width:640px!important;min-height:100dvh!important;height:auto!important;max-height:none!important;overflow:visible!important;margin:0 auto!important;padding:calc(env(safe-area-inset-top) + 62px) 18px calc(env(safe-area-inset-bottom) + 36px)!important;touch-action:pan-y!important}
+>*{touch-action:pan-y!important}
+body.section-page-active #boxOpenSelected,body.section-page-active #boxBuyButton{position:relative!important;display:block;width:100%;min-height:54px;margin:18px 0 12px!important}
 /* Карточки работников с аватаром и отдельной стеклянной рамкой */
 .city-backdrop #cityWorkersList{display:grid;gap:10px;padding:3px 1px}
 .city-backdrop #cityWorkersList .worker-row{display:flex;align-items:center;gap:12px;min-height:76px;padding:11px 13px;border:1px solid rgba(190,220,255,.34)!important;border-radius:19px!important;background:linear-gradient(145deg,rgba(255,255,255,.14),rgba(130,175,220,.055))!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.17),0 9px 24px rgba(0,0,0,.16)!important;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
