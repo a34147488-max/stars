@@ -863,7 +863,7 @@ app.post('/api/telegram/webhook', async (req, res) => {
         const p=data.split(':'),selection=p[2]==='range'?'range:'+p[3]:p[2]==='n'?'n:'+p[3]:p[2];
         botUserStates.set(id,{mode:'mw_amount',selection});
         const bal=await pool.query('SELECT balance FROM stars_users WHERE telegram_id=$1',[id]);const balance=Math.max(0,Math.floor(Number(bal.rows[0]?.balance||0)));const q1=Math.floor(balance/1.2),q2=Math.floor(balance/2),q3=Math.floor(balance/3);const fmt=n=>n.toLocaleString('ru-RU');
-        await telegramApi('sendMessage',{chat_id:chatId,text:'Введи сумму ставки или выбери готовую:',reply_markup:{inline_keyboard:[[{text:'Баланс ÷ 1,2 — '+fmt(q1),callback_data:'bot:mw:quick:12'},{text:'Баланс ÷ 2 — '+fmt(q2),callback_data:'bot:mw:quick:2'}],[{text:'Баланс ÷ 3 — '+fmt(q3),callback_data:'bot:mw:quick:3'},{text:'Весь баланс — '+fmt(balance),callback_data:'bot:mw:quick:1'}]]}});
+        await telegramApi('sendMessage',{chat_id:chatId,text:'Введи сумму ставки или выбери готовую:',reply_markup:{inline_keyboard:[[{text:fmt(q1),callback_data:'bot:mw:quick:12'},{text:fmt(q2),callback_data:'bot:mw:quick:2'}],[{text:fmt(q3),callback_data:'bot:mw:quick:3'},{text:fmt(balance),callback_data:'bot:mw:quick:1'}]]}});
         return res.sendStatus(200);
       }
       if(data.startsWith('bot:game:')){
