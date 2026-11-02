@@ -296,7 +296,7 @@ body.section-page-active .promo-backdrop,
 body.section-page-active .modal-backdrop{position:fixed!important;inset:0!important;width:100%!important;height:100vh!important;height:100dvh!important;max-height:100dvh!important;border-radius:0!important;overflow-x:hidden!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important}
 
 body.section-page-active .withdraw-modal,
-body.section-page-active .promo-modal{position:relative!important;width:100%!important;max-width:640px!important;min-height:100%!important;height:auto!important;margin:0 auto!important;border-radius:0!important;border:0!important;box-shadow:none!important;padding:calc(env(safe-area-inset-top) + 62px) 18px calc(env(safe-area-inset-bottom) + 28px)!important;background:transparent!important}
+body.section-page-active .promo-modal{position:relative!important;width:100%!important;max-width:640px!important;min-height:100%!important;height:auto!important;margin:0 auto!important;border-radius:0!important;border:0!important;box-shadow:none!important;padding:calc(env(safe-area-inset-top) + 16px) 18px calc(env(safe-area-inset-bottom) + 28px)!important;background:transparent!important}
 .modal-head,
 body.section-page-active .withdraw-modal .modal-head,
 body.section-page-active .promo-modal .modal-head{position:relative;top:auto;z-index:5;padding:8px 0 14px;background:transparent}
@@ -311,7 +311,7 @@ body.section-page-active .promo-modal .modal-close{position:fixed!important;top:
 body.section-page-active .game-backdrop{padding:calc(env(safe-area-inset-top) + 60px) 12px calc(env(safe-area-inset-bottom) + 20px)!important;align-items:flex-start!important}
 body.section-page-active .game-close,
 body.section-page-active #gameClose{position:fixed!important;top:calc(env(safe-area-inset-top) + 10px)!important;right:16px!important;z-index:30!important}
-body.section-page-active .city-shell{padding-top:calc(env(safe-area-inset-top) + 62px)!important}
+body.section-page-active .city-shell{padding-top:calc(env(safe-area-inset-top) + 16px)!important}
 body.section-page-active .city-close{position:fixed!important;top:calc(env(safe-area-inset-top) + 10px)!important;right:16px!important;z-index:30!important;width:42px!important;height:42px!important;border-radius:50%!important;background:#ffffff25!important;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
 @media(prefers-reduced-motion:reduce){body.section-page-active *{scroll-behavior:auto!important}}
 
@@ -1085,38 +1085,7 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
 body.section-page-active .city-close,body.section-page-active .modal-close#withdrawClose,body.section-page-active .modal-close#promoClose,body.section-page-active #gameClose{display:none!important}
 body.section-page-active .city-shell,body.section-page-active .withdraw-modal,body.section-page-active .promo-modal,body.section-page-active .game-modal{padding-top:calc(env(safe-area-inset-top) + 16px)!important}
 </style>
-<style id="persistent-menu-control">
-#persistentMenuHome{display:none;position:fixed;top:calc(env(safe-area-inset-top) + 12px);left:14px;z-index:9999;min-height:42px;padding:0 16px 0 13px;border:1px solid #ffffff45;border-radius:15px;background:rgba(24,28,42,.78);color:#fff;font:800 13px/1 inherit;letter-spacing:.01em;box-shadow:0 8px 26px #0005;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
-#persistentMenuHome:before{content:"";display:inline-block;width:8px;height:8px;margin-right:9px;border-left:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);vertical-align:1px}
-body.section-page-active #persistentMenuHome{display:block}
-body.section-page-active .section-return-menu{display:none!important}
-</style>
-<button id="persistentMenuHome" type="button" aria-label="Вернуться в главное меню">Меню</button>
-<script id="persistent-menu-control-script">
-(function(){
- const menu=document.getElementById('persistentMenuHome');
- if(!menu)return;
- menu.addEventListener('click',function(){
-  ['cityBackdrop','gameBackdrop','withdrawBackdrop','promoBackdrop'].forEach(function(id){
-   const el=document.getElementById(id);
-   if(el){el.classList.remove('open');el.setAttribute('aria-hidden','true');}
-  });
-  ['wheelPanel','doublePanel','nvutiPanel','penaltyPanel','doorGamePanel','cupsPanel'].forEach(function(id){
-   const el=document.getElementById(id);
-   if(el){el.classList.remove('active');if(id==='cupsPanel')el.style.display='none';}
-  });
-  const gameMenu=document.getElementById('gameMenu');
-  if(gameMenu)gameMenu.style.display='grid';
-  document.body.classList.remove('section-page-active');
-  document.body.style.overflow='';
-  window.scrollTo(0,0);
- });
- const home=document.getElementById('menuHome');
- if(home)home.addEventListener('click',function(){
-  if(document.body.classList.contains('section-page-active'))menu.click();
- });
-})();
-</script>
+
 
 <style id="city-independent-windows"> 
 /* City district cards restored to large framed glass choices */
@@ -1308,7 +1277,7 @@ body.section-page-active #withdrawBackdrop.open .withdraw-modal>*{
 <style id="city-workers-business-price-fix">
 /* Боксы: единая прокрутка страницы, чтобы кнопка открытия всегда была доступна */
 body.section-page-active {display:block!important;align-items:initial!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior-y:contain!important;touch-action:pan-y!important;-webkit-overflow-scrolling:touch!important}
-{display:block!important;width:100%!important;max-width:640px!important;min-height:100dvh!important;height:auto!important;max-height:none!important;overflow:visible!important;margin:0 auto!important;padding:calc(env(safe-area-inset-top) + 62px) 18px calc(env(safe-area-inset-bottom) + 36px)!important;touch-action:pan-y!important}
+{display:block!important;width:100%!important;max-width:640px!important;min-height:100dvh!important;height:auto!important;max-height:none!important;overflow:visible!important;margin:0 auto!important;padding:calc(env(safe-area-inset-top) + 16px) 18px calc(env(safe-area-inset-bottom) + 36px)!important;touch-action:pan-y!important}
 >*{touch-action:pan-y!important}
 body.section-page-active #boxOpenSelected,body.section-page-active #boxBuyButton{position:relative!important;display:block;width:100%;min-height:54px;margin:18px 0 12px!important}
 /* Карточки работников с аватаром и отдельной стеклянной рамкой */
