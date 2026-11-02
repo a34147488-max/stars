@@ -451,6 +451,31 @@ html body .app{padding-bottom:calc(env(safe-area-inset-bottom) + 124px)!importan
 @media(max-width:380px){.home-action-frame{width:calc(100% - 24px);padding:11px;gap:8px}.home-frame-actions button{min-width:100px}.home-frame-cashback small{max-width:145px}}
 @media(prefers-reduced-motion:reduce){.home-action-frame,.home-action-frame:before,.home-frame-shine{animation:none!important}}
 </style>
+<style id="loader-and-horizontal-frame-polish">
+/* Keep the atmospheric loading backdrop; only the star artwork itself stays transparent. */
+#stars-puzzle-loader{background:radial-gradient(ellipse at 50% 45%,#293149 0%,#151b2b 44%,#080b13 82%)!important}
+#stars-puzzle-loader .puzzle-wrap{background:transparent!important;border:0!important;box-shadow:none!important}
+#stars-puzzle-loader .puzzle-wrap svg{background:transparent!important;border:0!important;box-shadow:none!important;outline:0!important;border-radius:0!important}
+/* A slim, wide action strip across the home screen. */
+.home-action-frame{width:calc(100% - 22px)!important;max-width:560px!important;min-height:62px!important;height:auto!important;margin:-26px auto 20px!important;padding:8px 12px!important;gap:12px!important;border-radius:15px!important}
+.home-frame-cashback{display:grid!important;grid-template-columns:auto auto auto auto!important;align-items:center!important;column-gap:5px!important;row-gap:1px!important;flex:1 1 auto!important}
+.home-frame-cashback-label{grid-column:1/-1!important;font-size:8px!important;letter-spacing:.16em!important}
+.home-frame-cashback strong{font-size:17px!important}
+.home-frame-cashback .cashback-star{font-size:12px!important}
+.home-frame-cashback button{grid-column:auto!important;grid-row:2!important;justify-self:start!important;margin-left:5px!important;padding:4px 8px!important;font-size:9px!important;white-space:nowrap!important}
+.home-frame-cashback small{display:none!important}
+.home-frame-actions{flex-direction:row!important;align-items:center!important;gap:7px!important}
+.home-frame-actions button,.home-frame-actions button:last-child{min-width:0!important;width:auto!important;height:34px!important;padding:0 12px!important;border-radius:10px!important;white-space:nowrap!important}
+.home-frame-actions button:last-child{height:34px!important}
+@media(max-width:380px){
+ .home-action-frame{width:calc(100% - 18px)!important;min-height:58px!important;padding:7px 9px!important;gap:7px!important}
+ .home-frame-cashback{column-gap:3px!important}
+ .home-frame-cashback strong{font-size:15px!important}
+ .home-frame-cashback button{margin-left:2px!important;padding:3px 6px!important;font-size:8px!important}
+ .home-frame-actions{gap:5px!important}
+ .home-frame-actions button,.home-frame-actions button:last-child{height:31px!important;padding:0 8px!important;font-size:10px!important}
+}
+</style>
 </head>
 <body>
 <div id="stars-puzzle-loader" aria-label="Загрузка STARS">
