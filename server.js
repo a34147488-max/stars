@@ -416,7 +416,7 @@ app.post('/api/profile/premium/invoice',async(req,res)=>{try{
 app.get('/api/leaderboard',async(req,res)=>{try{
  await ensureDb();await ensureStarsProfileSchema();const user=authUser(req);if(!user)return res.status(401).json({ok:false,error:'Открой приложение через Telegram.'});const period=String(req.query.period||'week')==='day'?'day':'week';const start=period==='day'?"date_trunc('day',NOW())":"date_trunc('week',NOW())";
  const result=await pool.query(`SELECT e.telegram_id,COALESCE(u.nickname,u.username,u.first_name,'Игрок') AS name,COALESCE(u.is_premium,FALSE) AS premium,COALESCE(u.profile_color,'ice') AS color,SUM(e.payout)::numeric AS winnings,COUNT(*)::int AS games FROM stars_game_events e JOIN stars_users u ON u.telegram_id=e.telegram_id WHERE e.created_at >= ${start} AND e.payout>0 GROUP BY e.telegram_id,u.nickname,u.username,u.first_name,u.is_premium,u.profile_color ORDER BY SUM(e.payout) DESC,e.telegram_id ASC LIMIT 50`);
- return res.json({ok:true,period,players:result.rows.map((p,i)=>({id:String(p.telegram_id),place:i+1,name:p.name,premium:Boolean(p.premium),color:p.color,winnings:Number(p.winnings||0),games:Number(p.games||0),prize:STARS_LEADERBOARD_PRIZES[i]||0}))});
+ return res.json({ok:true,period,players:result.rows.map((p,i)=>({id:String(p.telegram_id),place:i+1,name:p.name,premium:Boolean(p.premium),color:p.color,winnings:Number(p.winnings||0),games:Number(p.games||0),prize:(STARS_LEADERBOARD_PRIZES[period]||STARS_LEADERBOARD_PRIZES.week)[i]||0}))});
  }catch(e){console.error('Leaderboard error:',e.message);return res.status(503).json({ok:false,error:'Не удалось загрузить топ.'});}});
 app.get('/api/leaderboard/player/:id',async(req,res)=>{try{
  await ensureDb();await ensureStarsProfileSchema();const viewer=authUser(req);if(!viewer)return res.status(401).json({ok:false,error:'Открой приложение через Telegram.'});
@@ -449,14 +449,14 @@ async function recordStarsGameEvent(client,telegramId,gameMode,bet,payout) {
   await ensureStarsProfileSchema();
   await client.query('INSERT INTO stars_game_events(telegram_id,game_mode,bet,payout) VALUES($1,$2,$3,$4)',[String(telegramId),String(gameMode),Math.max(0,Number(bet)||0),Math.max(0,Number(payout)||0)]);
 }
-const STARS_LEADERBOARD_PRIZES=[3000,1500,1000,750,500];
+const STARS_LEADERBOARD_PRIZES={day:[3000,1500,1000,750,500],week:[9000,3000,1500,1000,500]};
 async function settleStarsLeaderboardPeriods(){
   if(!pool)return;await ensureDb();await ensureStarsProfileSchema();
   const periods=await pool.query(`SELECT 'day'::text AS kind,date_trunc('day',NOW())-INTERVAL '1 day' AS period_start,date_trunc('day',NOW()) AS period_end UNION ALL SELECT 'week'::text,date_trunc('week',NOW())-INTERVAL '1 week',date_trunc('week',NOW())`);
   for(const period of periods.rows){
     const leaders=await pool.query(`SELECT telegram_id FROM stars_game_events WHERE created_at >= $1 AND created_at < $2 GROUP BY telegram_id HAVING SUM(payout)>0 ORDER BY SUM(payout) DESC,telegram_id ASC LIMIT 5`,[period.period_start,period.period_end]);
     for(let i=0;i<leaders.rows.length;i++){
-      const c=await pool.connect();try{await c.query('BEGIN');const inserted=await c.query('INSERT INTO stars_leaderboard_awards(period_type,period_start,telegram_id,place,prize) VALUES($1,$2,$3,$4,$5) ON CONFLICT DO NOTHING RETURNING id',[period.kind,period.period_start,String(leaders.rows[i].telegram_id),i+1,STARS_LEADERBOARD_PRIZES[i]]);if(inserted.rowCount)await c.query('UPDATE stars_users SET balance=balance+$2,updated_at=NOW() WHERE telegram_id=$1',[String(leaders.rows[i].telegram_id),STARS_LEADERBOARD_PRIZES[i]]);await c.query('COMMIT');}catch(e){try{await c.query('ROLLBACK')}catch(_){}throw e;}finally{c.release();}
+      const c=await pool.connect();try{await c.query('BEGIN');const inserted=await c.query('INSERT INTO stars_leaderboard_awards(period_type,period_start,telegram_id,place,prize) VALUES($1,$2,$3,$4,$5) ON CONFLICT DO NOTHING RETURNING id',[period.kind,period.period_start,String(leaders.rows[i].telegram_id),i+1,(STARS_LEADERBOARD_PRIZES[period.kind]||STARS_LEADERBOARD_PRIZES.week)[i]]);if(inserted.rowCount)await c.query('UPDATE stars_users SET balance=balance+$2,updated_at=NOW() WHERE telegram_id=$1',[String(leaders.rows[i].telegram_id),STARS_LEADERBOARD_PRIZES[i]]);await c.query('COMMIT');}catch(e){try{await c.query('ROLLBACK')}catch(_){}throw e;}finally{c.release();}
     }
   }
 }
