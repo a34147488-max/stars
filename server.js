@@ -560,7 +560,8 @@ async function notifyFortuneWheelReady(){
           reply_markup:{inline_keyboard:[[{text:'Открыть бонус',web_app:{url:appUrl+'?autospin=1'}}]]}
         });
       }catch(e){
-        await pool.query('UPDATE stars_fortune_wheel SET notification_sent_at=NULL WHERE telegram_id=$1',[String(row.telegram_id)]);
+        const permanentlyBlocked=/blocked by the user|chat not found|bot was kicked/i.test(String(e.message||''));
+        if(!permanentlyBlocked)await pool.query('UPDATE stars_fortune_wheel SET notification_sent_at=NULL WHERE telegram_id=$1',[String(row.telegram_id)]);
         console.error('Fortune wheel reminder failed for',row.telegram_id,e.message);
       }
     }
