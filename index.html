@@ -2657,5 +2657,37 @@ button:not(:disabled):active{transform:scale(.98)!important;filter:brightness(1.
 (()=>{document.getElementById('stars-home-return')?.remove();})();
 </script>
 
+
+<style id="stars-smooth-open-loading-polish">
+.city-backdrop.open,.promo-backdrop.open,.modal-backdrop.open,
+.profile-backdrop.open,.agreement-backdrop.open,.update-info-backdrop.open,
+.ad-watch-backdrop.open,.wcg-backdrop.open,.sbp-bank-backdrop.open,.sbp-modal-backdrop.open{
+ animation:overlayFadeIn .24s ease both;
+}
+.city-backdrop.open .city-shell,.promo-backdrop.open .promo-modal,
+.modal-backdrop.open .withdraw-modal,.profile-backdrop.open .profile-modal,
+.agreement-backdrop.open .agreement-modal{
+ animation:sheetRise .34s cubic-bezier(.2,.82,.25,1) both;
+}
+.city-panel{transition:opacity .2s ease,transform .2s ease}
+.city-panel.open{animation:sheetRise .26s cubic-bezier(.2,.82,.25,1) both}
+button:disabled{opacity:.58!important;cursor:wait!important;filter:saturate(.72)}
+button[aria-busy="true"]{position:relative;pointer-events:none;padding-right:34px!important}
+button[aria-busy="true"]:after{
+ content:"";position:absolute;right:11px;top:50%;width:13px;height:13px;margin-top:-7px;
+ border:2px solid currentColor;border-right-color:transparent;border-radius:50%;
+ animation:starsButtonSpin .65s linear infinite;
+}
+@keyframes starsButtonSpin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){
+ .city-backdrop.open,.promo-backdrop.open,.modal-backdrop.open,.profile-backdrop.open,
+ .agreement-backdrop.open,.update-info-backdrop.open,.ad-watch-backdrop.open,
+ .wcg-backdrop.open,.sbp-bank-backdrop.open,.sbp-modal-backdrop.open,
+ .city-backdrop.open .city-shell,.promo-backdrop.open .promo-modal,
+ .modal-backdrop.open .withdraw-modal,.profile-backdrop.open .profile-modal,
+ .agreement-backdrop.open .agreement-modal,.city-panel.open{animation:none!important}
+}
+</style>
+
 </body>
 </html>
