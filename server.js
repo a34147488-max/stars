@@ -1221,8 +1221,9 @@ app.post('/api/telegram/webhook', async (req, res) => {
         await telegramApi('sendMessage',{chat_id:chatId,text:changed.rowCount?'Блокировка игрока '+targetId+' снята.':'Игрок не найден.'});
       } else if (action === 'adm:add' || action === 'adm:remove' || action === 'adm:cityadd') {
         const mode = action === 'adm:add' ? 'add' : action === 'adm:remove' ? 'remove' : 'cityadd';
+        botUserStates.delete(String(sender.id));
         adminStates.set(String(sender.id), {mode, step:'user'});
-        await telegramApi('sendMessage',{chat_id:chatId,text:mode==='cityadd'?'Введи Telegram username (@username) или числовой Telegram ID игрока для начисления на городской баланс.':'Введи Telegram ID пользователя, которому '+(mode==='add'?'начислить':'списать')+' монеты.'});
+        await telegramApi('sendMessage',{chat_id:chatId,text:mode==='cityadd'?'Укажи @username или Telegram ID игрока для начисления на городской баланс.':'Укажи @username или Telegram ID игрока, которому '+(mode==='add'?'начислить':'списать')+' игровые звёзды.'});
       } else if (action === 'adm:maintenance') {
         adminStates.set(String(sender.id), {mode:'maintenance'});
         await telegramApi('sendMessage',{chat_id:chatId,text:'Технические работы: выбери действие.',reply_markup:{inline_keyboard:[
@@ -1337,15 +1338,15 @@ app.post('/api/telegram/webhook', async (req, res) => {
         if (state.step === 'user') {
           let targetId = null;
           if (/^\d+$/.test(text)) targetId = text;
-          else if (state.mode === 'cityadd' && /^@?[A-Za-z0-9_]{5,32}$/.test(text)) {
+          else if (/^@?[A-Za-z0-9_]{5,32}$/.test(text)) {
             const username = text.replace(/^@/, '');
             const found = await pool.query('SELECT telegram_id FROM stars_users WHERE LOWER(username)=LOWER($1) ORDER BY registered_at ASC LIMIT 1',[username]);
             if (found.rowCount) targetId = String(found.rows[0].telegram_id);
           }
           if (targetId) {
             state.telegramId=targetId; state.step='amount'; adminStates.set(String(sender.id),state);
-            await telegramApi('sendMessage',{chat_id:chatId,text:'Теперь введи целое положительное количество '+(state.mode==='cityadd'?'городских звёзд':'монет')+'.'});
-          } else await telegramApi('sendMessage',{chat_id:chatId,text:state.mode==='cityadd'?'Игрок не найден. Проверь username или введи числовой Telegram ID.':'Введи числовой Telegram ID пользователя.'});
+            await telegramApi('sendMessage',{chat_id:chatId,text:'Теперь введи целое количество '+(state.mode==='cityadd'?'городских звёзд':'игровых звёзд (монет)')+'. Только число, без рублей и других валют.'});
+          } else await telegramApi('sendMessage',{chat_id:chatId,text:'Игрок не найден. Введи его Telegram ID или username (например @username).'});
         } else if (state.step === 'amount' && /^\d+$/.test(text) && Number.isSafeInteger(Number(text)) && Number(text)>0) {
           const amount=Number(text), client=await pool.connect();
           try {
@@ -1368,8 +1369,8 @@ app.post('/api/telegram/webhook', async (req, res) => {
                 const delta=state.mode==='add'?amount:-amount;
                 const updated=await client.query('UPDATE stars_users SET balance=balance+$2,updated_at=NOW() WHERE telegram_id=$1 RETURNING balance',[state.telegramId,delta]);
                 await client.query('COMMIT');
-                await telegramApi('sendMessage',{chat_id:chatId,text:(state.mode==='add'?'Начислено ':'Списано ')+amount+'. Новый баланс: '+updated.rows[0].balance});
-                try { await telegramApi('sendMessage',{chat_id:state.telegramId,text:'Администратор '+(delta>0?'начислил':'списал')+' '+amount+' игровых звёзд. Текущий баланс: '+updated.rows[0].balance+'.'}); } catch(_) {}
+                await telegramApi('sendMessage',{chat_id:chatId,text:(state.mode==='add'?'Начислено ':'Списано ')+amount.toLocaleString('ru-RU')+' игровых звёзд. Новый баланс: '+Number(updated.rows[0].balance).toLocaleString('ru-RU')+' звёзд'});
+                try { await telegramApi('sendMessage',{chat_id:state.telegramId,text:'Администратор '+(delta>0?'начислил':'списал')+' '+amount.toLocaleString('ru-RU')+' игровых звёзд. Текущий баланс: '+Number(updated.rows[0].balance).toLocaleString('ru-RU')+'.'}); } catch(_) {}
               }
             }
           } catch(e) { try { await client.query('ROLLBACK'); } catch(_) {} throw e; } finally { client.release(); }
