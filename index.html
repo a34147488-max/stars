@@ -886,7 +886,7 @@ body{background:#292a2e!important}
 </section>
 <div class="home-more-backdrop" id="homeMorePanel" aria-hidden="true">
  <section class="home-more-sheet" role="dialog" aria-modal="true" aria-labelledby="homeMoreTitle">
-  <div class="home-more-head"><div><div class="home-more-eyebrow">ДОПОЛНИТЕЛЬНО</div><div class="home-more-title" id="homeMoreTitle">Ещё</div><div class="home-more-subtitle">Твой накопленный кешбэк</div></div><button class="home-more-close" id="homeMoreClose" type="button" aria-label="Вернуться в главное меню">×</button></div>
+  <div class="home-more-head"><div><div class="home-more-eyebrow">ДОПОЛНИТЕЛЬНО</div><div class="home-more-title" id="homeMoreTitle">Ещё</div><div class="home-more-subtitle">Твой накопленный кешбэк</div></div></div>
   <div class="home-more-cashback-slot">
    <div class="home-more-section-label">ТВОЙ КЕШБЭК</div>
    <div class="home-frame-cashback" id="cashbackMini"><span class="home-frame-cashback-label">НАКОПЛЕНО</span><strong id="cashbackBalance">0</strong><span class="cashback-star">✦</span><button type="button" id="cashbackClaim" disabled>Забрать кешбэк</button><small id="cashbackHint">10% от каждой ставки · снятие по воскресеньям</small></div>
@@ -920,7 +920,7 @@ body{background:#292a2e!important}
  </section></div><div class="premium-confirm-backdrop" id="premiumConfirmModal" aria-hidden="true"><section class="premium-confirm-sheet" role="dialog" aria-modal="true" aria-labelledby="premiumConfirmTitle"><div class="premium-confirm-head"><div><div class="premium-confirm-kicker">STARS EXCLUSIVE</div><div class="premium-confirm-title" id="premiumConfirmTitle">Подключение Premium</div></div><button type="button" class="modal-close" id="premiumConfirmClose" aria-label="Закрыть">×</button></div><div class="premium-confirm-price"><strong>300</strong><span>Telegram Stars</span></div><div class="premium-benefits"><div><b>✦</b><span>Сияющий никнейм в дневном и недельном топе</span></div><div><b>✦</b><span>Особая светящаяся рамка карточки в рейтинге</span></div><div><b>✦</b><span>Значок STARS PREMIUM в профиле</span></div><div><b>✦</b><span>Статус Premium сохраняется после покупки</span></div></div><div class="premium-confirm-note">Оплата проводится настоящими Telegram Stars. Игровой баланс не списывается. Premium подключится после подтверждения платежа Telegram.</div><button type="button" id="premiumPayNow" class="premium-pay-now">Оплатить 300 Telegram Stars</button><div id="premiumConfirmMessage" class="profile-message" aria-live="polite"></div></section></div><section class="center" aria-label="Баланс">
 <div class="eyebrow">Ваш баланс</div>
 <div class="reserve-mini" aria-label="Резерв выплат"><span>Резерв ₽ : <strong id="reserveRub">47 466,32</strong></span><span>Резерв Stars : <strong id="reserveStars">12 330</strong></span></div>
-<div class="city-balance-mini home-city-balance-mini"><span>Баланс города</span><strong id="homeCityBalance">0</strong><span>★</span><button class="city-exchange-small" id="cityExchangeOpen" type="button" aria-label="Обмен городских звёзд" title="Обмен">↔</button></div>
+
 <button class="update-info-open" id="updateInfoOpen" type="button"><span class="update-info-icon">✦</span><span><strong>ОБНОВЛЕНИЕ</strong><small>Посмотри, что нового появилось в STARS</small></span><span class="update-info-arrow">↗</span></button>
 <div class="balance-card">
 <div class="balance-label">Всего накоплено</div>
@@ -959,7 +959,7 @@ body{background:#292a2e!important}
 
 <nav class="bottom-nav" role="navigation" aria-label="Главное меню">
 <button class="nav-item" id="navProfile" type="button"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c.7-4.2 3.3-6.3 8-6.3s7.3 2.1 8 6.3"/></svg><span>Профиль</span></button>
-<button class="nav-item" id="cityOpen" type="button"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="m14.8 9.2-2 5.6-3.6 1 2-5.6 3.6-1Z"/></svg><span>Города</span></button>
+<button class="nav-item" id="navHome" type="button"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V10Z"/></svg><span>Главная</span></button>
 <button class="nav-item nav-item-primary" id="gameOpen" type="button"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2.5 1.9 6.1L20 11l-6.1 1.9L12 19l-1.9-6.1L4 11l6.1-2.4L12 2.5Z"/></svg><span>Игры</span></button>
 <button class="nav-item" id="promoOpen" type="button"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 13.5 13 21l-10-10V3h8l9.5 10.5Z"/><circle cx="7.5" cy="7.5" r="1.2"/></svg><span>Промокоды</span></button>
 <button class="nav-item" id="menuHome" type="button"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span>Ещё</span></button>
@@ -1210,7 +1210,7 @@ body{background:#292a2e!important}
  function syncSoundUi(){const label=document.getElementById('soundLabel'),state=document.getElementById('soundState');if(label)label.textContent=sound?'Выключить звук':'Включить звук';if(state)state.textContent=sound?'ВКЛ':'ВЫКЛ';}
  document.getElementById('soundToggle')?.addEventListener('click',()=>{sound=!sound;if(sound)soundStart();else soundStop();syncSoundUi();pm.hidden=true;});
  document.addEventListener('click',e=>{if(!sound||!ctx||!master)return;const b=e.target.closest('button,[role="button"],.profile-chip');if(!b||b.id==='soundToggle'||b.disabled)return;const t=ctx.currentTime,o=ctx.createOscillator(),g=ctx.createGain();o.type='triangle';o.frequency.setValueAtTime(650,t);o.frequency.exponentialRampToValueAtTime(430,t+.07);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.045,t+.008);g.gain.exponentialRampToValueAtTime(.0001,t+.09);o.connect(g);g.connect(master);o.start(t);o.stop(t+.1);ambientNodes.push(o,g);},true);
- const pb=document.getElementById('profileBackdrop'),ab=document.getElementById('agreementBackdrop');function openSheet(el){el.classList.add('open');pm.hidden=true;}function closeSheet(el){el.classList.remove('open');}
+ const pb=document.getElementById('profileBackdrop'),ab=document.getElementById('agreementBackdrop');function openSheet(el){el.classList.add('open');pm.hidden=true;if(el===pb){document.body.classList.add('profile-screen-open');document.body.style.overflow='hidden';}}function closeSheet(el){el.classList.remove('open');if(el===pb){document.body.classList.remove('profile-screen-open');document.body.style.overflow='';}}
  document.getElementById('profileOpen')?.addEventListener('click',async()=>{openSheet(pb);const n=[user.first_name,user.last_name].filter(Boolean).join(' ')||user.username||'Пользователь';document.getElementById('profileDisplayName').textContent=n;document.getElementById('profileUsername').textContent=user.username?'@'+user.username:'Статистика Stars';document.getElementById('statBalance').textContent=document.getElementById('balance').textContent;const av=document.getElementById('profileAvatar');av.style.backgroundImage=avatar.style.backgroundImage;av.textContent=avatar.textContent;if(tg?.initData)try{const r=await fetch('/api/profile/stats',{headers:{'X-Telegram-Init-Data':tg.initData}}),d=await r.json();if(r.ok&&d.ok)[['statDayWon','dayWon'],['statDayLost','dayLost'],['statAllWon','allWon'],['statAllLost','allLost'],['statWithdrawn','withdrawn'],['statDeposited','deposited'],['statReferrals','referrals']].forEach(([id,k])=>document.getElementById(id).textContent=Number(d[k]||0).toLocaleString('ru-RU'));}catch(_){}});
  document.getElementById('profileClose')?.addEventListener('click',()=>closeSheet(pb));pb?.addEventListener('click',e=>{if(e.target===pb)closeSheet(pb);});document.getElementById('agreementOpen')?.addEventListener('click',()=>openSheet(ab));document.getElementById('agreementClose')?.addEventListener('click',()=>closeSheet(ab));document.getElementById('agreementOk')?.addEventListener('click',()=>closeSheet(ab));ab?.addEventListener('click',e=>{if(e.target===ab)closeSheet(ab);});
  document.getElementById('nicknameForm')?.addEventListener('submit',async e=>{e.preventDefault();const msg=document.getElementById('nicknameMessage'),btn=document.getElementById('nicknameSave'),nickname=document.getElementById('nicknameInput').value.trim();if(!tg?.initData){msg.textContent='Открой приложение через Telegram.';return;}btn.disabled=true;try{const r=await fetch('/api/profile/nickname',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':tg.initData},body:JSON.stringify({nickname})}),d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||'Не удалось сменить ник.');document.getElementById('userName').textContent=d.nickname;document.getElementById('profileDisplayName').textContent=d.nickname;document.getElementById('balance').textContent=Number(d.balance).toLocaleString('ru-RU');document.getElementById('statBalance').textContent=document.getElementById('balance').textContent;msg.textContent='Ник изменён.';}catch(err){msg.textContent=err.message||'Ошибка.';}finally{btn.disabled=false;}});
@@ -1555,7 +1555,7 @@ body{background:#292a2e!important}
 
 <script id="section-navigation-fix">
 (function(){
- const routes={cityOpen:'cityBackdrop',gameOpen:'gameBackdrop',withdrawOpen:'withdrawBackdrop',promoOpen:'promoBackdrop'};
+ const routes={gameOpen:'gameBackdrop',withdrawOpen:'withdrawBackdrop',promoOpen:'promoBackdrop'};
  const panels=['cityBackdrop','gameBackdrop','withdrawBackdrop','promoBackdrop'];
  function closeGameModes(){
   ['wheelPanel','doublePanel','nvutiPanel','penaltyPanel','doorGamePanel','cupsPanel'].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.remove('active');if(id==='cupsPanel')el.style.display='none';}});
@@ -1565,7 +1565,7 @@ body{background:#292a2e!important}
  function closeOthers(keep){
   panels.forEach(id=>{if(id===keep)return;const el=document.getElementById(id);if(el){el.classList.remove('open');el.setAttribute('aria-hidden','true');}});
   if(keep!=='gameBackdrop')closeGameModes();
-  if(keep!=='cityBackdrop')['cityMovePanel','cityTopPanel','districtPanel','cityShopPanel','cityWorkPanel','cityCreatePanel'].forEach(id=>document.getElementById(id)?.classList.remove('open'));
+  ['cityMovePanel','cityTopPanel','districtPanel','cityShopPanel','cityWorkPanel','cityCreatePanel','cityWorkersPanel'].forEach(id=>document.getElementById(id)?.classList.remove('open'));
   ['exchangeSoonBackdrop','sbpBankBackdrop','sbpBackdrop','lowBalanceBackdrop','bigWinBackdrop'].forEach(id=>{const el=document.getElementById(id);if(el){el.classList.remove('open');el.setAttribute('aria-hidden','true');}});
   document.body.style.overflow=keep?'hidden':'';
  }
@@ -1586,7 +1586,7 @@ body{background:#292a2e!important}
   document.body.classList.remove('section-page-active');
   document.body.style.overflow='';
  },true);
- ['cityClose','gameClose','withdrawClose','promoClose'].forEach(id=>{
+ ['gameClose','withdrawClose','promoClose'].forEach(id=>{
   const b=document.getElementById(id);
   if(b)b.addEventListener('click',()=>{
    setTimeout(()=>{
@@ -2015,8 +2015,9 @@ html body nav.bottom-nav>button.nav-item:not(#gameOpen).nav-fragment-pulse>svg.n
  function closeMore(){morePanel?.classList.remove('open');morePanel?.setAttribute('aria-hidden','true');document.body.style.overflow='';}
  morePanel?.querySelectorAll('[data-more-target]').forEach(button=>button.addEventListener('click',()=>{const target=document.getElementById(button.dataset.moreTarget);closeMore();target?.click();}));
  document.getElementById('menuHome')?.addEventListener('click',()=>{if(morePanel?.classList.contains('open')){closeMore();return;}morePanel?.classList.add('open');morePanel?.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';});
- document.getElementById('homeMoreClose')?.addEventListener('click',closeMore);
+ 
  morePanel?.addEventListener('click',e=>{if(e.target===morePanel)closeMore();});
+ document.getElementById('navHome')?.addEventListener('click',closeMore,true);
  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMore();});
  document.getElementById('lowBalanceTopUp')?.addEventListener('click',()=>{setTimeout(openDeposit,0);});
 })();
@@ -2561,6 +2562,7 @@ body.section-page-active #stars-home-return{display:flex!important;align-items:c
  }
  returnButton.addEventListener('click',closeAll);
  home?.addEventListener('click',closeAll,true);
+ $('navHome')?.addEventListener('click',closeAll,true);
  // A tab change dismisses every modal/subwindow before opening the requested destination.
  ['cityOpen','gameOpen','promoOpen','withdrawOpen'].forEach(id=>{
   $(id)?.addEventListener('click',()=>{
@@ -2891,6 +2893,16 @@ button{letter-spacing:.005em}
 .leaderboard-player-subtitle{font-size:9px;letter-spacing:.17em;color:#929daf;font-weight:850}
 .leaderboard-player-modal .stats-grid{gap:10px}.leaderboard-player-modal .stat-tile{border-radius:17px;border:1px solid #ffffff20;background:#ffffff08;padding:15px 12px}
 @media(max-width:370px){.leaderboard-row{grid-template-columns:21px 36px minmax(0,1fr) auto;gap:6px;padding:8px}.leaderboard-avatar{width:35px;height:35px}.leaderboard-reward{min-width:48px}.leaderboard-reward strong{font-size:11px}}
+</style>
+<style id="stars-profile-nav-and-city-removal">
+body.profile-screen-open{overflow:hidden!important}
+body.profile-screen-open .bottom-nav{display:none!important;visibility:hidden!important;pointer-events:none!important}
+.profile-backdrop{position:fixed!important;inset:0!important;z-index:1900010!important;align-items:stretch!important;justify-content:stretch!important;padding:0!important;background:rgba(5,8,15,.96)!important;backdrop-filter:blur(24px)!important}
+.profile-backdrop.open{display:flex!important}
+.profile-modal{width:100%!important;max-width:none!important;height:100dvh!important;max-height:100dvh!important;min-height:100dvh!important;overflow-y:auto!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;border:0!important;border-radius:0!important;padding:calc(env(safe-area-inset-top) + 18px) 18px calc(env(safe-area-inset-bottom) + 30px)!important}
+.home-more-head{position:relative!important}
+.home-more-close{display:none!important}
+.city-backdrop,.city-loading,.city-balance-mini,.city-exchange-small{display:none!important;visibility:hidden!important;pointer-events:none!important}
 </style>
 </body>
 </html>
