@@ -410,8 +410,19 @@ app.post('/api/profile/premium',async(req,res)=>{let c;try{
 app.get('/api/leaderboard',async(req,res)=>{try{
  await ensureDb();await ensureStarsProfileSchema();const user=authUser(req);if(!user)return res.status(401).json({ok:false,error:'Открой приложение через Telegram.'});const period=String(req.query.period||'week')==='day'?'day':'week';const start=period==='day'?"date_trunc('day',NOW())":"date_trunc('week',NOW())";
  const result=await pool.query(`SELECT e.telegram_id,COALESCE(u.nickname,u.username,u.first_name,'Игрок') AS name,COALESCE(u.is_premium,FALSE) AS premium,COALESCE(u.profile_color,'ice') AS color,SUM(e.payout)::numeric AS winnings,COUNT(*)::int AS games FROM stars_game_events e JOIN stars_users u ON u.telegram_id=e.telegram_id WHERE e.created_at >= ${start} AND e.payout>0 GROUP BY e.telegram_id,u.nickname,u.username,u.first_name,u.is_premium,u.profile_color ORDER BY SUM(e.payout) DESC,e.telegram_id ASC LIMIT 50`);
- return res.json({ok:true,period,players:result.rows.map((p,i)=>({place:i+1,name:p.name,premium:Boolean(p.premium),color:p.color,winnings:Number(p.winnings||0),games:Number(p.games||0),prize:STARS_LEADERBOARD_PRIZES[i]||0}))});
+ return res.json({ok:true,period,players:result.rows.map((p,i)=>({id:String(p.telegram_id),place:i+1,name:p.name,premium:Boolean(p.premium),color:p.color,winnings:Number(p.winnings||0),games:Number(p.games||0),prize:STARS_LEADERBOARD_PRIZES[i]||0}))});
  }catch(e){console.error('Leaderboard error:',e.message);return res.status(503).json({ok:false,error:'Не удалось загрузить топ.'});}});
+app.get('/api/leaderboard/player/:id',async(req,res)=>{try{
+ await ensureDb();await ensureStarsProfileSchema();const viewer=authUser(req);if(!viewer)return res.status(401).json({ok:false,error:'Открой приложение через Telegram.'});
+ const id=String(req.params.id||'');if(!/^\\d{1,20}$/.test(id))return res.status(400).json({ok:false,error:'Некорректный игрок.'});
+ const [user,stats]=await Promise.all([
+  pool.query("SELECT COALESCE(nickname,username,first_name,'Игрок') AS name,COALESCE(is_premium,FALSE) AS premium,COALESCE(profile_color,'ice') AS color FROM stars_users WHERE telegram_id=$1",[id]),
+  pool.query(`SELECT COALESCE(SUM(payout),0)::numeric AS won,COALESCE(SUM(GREATEST(bet-payout,0)),0)::numeric AS lost,COALESCE(MAX(payout),0)::numeric AS biggest,(SELECT game_mode FROM stars_game_events WHERE telegram_id=$1 AND created_at>=NOW()-INTERVAL '30 days' GROUP BY game_mode ORDER BY COUNT(*) DESC LIMIT 1) AS favorite FROM stars_game_events WHERE telegram_id=$1 AND created_at>=NOW()-INTERVAL '30 days'`,[id])
+ ]);
+ if(!user.rowCount)return res.status(404).json({ok:false,error:'Игрок не найден.'});
+ const u=user.rows[0],p=stats.rows[0]||{};return res.json({ok:true,name:u.name,premium:Boolean(u.premium),color:u.color,wins:Number(p.won||0),losses:Number(p.lost||0),biggestWin:Number(p.biggest||0),favoriteMode:p.favorite||'Пока нет данных'});
+ }catch(e){console.error('Leaderboard player error:',e.message);return res.status(503).json({ok:false,error:'Не удалось загрузить профиль игрока.'});}});
+
 
 let starsProfileSchemaReady = false;
 async function ensureStarsProfileSchema() {
