@@ -2090,7 +2090,7 @@ html body nav.bottom-nav>button.nav-item:not(#gameOpen).nav-fragment-pulse>svg.n
  q('cityExchangeAmount')?.addEventListener('input',()=>{const n=Math.max(0,Math.floor(Number(q('cityExchangeAmount').value)||0));q('cityExchangePreview').textContent='Получишь '+fmt(n/2)+' городских звёзд';});
  q('cityExchangeSubmit')?.addEventListener('click',async()=>{const btn=q('cityExchangeSubmit'),amount=Math.floor(Number(q('cityExchangeAmount')?.value)||0);if(!Number.isSafeInteger(amount)||amount<1){q('cityExchangeMessage').textContent='Введи целое количество звёзд от 1.';return;}btn.disabled=true;try{const d=await api('/api/cities/exchange',{method:'POST',body:JSON.stringify({amount})});if(q('balance'))q('balance').textContent=fmt(d.mainBalance);if(q('homeCityBalance'))q('homeCityBalance').textContent=fmt(d.cityBalance);if(q('cityBalance'))q('cityBalance').textContent=fmt(d.cityBalance);q('cityExchangeAmount').value='';q('cityExchangeMessage').textContent='Обмен выполнен: получено '+fmt(d.cityReceived)+' городских звёзд.';q('cityExchangeBalances').textContent='Основной баланс: '+fmt(d.mainBalance)+' ★ · Городской: '+fmt(d.cityBalance)+' ★';}catch(e){q('cityExchangeMessage').textContent=e.message;}finally{btn.disabled=false;}});
  q('cityClose')?.addEventListener('click',()=>{closePanels();document.body.style.overflow='';});
- q('cityBackdrop')?.addEventListener('click',e=>{if(e.target===backdrop){closePanels();backdrop.classList.remove('open');backdrop.setAttribute('aria-hidden','true');document.body.classList.remove('section-page-active');document.body.style.overflow='';}});
+ q('cityBackdrop')?.addEventListener('click',e=>{if(e.target===backdrop){closePanels();backdrop.classList.remove('open');backdrop.setAttribute('aria-hidden','true');document.body.classList.remove('section-page-active','profile-screen-open');document.body.style.overflow='';}});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeExchange();if(backdrop?.classList.contains('open')){const active=panelIds.find(id=>q(id)?.classList.contains('open'));if(active)q(active).classList.remove('open');}}});
  initCreate();
 })();
@@ -2548,7 +2548,7 @@ body.section-page-active #stars-home-return{display:flex!important;align-items:c
  returnButton.id='stars-home-return';returnButton.type='button';returnButton.textContent='Главное меню';
  returnButton.setAttribute('aria-label','Вернуться в главное меню');
  document.body.appendChild(returnButton);
- const pageIds=['cityBackdrop','gameBackdrop','promoBackdrop','withdrawBackdrop'];
+ const pageIds=['gameBackdrop','promoBackdrop','withdrawBackdrop'];
  const overlayIds=['topsBackdrop','profileBackdrop','agreementBackdrop','updateInfoBackdrop','adWatchBackdrop','wcgBackdrop','sbpBankBackdrop','sbpModalBackdrop','homeMorePanel','exchangeSoonBackdrop','bigWinBackdrop','lowBalanceBackdrop','fortuneResultModal'];
  function closeAll(){
   [...pageIds,...overlayIds].forEach(id=>{const el=$(id);if(el){el.classList.remove('open','closing');el.setAttribute('aria-hidden','true');}});
@@ -2564,9 +2564,9 @@ body.section-page-active #stars-home-return{display:flex!important;align-items:c
  home?.addEventListener('click',closeAll,true);
  $('navHome')?.addEventListener('click',closeAll,true);
  // A tab change dismisses every modal/subwindow before opening the requested destination.
- ['cityOpen','gameOpen','promoOpen','withdrawOpen'].forEach(id=>{
+ ['gameOpen','promoOpen','withdrawOpen'].forEach(id=>{
   $(id)?.addEventListener('click',()=>{
-   const target={cityOpen:'cityBackdrop',gameOpen:'gameBackdrop',promoOpen:'promoBackdrop',withdrawOpen:'withdrawBackdrop'}[id];
+   const target={gameOpen:'gameBackdrop',promoOpen:'promoBackdrop',withdrawOpen:'withdrawBackdrop'}[id];
    [...pageIds,...overlayIds].forEach(other=>{if(other!==target){const el=$(other);el?.classList.remove('open');el?.setAttribute('aria-hidden','true');}});
    ['cityMovePanel','cityTopPanel','districtPanel','cityShopPanel','cityWorkPanel','cityCreatePanel','cityWorkersPanel'].forEach(x=>$(x)?.classList.remove('open'));
    if(target!=='gameBackdrop'){
