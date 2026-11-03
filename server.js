@@ -905,6 +905,16 @@ app.post('/api/telegram/webhook', async (req, res) => {
         return res.sendStatus(200);
       }
     }
+    if(incoming && String(text||'').trim().toLowerCase()==='отмена'){
+      const cancelId=String(sender.id);
+      const activeState=botUserStates.get(cancelId);
+      if(activeState && String(activeState.mode||'').startsWith('withdraw_')){
+        botUserStates.delete(cancelId);
+        await telegramApi('sendMessage',{chat_id:chatId,text:'Оформление вывода отменено.',reply_markup:{remove_keyboard:true}});
+        await botMainMenu(cancelId,chatId);
+        return res.sendStatus(200);
+      }
+    }
     if(incoming && botUserStates.has(String(sender.id))){
       const state=botUserStates.get(String(sender.id)),id=String(sender.id);
       if(state.mode==='withdraw_tg_target'){
