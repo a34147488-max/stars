@@ -2009,7 +2009,7 @@ html body nav.bottom-nav>button.nav-item:not(#gameOpen).nav-fragment-pulse>svg.n
  const morePanel=document.getElementById('homeMorePanel');
  function closeMore(){morePanel?.classList.remove('open');morePanel?.setAttribute('aria-hidden','true');document.body.style.overflow='';}
  morePanel?.querySelectorAll('[data-more-target]').forEach(button=>button.addEventListener('click',()=>{const target=document.getElementById(button.dataset.moreTarget);closeMore();target?.click();}));
- document.getElementById('menuHome')?.addEventListener('click',()=>{morePanel?.classList.add('open');morePanel?.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';});
+ document.getElementById('menuHome')?.addEventListener('click',()=>{if(morePanel?.classList.contains('open')){closeMore();return;}morePanel?.classList.add('open');morePanel?.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';});
  document.getElementById('homeMoreClose')?.addEventListener('click',closeMore);
  morePanel?.addEventListener('click',e=>{if(e.target===morePanel)closeMore();});
  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMore();});
@@ -2758,7 +2758,7 @@ body.stars-premium .home-frame-brand{filter:drop-shadow(0 0 12px #ffe0a0)}
  function showLeaderboard(d){const list=$('leaderboardList');if(!d.players?.length){list.innerHTML='<div class="leaderboard-empty">Пока нет выигрышей за этот период</div>';return;}list.innerHTML=d.players.map(p=>'<button type="button" class="leaderboard-row '+(p.premium?'premium-row':'')+'" data-player-id="'+esc(p.id)+'"><div class="leaderboard-place">'+p.place+'</div><div class="leaderboard-player"><span class="leaderboard-name color-'+esc(p.color||'ice')+'">'+esc(p.name)+'</span>'+(p.premium?'<span class="leaderboard-premium">PREMIUM</span>':'')+'</div><div class="leaderboard-amount">'+Number(p.winnings).toLocaleString('ru-RU')+'<small class="leaderboard-prize">'+(p.prize?('Приз '+Number(p.prize).toLocaleString('ru-RU')):'')+'</small></div></button>').join('');}
  async function loadLeaderboard(){const list=$('leaderboardList');list.innerHTML='<div class="leaderboard-loading">Обновляем рейтинг…</div>';try{const d=await api('/api/leaderboard?period='+period);showLeaderboard(d);}catch(e){list.innerHTML='<div class="leaderboard-empty">'+esc(e.message)+'</div>';}}
  document.querySelectorAll('[data-leader-period]').forEach(b=>b.addEventListener('click',()=>{period=b.dataset.leaderPeriod;document.querySelectorAll('[data-leader-period]').forEach(x=>x.classList.toggle('active',x===b));loadLeaderboard();}));
- $('homeMore')?.addEventListener('click',()=>{loadLeaderboard();loadProfile();});
+ $('menuHome')?.addEventListener('click',()=>{loadLeaderboard();loadProfile();});
 
  $('profileMainHome')?.addEventListener('click',()=>{document.querySelectorAll('.city-backdrop,.game-backdrop,.promo-backdrop,.modal-backdrop,.profile-backdrop,.agreement-backdrop,.home-more-backdrop,.deposit-section').forEach(el=>el.classList.remove('open','deposit-modal-open'));$('profileMenu').hidden=true;document.body.classList.remove('section-page-active');document.body.style.overflow='';});
  $('profileOpen')?.addEventListener('click',()=>loadProfile());
