@@ -2464,5 +2464,117 @@ body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sa
 </script>
 
 <script id="stars-dashboard-nav-profile">(function(){const b=document.getElementById('navProfile');b&&b.addEventListener('click',()=>document.getElementById('profileOpen')?.click());})();</script>
+
+<style id="stars-navigation-layout-repair">
+/* Always keep a clear way home while a section is open. */
+html body nav.bottom-nav,
+html body.section-page-active nav.bottom-nav{
+  display:grid!important;position:fixed!important;z-index:1000005!important;
+  left:50%!important;right:auto!important;top:auto!important;bottom:0!important;
+  width:min(100%,760px)!important;transform:translateX(-50%)!important;
+  padding-bottom:calc(env(safe-area-inset-bottom) + 8px)!important;
+  pointer-events:auto!important;visibility:visible!important;opacity:1!important;
+}
+body.section-page-active{overflow:hidden!important}
+body.section-page-active .city-backdrop.open,
+body.section-page-active .game-backdrop.open,
+body.section-page-active .promo-backdrop.open,
+body.section-page-active #withdrawBackdrop.open{
+  padding-bottom:calc(env(safe-area-inset-bottom) + 112px)!important;
+}
+body.section-page-active .city-backdrop.open .city-shell,
+body.section-page-active .game-backdrop.open .game-modal,
+body.section-page-active .promo-backdrop.open .promo-modal,
+body.section-page-active #withdrawBackdrop.open .withdraw-modal{
+  padding-bottom:calc(env(safe-area-inset-bottom) + 132px)!important;
+}
+#stars-home-return{
+  position:fixed!important;z-index:1000006!important;top:calc(env(safe-area-inset-top) + 10px)!important;left:12px!important;
+  min-height:40px!important;padding:0 14px!important;border:1px solid #ffffff55!important;border-radius:14px!important;
+  background:rgba(19,27,43,.88)!important;color:#fff!important;font:800 12px/1 inherit!important;
+  box-shadow:0 7px 22px #0005,inset 0 1px #ffffff25!important;backdrop-filter:blur(20px)!important;
+  -webkit-backdrop-filter:blur(20px)!important;display:none!important;
+}
+body.section-page-active #stars-home-return{display:flex!important;align-items:center!important;gap:8px!important}
+#stars-home-return:before{content:"";width:8px;height:8px;border-left:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg)}
+/* Restore the profile avatar to the top bar instead of overlaying the action card. */
+.home-action-frame .home-profile-avatar{position:static!important;inset:auto!important;transform:none!important;order:0!important;flex:none!important;width:44px!important;height:44px!important;margin:0 0 0 auto!important;z-index:5!important}
+.home-action-frame{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;gap:9px!important}
+.home-action-frame .home-frame-brand{position:relative!important;inset:auto!important;grid-column:1!important;grid-row:1!important;margin:0!important;justify-self:start!important;transform:none!important}
+.home-action-frame .home-frame-shine{pointer-events:none!important}
+.home-action-frame .home-frame-cashback{grid-column:1!important;grid-row:2!important}
+.home-action-frame .home-frame-actions{grid-column:2!important;grid-row:2!important;align-self:center!important}
+.home-action-frame .home-profile-avatar{grid-column:2!important;grid-row:1!important;justify-self:end!important}
+.home-action-frame .home-profile-avatar .avatar{width:36px!important;height:36px!important;border-radius:50%!important}
+@media(max-width:390px){
+ .home-action-frame{grid-template-columns:minmax(0,1fr) auto!important}
+ .home-action-frame .home-frame-actions button{max-width:82px!important}
+}
+.city-backdrop .city-panel.open{padding-bottom:calc(env(safe-area-inset-bottom) + 32px)!important}
+.city-backdrop .city-panel.open .city-subwindow-head{padding-right:105px!important}
+@media(prefers-reduced-motion:reduce){
+ #stars-home-return,html body nav.bottom-nav,html body button{transition:none!important;animation:none!important}
+}
+</style>
+<script id="stars-global-navigation-repair">
+(function(){
+ const $=id=>document.getElementById(id);
+ const home=$('menuHome');
+ const returnButton=document.createElement('button');
+ returnButton.id='stars-home-return';returnButton.type='button';returnButton.textContent='Главное меню';
+ returnButton.setAttribute('aria-label','Вернуться в главное меню');
+ document.body.appendChild(returnButton);
+ const pageIds=['cityBackdrop','gameBackdrop','promoBackdrop','withdrawBackdrop'];
+ const overlayIds=['profileBackdrop','agreementBackdrop','updateInfoBackdrop','adWatchBackdrop','wcgBackdrop','sbpBankBackdrop','sbpModalBackdrop','homeMorePanel','exchangeSoonBackdrop','bigWinBackdrop','lowBalanceBackdrop','fortuneResultModal'];
+ function closeAll(){
+  [...pageIds,...overlayIds].forEach(id=>{const el=$(id);if(el){el.classList.remove('open','closing');el.setAttribute('aria-hidden','true');}});
+  ['cityMovePanel','cityTopPanel','districtPanel','cityShopPanel','cityWorkPanel','cityCreatePanel','cityWorkersPanel'].forEach(id=>$(id)?.classList.remove('open'));
+  ['wheelPanel','doublePanel','nvutiPanel','penaltyPanel','doorGamePanel','cupsPanel'].forEach(id=>{const el=$(id);if(el){el.classList.remove('active');if(id==='cupsPanel')el.style.display='none';}});
+  const menu=$('gameMenu');if(menu)menu.style.display='grid';
+  const pm=$('profileMenu');if(pm)pm.hidden=true;
+  const deposit=document.querySelector('.deposit-section');deposit?.classList.remove('deposit-modal-open');
+  document.body.classList.remove('section-page-active');document.body.style.overflow='';
+  pageIds.forEach(id=>$(id)?.setAttribute('aria-hidden','true'));
+ }
+ returnButton.addEventListener('click',closeAll);
+ home?.addEventListener('click',closeAll,true);
+ // A tab change dismisses every modal/subwindow before opening the requested destination.
+ ['cityOpen','gameOpen','promoOpen','withdrawOpen'].forEach(id=>{
+  $(id)?.addEventListener('click',()=>{
+   const target={cityOpen:'cityBackdrop',gameOpen:'gameBackdrop',promoOpen:'promoBackdrop',withdrawOpen:'withdrawBackdrop'}[id];
+   [...pageIds,...overlayIds].forEach(other=>{if(other!==target){const el=$(other);el?.classList.remove('open');el?.setAttribute('aria-hidden','true');}});
+   ['cityMovePanel','cityTopPanel','districtPanel','cityShopPanel','cityWorkPanel','cityCreatePanel','cityWorkersPanel'].forEach(x=>$(x)?.classList.remove('open'));
+   if(target!=='gameBackdrop'){
+    ['wheelPanel','doublePanel','nvutiPanel','penaltyPanel','doorGamePanel','cupsPanel'].forEach(x=>$(x)?.classList.remove('active'));
+    if($('gameMenu'))$('gameMenu').style.display='grid';
+   }
+   document.body.classList.add('section-page-active');document.body.style.overflow='hidden';
+  },true);
+ });
+ // Escape always closes the deepest visible layer first, then the section.
+ document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape')return;
+  const cityPanel=document.querySelector('.city-backdrop .city-panel.open');
+  if(cityPanel){cityPanel.classList.remove('open');return;}
+  const activeGame=document.querySelector('#gameBackdrop .wheel-panel.active');
+  if(activeGame){activeGame.classList.remove('active');if($('cupsPanel'))$('cupsPanel').style.display='none';if($('gameMenu'))$('gameMenu').style.display='grid';return;}
+  if(document.body.classList.contains('section-page-active'))closeAll();
+ });
+ // Give city subwindows a consistent visible back action, including move/district/top.
+ document.querySelectorAll('.city-backdrop .city-panel').forEach(panel=>{
+  if(panel.querySelector('.city-subwindow-head'))return;
+  const head=document.createElement('div');head.className='city-subwindow-head';
+  const title=panel.querySelector('.city-panel-title')?.textContent?.trim()||'Раздел города';
+  const label=document.createElement('strong');label.className='city-subwindow-title';label.textContent=title;
+  const back=document.createElement('button');back.type='button';back.className='city-subwindow-back';back.textContent='← НАЗАД К ГОРОДУ';
+  back.addEventListener('click',()=>panel.classList.remove('open'));
+  head.append(label,back);panel.prepend(head);
+ });
+ // Make the avatar sit in a dedicated, predictable top-right slot inside the compact header card.
+ const avatar=$('profileAvatarButton'),frame=document.querySelector('.home-action-frame');
+ if(avatar&&frame&&avatar.parentElement!==frame)frame.appendChild(avatar);
+})();
+</script>
+
 </body>
 </html>
