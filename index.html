@@ -875,7 +875,7 @@ body{background:#292a2e!important}
 </div>
 <main class="app">
 <header class="topbar">
-<div class="profile-menu" id="profileMenu" hidden><button type="button" class="profile-menu-home" id="profileMainHome"><span class="profile-menu-icon">⌂</span>Главное меню</button><button id="soundToggle" type="button"><span class="profile-menu-icon">♫</span><span id="soundLabel">Включить звук</span><span class="menu-state" id="soundState">ВЫКЛ</span></button><button id="profileOpen" type="button"><span class="profile-menu-icon">◎</span>Моя статистика</button><button id="agreementOpen" type="button"><span class="profile-menu-icon">§</span>Соглашение</button><button type="button" id="profileMoreOpen"><span class="profile-menu-icon">⋯</span>Настройки и топы</button></div>
+<div class="profile-menu" id="profileMenu" hidden><button type="button" class="profile-menu-home" id="profileMainHome"><span class="profile-menu-icon">⌂</span>Главное меню</button><button id="soundToggle" type="button"><span class="profile-menu-icon">♫</span><span id="soundLabel">Включить звук</span><span class="menu-state" id="soundState">ВЫКЛ</span></button><button id="profileOpen" type="button"><span class="profile-menu-icon">◎</span>Моя статистика</button><button id="agreementOpen" type="button"><span class="profile-menu-icon">§</span>Соглашение</button></div>
 </header>
 <section class="home-action-frame" aria-label="Быстрые действия">
  <div class="home-frame-shine" aria-hidden="true"></div>
@@ -894,7 +894,7 @@ body{background:#292a2e!important}
   <div class="more-tools-section">
    <div class="home-more-section-label">ТОП ИГРОКОВ</div>
    <div class="leaderboard-switch" role="group" aria-label="Период топа"><button type="button" class="active" data-leader-period="week">Неделя</button><button type="button" data-leader-period="day">День</button></div>
-   <div class="leaderboard-prizes"><span>1 <b>3 000</b></span><span>2 <b>1 500</b></span><span>3 <b>1 000</b></span><span>4 <b>750</b></span><span>5 <b>500</b></span></div>
+   <div class="leaderboard-prizes"><span>1 <b>3 000</b></span><span>2 <b>1 500</b></span><span>3 <b>1 000</b></span><span>4 <b>750</b></span><span>5 <b>500</b></span></div><div class="leaderboard-prize-note">Призы начисляются автоматически после завершения дня или недели</div>
    <div id="leaderboardList" class="leaderboard-list"><div class="leaderboard-loading">Загружаем рейтинг…</div></div>
   </div>
   <div class="more-tools-section">
@@ -2759,7 +2759,7 @@ body.stars-premium .home-frame-brand{filter:drop-shadow(0 0 12px #ffe0a0)}
  async function loadLeaderboard(){const list=$('leaderboardList');list.innerHTML='<div class="leaderboard-loading">Обновляем рейтинг…</div>';try{const d=await api('/api/leaderboard?period='+period);showLeaderboard(d);}catch(e){list.innerHTML='<div class="leaderboard-empty">'+esc(e.message)+'</div>';}}
  document.querySelectorAll('[data-leader-period]').forEach(b=>b.addEventListener('click',()=>{period=b.dataset.leaderPeriod;document.querySelectorAll('[data-leader-period]').forEach(x=>x.classList.toggle('active',x===b));loadLeaderboard();}));
  $('homeMore')?.addEventListener('click',()=>{loadLeaderboard();loadProfile();});
- $('profileMoreOpen')?.addEventListener('click',()=>{$('profileMenu').hidden=true;$('homeMore')?.click();});
+
  $('profileMainHome')?.addEventListener('click',()=>{document.querySelectorAll('.city-backdrop,.game-backdrop,.promo-backdrop,.modal-backdrop,.profile-backdrop,.agreement-backdrop,.home-more-backdrop,.deposit-section').forEach(el=>el.classList.remove('open','deposit-modal-open'));$('profileMenu').hidden=true;document.body.classList.remove('section-page-active');document.body.style.overflow='';});
  $('profileOpen')?.addEventListener('click',()=>loadProfile());
  $('leaderboardList')?.addEventListener('click',async e=>{const row=e.target.closest('[data-player-id]');if(!row)return;const modal=$('leaderboardPlayerBackdrop');modal.classList.add('open');modal.setAttribute('aria-hidden','false');$('leaderboardPlayerName').textContent='Загружаем…';$('leaderboardPlayerPremium').hidden=true;try{const d=await api('/api/leaderboard/player/'+encodeURIComponent(row.dataset.playerId));$('leaderboardPlayerName').textContent=d.name;$('leaderboardPlayerName').style.color=({ice:'#bceaff',violet:'#d2b5ff',gold:'#ffe0a0',mint:'#9aefd0',rose:'#ffb2cb',azure:'#82c9ff'}[d.color]||'#bceaff');$('leaderboardPlayerPremium').hidden=!d.premium;$('publicPlayerWins').textContent=Number(d.wins).toLocaleString('ru-RU');$('publicPlayerLosses').textContent=Number(d.losses).toLocaleString('ru-RU');$('publicPlayerFavorite').textContent=d.favoriteMode;$('publicPlayerBiggest').textContent=Number(d.biggestWin).toLocaleString('ru-RU');}catch(err){$('leaderboardPlayerName').textContent=err.message;}});
@@ -2800,5 +2800,15 @@ body[data-profile-color="azure"]{--profile-accent:#82c9ff;--profile-accent-soft:
 .leaderboard-player-premium{display:inline-block;padding:5px 9px;border:1px solid #f4d58b;border-radius:99px;color:#ffe2a0;font-size:9px;font-weight:950;letter-spacing:.16em;text-shadow:0 0 10px #ffe2a0;box-shadow:0 0 14px #f4d58b44}
 .leaderboard-row{width:100%;text-align:left;cursor:pointer}
 .leaderboard-name.color-violet{color:#d2b5ff}.leaderboard-name.color-gold{color:#ffe0a0}.leaderboard-name.color-mint{color:#9aefd0}.leaderboard-name.color-rose{color:#ffb2cb}.leaderboard-name.color-azure{color:#82c9ff}
+</style><style id="stars-final-readable-controls">
+.home-frame-actions button{min-height:44px!important;padding:10px 6px!important;font-size:10px!important;letter-spacing:.015em!important}
+.profile-menu button{min-height:43px!important;border-radius:13px!important;letter-spacing:.01em}
+.leaderboard-prize-note{margin:0 1px 10px;color:#98a4b8;font-size:9px;line-height:1.4;text-align:center}
+.modal-title,.home-more-title,.deposit-title,.fortune-title,.game-mode-name{font-weight:900!important;text-shadow:0 2px 14px #9bdcff18}
+.stat-value{letter-spacing:-.035em;text-shadow:0 2px 13px #a8dfff18}
+.stats-section-title{font-size:10px!important;letter-spacing:.15em!important}
+.home-more-section-label{font-size:10px!important;letter-spacing:.16em!important;font-weight:900!important}
+button{letter-spacing:.005em}
+@media(max-width:390px){.home-frame-actions button{min-height:43px!important;font-size:9px!important;padding-inline:3px!important}}
 </style></body>
 </html>
