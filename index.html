@@ -919,6 +919,20 @@ body{background:#292a2e!important}
 
 </div>
 
+
+<section class="fortune-card" id="fortuneCard" aria-label="Колесо фортуны">
+ <div class="fortune-head"><div class="fortune-kicker">КОЛЕСО ФОРТУНЫ</div><div class="fortune-cooldown" id="fortuneCooldown">БОНУС ДОСТУПЕН</div></div>
+ <div class="fortune-layout">
+  <div class="fortune-wheel-wrap" id="fortuneWheelWrap">
+   <div class="fortune-pointer" aria-hidden="true"></div>
+   <div class="fortune-rim"><div class="fortune-disc" id="fortuneDisc">
+    <span class="fortune-label gold" style="--angle:0deg">150</span><span class="fortune-label" style="--angle:45deg">75</span><span class="fortune-label" style="--angle:90deg">25</span><span class="fortune-label gold" style="--angle:135deg">600</span><span class="fortune-label" style="--angle:180deg">150</span><span class="fortune-label" style="--angle:225deg">75</span><span class="fortune-label" style="--angle:270deg">25</span><span class="fortune-label fragment" style="--angle:315deg">↻</span>
+   </div></div><div class="fortune-hub"></div>
+  </div>
+  <div class="fortune-info"><div class="fortune-title">Забери свои<br>бонусные Stars</div><div class="fortune-copy">Крути колесо и получай от 25 до 600 Stars. Выпал фрагмент — колесо прокрутится ещё раз!</div><button class="fortune-spin-btn" id="fortuneSpinBtn" type="button">КРУТИТЬ</button><div class="fortune-result" id="fortuneResult" aria-live="polite"></div></div>
+ </div>
+</section>
+
 <nav class="bottom-nav" role="navigation" aria-label="Главное меню">
 <button class="nav-item" id="cityOpen" type="button"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="m14.8 9.2-2 5.6-3.6 1 2-5.6 3.6-1Z"/><path d="M12 3.5v2M20.5 12h-2M12 20.5v-2M3.5 12h2"/></svg><span>Города</span></button>
 <button class="nav-item" id="menuHome" type="button"><svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V21h13V9.5M9 21v-7h6v7"/></svg><span>Меню</span></button>
@@ -2269,6 +2283,33 @@ button{font-weight:760;letter-spacing:-.018em}
 button:focus-visible{outline:2px solid #d7f3e5!important;outline-offset:3px}
 @media(max-width:370px){#cupsChoices{gap:5px!important;padding:8px!important}#cupsChoices button{min-height:80px!important}.door-choice{min-height:112px!important}}
 @media(prefers-reduced-motion:reduce){#cupsChoices button,#cupsChoices button svg,.door-choice,.door-frame,.door-choice.winner,.door-safe{animation:none!important;transition:none!important}}
+
+/* Home bonus fortune wheel */
+.fortune-card{width:100%;max-width:390px;margin:22px auto 0;padding:17px 15px 16px;border:1px solid #d9bd8066;border-radius:27px;background:linear-gradient(145deg,rgba(43,43,56,.94),rgba(24,25,37,.91));box-shadow:inset 0 1px #fff2,0 18px 48px #0006;backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);overflow:hidden}
+.fortune-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+.fortune-kicker{font-size:11px;letter-spacing:.16em;font-weight:850;color:#c9c8d1}
+.fortune-cooldown{font-size:10px;color:#e7cc8c;border:1px solid #d8b66a55;border-radius:999px;padding:6px 8px;background:#d5ae4c12;font-variant-numeric:tabular-nums}
+.fortune-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.12fr);align-items:center;gap:13px}
+.fortune-wheel-wrap{position:relative;width:100%;aspect-ratio:1;max-width:190px;margin:auto;filter:drop-shadow(0 9px 16px #0008)}
+.fortune-rim{position:absolute;inset:0;border-radius:50%;padding:7px;background:linear-gradient(135deg,#fff0b9,#80602f 25%,#e8cb83 48%,#614823 72%,#f4dc9e);box-shadow:inset 0 0 0 1px #fff7}
+.fortune-disc{position:relative;width:100%;height:100%;border-radius:50%;border:2px solid #342c25;background:conic-gradient(from -22.5deg,#f7cb62 0deg 45deg,#262b42 45deg 90deg,#5940b9 90deg 135deg,#24283b 135deg 180deg,#f2c35c 180deg 225deg,#272a40 225deg 270deg,#5a4bd2 270deg 315deg,#272a40 315deg 360deg);transition:transform 5.2s cubic-bezier(.12,.78,.12,1);box-shadow:inset 0 0 0 3px #ffffff24,inset 0 0 25px #0007}
+.fortune-disc:after{content:"";position:absolute;inset:7px;border:1px solid #ffffff42;border-radius:50%;pointer-events:none}
+.fortune-label{position:absolute;left:50%;top:50%;width:42px;margin-left:-21px;margin-top:-10px;text-align:center;color:#fff;font-size:13px;font-weight:950;text-shadow:0 2px 4px #0009;transform:rotate(var(--angle)) translateY(-61px) rotate(calc(var(--angle) * -1));font-variant-numeric:tabular-nums}
+.fortune-label.gold{color:#282331;text-shadow:none}.fortune-label.fragment{font-size:23px;color:#fff}
+.fortune-hub{position:absolute;z-index:3;left:50%;top:50%;width:35px;height:35px;transform:translate(-50%,-50%);border-radius:50%;border:3px solid #302a38;background:radial-gradient(circle at 35% 30%,#fff4bb,#e7b94f 50%,#9d6929);box-shadow:0 0 0 3px #ffffff33,0 2px 9px #0008}
+.fortune-pointer{position:absolute;z-index:5;top:-12px;left:50%;width:25px;height:38px;transform:translateX(-50%);transform-origin:50% 8px;filter:drop-shadow(0 3px 5px #0009);transition:transform .12s}
+.fortune-pointer:before{content:"";position:absolute;left:4px;top:2px;width:17px;height:27px;background:linear-gradient(135deg,#ffe9a0,#d69b35 65%,#86551f);clip-path:polygon(50% 100%,0 12%,50% 0,100% 12%);border:1px solid #fff5}
+.fortune-pointer:after{content:"";position:absolute;left:8px;top:0;width:9px;height:9px;border-radius:50%;background:#ffdf85;box-shadow:0 0 9px #ffd66b}
+.fortune-wheel-wrap.spinning .fortune-pointer{animation:fortuneWobble .18s ease-in-out infinite alternate}
+@keyframes fortuneWobble{from{transform:translateX(-50%) rotate(-13deg)}to{transform:translateX(-50%) rotate(13deg)}}
+.fortune-info{min-width:0;text-align:left}
+.fortune-title{font-size:clamp(17px,5vw,22px);font-weight:900;line-height:1.12;letter-spacing:-.045em;color:#fff}
+.fortune-copy{margin-top:7px;color:#b7b8c5;font-size:11px;line-height:1.45}
+.fortune-spin-btn{width:100%;margin-top:13px;min-height:49px;border:1px solid #ffe5a2;border-radius:16px;background:linear-gradient(180deg,#f5d98f,#c69b4b 55%,#9a7135);color:#302515;font-size:14px;font-weight:950;letter-spacing:.04em;box-shadow:inset 0 1px #fff9,0 7px 18px #0006,0 0 20px #e6bd6540;text-shadow:0 1px #fff6;transition:filter .2s,transform .2s}
+.fortune-spin-btn:active{transform:scale(.97);filter:brightness(1.1)}.fortune-spin-btn:disabled{opacity:.55;filter:saturate(.6)}
+.fortune-result{min-height:16px;margin-top:7px;color:#f0d79e;font-size:10px;font-weight:750;text-align:center;line-height:1.35}
+@media(max-width:370px){.fortune-card{padding:14px 11px}.fortune-layout{gap:9px}.fortune-label{transform:rotate(var(--angle)) translateY(-53px) rotate(calc(var(--angle) * -1));font-size:11px}.fortune-hub{width:30px;height:30px}}
+
 </style><style id="stars-startup-loading-v4">
 #stars-puzzle-loader{position:fixed!important;inset:0!important;z-index:999999!important;display:grid!important;place-items:center!important;visibility:visible;opacity:1;pointer-events:auto;background:radial-gradient(ellipse at 50% 42%,#102d59 0%,#09172f 37%,#050914 78%)!important;transition:opacity .32s ease,visibility .32s ease!important}
 #stars-puzzle-loader:before{content:"";position:absolute;width:min(78vw,340px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#2e8cff35 0%,#1768d41b 42%,transparent 72%);filter:blur(4px);animation:startupAura 2.5s ease-in-out infinite alternate}
@@ -2297,5 +2338,38 @@ button:focus-visible{outline:2px solid #d7f3e5!important;outline-offset:3px}
 @keyframes startupStarComplete{0%{transform:scale(1)}45%{transform:scale(1.22) rotate(8deg)}100%{transform:scale(1.08)}}
 @media(prefers-reduced-motion:reduce){#stars-puzzle-loader *{animation-duration:.01ms!important;animation-iteration-count:1!important}}
 </style>
+
+<script id="fortune-wheel-client">
+(function(){
+ const disc=document.getElementById('fortuneDisc'),wrap=document.getElementById('fortuneWheelWrap'),btn=document.getElementById('fortuneSpinBtn'),timer=document.getElementById('fortuneCooldown'),result=document.getElementById('fortuneResult');
+ if(!disc||!btn)return;
+ const prizes=[150,75,25,600,150,75,25,'fragment'];
+ let availableAt=0,rotation=0,busy=false,tick=null;
+ const fmt=ms=>{const n=Math.max(0,Math.ceil(ms/1000));return [Math.floor(n/3600),Math.floor(n%3600/60),n%60].map(x=>String(x).padStart(2,'0')).join(':');};
+ function paint(){const left=availableAt-Date.now();if(left>0){timer.textContent=fmt(left);btn.disabled=true;btn.textContent=fmt(left);}else{timer.textContent='БОНУС ДОСТУПЕН';btn.disabled=busy;btn.textContent=busy?'КРУТИМ…':'КРУТИТЬ';}}
+ async function status(){try{const r=await fetch('/api/fortune-wheel/status',{headers:{'X-Telegram-Init-Data':withdrawalTg&&withdrawalTg.initData||''},cache:'no-store'});const d=await r.json();if(r.ok&&d.ok){availableAt=Number(d.availableAt)||0;paint();}}catch(_){}}
+ btn.addEventListener('click',async()=>{
+  if(busy||availableAt>Date.now())return;
+  if(!withdrawalTg||!withdrawalTg.initData){result.textContent='Открой приложение через Telegram.';return;}
+  busy=true;btn.disabled=true;btn.textContent='КРУТИМ…';result.textContent='Удачи!';wrap.classList.add('spinning');
+  try{
+   const r=await fetch('/api/fortune-wheel/spin',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':withdrawalTg.initData},body:'{}'});const d=await r.json();
+   if(!r.ok||!d.ok)throw new Error(d.error||'Не удалось прокрутить колесо.');
+   const idx=prizes.findIndex(x=>x===d.prize);const target=(idx<0?2:idx);
+   const angle=360-target*45;
+   rotation+=360*6+((angle-(rotation%360)+360)%360);
+   disc.style.transform='rotate('+rotation+'deg)';
+   setTimeout(()=>{
+    wrap.classList.remove('spinning');availableAt=Number(d.availableAt)||Date.now()+14400000;
+    const b=document.getElementById('balance');if(b)b.textContent=Number(d.balance).toLocaleString('ru-RU');
+    result.textContent='Поздравляем! +'+Number(d.prize).toLocaleString('ru-RU')+' Stars'+(d.fragments?' · фрагмент запустил повторный прокрут':'');
+    busy=false;paint();
+   },5350);
+  }catch(e){wrap.classList.remove('spinning');busy=false;result.textContent=e.message;paint();}
+ });
+ status();paint();tick=setInterval(paint,1000);
+})();
+</script>
+
 </body>
 </html>
