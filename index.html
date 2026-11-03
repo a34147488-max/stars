@@ -2576,5 +2576,86 @@ body.section-page-active #stars-home-return{display:flex!important;align-items:c
 })();
 </script>
 
+
+<style id="stars-compact-glass-polish">
+/* Keep one exit control: existing X buttons close sections and return home. */
+#stars-home-return{display:none!important}
+body.section-page-active nav.bottom-nav{display:none!important}
+body.section-page-active .city-backdrop.open,
+body.section-page-active .game-backdrop.open,
+body.section-page-active .promo-backdrop.open,
+body.section-page-active #withdrawBackdrop.open{
+ position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;max-height:100dvh!important;
+ overflow-x:hidden!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch!important;
+ padding-bottom:env(safe-area-inset-bottom)!important;
+}
+body.section-page-active .city-backdrop.open .city-shell,
+body.section-page-active .game-backdrop.open .game-modal,
+body.section-page-active .promo-backdrop.open .promo-modal,
+body.section-page-active #withdrawBackdrop.open .withdraw-modal{
+ padding-bottom:calc(env(safe-area-inset-bottom) + 28px)!important;
+}
+.home-frame-actions{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important;width:100%!important}
+.home-frame-actions button,.home-frame-actions button:last-child{
+ min-width:0!important;width:100%!important;min-height:36px!important;height:auto!important;
+ padding:8px 6px!important;border-radius:13px!important;font-size:10px!important;line-height:1.2!important;
+}
+.city-actions,.city-business-actions{gap:8px!important}
+.city-action,.city-business-actions .city-action{
+ min-width:0!important;min-height:46px!important;padding:11px 6px!important;border-radius:14px!important;
+ font-size:10px!important;line-height:1.25!important;
+}
+.city-business-actions .city-action{min-height:43px!important}
+.game-menu-grid{gap:9px!important}
+.game-mode-card{border-radius:19px!important}
+.nav-item{min-width:0!important;padding-inline:4px!important}
+button:not(:disabled){touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+button:focus-visible{outline:2px solid #a9dcff!important;outline-offset:3px!important}
+.home-frame-actions button,.city-action,.city-business-actions button,.game-mode-card,
+.promo-submit,.withdraw-submit,.profile-edit button,.city-business-action,
+.city-business-types button,.city-close,.modal-close{
+ transition:transform .18s ease,border-color .22s ease,box-shadow .22s ease,background-color .22s ease,filter .22s ease!important;
+}
+.home-frame-actions button{
+ box-shadow:0 4px 14px #7dbdff25,0 0 18px #7dbdff15,inset 0 1px #ffffffa8!important;
+}
+.home-frame-actions button:last-child{box-shadow:0 0 13px #9ddcff18,inset 0 1px #ffffff22!important}
+.city-action,.city-business-actions button{
+ background:linear-gradient(145deg,#ffffff14,#8fc9ff09)!important;
+ border-color:#a9d9ff40!important;color:#eaf6ff!important;
+ box-shadow:0 5px 16px #62baff16,inset 0 1px #ffffff18!important;
+}
+.city-action.primary{
+ background:linear-gradient(135deg,#c7edff,#91c9ed 58%,#a7e7dc)!important;
+ color:#142b3b!important;border-color:#d8f5ff!important;
+ box-shadow:0 5px 18px #8ed5ff38,inset 0 1px #ffffff!important;
+}
+.game-mode-card{
+ border-color:#b7d9ff40!important;
+ box-shadow:0 8px 22px #0005,0 0 17px #82baff12,inset 0 1px #ffffff14!important;
+}
+button:not(:disabled):active{transform:scale(.98)!important;filter:brightness(1.1)}
+@media(hover:hover){
+ .home-frame-actions button:hover,.city-action:hover,.city-business-actions button:hover,
+ .game-mode-card:hover,.promo-submit:hover,.withdraw-submit:hover{
+  border-color:#b9e5ff88!important;
+  box-shadow:0 0 0 1px #9bd6ff22,0 0 22px #72bfff2c,inset 0 1px #ffffff25!important;
+ }
+}
+@media(max-width:390px){
+ .city-actions,.city-business-actions{gap:6px!important}
+ .city-action,.city-business-actions .city-action{padding-inline:4px!important;font-size:9px!important}
+ .home-frame-actions{gap:5px!important}
+ .home-frame-actions button,.home-frame-actions button:last-child{font-size:9px!important;padding-inline:3px!important}
+ .game-menu-grid{gap:8px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #stars-home-return,*,*::before,*::after{scroll-behavior:auto!important;transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}
+}
+</style>
+<script id="stars-remove-duplicate-home-button">
+(()=>{document.getElementById('stars-home-return')?.remove();})();
+</script>
+
 </body>
 </html>
