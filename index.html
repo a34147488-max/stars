@@ -875,7 +875,7 @@ body{background:#292a2e!important}
 </div>
 <main class="app">
 <header class="topbar">
-<div class="profile-menu" id="profileMenu" hidden><button id="soundToggle" type="button"><span class="profile-menu-icon">♫</span><span id="soundLabel">Включить звук</span><span class="menu-state" id="soundState">ВЫКЛ</span></button><button id="profileOpen" type="button"><span class="profile-menu-icon">◎</span>Моя статистика</button><button id="agreementOpen" type="button"><span class="profile-menu-icon">§</span>Соглашение</button></div>
+<div class="profile-menu" id="profileMenu" hidden><button type="button" class="profile-menu-home" id="profileMainHome"><span class="profile-menu-icon">⌂</span>Главное меню</button><button id="soundToggle" type="button"><span class="profile-menu-icon">♫</span><span id="soundLabel">Включить звук</span><span class="menu-state" id="soundState">ВЫКЛ</span></button><button id="profileOpen" type="button"><span class="profile-menu-icon">◎</span>Моя статистика</button><button id="agreementOpen" type="button"><span class="profile-menu-icon">§</span>Соглашение</button><button type="button" id="profileMoreOpen"><span class="profile-menu-icon">⋯</span>Настройки и топы</button></div>
 </header>
 <section class="home-action-frame" aria-label="Быстрые действия">
  <div class="home-frame-shine" aria-hidden="true"></div>
@@ -891,7 +891,25 @@ body{background:#292a2e!important}
    <div class="home-more-section-label">ТВОЙ КЕШБЭК</div>
    <div class="home-frame-cashback" id="cashbackMini"><span class="home-frame-cashback-label">НАКОПЛЕНО</span><strong id="cashbackBalance">0</strong><span class="cashback-star">✦</span><button type="button" id="cashbackClaim" disabled>Забрать кешбэк</button><small id="cashbackHint">10% от каждой ставки · снятие по воскресеньям</small></div>
   </div>
-
+  <div class="more-tools-section">
+   <div class="home-more-section-label">ТОП ИГРОКОВ</div>
+   <div class="leaderboard-switch" role="group" aria-label="Период топа"><button type="button" class="active" data-leader-period="week">Неделя</button><button type="button" data-leader-period="day">День</button></div>
+   <div class="leaderboard-prizes"><span>1 <b>3 000</b></span><span>2 <b>1 500</b></span><span>3 <b>1 000</b></span><span>4 <b>750</b></span><span>5 <b>500</b></span></div>
+   <div id="leaderboardList" class="leaderboard-list"><div class="leaderboard-loading">Загружаем рейтинг…</div></div>
+  </div>
+  <div class="more-tools-section">
+   <div class="home-more-section-label">ОФОРМЛЕНИЕ ПРОФИЛЯ</div>
+   <form class="profile-edit" id="nicknameForm"><label for="nicknameInput">Сменить никнейм · 200 звёзд</label><div class="profile-edit-row"><input id="nicknameInput" maxlength="24" minlength="2" placeholder="Новый никнейм" required><button type="submit" id="nicknameSave">Сменить</button></div><div class="profile-message" id="nicknameMessage"></div></form>
+   <div class="color-picker" id="profileColorPicker" aria-label="Цвет профиля">
+    <button type="button" data-profile-color="ice" aria-label="Ледяной" class="selected"><i></i><span>Лёд</span></button>
+    <button type="button" data-profile-color="violet" aria-label="Фиолетовый"><i></i><span>Аметист</span></button>
+    <button type="button" data-profile-color="gold" aria-label="Золотой"><i></i><span>Золото</span></button>
+    <button type="button" data-profile-color="mint" aria-label="Мятный"><i></i><span>Мята</span></button>
+    <button type="button" data-profile-color="rose" aria-label="Розовый"><i></i><span>Роза</span></button>
+    <button type="button" data-profile-color="azure" aria-label="Голубой"><i></i><span>Небо</span></button>
+   </div>
+   <div class="premium-offer" id="premiumOffer"><div><strong>STARS PREMIUM</strong><small>Сияющий никнейм и рамка в топе</small></div><button type="button" id="premiumBuy">Купить · 300 ✦</button><div id="premiumMessage" class="profile-message"></div></div>
+  </div>
  </section>
 </div>
 <section class="center" aria-label="Баланс">
@@ -1076,7 +1094,7 @@ body{background:#292a2e!important}
  </section>
 </div>
 
-<div class="profile-backdrop" id="profileBackdrop"><section class="profile-modal" role="dialog" aria-modal="true"><div class="modal-head"><div class="modal-title">Профиль</div><button class="modal-close" id="profileClose" type="button">×</button></div><div class="profile-summary"><div class="avatar" id="profileAvatar">U</div><div><div class="profile-summary-name" id="profileDisplayName">Пользователь</div><div class="profile-summary-sub" id="profileUsername">Статистика Stars</div></div></div><div class="stats-section-title">ЗА СЕГОДНЯ</div><div class="stats-grid"><div class="stat-tile"><div class="stat-label">Выиграно</div><div class="stat-value positive" id="statDayWon">—</div></div><div class="stat-tile"><div class="stat-label">Проиграно</div><div class="stat-value negative" id="statDayLost">—</div></div></div><div class="stats-section-title">ЗА ВСЁ ВРЕМЯ</div><div class="stats-grid"><div class="stat-tile"><div class="stat-label">Выиграно</div><div class="stat-value positive" id="statAllWon">—</div></div><div class="stat-tile"><div class="stat-label">Проиграно</div><div class="stat-value negative" id="statAllLost">—</div></div><div class="stat-tile"><div class="stat-label">Выведено</div><div class="stat-value" id="statWithdrawn">—</div></div><div class="stat-tile"><div class="stat-label">Пополнено</div><div class="stat-value" id="statDeposited">—</div></div><div class="stat-tile"><div class="stat-label">Рефералов</div><div class="stat-value" id="statReferrals">—</div></div><div class="stat-tile"><div class="stat-label">Баланс</div><div class="stat-value" id="statBalance">0</div></div></div><form class="profile-edit" id="nicknameForm"><label for="nicknameInput">Сменить никнейм — 200 наших звёзд</label><div class="profile-edit-row"><input id="nicknameInput" maxlength="24" minlength="2" placeholder="Новый никнейм" required><button type="submit" id="nicknameSave">Сменить</button></div><div class="profile-hint">2–24 символа. Списание подтверждается сервером.</div><div class="profile-message" id="nicknameMessage"></div></form></section></div><div class="agreement-backdrop" id="agreementBackdrop"><section class="agreement-modal" role="dialog" aria-modal="true"><div class="modal-head"><div class="modal-title">Соглашение</div><button class="modal-close" id="agreementClose" type="button">×</button></div><div class="agreement-copy">Открывая наше приложение, вы автоматически соглашаетесь с правилами использования сервиса «Stars», все выплаты и пополнения онлайн через fragment Telegram, приложение прошло настоящую проверку с модерации Телеграм, и в скоре появится в каталоге!</div><button class="agreement-ok" id="agreementOk" type="button">Понятно</button></section></div><div class="game-backdrop" id="gameBackdrop" aria-hidden="true">
+<div class="profile-backdrop" id="profileBackdrop"><section class="profile-modal" role="dialog" aria-modal="true"><div class="modal-head"><div class="modal-title">Профиль</div><button class="modal-close" id="profileClose" type="button">×</button></div><div class="profile-summary"><div class="avatar" id="profileAvatar">U</div><div><div class="profile-summary-name" id="profileDisplayName">Пользователь</div><div class="profile-summary-sub" id="profileUsername">Статистика Stars</div><span class="profile-premium-tag" id="profilePremiumTag" hidden>PREMIUM</span></div></div><div class="stats-section-title">ЗА СЕГОДНЯ</div><div class="stats-grid"><div class="stat-tile"><div class="stat-label">Выигрыши</div><div class="stat-value positive" id="statDayWon">—</div></div><div class="stat-tile"><div class="stat-label">Проигрыши</div><div class="stat-value negative" id="statDayLost">—</div></div></div><div class="stats-section-title">ЗА ПОСЛЕДНИЕ 30 ДНЕЙ</div><div class="stats-grid"><div class="stat-tile"><div class="stat-label">Выиграно</div><div class="stat-value positive" id="statAllWon">—</div></div><div class="stat-tile"><div class="stat-label">Проиграно</div><div class="stat-value negative" id="statAllLost">—</div></div><div class="stat-tile"><div class="stat-label">Любимый режим</div><div class="stat-value" id="statFavoriteMode">—</div></div><div class="stat-tile"><div class="stat-label">Крупнейший выигрыш</div><div class="stat-value positive" id="statBiggestWin">—</div></div><div class="stat-tile"><div class="stat-label">Выведено</div><div class="stat-value" id="statWithdrawn">—</div></div><div class="stat-tile"><div class="stat-label">Пополнено</div><div class="stat-value" id="statDeposited">—</div></div><div class="stat-tile"><div class="stat-label">Рефералов</div><div class="stat-value" id="statReferrals">—</div></div><div class="stat-tile"><div class="stat-label">Баланс</div><div class="stat-value" id="statBalance">0</div></div></div></section></div><div class="agreement-backdrop" id="agreementBackdrop"><section class="agreement-modal" role="dialog" aria-modal="true"><div class="modal-head"><div class="modal-title">Соглашение</div><button class="modal-close" id="agreementClose" type="button">×</button></div><div class="agreement-copy">Открывая наше приложение, вы автоматически соглашаетесь с правилами использования сервиса «Stars», все выплаты и пополнения онлайн через fragment Telegram, приложение прошло настоящую проверку с модерации Телеграм, и в скоре появится в каталоге!</div><button class="agreement-ok" id="agreementOk" type="button">Понятно</button></section></div><div class="game-backdrop" id="gameBackdrop" aria-hidden="true">
  <section class="game-modal" role="dialog" aria-modal="true" aria-labelledby="gameTitle">
   <div class="modal-head"><div class="modal-title" id="gameTitle">Игры</div><button class="modal-close" id="gameClose" type="button" aria-label="Закрыть">×</button></div>
    <div id="gameMenu" class="game-menu-grid">
@@ -2688,6 +2706,68 @@ button[aria-busy="true"]:after{
  .agreement-backdrop.open .agreement-modal,.city-panel.open{animation:none!important}
 }
 </style>
+
+
+<style id="stars-profile-leaderboard-design">
+.profile-menu-home{color:#c7eaff!important}
+.profile-menu button:hover{background:#ffffff12!important}
+.home-more-sheet{max-height:91svh!important;overflow-y:auto!important}
+.more-tools-section{margin-top:18px;padding-top:15px;border-top:1px solid #ffffff18}
+.leaderboard-switch{display:grid;grid-template-columns:1fr 1fr;gap:7px;padding:4px;border-radius:14px;background:#ffffff09}
+.leaderboard-switch button{padding:10px;border:1px solid transparent;border-radius:11px;background:transparent;color:#aeb6c8;font-size:12px}
+.leaderboard-switch button.active{background:linear-gradient(135deg,#d9f1ff,#9bc8e8);color:#102337;box-shadow:0 0 18px #8ed5ff35}
+.leaderboard-prizes{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;margin:9px 0 12px}
+.leaderboard-prizes span{padding:7px 2px;text-align:center;border:1px solid #ffffff18;border-radius:10px;background:#ffffff08;color:#aeb6c8;font-size:9px}
+.leaderboard-prizes b{display:block;margin-top:3px;color:#f4d995;font-size:10px;font-variant-numeric:tabular-nums}
+.leaderboard-list{display:flex;flex-direction:column;gap:7px}
+.leaderboard-loading,.leaderboard-empty{padding:16px;text-align:center;color:#9ea7bb;font-size:12px}
+.leaderboard-row{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:9px;padding:10px;border:1px solid #ffffff18;border-radius:14px;background:linear-gradient(135deg,#ffffff0d,#ffffff04)}
+.leaderboard-place{font-size:13px;font-weight:900;color:#aeb9cd;text-align:center}
+.leaderboard-player{min-width:0;display:flex;align-items:center;gap:7px}
+.leaderboard-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;font-weight:800;color:#eaf4ff}
+.leaderboard-premium{font-size:8px;letter-spacing:.1em;color:#ffe39a;text-shadow:0 0 9px #ffcf65;white-space:nowrap}
+.leaderboard-amount{text-align:right;color:#b9edff;font-size:12px;font-weight:900;font-variant-numeric:tabular-nums}
+.leaderboard-prize{display:block;margin-top:3px;color:#e8ca85;font-size:9px}
+.leaderboard-row.premium-row{border-color:#f6d58d88;box-shadow:0 0 15px #f3ca7130,inset 0 0 14px #f3ca7110}
+.leaderboard-row.premium-row .leaderboard-name{color:#fff2c9;text-shadow:0 0 12px #ffda80}
+.color-picker{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin-top:12px}
+.color-picker button{display:flex;align-items:center;gap:7px;padding:9px 7px;border:1px solid #ffffff1d;border-radius:12px;background:#ffffff08;color:#cbd2e2;font-size:10px}
+.color-picker button.selected{border-color:#c9edff99;background:#9bd9ff18;box-shadow:0 0 14px #7dcaff22}
+.color-picker i{width:15px;height:15px;border-radius:50%;background:var(--swatch);box-shadow:0 0 10px var(--swatch);flex:none}
+.color-picker [data-profile-color="ice"]{--swatch:#c7f0ff}.color-picker [data-profile-color="violet"]{--swatch:#c7a7ff}.color-picker [data-profile-color="gold"]{--swatch:#f2cf78}.color-picker [data-profile-color="mint"]{--swatch:#8be6c2}.color-picker [data-profile-color="rose"]{--swatch:#ff9fbd}.color-picker [data-profile-color="azure"]{--swatch:#71baff}
+.premium-offer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:12px;padding:13px;border:1px solid #f1d28b55;border-radius:16px;background:linear-gradient(130deg,#f4d58b18,#ffffff06)}
+.premium-offer strong{display:block;color:#ffe3a3;font-size:12px;letter-spacing:.12em;text-shadow:0 0 12px #ffdc8c55}
+.premium-offer small{display:block;margin-top:4px;color:#aeb5c5;font-size:10px}
+.premium-offer button{padding:10px 12px;border:1px solid #f8dfa0aa;border-radius:12px;background:linear-gradient(135deg,#ffe9b1,#c99a4d);color:#2a1d0a;font-size:11px;font-weight:900}
+.premium-offer.is-active{border-color:#ffe5a0;background:linear-gradient(130deg,#f7d98d2a,#ffffff09);box-shadow:0 0 22px #f6d58d24}
+.profile-premium-tag{display:inline-block;margin-top:6px;padding:4px 8px;border:1px solid #f4d58b;border-radius:999px;color:#ffe2a0;font-size:8px;font-weight:950;letter-spacing:.16em;text-shadow:0 0 10px #ffe2a0;box-shadow:0 0 14px #f4d58b44}
+body.stars-premium .home-profile-avatar .avatar{border-color:#ffe3a0;box-shadow:0 0 0 2px #ffe3a055,0 0 22px #f4d58b88}
+body.stars-premium .home-frame-brand{filter:drop-shadow(0 0 12px #ffe0a0)}
+@media(max-width:370px){.leaderboard-row{padding:8px;gap:6px}.leaderboard-name{font-size:11px}.premium-offer button{width:100%}}
+</style>
+<script id="stars-profile-leaderboard-controls">
+(()=> {
+ const tg=window.Telegram?.WebApp,init=()=>tg?.initData;
+ const $=id=>document.getElementById(id);
+ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ async function api(url,body){if(!init())throw new Error('Открой приложение через Telegram.');const r=await fetch(url,{method:body?'POST':'GET',headers:{'X-Telegram-Init-Data':init(),'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||'Ошибка запроса.');return d;}
+ let period='week',profile={color:'ice',premium:false};
+ const colors=['ice','violet','gold','mint','rose','azure'];
+ function applyProfile(d){profile={...profile,...d};document.body.classList.toggle('stars-premium',!!profile.premium);$('profilePremiumTag').hidden=!profile.premium;$('premiumOffer').classList.toggle('is-active',!!profile.premium);$('premiumBuy').textContent=profile.premium?'ПРЕМИУМ АКТИВЕН':'Купить · 300 ✦';$('premiumBuy').disabled=!!profile.premium;document.querySelectorAll('[data-profile-color]').forEach(b=>b.classList.toggle('selected',b.dataset.profileColor===profile.color));}
+ async function loadProfile(){try{const d=await api('/api/profile/stats');applyProfile(d);if(d.nickname){$('profileDisplayName').textContent=d.nickname;$('userName').textContent=d.nickname;}if(d.color)applyProfile({color:d.color});if(d.premium)applyProfile({premium:true});[['statFavoriteMode','favoriteMode'],['statBiggestWin','biggestWin']].forEach(([id,k])=>$(id).textContent=k==='biggestWin'?Number(d[k]||0).toLocaleString('ru-RU'):d[k]||'—');$('statBalance').textContent=Number(d.balance||0).toLocaleString('ru-RU');}catch(_){}}
+ function showLeaderboard(d){const list=$('leaderboardList');if(!d.players?.length){list.innerHTML='<div class="leaderboard-empty">Пока нет выигрышей за этот период</div>';return;}list.innerHTML=d.players.map(p=>'<div class="leaderboard-row '+(p.premium?'premium-row':'')+'"><div class="leaderboard-place">'+p.place+'</div><div class="leaderboard-player"><span class="leaderboard-name">'+esc(p.name)+'</span>'+(p.premium?'<span class="leaderboard-premium">PREMIUM</span>':'')+'</div><div class="leaderboard-amount">'+Number(p.winnings).toLocaleString('ru-RU')+'<small class="leaderboard-prize">'+(p.prize?('Приз '+Number(p.prize).toLocaleString('ru-RU')):'')+'</small></div></div>').join('');}
+ async function loadLeaderboard(){const list=$('leaderboardList');list.innerHTML='<div class="leaderboard-loading">Обновляем рейтинг…</div>';try{const d=await api('/api/leaderboard?period='+period);showLeaderboard(d);}catch(e){list.innerHTML='<div class="leaderboard-empty">'+esc(e.message)+'</div>';}}
+ document.querySelectorAll('[data-leader-period]').forEach(b=>b.addEventListener('click',()=>{period=b.dataset.leaderPeriod;document.querySelectorAll('[data-leader-period]').forEach(x=>x.classList.toggle('active',x===b));loadLeaderboard();}));
+ $('homeMore')?.addEventListener('click',()=>{loadLeaderboard();loadProfile();});
+ $('profileMoreOpen')?.addEventListener('click',()=>{$('profileMenu').hidden=true;$('homeMore')?.click();});
+ $('profileMainHome')?.addEventListener('click',()=>{document.querySelectorAll('.city-backdrop,.game-backdrop,.promo-backdrop,.modal-backdrop,.profile-backdrop,.agreement-backdrop,.home-more-backdrop,.deposit-section').forEach(el=>el.classList.remove('open','deposit-modal-open'));$('profileMenu').hidden=true;document.body.classList.remove('section-page-active');document.body.style.overflow='';});
+ $('profileOpen')?.addEventListener('click',()=>loadProfile());
+ $('nicknameForm')?.addEventListener('submit',async e=>{e.preventDefault();const msg=$('nicknameMessage'),btn=$('nicknameSave');btn.disabled=true;try{const d=await api('/api/profile/nickname',{nickname:$('nicknameInput').value.trim()});$('balance').textContent=Number(d.balance).toLocaleString('ru-RU');$('statBalance').textContent=$('balance').textContent;$('profileDisplayName').textContent=d.nickname;$('userName').textContent=d.nickname;msg.textContent='Никнейм обновлён.';$('nicknameInput').value='';}catch(err){msg.textContent=err.message;}finally{btn.disabled=false;}});
+ $('profileColorPicker')?.querySelectorAll('[data-profile-color]').forEach(b=>b.addEventListener('click',async()=>{try{const d=await api('/api/profile/color',{color:b.dataset.profileColor});applyProfile({color:d.color});}catch(e){alert(e.message);}}));
+ $('premiumBuy')?.addEventListener('click',async()=>{const b=$('premiumBuy'),msg=$('premiumMessage');b.disabled=true;try{const d=await api('/api/profile/premium',{});$('balance').textContent=Number(d.balance).toLocaleString('ru-RU');applyProfile({premium:true});msg.textContent='Премиум активирован!';}catch(e){msg.textContent=e.message;}finally{b.disabled=!!profile.premium;}});
+ document.addEventListener('click',e=>{if(e.target.closest('#homeMore')){period='week';document.querySelectorAll('[data-leader-period]').forEach(b=>b.classList.toggle('active',b.dataset.leaderPeriod==='week'));}});
+})();
+</script>
 
 </body>
 </html>
