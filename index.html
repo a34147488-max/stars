@@ -926,10 +926,10 @@ body{background:#292a2e!important}
   <div class="fortune-wheel-wrap" id="fortuneWheelWrap">
    <div class="fortune-pointer" aria-hidden="true"></div>
    <div class="fortune-rim"><div class="fortune-disc" id="fortuneDisc">
-    <span class="fortune-label gold" style="--angle:0deg">10</span><span class="fortune-label" style="--angle:40deg">150</span><span class="fortune-label" style="--angle:80deg">75</span><span class="fortune-label" style="--angle:120deg">25</span><span class="fortune-label gold" style="--angle:160deg">600</span><span class="fortune-label" style="--angle:200deg">150</span><span class="fortune-label" style="--angle:240deg">75</span><span class="fortune-label" style="--angle:280deg">25</span><span class="fortune-label fragment" style="--angle:320deg"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M19 2 25 13 37 18 26 24 21 38 14 27 3 21 14 15Z" fill="#b9e5ff" stroke="#fff" stroke-width="1.5"/><path d="m19 2 1 18 17-2-12-5Z" fill="#fff" opacity=".75"/></svg></span>
+    <span class="fortune-label gold" style="--angle:0deg">10</span><span class="fortune-label" style="--angle:45deg">150</span><span class="fortune-label" style="--angle:90deg">75</span><span class="fortune-label" style="--angle:135deg">25</span><span class="fortune-label gold" style="--angle:180deg">600</span><span class="fortune-label" style="--angle:225deg">150</span><span class="fortune-label" style="--angle:270deg">75</span><span class="fortune-label" style="--angle:315deg">25</span>
    </div></div><div class="fortune-hub"></div>
   </div>
-  <div class="fortune-info"><div class="fortune-title">Забери свои<br>бонусные Stars</div><div class="fortune-copy">Крути колесо и получай от 25 до 600 Stars. Выпал фрагмент — колесо прокрутится ещё раз!</div><button class="fortune-spin-btn" id="fortuneSpinBtn" type="button">КРУТИТЬ</button><div class="fortune-result" id="fortuneResult" aria-live="polite"></div></div>
+  <div class="fortune-info"><div class="fortune-title">Забери свои<br>бонусные Stars</div><div class="fortune-copy">Крути колесо и получай 10, 25, 75, 150 или 600 Stars. Каждый сектор — отдельный приз.</div><button class="fortune-spin-btn" id="fortuneSpinBtn" type="button">КРУТИТЬ</button><div class="fortune-result" id="fortuneResult" aria-live="polite"></div></div>
  </div>
 </section>
 <div class="fortune-result-modal" id="fortuneResultModal" aria-hidden="true"><div class="fortune-prize-window"><div class="fortune-shards"><i class="fortune-shard"></i><i class="fortune-shard"></i><i class="fortune-shard"></i><i class="fortune-shard"></i><i class="fortune-shard"></i></div><div class="fortune-prize-eyebrow">ТВОЙ БОНУС STARS</div><div class="fortune-prize-value" id="fortunePrizeValue">+150</div><div class="fortune-prize-caption">Звёзды уже зачислены на твой баланс</div><button class="fortune-claim" id="fortuneClaim" type="button">ЗАБРАТЬ</button></div></div>
@@ -2344,6 +2344,15 @@ button:focus-visible{outline:2px solid #d7f3e5!important;outline-offset:3px}
 .fortune-claim{position:relative;width:100%;min-height:54px;margin-top:27px;border:1px solid #ffedb8;border-radius:17px;background:linear-gradient(180deg,#ffe6a1,#d5a84f 58%,#9b6c2d);color:#302313;font-weight:1000;font-size:15px;letter-spacing:.08em;box-shadow:inset 0 1px #fff,0 9px 22px #0006}
 .fortune-claim:active{transform:scale(.98)}
 
+
+/* Clear, framed numerical sectors */
+.fortune-disc{background:conic-gradient(from -22.5deg,#e9b94f 0deg 45deg,#252a40 45deg 90deg,#5d48cb 90deg 135deg,#24283c 135deg 180deg,#f1c45d 180deg 225deg,#292d45 225deg 270deg,#5b4bd0 270deg 315deg,#252a40 315deg 360deg)!important}
+.fortune-label{display:grid!important;place-items:center!important;width:48px!important;height:29px!important;margin-left:-24px!important;margin-top:-14px!important;padding:0 3px!important;border:1px solid #ffffff55!important;border-radius:9px!important;background:linear-gradient(145deg,#ffffff20,#080b1caa)!important;box-shadow:inset 0 1px #fff3,0 2px 7px #0008!important;color:#fff!important;font-size:13px!important;font-weight:1000!important;line-height:1!important;letter-spacing:-.03em!important;text-shadow:0 1px 3px #000!important;white-space:nowrap!important;overflow:hidden!important}
+.fortune-label.gold{background:linear-gradient(145deg,#fff0b6,#b77d2c)!important;color:#292237!important;text-shadow:none!important;border-color:#fff2c6!important}
+.fortune-label.fragment{font-size:13px!important}
+.fortune-card.zooming .fortune-label{width:clamp(48px,14vw,62px)!important;height:clamp(31px,8vw,38px)!important;margin-left:calc(clamp(48px,14vw,62px) / -2)!important;margin-top:calc(clamp(31px,8vw,38px) / -2)!important;font-size:clamp(15px,4vw,20px)!important;transform:rotate(var(--angle)) translateY(clamp(90px,34vw,145px)) rotate(calc(var(--angle) * -1))!important}
+.fortune-label.fragment svg{display:none!important}
+
 </style><style id="stars-startup-loading-v4">
 #stars-puzzle-loader{position:fixed!important;inset:0!important;z-index:999999!important;display:grid!important;place-items:center!important;visibility:visible;opacity:1;pointer-events:auto;background:radial-gradient(ellipse at 50% 42%,#102d59 0%,#09172f 37%,#050914 78%)!important;transition:opacity .32s ease,visibility .32s ease!important}
 #stars-puzzle-loader:before{content:"";position:absolute;width:min(78vw,340px);aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,#2e8cff35 0%,#1768d41b 42%,transparent 72%);filter:blur(4px);animation:startupAura 2.5s ease-in-out infinite alternate}
@@ -2378,12 +2387,12 @@ button:focus-visible{outline:2px solid #d7f3e5!important;outline-offset:3px}
  const card=document.getElementById('fortuneCard'),disc=document.getElementById('fortuneDisc'),wrap=document.getElementById('fortuneWheelWrap'),btn=document.getElementById('fortuneSpinBtn'),timer=document.getElementById('fortuneCooldown'),result=document.getElementById('fortuneResult'),modal=document.getElementById('fortuneResultModal'),claim=document.getElementById('fortuneClaim'),prizeValue=document.getElementById('fortunePrizeValue');
  if(!disc||!btn||!card)return;
  const tg=window.Telegram&&window.Telegram.WebApp;
- const prizes=[10,150,75,25,600,150,75,25,'fragment'];
- let availableAt=0,rotation=0,busy=false;
+ const prizes=[10,150,75,25,600,150,75,25];
+ let availableAt=0,rotation=0,busy=false,autoTried=false;
  const fmt=ms=>{const n=Math.max(0,Math.ceil(ms/1000));return [Math.floor(n/3600),Math.floor(n%3600/60),n%60].map(x=>String(x).padStart(2,'0')).join(':');};
  function paint(){const left=availableAt-Date.now();if(left>0){timer.textContent=fmt(left);btn.disabled=true;btn.textContent=fmt(left);}else{timer.textContent='БОНУС ДОСТУПЕН';btn.disabled=busy;btn.textContent=busy?'КРУТИМ…':'КРУТИТЬ';}}
- async function status(){if(!tg||!tg.initData)return;try{const r=await fetch('/api/fortune-wheel/status',{headers:{'X-Telegram-Init-Data':tg.initData},cache:'no-store'});const d=await r.json();if(r.ok&&d.ok){availableAt=Number(d.availableAt)||0;paint();}}catch(_){}}
- function land(slice,turns){const angle=360-slice*40;rotation+=360*turns+((angle-(rotation%360)+360)%360);disc.style.transform='rotate('+rotation+'deg)';}
+ async function status(){if(!tg||!tg.initData)return;try{const r=await fetch('/api/fortune-wheel/status',{headers:{'X-Telegram-Init-Data':tg.initData},cache:'no-store'});const d=await r.json();if(r.ok&&d.ok){availableAt=Number(d.availableAt)||0;paint();if(!autoTried&&new URLSearchParams(window.location.search).get('autospin')==='1'&&availableAt<=Date.now()){autoTried=true;setTimeout(()=>btn.click(),900);}}}catch(_){}}
+ function land(index,turns){const angle=360-index*45;rotation+=360*turns+((angle-(rotation%360)+360)%360);disc.style.transform='rotate('+rotation+'deg)';}
  function showPrize(amount){prizeValue.textContent='+'+Number(amount).toLocaleString('ru-RU');modal.classList.add('open');modal.setAttribute('aria-hidden','false');}
  function closePrize(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');}
  claim.addEventListener('click',closePrize);
@@ -2394,13 +2403,14 @@ button:focus-visible{outline:2px solid #d7f3e5!important;outline-offset:3px}
   try{
    const r=await fetch('/api/fortune-wheel/spin',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':tg.initData},body:'{}'});const d=await r.json();
    if(!r.ok||!d.ok)throw new Error(d.error||'Не удалось прокрутить колесо.');
-   const idx=prizes.findIndex(x=>x===d.prize),target=idx<0?3:idx;
-   if(d.fragments){land(8,5);setTimeout(()=>land(target,5),2600);}else land(target,9);
+   const idx=Number.isInteger(d.sectorIndex)?d.sectorIndex:prizes.indexOf(Number(d.prize));
+   if(idx<0||idx>=prizes.length||prizes[idx]!==Number(d.prize))throw new Error('Не удалось определить выпавший сектор. Обнови приложение.');
+   land(idx,9);
    setTimeout(()=>{
     wrap.classList.remove('spinning');card.classList.remove('zooming');availableAt=Number(d.availableAt)||Date.now()+10800000;
     const b=document.getElementById('balance');if(b)b.textContent=Number(d.balance).toLocaleString('ru-RU');
     busy=false;paint();showPrize(d.prize);
-   },d.fragments?5350:5350);
+   },5350);
   }catch(e){wrap.classList.remove('spinning');card.classList.remove('zooming');busy=false;result.textContent=e.message;paint();}
  });
  status();paint();setInterval(paint,1000);
