@@ -2356,15 +2356,15 @@ button:focus-visible{outline:2px solid #d7f3e5!important;outline-offset:3px}
    const r=await fetch('/api/fortune-wheel/spin',{method:'POST',headers:{'Content-Type':'application/json','X-Telegram-Init-Data':withdrawalTg.initData},body:'{}'});const d=await r.json();
    if(!r.ok||!d.ok)throw new Error(d.error||'Не удалось прокрутить колесо.');
    const idx=prizes.findIndex(x=>x===d.prize);const target=(idx<0?2:idx);
-   const angle=360-target*45;
-   rotation+=360*6+((angle-(rotation%360)+360)%360);
-   disc.style.transform='rotate('+rotation+'deg)';
+   const land=(slice,turns)=>{const angle=360-slice*45;rotation+=360*turns+((angle-(rotation%360)+360)%360);disc.style.transform='rotate('+rotation+'deg)';};
+   if(d.fragments){land(7,4);result.textContent='ФРАГМЕНТ! Повторное вращение…';setTimeout(()=>land(target,4),2550);}
+   else land(target,7);
    setTimeout(()=>{
     wrap.classList.remove('spinning');availableAt=Number(d.availableAt)||Date.now()+14400000;
     const b=document.getElementById('balance');if(b)b.textContent=Number(d.balance).toLocaleString('ru-RU');
-    result.textContent='Поздравляем! +'+Number(d.prize).toLocaleString('ru-RU')+' Stars'+(d.fragments?' · фрагмент запустил повторный прокрут':'');
+    result.textContent='Поздравляем! +'+Number(d.prize).toLocaleString('ru-RU')+' Stars'+(d.fragments?' · повторное вращение за фрагмент':'');
     busy=false;paint();
-   },5350);
+   },d.fragments?5350:5350);
   }catch(e){wrap.classList.remove('spinning');busy=false;result.textContent=e.message;paint();}
  });
  status();paint();tick=setInterval(paint,1000);
