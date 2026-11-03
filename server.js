@@ -428,6 +428,7 @@ async function ensureStarsProfileSchema() {
   starsProfileSchemaReady = true;
 }
 async function recordStarsGameEvent(client,telegramId,gameMode,bet,payout) {
+  await ensureStarsProfileSchema();
   await client.query('INSERT INTO stars_game_events(telegram_id,game_mode,bet,payout) VALUES($1,$2,$3,$4)',[String(telegramId),String(gameMode),Math.max(0,Number(bet)||0),Math.max(0,Number(payout)||0)]);
 }
 const STARS_LEADERBOARD_PRIZES=[3000,1500,1000,750,500];
@@ -659,6 +660,7 @@ app.post('/api/fortune-wheel/spin',async(req,res)=>{
     const prize=sectors[sectorIndex];
     await client.query('INSERT INTO stars_fortune_wheel(telegram_id,last_spin_at,notification_sent_at) VALUES($1,NOW(),NULL) ON CONFLICT(telegram_id) DO UPDATE SET last_spin_at=NOW(),notification_sent_at=NULL',[String(user.id)]);
     const upd=await client.query('UPDATE stars_users SET balance=balance+$2,updated_at=NOW() WHERE telegram_id=$1 RETURNING balance',[String(user.id),prize]);
+    await recordStarsGameEvent(client,user.id,'Колесо фортуны',0,prize);
     await client.query('COMMIT');
     return res.json({ok:true,prize,sectorIndex,balance:Number(upd.rows[0].balance),availableAt:Date.now()+3*60*60*1000});
   }catch(e){if(client){try{await client.query('ROLLBACK');}catch(_){}}console.error('Fortune wheel spin error:',e.message);return res.status(503).json({ok:false,error:'Не удалось прокрутить колесо.'});}
