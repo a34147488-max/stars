@@ -2753,7 +2753,7 @@ body.stars-premium .home-frame-brand{filter:drop-shadow(0 0 12px #ffe0a0)}
  async function api(url,body){if(!init())throw new Error('Открой приложение через Telegram.');const r=await fetch(url,{method:body?'POST':'GET',headers:{'X-Telegram-Init-Data':init(),'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});const d=await r.json();if(!r.ok||!d.ok)throw new Error(d.error||'Ошибка запроса.');return d;}
  let period='week',profile={color:'ice',premium:false};
  const colors=['ice','violet','gold','mint','rose','azure'];
- function applyProfile(d){profile={...profile,...d};document.body.classList.toggle('stars-premium',!!profile.premium);$('profilePremiumTag').hidden=!profile.premium;$('premiumOffer').classList.toggle('is-active',!!profile.premium);$('premiumBuy').textContent=profile.premium?'ПРЕМИУМ АКТИВЕН':'Купить · 300 ✦';$('premiumBuy').disabled=!!profile.premium;document.querySelectorAll('[data-profile-color]').forEach(b=>b.classList.toggle('selected',b.dataset.profileColor===profile.color));}
+ function applyProfile(d){profile={...profile,...d};document.body.dataset.profileColor=profile.color||'ice';document.body.classList.toggle('stars-premium',!!profile.premium);$('profilePremiumTag').hidden=!profile.premium;$('premiumOffer').classList.toggle('is-active',!!profile.premium);$('premiumBuy').textContent=profile.premium?'ПРЕМИУМ АКТИВЕН':'Купить · 300 ✦';$('premiumBuy').disabled=!!profile.premium;document.querySelectorAll('[data-profile-color]').forEach(b=>b.classList.toggle('selected',b.dataset.profileColor===profile.color));}
  async function loadProfile(){try{const d=await api('/api/profile/stats');applyProfile(d);if(d.nickname){$('profileDisplayName').textContent=d.nickname;$('userName').textContent=d.nickname;}if(d.color)applyProfile({color:d.color});if(d.premium)applyProfile({premium:true});[['statFavoriteMode','favoriteMode'],['statBiggestWin','biggestWin']].forEach(([id,k])=>$(id).textContent=k==='biggestWin'?Number(d[k]||0).toLocaleString('ru-RU'):d[k]||'—');$('statBalance').textContent=Number(d.balance||0).toLocaleString('ru-RU');}catch(_){}}
  function showLeaderboard(d){const list=$('leaderboardList');if(!d.players?.length){list.innerHTML='<div class="leaderboard-empty">Пока нет выигрышей за этот период</div>';return;}list.innerHTML=d.players.map(p=>'<div class="leaderboard-row '+(p.premium?'premium-row':'')+'"><div class="leaderboard-place">'+p.place+'</div><div class="leaderboard-player"><span class="leaderboard-name">'+esc(p.name)+'</span>'+(p.premium?'<span class="leaderboard-premium">PREMIUM</span>':'')+'</div><div class="leaderboard-amount">'+Number(p.winnings).toLocaleString('ru-RU')+'<small class="leaderboard-prize">'+(p.prize?('Приз '+Number(p.prize).toLocaleString('ru-RU')):'')+'</small></div></div>').join('');}
  async function loadLeaderboard(){const list=$('leaderboardList');list.innerHTML='<div class="leaderboard-loading">Обновляем рейтинг…</div>';try{const d=await api('/api/leaderboard?period='+period);showLeaderboard(d);}catch(e){list.innerHTML='<div class="leaderboard-empty">'+esc(e.message)+'</div>';}}
@@ -2769,5 +2769,24 @@ body.stars-premium .home-frame-brand{filter:drop-shadow(0 0 12px #ffe0a0)}
 })();
 </script>
 
+<style id="stars-colorful-type-and-brand">
+body{--profile-accent:#bceaff;--profile-accent-soft:#bceaff22}
+body[data-profile-color="violet"]{--profile-accent:#d2b5ff;--profile-accent-soft:#d2b5ff22}
+body[data-profile-color="gold"]{--profile-accent:#ffe0a0;--profile-accent-soft:#ffe0a022}
+body[data-profile-color="mint"]{--profile-accent:#9aefd0;--profile-accent-soft:#9aefd022}
+body[data-profile-color="rose"]{--profile-accent:#ffb2cb;--profile-accent-soft:#ffb2cb22}
+body[data-profile-color="azure"]{--profile-accent:#82c9ff;--profile-accent-soft:#82c9ff22}
+.home-profile-avatar .avatar{border-color:var(--profile-accent)!important;box-shadow:0 0 0 2px var(--profile-accent-soft),0 0 18px var(--profile-accent-soft)!important}
+.profile-summary{border-color:var(--profile-accent-soft)!important;box-shadow:inset 0 1px #ffffff15,0 0 20px var(--profile-accent-soft)!important}
+.profile-summary-name,.profile-name{color:var(--profile-accent)!important}
+.home-frame-brand{filter:drop-shadow(0 3px 2px #0009) drop-shadow(0 0 12px #8fcfff55)!important;letter-spacing:.045em!important}
+.home-frame-brand-blue,.home-frame-brand-gold{background-clip:text!important;-webkit-background-clip:text!important;-webkit-text-fill-color:transparent!important;text-shadow:none!important}
+.home-frame-brand-blue{background-image:linear-gradient(180deg,#f5fdff 0%,#9bdfff 23%,#3d9ce4 54%,#15558f 78%,#d5f4ff 100%)!important;filter:drop-shadow(0 1px 0 #061c35)}
+.home-frame-brand-gold{background-image:linear-gradient(180deg,#fff9df 0%,#ffe7a2 20%,#dca83f 52%,#8f5d17 78%,#fff0bd 100%)!important;filter:drop-shadow(0 1px 0 #3b2407)}
+.home-frame-brand i{filter:drop-shadow(0 0 7px #ffffffb0)}
+.home-more-title,.modal-title,.deposit-title,.game-mode-name,.fortune-title{letter-spacing:-.035em}
+.stats-section-title,.home-more-section-label{color:var(--profile-accent)!important;text-shadow:0 0 12px var(--profile-accent-soft)}
+.stat-label,.profile-hint,.home-more-subtitle{letter-spacing:.025em}
+</style>
 </body>
 </html>
