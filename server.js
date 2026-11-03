@@ -538,7 +538,7 @@ app.get('/api/fortune-wheel/status',async(req,res)=>{
     if(!user)return res.status(401).json({ok:false,error:'Открой приложение через Telegram-бота.'});
     const r=await pool.query('SELECT last_spin_at FROM stars_fortune_wheel WHERE telegram_id=$1',[String(user.id)]);
     const last=r.rowCount?new Date(r.rows[0].last_spin_at).getTime():0;
-    const availableAt=last?last+4*60*60*1000:0;
+    const availableAt=last?last+3*60*60*1000:0;
     return res.json({ok:true,available:!last||Date.now()>=availableAt,availableAt});
   }catch(e){console.error('Fortune wheel status error:',e.message);return res.status(503).json({ok:false,error:'Не удалось проверить колесо.'});}
 });
@@ -557,7 +557,7 @@ app.post('/api/fortune-wheel/spin',async(req,res)=>{
       const availableAt=new Date(prev.rows[0].last_spin_at).getTime()+4*60*60*1000;
       if(Date.now()<availableAt){await client.query('ROLLBACK');return res.status(429).json({ok:false,error:'Следующее вращение будет доступно позже.',availableAt});}
     }
-    const sectors=[150,75,25,600,150,75,25,'fragment'];
+    const sectors=[10,150,75,25,600,150,75,25,'fragment'];
     let prize=sectors[crypto.randomInt(0,sectors.length)];
     let fragments=0;
     while(prize==='fragment'&&fragments<12){fragments++;prize=sectors[crypto.randomInt(0,sectors.length)];}
@@ -565,7 +565,7 @@ app.post('/api/fortune-wheel/spin',async(req,res)=>{
     await client.query('INSERT INTO stars_fortune_wheel(telegram_id,last_spin_at) VALUES($1,NOW()) ON CONFLICT(telegram_id) DO UPDATE SET last_spin_at=NOW()',[String(user.id)]);
     const upd=await client.query('UPDATE stars_users SET balance=balance+$2,updated_at=NOW() WHERE telegram_id=$1 RETURNING balance',[String(user.id),prize]);
     await client.query('COMMIT');
-    return res.json({ok:true,prize,fragments,balance:Number(upd.rows[0].balance),availableAt:Date.now()+4*60*60*1000});
+    return res.json({ok:true,prize,fragments,balance:Number(upd.rows[0].balance),availableAt:Date.now()+3*60*60*1000});
   }catch(e){if(client){try{await client.query('ROLLBACK');}catch(_){}}console.error('Fortune wheel spin error:',e.message);return res.status(503).json({ok:false,error:'Не удалось прокрутить колесо.'});}
   finally{if(client)client.release();}
 });
