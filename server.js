@@ -1410,6 +1410,8 @@ app.get('*', (_req, res) => { res.set('Cache-Control', 'no-store, no-cache, must
 setInterval(()=>settleStarsLeaderboardPeriods().catch(e=>console.error('Leaderboard settlement error:',e.message)),60000);
 app.listen(PORT, '0.0.0.0', async () => {
   console.log('Stars UI listening on ' + PORT);
+  try { await ensureDb(); await ensureStarsProfileSchema(); } catch(e) { console.error('Profile/leaderboard schema setup failed:',e.message); }
+  settleStarsLeaderboardPeriods().catch(e=>console.error('Initial leaderboard settlement error:',e.message));
   setTimeout(notifyFortuneWheelReady, 15000);
   setInterval(notifyFortuneWheelReady, 60000);
   if (process.env.WEBHOOK_URL && process.env.BOT_TOKEN) {
