@@ -106,6 +106,7 @@ async function ensureDbInternal() {
     CREATE TABLE IF NOT EXISTS stars_bot_clan_requests (id BIGSERIAL PRIMARY KEY, clan_id BIGINT NOT NULL REFERENCES stars_bot_clans(id) ON DELETE CASCADE, telegram_id BIGINT NOT NULL REFERENCES stars_users(telegram_id) ON DELETE CASCADE, status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','approved','rejected')), created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), UNIQUE(clan_id,telegram_id));
     CREATE TABLE IF NOT EXISTS stars_megawheel_rounds (id BIGSERIAL PRIMARY KEY, status TEXT NOT NULL DEFAULT 'open' CHECK(status IN ('open','closed')), closes_at TIMESTAMPTZ NOT NULL, result INTEGER, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
     CREATE TABLE IF NOT EXISTS stars_megawheel_bets (id BIGSERIAL PRIMARY KEY, round_id BIGINT NOT NULL REFERENCES stars_megawheel_rounds(id) ON DELETE CASCADE, telegram_id BIGINT NOT NULL REFERENCES stars_users(telegram_id) ON DELETE CASCADE, selection TEXT NOT NULL, amount BIGINT NOT NULL CHECK(amount>0), won BOOLEAN, payout BIGINT, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
+    CREATE TABLE IF NOT EXISTS stars_fortune_wheel (telegram_id BIGINT PRIMARY KEY REFERENCES stars_users(telegram_id) ON DELETE CASCADE, last_spin_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
     CREATE TABLE IF NOT EXISTS stars_daily_games (telegram_id BIGINT NOT NULL, game TEXT NOT NULL CHECK (game IN ('dice','darts','slots')), played_on DATE NOT NULL DEFAULT CURRENT_DATE, choice TEXT, value INTEGER, won BOOLEAN NOT NULL DEFAULT FALSE, payout BIGINT NOT NULL DEFAULT 0, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), PRIMARY KEY (telegram_id,game,played_on));
     CREATE TABLE IF NOT EXISTS stars_referrals (referred_id BIGINT PRIMARY KEY, referrer_id BIGINT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), CHECK (referred_id <> referrer_id));
     CREATE TABLE IF NOT EXISTS stars_slot_wins (telegram_id BIGINT PRIMARY KEY, total_won BIGINT NOT NULL DEFAULT 0, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
@@ -528,6 +529,46 @@ app.post('/api/promocodes/activate', async (req, res) => {
   } finally { if (client) client.release(); }
 });
 
+
+
+app.get('/api/fortune-wheel/status',async(req,res)=>{
+  try{
+    await ensureDb();
+    const user=authUser(req);
+    if(!user)return res.status(401).json({ok:false,error:'Открой приложение через Telegram-бота.'});
+    const r=await pool.query('SELECT last_spin_at FROM stars_fortune_wheel WHERE telegram_id=$1',[String(user.id)]);
+    const last=r.rowCount?new Date(r.rows[0].last_spin_at).getTime():0;
+    const availableAt=last?last+4*60*60*1000:0;
+    return res.json({ok:true,available:!last||Date.now()>=availableAt,availableAt});
+  }catch(e){console.error('Fortune wheel status error:',e.message);return res.status(503).json({ok:false,error:'Не удалось проверить колесо.'});}
+});
+app.post('/api/fortune-wheel/spin',async(req,res)=>{
+  let client;
+  try{
+    await ensureDb();
+    const user=authUser(req);
+    if(!user)return res.status(401).json({ok:false,error:'Открой приложение через Telegram-бота.'});
+    client=await pool.connect();
+    await client.query('BEGIN');
+    const u=await client.query('SELECT balance FROM stars_users WHERE telegram_id=$1 FOR UPDATE',[String(user.id)]);
+    if(!u.rowCount){await client.query('ROLLBACK');return res.status(404).json({ok:false,error:'Профиль не найден.'});}
+    const prev=await client.query('SELECT last_spin_at FROM stars_fortune_wheel WHERE telegram_id=$1 FOR UPDATE',[String(user.id)]);
+    if(prev.rowCount){
+      const availableAt=new Date(prev.rows[0].last_spin_at).getTime()+4*60*60*1000;
+      if(Date.now()<availableAt){await client.query('ROLLBACK');return res.status(429).json({ok:false,error:'Следующее вращение будет доступно позже.',availableAt});}
+    }
+    const sectors=[150,75,25,600,150,75,25,'fragment'];
+    let prize=sectors[crypto.randomInt(0,sectors.length)];
+    let fragments=0;
+    while(prize==='fragment'&&fragments<12){fragments++;prize=sectors[crypto.randomInt(0,sectors.length)];}
+    if(prize==='fragment')prize=25;
+    await client.query('INSERT INTO stars_fortune_wheel(telegram_id,last_spin_at) VALUES($1,NOW()) ON CONFLICT(telegram_id) DO UPDATE SET last_spin_at=NOW()',[String(user.id)]);
+    const upd=await client.query('UPDATE stars_users SET balance=balance+$2,updated_at=NOW() WHERE telegram_id=$1 RETURNING balance',[String(user.id),prize]);
+    await client.query('COMMIT');
+    return res.json({ok:true,prize,fragments,balance:Number(upd.rows[0].balance),availableAt:Date.now()+4*60*60*1000});
+  }catch(e){if(client){try{await client.query('ROLLBACK');}catch(_){}}console.error('Fortune wheel spin error:',e.message);return res.status(503).json({ok:false,error:'Не удалось прокрутить колесо.'});}
+  finally{if(client)client.release();}
+});
 
 app.post('/api/starsslots/spin', async (req, res) => {
   try {
