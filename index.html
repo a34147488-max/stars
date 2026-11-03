@@ -882,7 +882,7 @@ body{background:#292a2e!important}
  <div class="home-frame-brand" aria-label="STARS"><span class="home-frame-brand-blue">sta</span><span class="home-frame-brand-gold">rs</span><i aria-hidden="true"></i></div>
  <button class="home-profile-avatar" id="profileAvatarButton" type="button" aria-label="Открыть меню профиля"><span class="avatar" id="userAvatar" aria-hidden="true">U</span></button>
  
- <div class="home-frame-actions"><button type="button" id="homeTopUp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5m-6 6 6-6 6 6M4 20h16"/></svg>Пополнить</button><button type="button" id="withdrawOpen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6M4 20h16"/></svg>Вывести</button><button type="button" id="homeMore">Ещё</button></div>
+ <div class="home-frame-actions"><button type="button" id="homeTopUp"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5m-6 6 6-6 6 6M4 20h16"/></svg>Пополнить</button><button type="button" id="withdrawOpen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m-6-6 6 6 6-6M4 20h16"/></svg>Вывести</button></div>
 </section>
 <div class="home-more-backdrop" id="homeMorePanel" aria-hidden="true">
  <section class="home-more-sheet" role="dialog" aria-modal="true" aria-labelledby="homeMoreTitle">
@@ -912,7 +912,7 @@ body{background:#292a2e!important}
   </div>
  </section>
 </div>
-<section class="center" aria-label="Баланс">
+<div class="premium-confirm-backdrop" id="premiumConfirmModal" aria-hidden="true"><section class="premium-confirm-sheet" role="dialog" aria-modal="true" aria-labelledby="premiumConfirmTitle"><div class="premium-confirm-head"><div><div class="premium-confirm-kicker">STARS EXCLUSIVE</div><div class="premium-confirm-title" id="premiumConfirmTitle">Подключение Premium</div></div><button type="button" class="modal-close" id="premiumConfirmClose" aria-label="Закрыть">×</button></div><div class="premium-confirm-price"><strong>300</strong><span>Telegram Stars</span></div><div class="premium-benefits"><div><b>✦</b><span>Сияющий никнейм в дневном и недельном топе</span></div><div><b>✦</b><span>Особая светящаяся рамка карточки в рейтинге</span></div><div><b>✦</b><span>Значок STARS PREMIUM в профиле</span></div><div><b>✦</b><span>Статус Premium сохраняется после покупки</span></div></div><div class="premium-confirm-note">Оплата проводится настоящими Telegram Stars. Игровой баланс не списывается. Premium подключится после подтверждения платежа Telegram.</div><button type="button" id="premiumPayNow" class="premium-pay-now">Оплатить 300 Telegram Stars</button><div id="premiumConfirmMessage" class="profile-message" aria-live="polite"></div></section></div><section class="center" aria-label="Баланс">
 <div class="eyebrow">Ваш баланс</div>
 <div class="reserve-mini" aria-label="Резерв выплат"><span>Резерв ₽ : <strong id="reserveRub">47 466,32</strong></span><span>Резерв Stars : <strong id="reserveStars">12 330</strong></span></div>
 <div class="city-balance-mini home-city-balance-mini"><span>Баланс города</span><strong id="homeCityBalance">0</strong><span>★</span><button class="city-exchange-small" id="cityExchangeOpen" type="button" aria-label="Обмен городских звёзд" title="Обмен">↔</button></div>
@@ -1999,7 +1999,7 @@ html body nav.bottom-nav>button.nav-item:not(#gameOpen).nav-fragment-pulse>svg.n
 })();</script>
 <script id="home-frame-actions-script">
 (function(){
- const topup=document.getElementById('homeTopUp'),more=document.getElementById('homeMore'),section=document.querySelector('.deposit-section');
+ const topup=document.getElementById('homeTopUp'),section=document.querySelector('.deposit-section');
  if(section&&!section.querySelector('.deposit-modal-close')){
   const close=document.createElement('button');close.type='button';close.className='deposit-modal-close';close.textContent='×';close.setAttribute('aria-label','Закрыть пополнение');section.prepend(close);
   close.addEventListener('click',()=>{section.classList.remove('deposit-modal-open');document.body.style.overflow='';});
@@ -2009,7 +2009,7 @@ html body nav.bottom-nav>button.nav-item:not(#gameOpen).nav-fragment-pulse>svg.n
  const morePanel=document.getElementById('homeMorePanel');
  function closeMore(){morePanel?.classList.remove('open');morePanel?.setAttribute('aria-hidden','true');document.body.style.overflow='';}
  morePanel?.querySelectorAll('[data-more-target]').forEach(button=>button.addEventListener('click',()=>{const target=document.getElementById(button.dataset.moreTarget);closeMore();target?.click();}));
- more?.addEventListener('click',()=>{more.animate?.([{transform:'scale(1)'},{transform:'scale(.94)'},{transform:'scale(1)'}],220);morePanel?.classList.add('open');morePanel?.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';});
+ document.getElementById('menuHome')?.addEventListener('click',()=>{morePanel?.classList.add('open');morePanel?.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';});
  document.getElementById('homeMoreClose')?.addEventListener('click',closeMore);
  morePanel?.addEventListener('click',e=>{if(e.target===morePanel)closeMore();});
  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMore();});
@@ -2768,8 +2768,8 @@ body.stars-premium .home-frame-brand{filter:drop-shadow(0 0 12px #ffe0a0)}
 
 
  $('profileColorPicker')?.querySelectorAll('[data-profile-color]').forEach(b=>b.addEventListener('click',async()=>{try{const d=await api('/api/profile/color',{color:b.dataset.profileColor});applyProfile({color:d.color});}catch(e){alert(e.message);}}));
- $('premiumBuy')?.addEventListener('click',async()=>{const b=$('premiumBuy'),msg=$('premiumMessage');b.disabled=true;try{const d=await api('/api/profile/premium',{});$('balance').textContent=Number(d.balance).toLocaleString('ru-RU');applyProfile({premium:true});msg.textContent='Премиум активирован!';}catch(e){msg.textContent=e.message;}finally{b.disabled=!!profile.premium;}});
- document.addEventListener('click',e=>{if(e.target.closest('#homeMore')){period='week';document.querySelectorAll('[data-leader-period]').forEach(b=>b.classList.toggle('active',b.dataset.leaderPeriod==='week'));}});
+ $('premiumBuy')?.addEventListener('click',()=>{if(profile.premium)return;$('premiumConfirmModal').classList.add('open');$('premiumConfirmModal').setAttribute('aria-hidden','false');});$('premiumConfirmClose')?.addEventListener('click',()=>{$('premiumConfirmModal').classList.remove('open');$('premiumConfirmModal').setAttribute('aria-hidden','true');});$('premiumConfirmModal')?.addEventListener('click',e=>{if(e.target===$('premiumConfirmModal'))$('premiumConfirmClose').click();});$('premiumPayNow')?.addEventListener('click',async()=>{const b=$('premiumPayNow'),msg=$('premiumConfirmMessage'),tg=window.Telegram?.WebApp;b.disabled=true;msg.textContent='Создаём счёт Telegram Stars…';try{if(!tg?.initData||typeof tg.openInvoice!=='function')throw new Error('Открой приложение в Telegram, чтобы оплатить Premium.');const d=await api('/api/profile/premium/invoice',{});tg.openInvoice(d.url,status=>{if(status==='paid'){msg.textContent='Оплата получена. Активируем Premium…';$('premiumConfirmModal').classList.remove('open');loadProfile();$('premiumMessage').textContent='Платёж принят Telegram. Premium активируется после подтверждения.';}else if(status==='cancelled'){msg.textContent='Оплата отменена. Premium не подключён.';}else if(status==='failed'){msg.textContent='Не удалось провести оплату. Попробуй ещё раз.';}else{msg.textContent='Платёж обрабатывается. Статус обновится после подтверждения Telegram.';}});}catch(e){msg.textContent=e.message;}finally{b.disabled=false;}});
+ document.addEventListener('click',e=>{if(e.target.closest('#menuHome')){period='week';document.querySelectorAll('[data-leader-period]').forEach(b=>b.classList.toggle('active',b.dataset.leaderPeriod==='week'));}});
 })();
 </script>
 
@@ -2810,5 +2810,24 @@ body[data-profile-color="azure"]{--profile-accent:#82c9ff;--profile-accent-soft:
 .home-more-section-label{font-size:10px!important;letter-spacing:.16em!important;font-weight:900!important}
 button{letter-spacing:.005em}
 @media(max-width:390px){.home-frame-actions button{min-height:43px!important;font-size:9px!important;padding-inline:3px!important}}
+</style><style id="stars-fullscreen-profile-and-premium-payment">
+.profile-backdrop{position:fixed!important;inset:0!important;z-index:1900000!important;display:none!important;align-items:stretch!important;justify-content:stretch!important;padding:0!important;background:#080b14!important;overflow:hidden!important}
+.profile-backdrop.open{display:flex!important}
+.profile-modal{position:relative!important;width:100%!important;max-width:none!important;height:100dvh!important;max-height:100dvh!important;min-height:100dvh!important;overflow-x:hidden!important;overflow-y:auto!important;overscroll-behavior:contain!important;-webkit-overflow-scrolling:touch!important;border:0!important;border-radius:0!important;padding:calc(env(safe-area-inset-top) + 18px) 17px calc(env(safe-area-inset-bottom) + 28px)!important;background:radial-gradient(ellipse at 85% 0%,#29435b55,transparent 42%),linear-gradient(160deg,#171d2b,#090c14 70%)!important;box-shadow:none!important;align-self:stretch!important}
+.profile-modal .modal-head{position:sticky!important;top:0!important;z-index:4!important;padding:5px 0 14px!important;background:linear-gradient(#171d2b 80%,transparent)!important}
+.profile-modal .stats-grid{margin-bottom:18px!important}.profile-modal .profile-summary{margin:8px 0 22px!important}
+.premium-confirm-backdrop{position:fixed;inset:0;z-index:1900010;display:none;align-items:flex-end;justify-content:center;padding:12px;background:#03050bdc;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.premium-confirm-backdrop.open{display:flex;animation:overlayFadeIn .2s ease both}
+.premium-confirm-sheet{width:100%;max-width:480px;max-height:90dvh;overflow-y:auto;overscroll-behavior:contain;padding:20px 17px calc(20px + env(safe-area-inset-bottom));border:1px solid #f3d58c55;border-radius:25px;background:radial-gradient(ellipse at 85% 0%,#765b2d44,transparent 46%),linear-gradient(155deg,#262535,#10121c 78%);box-shadow:0 25px 90px #000b;animation:sheetRise .28s ease both}
+.premium-confirm-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.premium-confirm-kicker{font-size:9px;font-weight:900;letter-spacing:.2em;color:#f4d58b}
+.premium-confirm-title{margin-top:5px;font-size:21px;font-weight:950;letter-spacing:-.04em;color:#fff0c8}
+.premium-confirm-price{display:flex;align-items:baseline;gap:9px;margin:19px 0;padding:13px 15px;border:1px solid #f4d58b55;border-radius:16px;background:#f4d58b12}
+.premium-confirm-price strong{font-size:34px;color:#ffe2a0;text-shadow:0 0 20px #f4d58b66}.premium-confirm-price span{font-size:12px;color:#d9c9a5}
+.premium-benefits{display:grid;gap:12px}.premium-benefits>div{display:flex;gap:10px;align-items:flex-start;color:#e4e8f2;font-size:13px;line-height:1.4}.premium-benefits b{color:#ffe2a0;text-shadow:0 0 12px #f4d58b;flex:none}
+.premium-confirm-note{margin:17px 0;padding:12px;border-radius:13px;background:#ffffff08;color:#aeb7c9;font-size:10px;line-height:1.55}
+.premium-pay-now{width:100%;min-height:50px;border:0;border-radius:15px;background:linear-gradient(120deg,#fff0bd,#d5a64e);color:#291d0b;font-size:13px;font-weight:950;box-shadow:0 0 22px #e8c46a33}
+#premiumConfirmMessage{min-height:18px}.home-frame-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+@media(prefers-reduced-motion:reduce){.premium-confirm-backdrop.open,.premium-confirm-sheet{animation:none!important}}
 </style></body>
 </html>
