@@ -404,9 +404,15 @@ app.post('/api/profile/nickname',async(req,res)=>{let c;try{
 app.post('/api/profile/color',async(req,res)=>{try{
  await ensureDb();await ensureStarsProfileSchema();const user=authUser(req);if(!user)return res.status(401).json({ok:false,error:'Открой приложение через Telegram.'});const colors=['ice','violet','gold','mint','rose','azure'],color=String(req.body?.color||'');if(!colors.includes(color))return res.status(400).json({ok:false,error:'Выбери доступный цвет.'});await pool.query('UPDATE stars_users SET profile_color=$2,updated_at=NOW() WHERE telegram_id=$1',[String(user.id),color]);return res.json({ok:true,color});
  }catch(e){console.error('Profile color error:',e.message);return res.status(503).json({ok:false,error:'Не удалось сохранить цвет.'});}});
-app.post('/api/profile/premium',async(req,res)=>{let c;try{
- await ensureDb();await ensureStarsProfileSchema();const user=authUser(req);if(!user)return res.status(401).json({ok:false,error:'Открой приложение через Telegram.'});c=await pool.connect();await c.query('BEGIN');const row=await c.query('SELECT balance,is_premium FROM stars_users WHERE telegram_id=$1 FOR UPDATE',[String(user.id)]);if(!row.rowCount){await c.query('ROLLBACK');return res.status(404).json({ok:false,error:'Профиль не найден.'});}if(row.rows[0].is_premium){await c.query('ROLLBACK');return res.status(409).json({ok:false,error:'Премиум уже активен.'});}if(Number(row.rows[0].balance)<300){await c.query('ROLLBACK');return res.status(400).json({ok:false,error:'Для премиума нужно 300 звёзд.'});}const updated=await c.query('UPDATE stars_users SET balance=balance-300,is_premium=TRUE,updated_at=NOW() WHERE telegram_id=$1 RETURNING balance',[String(user.id)]);await c.query('COMMIT');return res.json({ok:true,premium:true,balance:Number(updated.rows[0].balance)});
- }catch(e){if(c)try{await c.query('ROLLBACK')}catch(_){}console.error('Premium purchase error:',e.message);return res.status(503).json({ok:false,error:'Не удалось оформить премиум.'});}finally{if(c)c.release();}});
+app.post('/api/profile/premium',async(_req,res)=>res.status(410).json({ok:false,error:'Премиум оплачивается только настоящими Telegram Stars.'}));
+app.post('/api/profile/premium/invoice',async(req,res)=>{try{
+ await ensureDb();await ensureStarsProfileSchema();const user=validateTelegramInitData(req.get('X-Telegram-Init-Data'),process.env.BOT_TOKEN);if(!user)return res.status(401).json({ok:false,error:'Не удалось подтвердить Telegram-профиль.'});
+ const current=await pool.query('SELECT is_premium FROM stars_users WHERE telegram_id=$1',[String(user.id)]);if(current.rows[0]?.is_premium)return res.status(409).json({ok:false,error:'Premium уже активен.'});
+ const payload=JSON.stringify({userId:String(user.id),premium:true,stars:300,nonce:crypto.randomBytes(16).toString('hex')});
+ const url=await telegramApi('createInvoiceLink',{title:'STARS PREMIUM',description:'Premium: сияющий никнейм и рамка в топе. Оплата 300 Telegram Stars.',payload,currency:'XTR',prices:[{label:'STARS PREMIUM',amount:300}]});
+ return res.json({ok:true,url,stars:300,currency:'XTR'});
+ }catch(e){console.error('Premium invoice creation error:',e.message);return res.status(503).json({ok:false,error:'Не удалось создать счёт Telegram Stars. Попробуй ещё раз.'});}});
+
 app.get('/api/leaderboard',async(req,res)=>{try{
  await ensureDb();await ensureStarsProfileSchema();const user=authUser(req);if(!user)return res.status(401).json({ok:false,error:'Открой приложение через Telegram.'});const period=String(req.query.period||'week')==='day'?'day':'week';const start=period==='day'?"date_trunc('day',NOW())":"date_trunc('week',NOW())";
  const result=await pool.query(`SELECT e.telegram_id,COALESCE(u.nickname,u.username,u.first_name,'Игрок') AS name,COALESCE(u.is_premium,FALSE) AS premium,COALESCE(u.profile_color,'ice') AS color,SUM(e.payout)::numeric AS winnings,COUNT(*)::int AS games FROM stars_game_events e JOIN stars_users u ON u.telegram_id=e.telegram_id WHERE e.created_at >= ${start} AND e.payout>0 GROUP BY e.telegram_id,u.nickname,u.username,u.first_name,u.is_premium,u.profile_color ORDER BY SUM(e.payout) DESC,e.telegram_id ASC LIMIT 50`);
@@ -435,6 +441,7 @@ async function ensureStarsProfileSchema() {
     CREATE INDEX IF NOT EXISTS stars_game_events_period_idx ON stars_game_events(created_at DESC,telegram_id);
     CREATE INDEX IF NOT EXISTS stars_game_events_player_idx ON stars_game_events(telegram_id,created_at DESC);
     CREATE TABLE IF NOT EXISTS stars_leaderboard_awards (id BIGSERIAL PRIMARY KEY,period_type TEXT NOT NULL CHECK(period_type IN ('day','week')),period_start TIMESTAMPTZ NOT NULL,telegram_id BIGINT NOT NULL REFERENCES stars_users(telegram_id) ON DELETE CASCADE,place INTEGER NOT NULL CHECK(place BETWEEN 1 AND 5),prize BIGINT NOT NULL,paid_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),UNIQUE(period_type,period_start,telegram_id),UNIQUE(period_type,period_start,place));
+    CREATE TABLE IF NOT EXISTS stars_premium_payments (telegram_payment_charge_id TEXT PRIMARY KEY,telegram_id BIGINT NOT NULL REFERENCES stars_users(telegram_id) ON DELETE CASCADE,stars INTEGER NOT NULL CHECK(stars=300),currency TEXT NOT NULL CHECK(currency='XTR'),paid_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
   `);
   starsProfileSchemaReady = true;
 }
@@ -1375,13 +1382,18 @@ app.post('/api/telegram/webhook', async (req, res) => {
     if (update.pre_checkout_query) {
       const q = update.pre_checkout_query;
       let valid = false;
-      try { const p=JSON.parse(q.invoice_payload||'{}'),k=PACKAGES[Number(p.stars)],c=p.custom===true&&Number.isSafeInteger(Number(p.coins))&&Number(p.coins)>=500&&Number(p.coins)<=531914&&Number(p.stars)===Math.ceil(Number(p.coins)/10);valid=String(q.from?.id)===String(p.userId)&&q.currency==='XTR'&&q.total_amount===Number(p.stars)&&(c||(!!k&&Number(p.coins)===k.coins)); } catch (_) {}
+      try { const p=JSON.parse(q.invoice_payload||'{}'),k=PACKAGES[Number(p.stars)],c=p.custom===true&&Number.isSafeInteger(Number(p.coins))&&Number(p.coins)>=500&&Number(p.coins)<=531914&&Number(p.stars)===Math.ceil(Number(p.coins)/10),premium=p.premium===true&&Number(p.stars)===300;valid=String(q.from?.id)===String(p.userId)&&q.currency==='XTR'&&q.total_amount===Number(p.stars)&&(premium||c||(!!k&&Number(p.coins)===k.coins)); } catch (_) {}
       await telegramApi('answerPreCheckoutQuery', { pre_checkout_query_id: q.id, ok: valid, ...(!valid ? { error_message: 'Счёт недействителен. Создай новый счёт.' } : {}) });
       return res.sendStatus(200);
     }
     const payment = update.message?.successful_payment;
     if (!payment) return res.sendStatus(200);
-    const paymentSender=update.message.from,payload=JSON.parse(payment.invoice_payload||'{}'),pack=PACKAGES[Number(payload.stars)],custom=payload.custom===true&&Number.isSafeInteger(Number(payload.coins))&&Number(payload.coins)>=500&&Number(payload.coins)<=531914&&Number(payload.stars)===Math.ceil(Number(payload.coins)/10),paidStars=custom?Number(payload.stars):pack?.stars,paidCoins=custom?Number(payload.coins):pack?.coins;
+    const paymentSender=update.message.from,payload=JSON.parse(payment.invoice_payload||'{}');
+    if(payload.premium===true){
+      if(String(paymentSender?.id)!==String(payload.userId)||payment.currency!=='XTR'||payment.total_amount!==300||Number(payload.stars)!==300||!payment.telegram_payment_charge_id){console.error('Rejected mismatched Premium successful_payment update');return res.sendStatus(200);}
+      const premiumClient=await pool.connect();try{await premiumClient.query('BEGIN');await premiumClient.query('INSERT INTO stars_users(telegram_id,username,first_name) VALUES($1,$2,$3) ON CONFLICT(telegram_id) DO NOTHING',[String(paymentSender.id),paymentSender.username||null,paymentSender.first_name||null]);const inserted=await premiumClient.query('INSERT INTO stars_premium_payments(telegram_payment_charge_id,telegram_id,stars,currency) VALUES($1,$2,300,\'XTR\') ON CONFLICT(telegram_payment_charge_id) DO NOTHING RETURNING telegram_payment_charge_id',[payment.telegram_payment_charge_id,String(paymentSender.id)]);if(inserted.rowCount)await premiumClient.query('UPDATE stars_users SET is_premium=TRUE,username=COALESCE($2,username),first_name=COALESCE($3,first_name),updated_at=NOW() WHERE telegram_id=$1',[String(paymentSender.id),paymentSender.username||null,paymentSender.first_name||null]);await premiumClient.query('COMMIT');}catch(e){await premiumClient.query('ROLLBACK');throw e;}finally{premiumClient.release();}return res.sendStatus(200);
+    }
+    const pack=PACKAGES[Number(payload.stars)],custom=payload.custom===true&&Number.isSafeInteger(Number(payload.coins))&&Number(payload.coins)>=500&&Number(payload.coins)<=531914&&Number(payload.stars)===Math.ceil(Number(payload.coins)/10),paidStars=custom?Number(payload.stars):pack?.stars,paidCoins=custom?Number(payload.coins):pack?.coins;
     if ((!pack&&!custom)||String(paymentSender?.id)!==String(payload.userId)||payment.currency!=='XTR'||payment.total_amount!==paidStars||!paidCoins||!payment.telegram_payment_charge_id) { console.error('Rejected mismatched successful_payment update'); return res.sendStatus(200); }
     const client = await pool.connect();
     try {
