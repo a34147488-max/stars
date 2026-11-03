@@ -1009,7 +1009,7 @@ app.post('/api/telegram/webhook', async (req, res) => {
     }
     if(callback && String(callback.data||'').startsWith('bot:')){
       const data=String(callback.data),id=String(sender.id);
-      await telegramApi('answerCallbackQuery',{callback_query_id:callback.id});
+      try { await telegramApi('answerCallbackQuery',{callback_query_id:callback.id}); } catch (answerError) { console.warn('Telegram callback acknowledgement skipped:', answerError.message); }
       if(data==='bot:cancel'){botUserStates.delete(id);await botMainMenu(id,chatId);return res.sendStatus(200);}
       if(data.startsWith('bot:sbp:paid:')){
         const requestId=Number(data.split(':')[3]);
@@ -1122,7 +1122,7 @@ app.post('/api/telegram/webhook', async (req, res) => {
     }
     if (callback && adminRow.rowCount) {
       const action = String(callback.data || '');
-      await telegramApi('answerCallbackQuery',{callback_query_id:callback.id});
+      try { await telegramApi('answerCallbackQuery',{callback_query_id:callback.id}); } catch (answerError) { console.warn('Telegram callback acknowledgement skipped:', answerError.message); }
       if (action === 'adm:bonuses:check') {
         const [promos, links, me] = await Promise.all([
           pool.query("SELECT code,reward,max_activations,activations FROM stars_promocodes WHERE activations < max_activations ORDER BY code"),
@@ -1413,8 +1413,9 @@ app.post('/api/telegram/webhook', async (req, res) => {
     res.sendStatus(200);
   } catch (e) {
     console.error('Telegram webhook processing error:', e.stack || e.message);
-    if (callback?.message?.chat?.id) {
-      try { await telegramApi('sendMessage',{chat_id:callback.message.chat.id,text:'Не удалось выполнить действие. Ошибка записана в журнал; попробуй ещё раз чуть позже.'}); } catch (notifyError) { console.error('Webhook error notification failed:',notifyError.message); }
+    const failedCallback = update?.callback_query;
+    if (failedCallback?.message?.chat?.id) {
+      try { await telegramApi('sendMessage',{chat_id:failedCallback.message.chat.id,text:'Не удалось выполнить действие. Ошибка записана в журнал; попробуй ещё раз чуть позже.'}); } catch (notifyError) { console.error('Webhook error notification failed:',notifyError.message); }
     }
     if (!res.headersSent) res.sendStatus(500);
   }
