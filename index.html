@@ -235,6 +235,61 @@ body.playing-fullscreen .mine-cell{min-height:58px}
 body.playing-fullscreen .app-screen#coinScreen{width:min(100%,520px);padding-bottom:24px}
 @media(max-width:380px){.cover-coins{right:-15px;transform:scale(.82);transform-origin:center right}.game-mode-launch .game-cover,.game-mode-launch .coin-cover{min-height:190px}.coin-game-panel{padding:13px}.coin-stage{height:190px}.coin-3d{width:138px;height:138px}.coin-choice{padding:9px;gap:7px}.coin-choice b{font-size:12px}}
 
+
+/* Crazy Time */
+.ct-card .ct-card-art{height:155px;border-radius:20px;background:radial-gradient(circle at 50% 52%,#4b1744,#130b1c 72%);position:relative;overflow:hidden;display:grid;place-items:center}
+.ct-card-art:before{content:"";position:absolute;width:150px;height:150px;border-radius:50%;border:12px dotted #f6d36e;box-shadow:0 0 35px #f3b83e66;animation:ctGlow 4s ease-in-out infinite}
+.ct-card-art b{z-index:1;font-size:27px;letter-spacing:.1em;color:#ffe59a;text-shadow:0 0 18px #ffb52f}
+@keyframes ctGlow{50%{transform:scale(1.08) rotate(12deg);filter:brightness(1.4)}}
+.ct-screen{padding-bottom:22px}
+.ct-top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:8px 0 12px}
+.ct-back{border:0;background:transparent;color:#f1d28a;font-weight:700;padding:8px 0}
+.ct-balance,.ct-clock{font-size:11px;color:#d9c9a0}
+.ct-wheel-wrap{position:relative;width:min(82vw,350px);aspect-ratio:1;margin:14px auto 18px;display:grid;place-items:center}
+.ct-pointer{position:absolute;z-index:4;top:-8px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:13px solid transparent;border-right:13px solid transparent;border-top:0;border-bottom:27px solid #fff1bd;filter:drop-shadow(0 3px 7px #000)}
+.ct-wheel{width:100%;height:100%;border-radius:50%;border:9px solid #f3ce76;box-shadow:0 0 0 4px #6f431c,0 0 35px #e7ae3e55,inset 0 0 0 3px #fff5c4;position:relative;overflow:hidden;transform:rotate(0deg);transition:transform 5.2s cubic-bezier(.12,.68,.08,1);background:conic-gradient(#e9b64e 0deg 6.666deg,#8c3fba 6.666deg 13.333deg,#347fc5 13.333deg 20deg,#e9b64e 20deg 26.666deg,#29966b 26.666deg 33.333deg,#e9b64e 33.333deg 40deg,#d44c66 40deg 46.666deg,#e9b64e 46.666deg 53.333deg,#347fc5 53.333deg 60deg,#e9b64e 60deg 66.666deg,#8c3fba 66.666deg 73.333deg,#e9b64e 73.333deg 80deg,#29966b 80deg 86.666deg,#e9b64e 86.666deg 93.333deg,#d44c66 93.333deg 100deg,#e9b64e 100deg 106.666deg,#347fc5 106.666deg 113.333deg,#e9b64e 113.333deg 120deg,#8c3fba 120deg 126.666deg,#e9b64e 126.666deg 133.333deg,#29966b 133.333deg 140deg,#e9b64e 140deg 146.666deg,#d44c66 146.666deg 153.333deg,#e9b64e 153.333deg 160deg,#347fc5 160deg 166.666deg,#e9b64e 166.666deg 173.333deg,#8c3fba 173.333deg 180deg,#e9b64e 180deg 186.666deg,#29966b 186.666deg 193.333deg,#e9b64e 193.333deg 200deg,#d44c66 200deg 206.666deg,#e9b64e 206.666deg 213.333deg,#347fc5 213.333deg 220deg,#e9b64e 220deg 226.666deg,#8c3fba 226.666deg 233.333deg,#e9b64e 233.333deg 240deg,#29966b 240deg 246.666deg,#e9b64e 246.666deg 253.333deg,#d44c66 253.333deg 260deg,#e9b64e 260deg 266.666deg,#347fc5 266.666deg 273.333deg,#e9b64e 273.333deg 280deg,#8c3fba 280deg 286.666deg,#e9b64e 286.666deg 293.333deg,#29966b 293.333deg 300deg,#e9b64e 300deg 306.666deg,#d44c66 306.666deg 313.333deg,#e9b64e 313.333deg 320deg,#347fc5 320deg 326.666deg,#e9b64e 326.666deg 333.333deg,#8c3fba 333.333deg 340deg,#e9b64e 340deg 346.666deg,#29966b 346.666deg 353.333deg,#e9b64e 353.333deg 360deg)}
+.ct-wheel:after{content:"";position:absolute;inset:34%;border-radius:50%;background:radial-gradient(circle,#5b1b48,#170b20 75%);border:4px solid #f4d17b;box-shadow:0 0 20px #0008}
+.ct-wheel-labels{position:absolute;inset:0;pointer-events:none}
+.ct-wheel-labels span{position:absolute;left:50%;top:50%;font-size:12px;font-weight:950;color:white;text-shadow:0 2px 5px #000;transform-origin:0 0}
+.ct-wheel-center{position:absolute;z-index:2;width:26%;height:26%;border-radius:50%;display:grid;place-items:center;text-align:center;color:#ffe49a;font-weight:950;font-size:12px;letter-spacing:.1em;text-shadow:0 0 12px #e6a73e}
+.ct-topslot{padding:12px 14px;border-radius:17px;background:linear-gradient(120deg,#28123b,#13101c);border:1px solid #b77ad566;text-align:center;margin-bottom:14px}
+.ct-topslot small{display:block;color:#c8acd9;font-size:9px;letter-spacing:.18em}
+.ct-topslot strong{display:block;font-size:20px;color:#ffe18a;margin-top:4px}
+.ct-bets{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.ct-bet{border:1px solid #ffffff25;border-radius:13px;min-height:66px;background:linear-gradient(145deg,#31203b,#17121d);color:white;font-size:19px;font-weight:900}
+.ct-bet small{display:block;font-size:9px;color:#d4bfdc;margin-top:3px}
+.ct-bet[data-bet="1"]{background:linear-gradient(145deg,#bd8d30,#5e3d12)}
+.ct-bet[data-bet="2"]{background:linear-gradient(145deg,#347fc5,#12375b)}
+.ct-bet[data-bet="5"]{background:linear-gradient(145deg,#28966b,#104b37)}
+.ct-bet[data-bet="10"]{background:linear-gradient(145deg,#b94858,#5b1b29)}
+.ct-bet.selected{outline:2px solid #ffe18a;box-shadow:0 0 18px #f2c45b55;transform:translateY(-2px)}
+.ct-stake-row{display:flex;align-items:center;gap:10px;margin:13px 0}
+.ct-stake-row input{flex:1;min-width:0}
+.ct-chip{border:1px solid #e9c66a66;background:#251c11;color:#f8dc91;border-radius:11px;padding:9px 11px;font-weight:800}
+.ct-main-button{width:100%;border:0;border-radius:15px;padding:15px;background:linear-gradient(110deg,#f7d67d,#bd8125);color:#241606;font-size:15px;font-weight:950;box-shadow:0 7px 24px #c38b3044}
+.ct-main-button:disabled{opacity:.4}
+.ct-message{text-align:center;min-height:42px;padding:12px 4px;color:#e6d4ad;font-size:12px}
+.ct-bonus{margin-top:10px;border:1px solid #d4a84b66;border-radius:19px;padding:15px;background:linear-gradient(145deg,#23142b,#100d16);text-align:center;display:none}
+.ct-bonus.visible{display:block;animation:topEnter .3s ease both}
+.ct-bonus h3{margin:2px 0 9px;color:#ffe19a}
+.ct-bonus p{font-size:11px;color:#d9c9a0}
+.ct-bonus-action{border:1px solid #e6c36c66;border-radius:12px;background:#392448;color:#fff1c5;padding:12px 14px;font-weight:800;margin:4px}
+.ct-targets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.ct-target{height:58px;border:1px solid #f3d17b55;border-radius:13px;background:linear-gradient(145deg,#4c2862,#1d1830);color:#ffe49a;font-size:22px}
+.ct-target:disabled{opacity:.45}
+.ct-coin{width:104px;height:104px;border-radius:50%;margin:18px auto;background:linear-gradient(135deg,#f7df94,#bd7923 45%,#fff0b0 52%,#8b9aa9 56%,#dce4ed);border:7px double #fff0b8;display:grid;place-items:center;color:#2b1b0b;font-size:24px;font-weight:950;box-shadow:0 0 28px #edc65a55}
+.ct-coin.flip{animation:ctFlip 1.7s ease-in-out}
+@keyframes ctFlip{0%{transform:rotateY(0) rotateX(0)}50%{transform:rotateY(900deg) rotateX(35deg) scale(1.16)}100%{transform:rotateY(1800deg) rotateX(0)}}
+.ct-plinko{height:160px;position:relative;margin:10px auto;max-width:290px;border:1px solid #eacb7c55;border-radius:14px;background:repeating-linear-gradient(90deg,transparent 0 17px,#ffffff0c 18px 19px),linear-gradient(#25172e,#130f1b);overflow:hidden}
+.ct-ball{position:absolute;top:4px;left:50%;width:18px;height:18px;border-radius:50%;background:radial-gradient(circle at 30% 25%,white,#f5c74d 48%,#9c5718);box-shadow:0 0 16px #ffcf56;transform:translateX(-50%)}
+.ct-ball.drop{animation:ctDrop 2.2s ease-in forwards}
+@keyframes ctDrop{0%{top:4px;left:50%}20%{top:35px;left:38%}40%{top:66px;left:61%}60%{top:95px;left:43%}80%{top:126px;left:57%}100%{top:142px;left:50%}}
+.ct-flappers{display:flex;justify-content:center;gap:10px;margin:14px 0}
+.ct-flapper{width:58px;height:58px;border-radius:50%;border:3px solid #ffffff55;color:#fff;font-weight:900;font-size:20px}
+.ct-flapper[data-color="blue"]{background:#237ac4}.ct-flapper[data-color="green"]{background:#23945d}.ct-flapper[data-color="yellow"]{background:#d7a42e;color:#2c1c04}
+.ct-history{display:flex;gap:6px;overflow:auto;padding:6px 0 10px}
+.ct-history span{flex:0 0 auto;padding:6px 9px;border-radius:9px;background:#ffffff12;color:#ead7a7;font-size:10px}
+
 </style></head>
 <body><div class="coin-field" aria-hidden="true"><svg class="floating-coin" viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="#d8ad4b"/><circle cx="50" cy="50" r="42" fill="none" stroke="#fff0b4" stroke-width="2"/><text x="50" y="59" text-anchor="middle" font-size="24" font-weight="800" fill="#fff0b4">WC</text></svg><svg class="floating-coin" viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="#d8ad4b"/><circle cx="50" cy="50" r="42" fill="none" stroke="#fff0b4" stroke-width="2"/><text x="50" y="59" text-anchor="middle" font-size="24" font-weight="800" fill="#fff0b4">WC</text></svg><svg class="floating-coin" viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="#d8ad4b"/><circle cx="50" cy="50" r="42" fill="none" stroke="#fff0b4" stroke-width="2"/><text x="50" y="59" text-anchor="middle" font-size="24" font-weight="800" fill="#fff0b4">WC</text></svg><svg class="floating-coin" viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="#d8ad4b"/><circle cx="50" cy="50" r="42" fill="none" stroke="#fff0b4" stroke-width="2"/><text x="50" y="59" text-anchor="middle" font-size="24" font-weight="800" fill="#fff0b4">WC</text></svg></div><main>
 <section class="wallet" aria-label="Баланс WC">
@@ -287,6 +342,7 @@ body.playing-fullscreen .app-screen#coinScreen{width:min(100%,520px);padding-bot
    </div>
    <span class="launch-bottom"><span><strong>Мины</strong><small>Поле 5×5 · выбери сложность и ставку</small></span><span class="launch-arrow">ОТКРЫТЬ <b>›</b></span></span>
   </button>
+  <button class="game-mode-card game-mode-launch" id="openCrazyTime" type="button" aria-label="Открыть Crazy Time"><div class="ct-card-art"><b>CRAZY TIME</b></div><span class="launch-bottom"><span><strong>Crazy Time</strong><small>Колесо · 4 бонусные игры · Top Slot</small></span><span class="launch-arrow">ОТКРЫТЬ <b>›</b></span></span></button>
   <button class="game-mode-card game-mode-launch coin-mode-card" id="openCoin" type="button" aria-label="Открыть игру Монетка">
    <div class="coin-cover">
     <div class="cover-kicker">WC ORIGINAL GAME</div><div class="cover-title">COIN FLIP</div><div class="cover-desc">Выбери золотую или серебряную сторону. Угадай результат и забери x2 от ставки.</div>
@@ -324,6 +380,22 @@ body.playing-fullscreen .app-screen#coinScreen{width:min(100%,520px);padding-bot
   <div class="game-message" id="coinMessage">Угадай сторону — получи x2 от ставки.</div>
  </div>
  <div class="game-disclaimer">Демонстрационный режим: баланс общий с игрой «Мины» и не является реальными WC.</div>
+</section>
+<section class="app-screen ct-screen" id="crazyScreen" aria-label="Crazy Time">
+ <div class="ct-top"><button class="ct-back" id="backCrazy">‹ Все игры</button><span class="ct-balance">WC: <b id="ctBalance">1 000</b></span><span class="ct-clock" id="ctTimer">15 сек.</span></div>
+ <header class="section-head"><small>WC ORIGINAL SHOW</small><h1>Crazy Time</h1></header>
+ <div class="ct-topslot"><small>TOP SLOT · МНОЖИТЕЛЬ РАУНДА</small><strong id="ctTopSlot">ОЖИДАНИЕ</strong></div>
+ <div class="ct-wheel-wrap"><div class="ct-pointer"></div><div class="ct-wheel" id="ctWheel"></div><div class="ct-wheel-center">CRAZY<br>TIME</div></div>
+ <div class="ct-history" id="ctHistory"><span>История раундов появится здесь</span></div>
+ <div class="ct-bets" id="ctBets">
+  <button class="ct-bet selected" data-bet="1">1<small>ставка</small></button><button class="ct-bet" data-bet="2">2<small>ставка</small></button><button class="ct-bet" data-bet="5">5<small>ставка</small></button><button class="ct-bet" data-bet="10">10<small>ставка</small></button>
+  <button class="ct-bet" data-bet="Coin Flip">🪙<small>Coin Flip</small></button><button class="ct-bet" data-bet="Cash Hunt">🎯<small>Cash Hunt</small></button><button class="ct-bet" data-bet="Pachinko">🔵<small>Pachinko</small></button><button class="ct-bet" data-bet="Crazy Time">🎡<small>Crazy Time</small></button>
+ </div>
+ <div class="ct-stake-row"><input class="game-input" id="ctStake" type="number" min="1" value="25" inputmode="numeric" aria-label="Ставка WC"><button class="ct-chip" data-ct-chip="10">+10</button><button class="ct-chip" data-ct-chip="50">+50</button></div>
+ <button class="ct-main-button" id="ctPlace">Поставить 25 WC</button>
+ <div class="ct-message" id="ctMessage">Выбери сектор, размер ставки и нажми «Поставить».</div>
+ <div class="ct-bonus" id="ctBonus"><h3 id="ctBonusTitle">Бонусный раунд</h3><div id="ctBonusBody"></div></div>
+ <div class="game-disclaimer">Демо-режим: результаты генерируются локально, WC не являются реальными средствами. Это самостоятельная игровая версия, не официальный продукт Evolution.</div>
 </section>
 <nav class="bottom-nav" aria-label="Основная навигация">
 <button class="nav-btn active" data-tab="Меню" aria-current="page"><svg viewBox="0 0 24 24"><path d="M4 5.5h16M4 12h16M4 18.5h16"/></svg><span>Меню</span></button>
@@ -441,4 +513,30 @@ betField.addEventListener("change",()=>{const v=Math.floor(Number(betField.value
 resetBoard();
 
 })();
+
+document.getElementById("openCrazyTime").addEventListener("click",()=>{showScreen("crazyScreen");activeTab("Играть");ctReset()});
+document.getElementById("backCrazy").addEventListener("click",()=>{clearInterval(ctTimerInterval);showScreen("playScreen");activeTab("Играть")});
+const ctNames=["1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","2","2","2","2","2","2","2","2","2","2","2","2","5","5","5","5","5","5","5","10","10","10","10","Coin Flip","Coin Flip","Coin Flip","Coin Flip","Cash Hunt","Cash Hunt","Pachinko","Pachinko","Crazy Time"];
+const ctColors={"1":"#b88731","2":"#347fc5","5":"#269568","10":"#b94758","Coin Flip":"#347fc5","Cash Hunt":"#29966b","Pachinko":"#8c4bb3","Crazy Time":"#d64a67"};
+const ctWheel=document.getElementById("ctWheel");let ctBet="1",ctPlaced=0,ctBusy=false,ctTimerInterval=null,ctBonusFactor=1,ctTopBet="",ctTopMulti=1;
+function ctFmt(n){return Math.floor(n).toLocaleString("ru-RU")}
+function ctBalance(){document.getElementById("ctBalance").textContent=ctFmt(demoBalance)}
+function ctSetMessage(t){document.getElementById("ctMessage").textContent=t}
+function ctReset(){clearInterval(ctTimerInterval);ctBusy=false;ctPlaced=0;ctBonusFactor=1;ctWheel.style.transition="none";ctWheel.style.transform="rotate(0deg)";document.getElementById("ctBonus").classList.remove("visible");document.getElementById("ctBonusBody").innerHTML="";document.getElementById("ctTopSlot").textContent="ОЖИДАНИЕ";document.getElementById("ctTimer").textContent="15 сек.";document.getElementById("ctPlace").disabled=false;document.getElementById("ctPlace").textContent="Поставить "+ctFmt(Number(document.getElementById("ctStake").value)||25)+" WC";ctSetMessage("Выбери сектор, размер ставки и нажми «Поставить».");ctBalance()}
+document.querySelectorAll(".ct-bet").forEach(b=>b.addEventListener("click",()=>{if(ctBusy)return;ctBet=b.dataset.bet;document.querySelectorAll(".ct-bet").forEach(x=>x.classList.toggle("selected",x===b));document.getElementById("ctPlace").textContent="Поставить "+ctFmt(Number(document.getElementById("ctStake").value)||25)+" WC"}));
+document.getElementById("ctStake").addEventListener("input",e=>{document.getElementById("ctPlace").textContent="Поставить "+ctFmt(Number(e.target.value)||0)+" WC"});
+document.querySelectorAll("[data-ct-chip]").forEach(b=>b.addEventListener("click",()=>{const f=document.getElementById("ctStake");f.value=Math.max(1,Number(f.value)||0)+Number(b.dataset.ctChip);f.dispatchEvent(new Event("input"))}));
+function ctBeginSpin(){ctBusy=true;const timer=document.getElementById("ctTimer"),button=document.getElementById("ctPlace");button.disabled=true;ctTopBet=ctNames[Math.floor(Math.random()*ctNames.length)];ctTopMulti=[2,3,5,10,20,50][Math.floor(Math.random()*6)];document.getElementById("ctTopSlot").textContent=ctTopBet+"  ×"+ctTopMulti;ctSetMessage("Ставки закрыты! Top Slot выбрал множитель. Колесо вращается…");
+const idx=Math.floor(Math.random()*ctNames.length),result=ctNames[idx],sector=360/54;const angle=360*7+(360-(idx*sector+sector/2));ctWheel.style.transition="none";ctWheel.style.transform="rotate(0deg)";requestAnimationFrame(()=>requestAnimationFrame(()=>{ctWheel.style.transition="transform 5.2s cubic-bezier(.12,.68,.08,1)";ctWheel.style.transform="rotate("+angle+"deg)"}));
+setTimeout(()=>{document.getElementById("ctHistory").innerHTML='<span>'+result+'</span>'+document.getElementById("ctHistory").innerHTML;while(document.getElementById("ctHistory").children.length>10)document.getElementById("ctHistory").lastElementChild.remove();if(result===ctBet){if(["1","2","5","10"].includes(result)){const mul=Number(result)*(ctTopBet===result?ctTopMulti:1);const win=ctPlaced*mul;demoBalance+=win;updateBalance();ctBalance();ctSetMessage("Выпало "+result+"! Выигрыш: "+ctFmt(win)+" WC"+(ctTopBet===result?" · Top Slot ×"+ctTopMulti:""));ctEndRound()}else{ctBonusFactor=ctTopBet===result?ctTopMulti:1;ctLaunchBonus(result)}}else{ctSetMessage("Выпало "+result+". Ставка "+ctFmt(ctPlaced)+" WC не сыграла.");ctEndRound()}},5400)}
+function ctEndRound(){ctBusy=false;ctPlaced=0;ctBalance();document.getElementById("ctPlace").disabled=false;document.getElementById("ctPlace").textContent="Следующий раунд";document.getElementById("ctTimer").textContent="Готово"}
+document.getElementById("ctPlace").addEventListener("click",()=>{if(ctBusy){return}if(ctPlaced===0){const stake=Math.floor(Number(document.getElementById("ctStake").value));if(!Number.isFinite(stake)||stake<1)return ctSetMessage("Введи корректную ставку.");if(stake>demoBalance)return ctSetMessage("Недостаточно WC на демо-балансе.");demoBalance-=stake;updateBalance();ctBalance();ctPlaced=stake;document.getElementById("ctPlace").textContent="Ставка принята";ctSetMessage("Ставка "+ctFmt(stake)+" WC на "+ctBet+". Раунд начнётся через 15 секунд.");let left=15;document.getElementById("ctTimer").textContent=left+" сек.";ctTimerInterval=setInterval(()=>{left--;document.getElementById("ctTimer").textContent=left+" сек.";if(left<=0){clearInterval(ctTimerInterval);ctBeginSpin()}},1000)}else{ctSetMessage("Подожди завершения бонусного раунда или нажми «Следующий раунд».");}});
+function ctLaunchBonus(name){const box=document.getElementById("ctBonus"),body=document.getElementById("ctBonusBody");box.classList.add("visible");document.getElementById("ctBonusTitle").textContent=name+" · БОНУС";body.innerHTML="";
+if(name==="Coin Flip"){body.innerHTML='<p>Две стороны монеты получили случайные множители. Подбрасываем!</p><div class="ct-coin" id="ctCoinAnim">WC</div>';setTimeout(()=>{const mul=[2,3,5,10,20,50][Math.floor(Math.random()*6)];document.getElementById("ctCoinAnim").classList.add("flip");setTimeout(()=>ctBonusWin(mul,"Монета остановилась!"),1750)},150)}
+if(name==="Cash Hunt"){body.innerHTML='<p>Выбери одну из девяти мишеней — под ней скрыт множитель.</p><div class="ct-targets">'+Array.from({length:9},(_,i)=>'<button class="ct-target" data-target="'+i+'">✦</button>').join("")+'</div>';body.querySelectorAll("[data-target]").forEach(b=>b.addEventListener("click",()=>{if(b.disabled)return;body.querySelectorAll("button").forEach(x=>x.disabled=true);const mul=[2,3,5,8,10,15,20,25,50][Math.floor(Math.random()*9)];b.textContent="×"+mul;ctBonusWin(mul,"Твоя мишень открыта!")},{once:true}))}
+if(name==="Pachinko"){body.innerHTML='<p>Шарик падает по доске. Смотри, куда он попадёт!</p><div class="ct-plinko"><div class="ct-ball" id="ctBall"></div></div>';setTimeout(()=>{document.getElementById("ctBall").classList.add("drop");setTimeout(()=>ctBonusWin([2,3,5,8,10,15,20,30][Math.floor(Math.random()*8)],"Шарик достиг сектора!"),2300)},100)}
+if(name==="Crazy Time"){body.innerHTML='<p>Выбери цвет флиппера для большого колеса.</p><div class="ct-flappers"><button class="ct-flapper" data-color="blue">B</button><button class="ct-flapper" data-color="green">G</button><button class="ct-flapper" data-color="yellow">Y</button></div>';body.querySelectorAll("[data-color]").forEach(b=>b.addEventListener("click",()=>{body.querySelectorAll("button").forEach(x=>x.disabled=true);b.style.transform="scale(1.2)";body.insertAdjacentHTML("beforeend",'<div class="ct-wheel-wrap" style="width:180px"><div class="ct-wheel" id="ctBonusWheel"></div></div>');const w=document.getElementById("ctBonusWheel");setTimeout(()=>{w.style.transform="rotate(1800deg)";setTimeout(()=>ctBonusWin([2,3,5,10,20,50,100,200][Math.floor(Math.random()*8)],"Флиппер остановился!"),1800)},100)},{once:true}))}
+}
+function ctBonusWin(mul,label){const total=ctPlaced*mul*ctBonusFactor;demoBalance+=total;updateBalance();ctBalance();ctSetMessage(label+" Бонус ×"+mul+(ctBonusFactor>1?" · Top Slot ×"+ctBonusFactor:"")+". Начислено "+ctFmt(total)+" WC.");document.getElementById("ctBonusBody").insertAdjacentHTML("beforeend",'<p style="color:#ffe18a;font-size:20px;font-weight:900">+'+ctFmt(total)+' WC</p><button class="ct-bonus-action" id="ctNextRound">Следующий раунд</button>');document.getElementById("ctNextRound").addEventListener("click",()=>{document.getElementById("ctBonus").classList.remove("visible");ctEndRound();ctReset()})}
+
 </script></body></html>
