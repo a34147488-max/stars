@@ -261,4 +261,6 @@ function cashOut(){if(!gameActive||opened===0)return;finishRound(true)}
 startBtn.addEventListener("click",()=>{if(gameActive){resetBoard();return}startGame()});cashBtn.addEventListener("click",cashOut);
 betField.addEventListener("change",()=>{const v=Math.floor(Number(betField.value));if(v>0)betField.value=v});
 resetBoard();
+
+})();
 </script></body></html>
