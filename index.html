@@ -597,7 +597,7 @@ resetBoard();
 
 /* Crazy Time: responsive wheel, multi-outcome betting, 15-second round window */
 const ctNames=(()=>{const out=Array(54).fill(null),bonus={"Coin Flip":[5,18,31,45],"Cash Hunt":[11,38],"Pachinko":[24,51],"Crazy Time":[34]};Object.entries(bonus).forEach(([name,slots])=>slots.forEach(i=>out[i]=name));const counts=[["1",21],["2",13],["5",7],["10",4]],used=Object.fromEntries(counts.map(([k])=>[k,0])),score=Object.fromEntries(counts.map(([k])=>[k,0]));let total=45;for(let i=0;i<54;i++){if(out[i])continue;let pick=counts[0][0],best=-Infinity;for(const [name,count] of counts){score[name]+=count;if(used[name]<count&&score[name]>best){best=score[name];pick=name}}out[i]=pick;used[pick]++;score[pick]-=total}return out})();
-const ctColors={"1":"#d69a28","2":"#287fc8","5":"#239b68","10":"#c83e58","Coin Flip":"#287fc8","Cash Hunt":"#239b68","Pachinko":"#8748b5","Crazy Time":"#d34a86"};
+const ctColors={"1":"#d69a28","2":"#287fc8","5":"#239b68","10":"#c83e58","Coin Flip":"#1596ad","Cash Hunt":"#72a832","Pachinko":"#8748b5","Crazy Time":"#d34a86"};
 const ctWheel=document.getElementById("ctWheel");
 let ctSelected=new Set(),ctBets=[],ctBusy=false,ctPhase="idle",ctTimerInterval=null,ctSpinTimeout=null,ctRoundLeft=15,ctTopBet="",ctTopMulti=1,ctBonusPending=0;
 function ctFmt(n){return Math.floor(n).toLocaleString("ru-RU")}
@@ -614,7 +614,7 @@ function ctDrawWheel(){
  el("circle",{cx,cy,r:211,fill:"#986b2e",stroke:"#fff0b6","stroke-width":2.5});
  el("circle",{cx,cy,r:204,fill:"#281b13",stroke:"#67451f","stroke-width":2});
  for(let j=0;j<54;j++){const a=(-90+j*step)*Math.PI/180;el("circle",{cx:220+208*Math.cos(a),cy:220+208*Math.sin(a),r:2.2,fill:"#fff0b5",stroke:"#6c471c","stroke-width":.6})}
- const palette={"1":["#d8a33e","#f0c35c"],"2":["#2465a8","#398ed1"],"5":["#16734e","#2ba875"],"10":["#a92f4b","#df5c70"],"Coin Flip":["#236cbb","#479ee5"],"Cash Hunt":["#177d54","#37b77c"],"Pachinko":["#63318e","#a15ac8"],"Crazy Time":["#9e274d","#e14f79"]};
+ const palette={"1":["#d69a28","#f0c35c"],"2":["#287fc8","#55a9e8"],"5":["#239b68","#48c58a"],"10":["#c83e58","#ed6a7d"],"Coin Flip":["#1596ad","#45c2d5"],"Cash Hunt":["#72a832","#a4d34e"],"Pachinko":["#8748b5","#b879df"],"Crazy Time":["#d34a86","#f27db0"]};
  ctNames.forEach((name,i)=>{
   const mid=-90+(i+.5)*step,a1=(-90+i*step)*Math.PI/180,a2=(-90+(i+1)*step)*Math.PI/180,x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1),x2=cx+r*Math.cos(a2),y2=cy+r*Math.sin(a2);
   const colors=palette[name],path=el("path",{d:"M "+cx+" "+cy+" L "+x1+" "+y1+" A "+r+" "+r+" 0 0 1 "+x2+" "+y2+" Z",fill:colors[0],stroke:"#f5d58d","stroke-width":1.15,filter:"url(#ctSectorShade)"}); 
