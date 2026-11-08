@@ -516,7 +516,7 @@ resetBoard();
 
 document.getElementById("openCrazyTime").addEventListener("click",()=>{showScreen("crazyScreen");activeTab("Играть");ctReset()});
 document.getElementById("backCrazy").addEventListener("click",()=>{clearInterval(ctTimerInterval);showScreen("playScreen");activeTab("Играть")});
-const ctNames=["1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","2","2","2","2","2","2","2","2","2","2","2","2","5","5","5","5","5","5","5","10","10","10","10","Coin Flip","Coin Flip","Coin Flip","Coin Flip","Cash Hunt","Cash Hunt","Pachinko","Pachinko","Crazy Time"];
+const ctNames=["1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","1","2","2","2","2","2","2","2","2","2","2","2","2","2","5","5","5","5","5","5","5","10","10","10","10","Coin Flip","Coin Flip","Coin Flip","Coin Flip","Cash Hunt","Cash Hunt","Pachinko","Pachinko","Crazy Time"];
 const ctColors={"1":"#b88731","2":"#347fc5","5":"#269568","10":"#b94758","Coin Flip":"#347fc5","Cash Hunt":"#29966b","Pachinko":"#8c4bb3","Crazy Time":"#d64a67"};
 const ctWheel=document.getElementById("ctWheel");let ctBet="1",ctPlaced=0,ctBusy=false,ctTimerInterval=null,ctBonusFactor=1,ctTopBet="",ctTopMulti=1;
 function ctFmt(n){return Math.floor(n).toLocaleString("ru-RU")}
