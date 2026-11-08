@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#050505"><title>WC Wallet</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{color-scheme:dark;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#050505;color:#fff}
+body{min-height:100svh;display:grid;place-items:center;padding:calc(env(safe-area-inset-top) + 24px) 20px calc(env(safe-area-inset-bottom) + 24px);overflow:hidden}
+main{width:min(100%,480px)}
+.wallet{position:relative;isolation:isolate;overflow:hidden;min-height:270px;border-radius:34px;padding:30px 26px 24px;background:linear-gradient(145deg,rgba(255,255,255,.105),rgba(255,255,255,.025) 48%,rgba(214,166,49,.075));border:1px solid rgba(255,255,255,.19);box-shadow:inset 0 1px 0 rgba(255,255,255,.16),0 22px 70px rgba(0,0,0,.58),0 0 38px rgba(222,177,57,.08);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px)}
+.wallet:before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(ellipse at 82% 15%,rgba(255,221,130,.15),transparent 48%),linear-gradient(120deg,transparent 30%,rgba(255,255,255,.045),transparent 65%)}
+.coin{position:absolute;z-index:-1;width:min(88vw,390px);height:min(88vw,390px);right:-82px;top:50%;transform:translateY(-50%) rotate(-12deg);opacity:.17;filter:blur(.2px) saturate(.88);pointer-events:none}
+.kicker{font-size:12px;letter-spacing:.19em;font-weight:650;color:rgba(255,255,255,.63);text-transform:uppercase}
+.amount-line{display:flex;align-items:baseline;gap:10px;margin-top:22px;position:relative}
+.amount{font-size:clamp(46px,12vw,66px);line-height:1;font-weight:720;letter-spacing:-.055em;text-shadow:0 2px 20px rgba(255,255,255,.1);font-variant-numeric:tabular-nums}
+.currency{font-size:16px;letter-spacing:.12em;font-weight:750;color:#f4ce65;text-transform:lowercase;text-shadow:0 0 16px rgba(244,206,101,.3)}
+.subline{margin-top:10px;color:rgba(255,255,255,.46);font-size:12px;letter-spacing:.04em}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:36px}
+button{height:54px;border-radius:17px;border:1px solid rgba(255,255,255,.18);font:650 15px inherit;color:#fff;cursor:pointer;transition:transform .16s ease,filter .16s ease}
+button:active{transform:scale(.975);filter:brightness(1.18)}
+.primary{background:linear-gradient(135deg,#f0ca68,#b9892d);color:#211909;border-color:rgba(255,226,154,.65);box-shadow:0 8px 24px rgba(201,151,48,.18)}
+.secondary{background:rgba(255,255,255,.075);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.toast{position:fixed;left:20px;right:20px;bottom:calc(env(safe-area-inset-bottom) + 24px);margin:auto;max-width:440px;padding:14px 16px;border-radius:16px;background:rgba(30,30,30,.94);border:1px solid rgba(255,255,255,.14);color:#eee;font-size:13px;text-align:center;opacity:0;transform:translateY(10px);transition:.2s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+@media(min-width:600px){.wallet{min-height:300px;padding:34px}.actions{margin-top:48px}}
+</style></head>
+<body><main>
+<section class="wallet" aria-label="Баланс WC">
+<svg class="coin" viewBox="0 0 500 500" aria-hidden="true">
+<defs><linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff0ad"/><stop offset=".48" stop-color="#e7b93f"/><stop offset="1" stop-color="#a97719"/></linearGradient></defs>
+<circle cx="250" cy="250" r="237" fill="url(#gold)"/><circle cx="250" cy="250" r="220" fill="none" stroke="#fff1bd" stroke-width="5" opacity=".8"/>
+<path d="M95 155c-20 100 18 195 105 221 88 27 174-24 211-112-47 47-112 67-168 48-58-20-90-73-92-137-2-48 15-89 45-122-55 15-91 50-101 102Z" fill="#fff0b5" opacity=".88"/>
+<path d="M127 300c32 57 86 86 150 80 54-5 104-35 144-84-34 18-67 24-98 15-29-9-47-32-56-67-11-43-8-91-39-122-24-24-61-25-85-4 31-3 53 12 64 43 14 39 9 93 30 130 14 25 34 39 62 43-61 35-132 28-172-18Z" fill="#d9a92e"/>
+<path d="M185 130c-35 56-31 144 8 211M260 116c53 29 80 87 83 151" fill="none" stroke="#fff4d0" stroke-width="15" stroke-linecap="round" opacity=".85"/>
+</svg>
+<div class="kicker">Ваш баланс</div>
+<div class="amount-line"><div class="amount" id="balance">0</div><div class="currency">wc</div></div>
+<div class="subline">Доступный баланс</div>
+<div class="actions"><button class="primary" id="topup">Пополнить</button><button class="secondary" id="withdraw">Вывести</button></div>
+</section></main><div class="toast" id="toast" role="status"></div>
+<script>
+(()=>{const tg=window.Telegram?.WebApp;try{tg?.ready();tg?.expand();tg?.setHeaderColor?.("#050505");tg?.setBackgroundColor?.("#050505")}catch(e){}
+const toast=document.getElementById("toast");let timer;
+function message(text){toast.textContent=text;toast.classList.add("show");clearTimeout(timer);timer=setTimeout(()=>toast.classList.remove("show"),2600);try{tg?.HapticFeedback?.impactOccurred("light")}catch(e){}}
+document.getElementById("topup").addEventListener("click",()=>message("Пополнение WC будет доступно после подключения платёжного сервера."));
+document.getElementById("withdraw").addEventListener("click",()=>message("Вывод WC будет доступен после подключения платёжного сервера."));
+})();
+</script></body></html>
