@@ -590,7 +590,7 @@ resetBoard();
 })();
 
 /* Crazy Time: responsive wheel, multi-outcome betting, 15-second round window */
-const ctNames=(()=>{const counts=[["1",21],["2",13],["5",7],["10",4],["Coin Flip",4],["Cash Hunt",2],["Pachinko",2],["Crazy Time",1]],total=54,used=Object.fromEntries(counts.map(([k])=>[k,0])),score=Object.fromEntries(counts.map(([k])=>[k,0])),out=[];for(let i=0;i<total;i++){let pick=counts[0][0],best=-Infinity;for(const [name,count] of counts){score[name]+=count;if(used[name]<count&&score[name]>best){best=score[name];pick=name}}out.push(pick);used[pick]++;score[pick]-=total}return out})();
+const ctNames=(()=>{const out=Array(54).fill(null),bonus={"Coin Flip":[5,18,31,45],"Cash Hunt":[11,38],"Pachinko":[24,51],"Crazy Time":[34]};Object.entries(bonus).forEach(([name,slots])=>slots.forEach(i=>out[i]=name));const counts=[["1",21],["2",13],["5",7],["10",4]],used=Object.fromEntries(counts.map(([k])=>[k,0])),score=Object.fromEntries(counts.map(([k])=>[k,0]));let total=45;for(let i=0;i<54;i++){if(out[i])continue;let pick=counts[0][0],best=-Infinity;for(const [name,count] of counts){score[name]+=count;if(used[name]<count&&score[name]>best){best=score[name];pick=name}}out[i]=pick;used[pick]++;score[pick]-=total}return out})();
 const ctColors={"1":"#b98a35","2":"#347fc5","5":"#279568","10":"#c14c60","Coin Flip":"#347fc5","Cash Hunt":"#299568","Pachinko":"#8b4bb3","Crazy Time":"#c04470"};
 const ctWheel=document.getElementById("ctWheel");
 let ctSelected=new Set(),ctBets=[],ctBusy=false,ctPhase="idle",ctTimerInterval=null,ctSpinTimeout=null,ctRoundLeft=15,ctTopBet="",ctTopMulti=1,ctBonusPending=0;
