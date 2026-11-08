@@ -6,7 +6,8 @@ const port=process.env.PORT||8080;
 http.createServer((req,res)=>{
   let pathname;
   try{pathname=decodeURIComponent(new URL(req.url,'http://localhost').pathname)}catch(e){res.writeHead(400);return res.end('Bad request')}
-  const relative=pathname==='/'?'index.html':pathname.replace(/^\\/+/, '');
+  let relative=pathname==='/'?'index.html':pathname;
+  while(relative.startsWith('/')) relative=relative.slice(1);
   const file=path.resolve(root,relative);
   if(file!==root&&!file.startsWith(root+path.sep)){res.writeHead(403);return res.end('Forbidden')}
   fs.readFile(file,(err,data)=>{
