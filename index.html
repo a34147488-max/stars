@@ -43,6 +43,25 @@ button:active{transform:scale(.975);filter:brightness(1.18)}
 .toast{position:fixed;left:20px;right:20px;bottom:calc(env(safe-area-inset-bottom) + 24px);margin:auto;max-width:440px;padding:14px 16px;border-radius:16px;background:rgba(30,30,30,.94);border:1px solid rgba(255,255,255,.14);color:#eee;font-size:13px;text-align:center;opacity:0;transform:translateY(10px);transition:.2s;pointer-events:none}
 .toast.show{opacity:1;transform:translateY(0)}
 @media(min-width:600px){.wallet{min-height:300px;padding:34px}.actions{margin-top:48px}}
+
+.modal-backdrop{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;padding:22px;background:rgba(0,0,0,.62);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);opacity:0;transition:opacity .22s}
+.modal-backdrop.open{display:flex;opacity:1}
+.modal{width:min(100%,420px);padding:25px 22px 20px;border:1px solid rgba(255,255,255,.18);border-radius:28px;background:linear-gradient(145deg,rgba(48,43,31,.96),rgba(17,17,17,.97));box-shadow:0 24px 90px rgba(0,0,0,.65),inset 0 1px rgba(255,255,255,.12);transform:translateY(12px) scale(.98);transition:transform .22s}
+.modal-backdrop.open .modal{transform:translateY(0) scale(1)}
+.modal-title{font-size:21px;font-weight:750;letter-spacing:-.03em}
+.modal-hint{margin-top:8px;color:rgba(255,255,255,.52);font-size:13px;line-height:1.45}
+.amount-input-wrap{display:flex;align-items:center;gap:10px;margin-top:23px;padding:0 16px;height:58px;border:1px solid rgba(255,255,255,.16);border-radius:16px;background:rgba(255,255,255,.055);transition:border-color .2s,box-shadow .2s}
+.amount-input-wrap:focus-within{border-color:rgba(242,200,94,.65);box-shadow:0 0 0 3px rgba(242,200,94,.09),0 0 24px rgba(242,200,94,.1)}
+.amount-input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:#fff;font:700 23px -apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;font-variant-numeric:tabular-nums}
+.amount-input::placeholder{color:rgba(255,255,255,.27)}
+.input-unit{color:#f2c85e;font-weight:750;letter-spacing:.1em}
+.modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-top:20px}
+.modal-actions button{height:52px}
+.modal-submit{opacity:.38;filter:saturate(.5);box-shadow:none;pointer-events:none}
+.modal-submit.ready{opacity:1;filter:none;pointer-events:auto;box-shadow:0 0 0 1px rgba(255,222,145,.24),0 0 22px rgba(239,190,75,.32),0 8px 25px rgba(201,151,48,.2);animation:buttonPulse 1.8s ease-in-out infinite}
+.modal-cancel{background:rgba(255,255,255,.075);border-color:rgba(255,255,255,.14);color:rgba(255,255,255,.82)}
+@keyframes buttonPulse{0%,100%{box-shadow:0 0 0 1px rgba(255,222,145,.2),0 0 15px rgba(239,190,75,.22)}50%{box-shadow:0 0 0 1px rgba(255,222,145,.42),0 0 28px rgba(239,190,75,.42)}}
+@media(prefers-reduced-motion:reduce){.modal-backdrop,.modal,.modal-submit.ready{transition:none;animation:none}}
 </style></head>
 <body><div class="coin-field" aria-hidden="true"><svg class="floating-coin" viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="#d8ad4b"/><circle cx="50" cy="50" r="42" fill="none" stroke="#fff0b4" stroke-width="2"/><text x="50" y="59" text-anchor="middle" font-size="24" font-weight="800" fill="#fff0b4">WC</text></svg><svg class="floating-coin" viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="#d8ad4b"/><circle cx="50" cy="50" r="42" fill="none" stroke="#fff0b4" stroke-width="2"/><text x="50" y="59" text-anchor="middle" font-size="24" font-weight="800" fill="#fff0b4">WC</text></svg><svg class="floating-coin" viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="#d8ad4b"/><circle cx="50" cy="50" r="42" fill="none" stroke="#fff0b4" stroke-width="2"/><text x="50" y="59" text-anchor="middle" font-size="24" font-weight="800" fill="#fff0b4">WC</text></svg><svg class="floating-coin" viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="#d8ad4b"/><circle cx="50" cy="50" r="42" fill="none" stroke="#fff0b4" stroke-width="2"/><text x="50" y="59" text-anchor="middle" font-size="24" font-weight="800" fill="#fff0b4">WC</text></svg></div><main>
 <section class="wallet" aria-label="Баланс WC">
@@ -63,13 +82,39 @@ button:active{transform:scale(.975);filter:brightness(1.18)}
 <button class="nav-btn" data-tab="Играть"><svg viewBox="0 0 24 24"><path d="m9 6 10 6-10 6z"/></svg><span>Играть</span></button>
 <button class="nav-btn" data-tab="Топ"><svg viewBox="0 0 24 24"><path d="M8 20h8M12 16v4M7 4h10l-1 8a4 4 0 0 1-8 0L7 4ZM7 7H4v2a4 4 0 0 0 4 4M17 7h3v2a4 4 0 0 1-4 4"/></svg><span>Топ</span></button>
 <button class="nav-btn" data-tab="Еще"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg><span>Еще</span></button>
-</nav><div class="toast" id="toast" role="status"></div>
+</nav>
+<div class="modal-backdrop" id="moneyModal" aria-hidden="true">
+ <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal-title" id="modalTitle">Пополнение</div>
+  <div class="modal-hint" id="modalHint">Введите сумму, на которую хотите пополнить баланс WC</div>
+  <label class="amount-input-wrap"><input class="amount-input" id="moneyAmount" type="number" inputmode="decimal" min="1" step="1" placeholder="Введите сумму" autocomplete="off"><span class="input-unit">WC</span></label>
+  <div class="modal-actions"><button class="primary modal-submit" id="moneySubmit" disabled>Пополнить</button><button class="modal-cancel" id="moneyCancel">Отменить</button></div>
+ </section>
+</div><div class="toast" id="toast" role="status"></div>
 <script>
 (()=>{const tg=window.Telegram?.WebApp;try{tg?.ready();tg?.expand();tg?.setHeaderColor?.("#050505");tg?.setBackgroundColor?.("#050505")}catch(e){}
 const toast=document.getElementById("toast");let timer;
 function message(text){toast.textContent=text;toast.classList.add("show");clearTimeout(timer);timer=setTimeout(()=>toast.classList.remove("show"),2600);try{tg?.HapticFeedback?.impactOccurred("light")}catch(e){}}
-document.getElementById("topup").addEventListener("click",()=>message("Пополнение WC будет доступно после подключения платёжного сервера."));
-document.getElementById("withdraw").addEventListener("click",()=>message("Вывод WC будет доступен после подключения платёжного сервера."));
+const modal=document.getElementById("moneyModal"),amountInput=document.getElementById("moneyAmount"),submit=document.getElementById("moneySubmit"),cancel=document.getElementById("moneyCancel");
+let moneyMode="topup";
+function openMoneyModal(mode){
+ moneyMode=mode;
+ document.getElementById("modalTitle").textContent=mode==="topup"?"Пополнение":"Вывод средств";
+ document.getElementById("modalHint").textContent=mode==="topup"?"Введите сумму, на которую хотите пополнить баланс WC":"Введите сумму WC, которую хотите вывести";
+ submit.textContent=mode==="topup"?"Пополнить":"Вывести";
+ amountInput.value="";submit.disabled=true;submit.classList.remove("ready");
+ modal.style.display="flex";requestAnimationFrame(()=>modal.classList.add("open"));modal.setAttribute("aria-hidden","false");
+ setTimeout(()=>amountInput.focus(),100);
+ try{tg?.HapticFeedback?.impactOccurred("light")}catch(e){}
+}
+function closeMoneyModal(){modal.classList.remove("open");modal.setAttribute("aria-hidden","true");setTimeout(()=>{if(!modal.classList.contains("open"))modal.style.display="none"},220)}
+amountInput.addEventListener("input",()=>{const value=Number(amountInput.value);const valid=Number.isFinite(value)&&value>0&&amountInput.value.trim()!=="";submit.disabled=!valid;submit.classList.toggle("ready",valid)});
+document.getElementById("topup").addEventListener("click",()=>openMoneyModal("topup"));
+document.getElementById("withdraw").addEventListener("click",()=>openMoneyModal("withdraw"));
+cancel.addEventListener("click",closeMoneyModal);
+modal.addEventListener("click",event=>{if(event.target===modal)closeMoneyModal()});
+submit.addEventListener("click",()=>{const value=Number(amountInput.value);if(!(value>0))return;closeMoneyModal();message((moneyMode==="topup"?"Заявка на пополнение ":"Заявка на вывод ")+value.toLocaleString("ru-RU")+" WC. Подключение операций ещё не настроено.");});
+document.addEventListener("keydown",event=>{if(event.key==="Escape"&&modal.classList.contains("open"))closeMoneyModal()});
 document.querySelectorAll(".nav-btn").forEach(button=>button.addEventListener("click",()=>{
  document.querySelectorAll(".nav-btn").forEach(item=>{item.classList.remove("active");item.removeAttribute("aria-current")});
  button.classList.add("active");button.setAttribute("aria-current","page");
