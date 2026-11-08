@@ -207,7 +207,7 @@ button:active{transform:scale(.975);filter:brightness(1.18)}
   <label class="amount-input-wrap"><input class="amount-input" id="moneyAmount" type="number" inputmode="decimal" min="1" step="1" placeholder="Введите сумму" autocomplete="off"><span class="input-unit">WC</span></label>
   <div class="modal-actions"><button class="primary modal-submit" id="moneySubmit" disabled>Пополнить</button><button class="modal-cancel" id="moneyCancel">Отменить</button></div>
  </section>
-</div><div class="toast" id="toast" role="status"></div>
+</div><div class="modal-backdrop" id="actionModal" aria-hidden="true"><section class="modal" role="dialog" aria-modal="true"><div class="modal-title" id="actionTitle"></div><div class="modal-hint" id="actionHint"></div><div id="actionContent" style="margin-top:16px"></div><div class="modal-actions"><button class="primary" id="actionConfirm">Сохранить</button><button class="modal-cancel" id="actionCancel">Отменить</button></div></section></div><div class="toast" id="toast" role="status"></div>
 <script>
 (()=>{const tg=window.Telegram?.WebApp;try{tg?.ready();tg?.expand();tg?.setHeaderColor?.("#050505");tg?.setBackgroundColor?.("#050505")}catch(e){}
 const toast=document.getElementById("toast");let timer;
@@ -246,7 +246,29 @@ function showScreen(id){document.querySelectorAll(".app-screen").forEach(s=>s.cl
 function activeTab(tab){document.querySelectorAll(".nav-btn").forEach(item=>{item.classList.toggle("active",item.dataset.tab===tab);if(item.dataset.tab===tab)item.setAttribute("aria-current","page");else item.removeAttribute("aria-current")})}
 document.querySelectorAll(".nav-btn").forEach(button=>button.addEventListener("click",()=>{const tab=button.dataset.tab;activeTab(tab);if(tab==="Меню")showScreen("wallet");else if(tab==="Топ")showScreen("top");else if(tab==="Еще")showScreen("moreScreen");else if(tab==="Играть")showScreen("playScreen");try{tg?.HapticFeedback?.selectionChanged()}catch(e){}}));
 document.getElementById("openMines").addEventListener("click",()=>{showScreen("minesScreen");activeTab("Играть");resetBoard()});
-document.querySelectorAll("[data-more]").forEach(btn=>btn.addEventListener("click",()=>{const actions={promo:["Промокод","Введите промокод для активации."],nickname:["Сменить никнейм","Функция смены никнейма будет подключена к профилю."],color:["Сменить цвет","Выбор цветовой темы будет добавлен здесь."],referral:["Реферальная система","Реферальные ссылки и начисление бонусов появятся после подключения сервера."]};const item=actions[btn.dataset.more];message(item[0]+": "+item[1])}));
+
+const actionModal=document.getElementById("actionModal"),actionContent=document.getElementById("actionContent"),actionConfirm=document.getElementById("actionConfirm");
+let actionKind="",refCode="",chosenColor="gold";
+function closeAction(){actionModal.classList.remove("open");actionModal.setAttribute("aria-hidden","true");setTimeout(()=>{if(!actionModal.classList.contains("open"))actionModal.style.display="none"},220)}
+function openAction(kind){
+ actionKind=kind;actionContent.innerHTML="";actionConfirm.textContent="Сохранить";
+ const title=document.getElementById("actionTitle"),hint=document.getElementById("actionHint");
+ if(kind==="promo"){title.textContent="Промокод";hint.textContent="Введите промокод для активации.";actionConfirm.textContent="Активировать";actionContent.innerHTML='<input id="actionValue" class="game-input" maxlength="40" placeholder="Промокод">'}
+ else if(kind==="nickname"){title.textContent="Сменить никнейм";hint.textContent="Введите новое имя (2–20 символов).";let val="";try{val=localStorage.getItem("wc_nickname")||""}catch(e){}actionContent.innerHTML='<input id="actionValue" class="game-input" maxlength="20" placeholder="Новый никнейм" value="'+val.replace(/[&<>"]/g,"")+'">'}
+ else if(kind==="color"){title.textContent="Сменить цвет";hint.textContent="Выберите цвет оформления.";chosenColor=document.body.dataset.palette||"gold";const colors=[["gold","#b9892d"],["blue","#347fc5"],["green","#29966b"],["violet","#8954c7"]];actionContent.innerHTML='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">'+colors.map(([n,c])=>'<button type="button" data-color="'+n+'" style="height:48px;background:'+c+';border:2px solid '+(n===chosenColor?"white":"rgba(255,255,255,.18)")+'"></button>').join("")+'</div>';actionContent.querySelectorAll("[data-color]").forEach(b=>b.addEventListener("click",()=>{chosenColor=b.dataset.color;actionContent.querySelectorAll("[data-color]").forEach(x=>x.style.borderColor=x===b?"white":"rgba(255,255,255,.18)")}))}
+ else if(kind==="referral"){title.textContent="Реферальная система";hint.textContent="Ваш персональный код приглашения.";let id="guest";try{id=String(tg?.initDataUnsafe?.user?.id||"guest")}catch(e){}refCode="WC"+id.replace(/[^a-z0-9]/gi,"").slice(-8).toUpperCase();actionContent.innerHTML='<div style="padding:16px;text-align:center;border:1px dashed rgba(242,200,94,.5);border-radius:15px;color:#f3d17b;font-size:20px;font-weight:850;letter-spacing:.12em">'+refCode+'</div><div class="modal-hint">Код можно скопировать. Начисление бонусов появится после подключения серверной реферальной системы.</div>';actionConfirm.textContent="Скопировать код"}
+ actionModal.style.display="flex";requestAnimationFrame(()=>actionModal.classList.add("open"));actionModal.setAttribute("aria-hidden","false");
+}
+document.querySelectorAll("[data-more]").forEach(btn=>btn.addEventListener("click",()=>openAction(btn.dataset.more)));
+document.getElementById("actionCancel").addEventListener("click",closeAction);
+actionModal.addEventListener("click",e=>{if(e.target===actionModal)closeAction()});
+actionConfirm.addEventListener("click",async()=>{
+ if(actionKind==="promo"){const v=document.getElementById("actionValue")?.value.trim();if(!v){message("Введите промокод.");return}message("Проверка промокодов пока не подключена к серверу.");return}
+ if(actionKind==="nickname"){const v=document.getElementById("actionValue")?.value.trim();if(!v||v.length<2){message("Никнейм должен содержать минимум 2 символа.");return}try{localStorage.setItem("wc_nickname",v)}catch(e){}closeAction();message("Никнейм сохранён на этом устройстве.");return}
+ if(actionKind==="color"){const colors={gold:["#100d06","#3a2b10","#17130b","#080808"],blue:["#06101b","#102e48","#101a2c","#05080e"],green:["#06150f","#123b2a","#101d18","#050a08"],violet:["#10091b","#302044","#191329","#07050b"]};const c=colors[chosenColor];document.body.style.background="linear-gradient(135deg,"+c.join(",")+")";document.body.dataset.palette=chosenColor;try{localStorage.setItem("wc_palette",chosenColor)}catch(e){}closeAction();message("Цвет оформления изменён.");return}
+ if(actionKind==="referral"){try{await navigator.clipboard.writeText(refCode);message("Код скопирован.");}catch(e){message("Ваш код: "+refCode)}return}
+});
+
 document.querySelectorAll("#difficulty button").forEach(btn=>btn.addEventListener("click",()=>{if(gameActive)return;document.querySelectorAll("#difficulty button").forEach(x=>x.classList.toggle("selected",x===btn));mineCount=Number(btn.dataset.mines);updateMineStats()}));
 let demoBalance=1000,mineCount=3,gameActive=false,bet=25,opened=0,mineSet=new Set(),gameOver=false;
 const grid=document.getElementById("minesGrid"),betField=document.getElementById("betAmount"),startBtn=document.getElementById("startMines"),cashBtn=document.getElementById("cashout");
