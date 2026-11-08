@@ -98,6 +98,38 @@ button:active{transform:scale(.975);filter:brightness(1.18)}
 .leader-caption{font-size:10px;color:rgba(255,255,255,.38);margin-top:2px}
 .leader-score{font-size:13px;font-weight:800;color:#f0d18a;white-space:nowrap;font-variant-numeric:tabular-nums}
 .top-note{margin:12px 4px 0;font-size:10px;line-height:1.45;color:rgba(255,255,255,.35);text-align:center}
+
+/* Additional sections */
+.app-screen{display:none;width:100%;max-height:calc(100svh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 122px);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;padding:4px 2px 14px}
+.app-screen.visible{display:block;animation:topEnter .28s ease both}
+.section-head{text-align:center;margin:4px 0 18px}.section-head small{color:#e8c66e;letter-spacing:.2em;text-transform:uppercase;font-size:10px;font-weight:800}.section-head h1{font-size:29px;letter-spacing:-.05em;margin:6px 0 0}
+.menu-list{display:grid;gap:10px}.menu-action{width:100%;height:auto;min-height:66px;padding:13px 16px;display:flex;align-items:center;gap:13px;text-align:left;border:1px solid rgba(255,255,255,.12);border-radius:19px;background:linear-gradient(115deg,rgba(255,255,255,.09),rgba(255,255,255,.025));box-shadow:inset 0 1px rgba(255,255,255,.07);color:#fff}
+.menu-action .menu-symbol{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;color:#f2ce78;background:rgba(235,190,83,.12);border:1px solid rgba(235,190,83,.2);font-size:19px}
+.menu-action strong{display:block;font-size:14px}.menu-action small{display:block;color:rgba(255,255,255,.42);font-size:11px;margin-top:4px}
+.game-cover{position:relative;overflow:hidden;min-height:190px;padding:20px;border-radius:25px;border:1px solid rgba(255,221,144,.3);background:radial-gradient(ellipse at 80% 42%,rgba(241,191,76,.24),transparent 37%),linear-gradient(135deg,#3c2b10,#17130b 55%,#090909);box-shadow:0 0 30px rgba(224,171,57,.12),inset 0 1px rgba(255,255,255,.13)}
+.game-cover:after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 35%,rgba(255,255,255,.08) 50%,transparent 64%);transform:translateX(-100%);animation:coverShine 6s ease-in-out infinite}
+@keyframes coverShine{0%,55%{transform:translateX(-100%)}85%,100%{transform:translateX(100%)}}
+.cover-kicker{position:relative;z-index:1;color:#f3d58b;font-size:10px;font-weight:800;letter-spacing:.2em}.cover-title{position:relative;z-index:1;margin-top:9px;font-size:36px;font-weight:900;letter-spacing:-.06em}.cover-desc{position:relative;z-index:1;max-width:210px;margin-top:5px;color:rgba(255,255,255,.6);font-size:12px;line-height:1.45}
+.cover-coin{position:absolute;right:12px;top:8px;width:174px;height:174px;filter:drop-shadow(0 0 22px rgba(243,192,78,.35));animation:coverCoin 8s ease-in-out infinite}
+@keyframes coverCoin{0%,100%{transform:rotate(-12deg) translateY(0)}50%{transform:rotate(8deg) translateY(-9px)}}
+.game-mode-card{margin-top:13px;padding:17px;border:1px solid rgba(255,255,255,.12);border-radius:22px;background:rgba(255,255,255,.055)}
+.game-mode-card h3{margin:0;font-size:17px}.game-mode-card p{margin:6px 0 14px;color:rgba(255,255,255,.47);font-size:12px;line-height:1.45}
+.game-start{width:100%;background:linear-gradient(135deg,#f0ca68,#b9892d);color:#211909;border-color:rgba(255,226,154,.65);box-shadow:0 0 24px rgba(201,151,48,.2)}
+.mines-panel{padding:15px;border-radius:23px;border:1px solid rgba(255,255,255,.14);background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.025));box-shadow:inset 0 1px rgba(255,255,255,.07)}
+.game-topline{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:13px}.game-balance{font-size:12px;color:rgba(255,255,255,.5)}.game-balance b{color:#f3d17b;font-size:15px}
+.difficulty{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0 14px}.difficulty button{height:38px;border-radius:12px;font-size:12px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.65)}
+.difficulty button.selected{background:rgba(232,184,75,.16);border-color:rgba(242,200,94,.55);color:#ffe3a0;box-shadow:0 0 14px rgba(242,200,94,.12)}
+.game-label{display:block;margin:12px 0 6px;color:rgba(255,255,255,.52);font-size:11px}
+.game-input{width:100%;height:46px;padding:0 13px;border-radius:13px;border:1px solid rgba(255,255,255,.13);outline:none;background:rgba(0,0,0,.24);color:white;font-size:16px;font-weight:700}
+.game-input:focus{border-color:rgba(242,200,94,.6);box-shadow:0 0 0 3px rgba(242,200,94,.08)}
+.mines-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:15px 0}
+.mine-cell{aspect-ratio:1;border-radius:12px;border:1px solid rgba(255,255,255,.13);background:linear-gradient(145deg,#353b3d,#171b1d);box-shadow:inset 0 2px rgba(255,255,255,.08),0 4px 8px rgba(0,0,0,.22);display:grid;place-items:center;font-size:21px;color:#fff;transition:transform .16s,background .2s,border-color .2s;min-width:0;padding:0}
+.mine-cell:not(:disabled):active{transform:scale(.92)}.mine-cell.safe{background:linear-gradient(145deg,#76602a,#30240d);border-color:rgba(255,215,111,.55);animation:cellPop .28s ease}.mine-cell.boom{background:linear-gradient(145deg,#7d2929,#321010);border-color:rgba(255,100,100,.6);animation:cellPop .28s ease}.mine-cell:disabled{cursor:default;opacity:1}
+@keyframes cellPop{0%{transform:scale(.72)}75%{transform:scale(1.08)}100%{transform:scale(1)}}
+.mine-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}.mine-stat{padding:10px;border-radius:13px;background:rgba(0,0,0,.22);text-align:center}.mine-stat small{display:block;color:rgba(255,255,255,.4);font-size:10px}.mine-stat b{display:block;margin-top:3px;color:#f4d17a;font-size:16px}
+.mine-controls{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}.mine-controls button{height:48px;font-size:13px}.mine-main{background:linear-gradient(135deg,#f0ca68,#b9892d);color:#211909;border-color:rgba(255,226,154,.65)}.mine-cashout{background:rgba(79,164,111,.16);border-color:rgba(110,220,150,.3);color:#a9f0bf}.mine-cashout:disabled{opacity:.35}
+.game-message{min-height:20px;margin:8px 0 0;text-align:center;font-size:12px;color:rgba(255,255,255,.58)}
+.game-disclaimer{margin:11px 4px 0;text-align:center;font-size:10px;line-height:1.45;color:rgba(255,255,255,.32)}
 </style></head>
 <body><div class="coin-field" aria-hidden="true"><svg class="floating-coin" viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="#d8ad4b"/><circle cx="50" cy="50" r="42" fill="none" stroke="#fff0b4" stroke-width="2"/><text x="50" y="59" text-anchor="middle" font-size="24" font-weight="800" fill="#fff0b4">WC</text></svg><svg class="floating-coin" viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="#d8ad4b"/><circle cx="50" cy="50" r="42" fill="none" stroke="#fff0b4" stroke-width="2"/><text x="50" y="59" text-anchor="middle" font-size="24" font-weight="800" fill="#fff0b4">WC</text></svg><svg class="floating-coin" viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="#d8ad4b"/><circle cx="50" cy="50" r="42" fill="none" stroke="#fff0b4" stroke-width="2"/><text x="50" y="59" text-anchor="middle" font-size="24" font-weight="800" fill="#fff0b4">WC</text></svg><svg class="floating-coin" viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="#d8ad4b"/><circle cx="50" cy="50" r="42" fill="none" stroke="#fff0b4" stroke-width="2"/><text x="50" y="59" text-anchor="middle" font-size="24" font-weight="800" fill="#fff0b4">WC</text></svg></div><main>
 <section class="wallet" aria-label="Баланс WC">
@@ -130,7 +162,39 @@ button:active{transform:scale(.975);filter:brightness(1.18)}
  </div>
  <div class="top-note">В рейтинг входит сумма выигрышей за текущий день. Новый топ начинается ежедневно в 00:00 по Москве.</div>
 </section></main>
-<nav class="bottom-nav" aria-label="Основная навигация">
+
+<section class="app-screen" id="moreScreen" aria-label="Ещё">
+ <header class="section-head"><small>Персональные настройки</small><h1>Ещё</h1></header>
+ <div class="menu-list">
+  <button class="menu-action" data-more="promo"><span class="menu-symbol">✦</span><span><strong>Промокод</strong><small>Активировать бонусный код</small></span></button>
+  <button class="menu-action" data-more="nickname"><span class="menu-symbol">✎</span><span><strong>Сменить никнейм</strong><small>Изменить имя в приложении</small></span></button>
+  <button class="menu-action" data-more="color"><span class="menu-symbol">◈</span><span><strong>Сменить цвет</strong><small>Выбрать цвет оформления</small></span></button>
+  <button class="menu-action" data-more="referral"><span class="menu-symbol">♧</span><span><strong>Реферальная система</strong><small>Приглашайте друзей и получайте бонусы</small></span></button>
+ </div>
+</section>
+<section class="app-screen" id="playScreen" aria-label="Играть">
+ <header class="section-head"><small>Игровая зона</small><h1>Играть</h1></header>
+ <div class="game-cover">
+  <div class="cover-kicker">WC ORIGINAL GAME</div><div class="cover-title">MINES</div><div class="cover-desc">Открывай безопасные клетки, увеличивай множитель и забирай выигрыш вовремя.</div>
+  <svg class="cover-coin" viewBox="0 0 200 200" aria-label="Монета WC"><defs><linearGradient id="mineGold" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff2b5"/><stop offset=".45" stop-color="#e8b943"/><stop offset="1" stop-color="#8d5d13"/></linearGradient></defs><circle cx="100" cy="100" r="91" fill="url(#mineGold)"/><circle cx="100" cy="100" r="82" fill="none" stroke="#fff0b6" stroke-width="3"/><circle cx="100" cy="100" r="72" fill="none" stroke="#986b1b" stroke-width="2"/><path d="M48 79 65 126 83 91 101 126 119 79 139 126 153 79" fill="none" stroke="#fff0b6" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><text x="100" y="158" text-anchor="middle" font-size="17" font-weight="900" fill="#fff0b6" letter-spacing="4">WC</text></svg>
+ </div>
+ <div class="game-mode-card"><h3>Мины</h3><p>Выбери сложность, установи ставку и проверь удачу на поле 5×5.</p><button class="game-start" id="openMines">Играть в Мины</button></div>
+</section>
+<section class="app-screen" id="minesScreen" aria-label="Игра Мины">
+ <header class="section-head"><small>WC ORIGINAL GAME</small><h1>Мины</h1></header>
+ <div class="mines-panel">
+  <div class="game-topline"><span class="game-balance">Демо-баланс: <b id="demoBalance">1 000 WC</b></span><span class="game-balance" id="roundStatus">Новая игра</span></div>
+  <label class="game-label">Сложность — количество мин</label>
+  <div class="difficulty" id="difficulty"><button data-mines="3" class="selected">3</button><button data-mines="5">5</button><button data-mines="7">7</button><button data-mines="10">10</button></div>
+  <label class="game-label" for="betAmount">Ставка (WC)</label><input class="game-input" id="betAmount" type="number" min="1" step="1" value="25" inputmode="numeric">
+  <div class="mine-stats"><div class="mine-stat"><small>Текущий множитель</small><b id="mineMultiplier">x1.00</b></div><div class="mine-stat"><small>Можно забрать</small><b id="mineWin">0 WC</b></div></div>
+  <div class="mines-grid" id="minesGrid"></div>
+  <div class="mine-controls"><button class="mine-main" id="startMines">Начать игру</button><button class="mine-cashout" id="cashout" disabled>Забрать</button></div>
+  <div class="game-message" id="mineMessage">Выбери сложность и нажми «Начать игру».</div>
+ </div>
+ <div class="game-disclaimer">Игровой режим пока работает в демонстрационном режиме. Демо-баланс не является реальными WC и не связан с кошельком.</div>
+</section>
+\n<nav class="bottom-nav" aria-label="Основная навигация">
 <button class="nav-btn active" data-tab="Меню" aria-current="page"><svg viewBox="0 0 24 24"><path d="M4 5.5h16M4 12h16M4 18.5h16"/></svg><span>Меню</span></button>
 <button class="nav-btn" data-tab="Играть"><svg viewBox="0 0 24 24"><path d="m9 6 10 6-10 6z"/></svg><span>Играть</span></button>
 <button class="nav-btn" data-tab="Топ"><svg viewBox="0 0 24 24"><path d="M8 20h8M12 16v4M7 4h10l-1 8a4 4 0 0 1-8 0L7 4ZM7 7H4v2a4 4 0 0 0 4 4M17 7h3v2a4 4 0 0 1-4 4"/></svg><span>Топ</span></button>
@@ -178,14 +242,24 @@ function updateTopCountdown(){
  document.getElementById("topCountdown").textContent=h+":"+m+":"+s;
 }
 updateTopCountdown();setInterval(updateTopCountdown,1000);
-\ndocument.querySelectorAll(".nav-btn").forEach(button=>button.addEventListener("click",()=>{
- document.querySelectorAll(".nav-btn").forEach(item=>{item.classList.remove("active");item.removeAttribute("aria-current")});
- button.classList.add("active");button.setAttribute("aria-current","page");
- const tab=button.dataset.tab;
- const wallet=document.querySelector(".wallet"),topScreen=document.getElementById("topScreen");
- if(tab==="Топ"){wallet.classList.add("hidden");topScreen.classList.add("visible");}
- else{topScreen.classList.remove("visible");wallet.classList.remove("hidden");if(tab!=="Меню")message("Раздел «"+tab+"» пока не подключён.");}
- try{tg?.HapticFeedback?.selectionChanged()}catch(e){}
-}));
-})();
+\n
+function showScreen(id){document.querySelectorAll(".app-screen").forEach(s=>s.classList.remove("visible"));document.querySelector(".wallet").classList.add("hidden");document.getElementById("topScreen").classList.remove("visible");if(id==="wallet"){document.querySelector(".wallet").classList.remove("hidden")}else if(id==="top"){document.getElementById("topScreen").classList.add("visible")}else{document.getElementById(id).classList.add("visible")}}
+function activeTab(tab){document.querySelectorAll(".nav-btn").forEach(item=>{item.classList.toggle("active",item.dataset.tab===tab);if(item.dataset.tab===tab)item.setAttribute("aria-current","page");else item.removeAttribute("aria-current")})}
+document.querySelectorAll(".nav-btn").forEach(button=>button.addEventListener("click",()=>{const tab=button.dataset.tab;activeTab(tab);if(tab==="Меню")showScreen("wallet");else if(tab==="Топ")showScreen("top");else if(tab==="Еще")showScreen("moreScreen");else if(tab==="Играть")showScreen("playScreen");try{tg?.HapticFeedback?.selectionChanged()}catch(e){}}));
+document.getElementById("openMines").addEventListener("click",()=>{showScreen("minesScreen");activeTab("Играть");resetBoard()});
+document.querySelectorAll("[data-more]").forEach(btn=>btn.addEventListener("click",()=>{const actions={promo:["Промокод","Введите промокод для активации."],nickname:["Сменить никнейм","Функция смены никнейма будет подключена к профилю."],color:["Сменить цвет","Выбор цветовой темы будет добавлен здесь."],referral:["Реферальная система","Реферальные ссылки и начисление бонусов появятся после подключения сервера."]};const item=actions[btn.dataset.more];message(item[0]+": "+item[1])}));
+document.querySelectorAll("#difficulty button").forEach(btn=>btn.addEventListener("click",()=>{if(gameActive)return;document.querySelectorAll("#difficulty button").forEach(x=>x.classList.toggle("selected",x===btn));mineCount=Number(btn.dataset.mines);updateMineStats()}));
+let demoBalance=1000,mineCount=3,gameActive=false,bet=25,opened=0,mineSet=new Set(),gameOver=false;
+const grid=document.getElementById("minesGrid"),betField=document.getElementById("betAmount"),startBtn=document.getElementById("startMines"),cashBtn=document.getElementById("cashout");
+function fmt(n){return Math.floor(n).toLocaleString("ru-RU")}
+function multiplier(){let m=1;for(let i=0;i<opened;i++)m*=((25-i)/(25-mineCount-i));return m*.97}
+function updateMineStats(){document.getElementById("demoBalance").textContent=fmt(demoBalance)+" WC";document.getElementById("mineMultiplier").textContent="x"+(gameActive?multiplier():1).toFixed(2);document.getElementById("mineWin").textContent=gameActive?fmt(bet*multiplier())+" WC":"0 WC";document.getElementById("roundStatus").textContent=gameActive?"Игра идёт":gameOver?"Раунд завершён":"Новая игра";cashBtn.disabled=!gameActive||opened===0}
+function resetBoard(){grid.innerHTML="";for(let i=0;i<25;i++){const b=document.createElement("button");b.className="mine-cell";b.type="button";b.setAttribute("aria-label","Закрытая клетка");b.disabled=true;grid.appendChild(b)}gameActive=false;gameOver=false;opened=0;mineSet.clear();updateMineStats();document.getElementById("mineMessage").textContent="Выбери сложность и нажми «Начать игру».";startBtn.textContent="Начать игру";cashBtn.disabled=true}
+function startGame(){const v=Number(betField.value);if(!Number.isInteger(v)||v<1){message("Укажи корректную ставку.");return}if(v>demoBalance){message("Недостаточно демо-WC.");return}bet=v;demoBalance-=bet;opened=0;mineSet.clear();while(mineSet.size<mineCount)mineSet.add(Math.floor(Math.random()*25));gameActive=true;gameOver=false;grid.innerHTML="";for(let i=0;i<25;i++){const b=document.createElement("button");b.className="mine-cell";b.type="button";b.setAttribute("aria-label","Открыть клетку");b.addEventListener("click",()=>reveal(i,b));grid.appendChild(b)}startBtn.textContent="Новая игра";document.getElementById("mineMessage").textContent="Поле готово. Открывай клетки и забирай выигрыш.";updateMineStats()}
+function finishRound(won,hitIndex){gameActive=false;gameOver=true;[...grid.children].forEach((cell,i)=>{cell.disabled=true;if(mineSet.has(i)){cell.classList.add("boom");cell.textContent="✹"}else if(!cell.classList.contains("safe")){cell.textContent="·"}});if(won){const prize=Math.floor(bet*multiplier());demoBalance+=prize;document.getElementById("mineMessage").textContent="Выигрыш: +"+fmt(prize)+" демо-WC";}else{if(hitIndex!==undefined){grid.children[hitIndex].textContent="✹";grid.children[hitIndex].classList.add("boom")}document.getElementById("mineMessage").textContent="Мина! Ставка потеряна. Попробуй ещё раз."; }updateMineStats()}
+function reveal(i,cell){if(!gameActive||cell.disabled)return;cell.disabled=true;if(mineSet.has(i)){cell.textContent="✹";finishRound(false,i);return}opened++;cell.textContent="✦";cell.classList.add("safe");document.getElementById("mineMessage").textContent="Безопасно! Можешь продолжить или забрать выигрыш.";updateMineStats();if(opened===25-mineCount)finishRound(true)}
+function cashOut(){if(!gameActive||opened===0)return;finishRound(true)}
+startBtn.addEventListener("click",()=>{if(gameActive){resetBoard();return}startGame()});cashBtn.addEventListener("click",cashOut);
+betField.addEventListener("change",()=>{const v=Math.floor(Number(betField.value));if(v>0)betField.value=v});
+resetBoard();
 </script></body></html>
