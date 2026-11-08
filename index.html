@@ -444,6 +444,19 @@ body.playing-fullscreen .app-screen#coinScreen{width:min(100%,520px);padding-bot
 .ct-screen .ct-wheel-center #ctCenterOutcome .ct-center-icon svg{width:100%;height:100%}
 .ct-screen .ct-wheel-center #ctCenterOutcome .ct-center-result{font-size:clamp(18px,5.5vw,27px)}
 
+
+/* Crazy Time cover art and precision wheel finish */
+#openCrazyTime .ct-cover-art{height:clamp(172px,48vw,205px);min-height:172px;border-radius:19px;position:relative;overflow:hidden;display:block;background:#100d1b;isolation:isolate}
+#openCrazyTime .ct-cover-art>svg{display:block;width:100%;height:100%;object-fit:cover;position:relative;z-index:1}
+#openCrazyTime .ct-cover-art:before{content:"";position:absolute;inset:0;width:auto;height:auto;border:0;border-radius:0;background:linear-gradient(110deg,transparent 15%,#fff1 48%,transparent 70%);background-size:220% 100%;animation:ctCoverSweep 6s ease-in-out infinite;z-index:2;pointer-events:none}
+#openCrazyTime .ct-cover-art:after{content:"";position:absolute;inset:0;border:1px solid #ffe7a044;border-radius:19px;box-shadow:inset 0 1px #fff3,inset 0 -25px 45px #09081266;z-index:3;pointer-events:none}
+@keyframes ctCoverSweep{0%,35%{background-position:180% 0}75%,100%{background-position:-180% 0}}
+.ct-screen .ct-wheel svg .ct-sector{filter:drop-shadow(0 1px 1px #1a0c10)}
+.ct-screen .ct-wheel svg .ct-sector-number{paint-order:stroke;stroke:#28150c;stroke-width:3px}
+.ct-screen .ct-wheel-wrap:after{content:"";position:absolute;inset:-5px;border-radius:50%;border:1px solid #fff2c766;box-shadow:0 0 0 2px #6b421e55,0 0 25px #efbd5866;pointer-events:none;z-index:2}
+.ct-screen .ct-pointer{z-index:5;filter:drop-shadow(0 2px 3px #000) drop-shadow(0 0 5px #ffe7a0)}
+@media(max-width:380px){#openCrazyTime .ct-cover-art{height:180px}}
+
 </style></head>
 <body><div class="coin-field" aria-hidden="true"><svg class="floating-coin" viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="#d8ad4b"/><circle cx="50" cy="50" r="42" fill="none" stroke="#fff0b4" stroke-width="2"/><text x="50" y="59" text-anchor="middle" font-size="24" font-weight="800" fill="#fff0b4">WC</text></svg><svg class="floating-coin" viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="#d8ad4b"/><circle cx="50" cy="50" r="42" fill="none" stroke="#fff0b4" stroke-width="2"/><text x="50" y="59" text-anchor="middle" font-size="24" font-weight="800" fill="#fff0b4">WC</text></svg><svg class="floating-coin" viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="#d8ad4b"/><circle cx="50" cy="50" r="42" fill="none" stroke="#fff0b4" stroke-width="2"/><text x="50" y="59" text-anchor="middle" font-size="24" font-weight="800" fill="#fff0b4">WC</text></svg><svg class="floating-coin" viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="#d8ad4b"/><circle cx="50" cy="50" r="42" fill="none" stroke="#fff0b4" stroke-width="2"/><text x="50" y="59" text-anchor="middle" font-size="24" font-weight="800" fill="#fff0b4">WC</text></svg></div><main>
 <section class="wallet" aria-label="Баланс WC">
@@ -496,7 +509,43 @@ body.playing-fullscreen .app-screen#coinScreen{width:min(100%,520px);padding-bot
    </div>
    <span class="launch-bottom"><span><strong>Мины</strong><small>Поле 5×5 · выбери сложность и ставку</small></span><span class="launch-arrow">ОТКРЫТЬ <b>›</b></span></span>
   </button>
-  <button class="game-mode-card game-mode-launch" id="openCrazyTime" type="button" aria-label="Открыть Crazy Time"><div class="ct-card-art"><b>CRAZY TIME</b></div><span class="launch-bottom"><span><strong>Crazy Time</strong><small>Колесо · 4 бонусные игры · Top Slot</small></span><span class="launch-arrow">ОТКРЫТЬ <b>›</b></span></span></button>
+  <button class="game-mode-card game-mode-launch" id="openCrazyTime" type="button" aria-label="Открыть Crazy Time"><div class="ct-card-art ct-cover-art" aria-hidden="true">
+<svg viewBox="0 0 420 190" role="img" aria-label="Золотое колесо Crazy Time с цветными секторами">
+<defs>
+ <radialGradient id="ctCoverBg"><stop offset="0" stop-color="#64305e"/><stop offset=".58" stop-color="#24152d"/><stop offset="1" stop-color="#090b14"/></radialGradient>
+ <radialGradient id="ctCoverGold" cx="30%" cy="22%"><stop stop-color="#fff4c0"/><stop offset=".25" stop-color="#f6d879"/><stop offset=".65" stop-color="#b77b27"/><stop offset="1" stop-color="#513018"/></radialGradient>
+ <linearGradient id="ctCoverRed" x2="0" y2="1"><stop stop-color="#ff8db9"/><stop offset=".45" stop-color="#e52c87"/><stop offset="1" stop-color="#65194f"/></linearGradient>
+ <filter id="ctCoverGlow"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<rect width="420" height="190" fill="url(#ctCoverBg)"/>
+<g opacity=".5" fill="#ffe9a5"><circle cx="35" cy="35" r="1.5"/><circle cx="82" cy="142" r="1.2"/><circle cx="350" cy="29" r="1.5"/><circle cx="385" cy="131" r="1.3"/><circle cx="300" cy="164" r="1"/></g>
+<g transform="translate(210 94)">
+ <circle r="86" fill="#080910" opacity=".6" filter="url(#ctCoverGlow)"/>
+ <circle r="82" fill="#3c2618" stroke="#5b3b1b" stroke-width="7"/>
+ <circle r="77" fill="url(#ctCoverGold)" stroke="#fff0b2" stroke-width="2"/>
+ <circle r="70" fill="#211522" stroke="#57371b" stroke-width="4"/>
+ <g stroke="#fff0b7" stroke-width="1.5">
+  <path d="M0 0L0-67A67 67 0 0 1 47.3-47.3Z" fill="#e52c87"/>
+  <path d="M0 0L47.3-47.3A67 67 0 0 1 67 0Z" fill="#087bd5"/>
+  <path d="M0 0L67 0A67 67 0 0 1 47.3 47.3Z" fill="#08a66a"/>
+  <path d="M0 0L47.3 47.3A67 67 0 0 1 0 67Z" fill="#d62949"/>
+  <path d="M0 0L0 67A67 67 0 0 1-47.3 47.3Z" fill="#f2ad16"/>
+  <path d="M0 0L-47.3 47.3A67 67 0 0 1-67 0Z" fill="#087bd5"/>
+  <path d="M0 0L-67 0A67 67 0 0 1-47.3-47.3Z" fill="#08a66a"/>
+  <path d="M0 0L-47.3-47.3A67 67 0 0 1 0-67Z" fill="#d62949"/>
+ </g>
+ <g fill="url(#ctCoverGold)" stroke="#fff4c8" stroke-width="1"><circle cx="0" cy="-74" r="3.2"/><circle cx="52.3" cy="-52.3" r="3.2"/><circle cx="74" cy="0" r="3.2"/><circle cx="52.3" cy="52.3" r="3.2"/><circle cx="0" cy="74" r="3.2"/><circle cx="-52.3" cy="52.3" r="3.2"/><circle cx="-74" cy="0" r="3.2"/><circle cx="-52.3" cy="-52.3" r="3.2"/></g>
+ <circle r="29" fill="url(#ctCoverGold)" stroke="#fff3bd" stroke-width="3"/><circle r="22" fill="#5a1e49" stroke="#f5d98a" stroke-width="2"/>
+ <path d="M-10-5L0-14 10-5 7 10 0 15-7 10Z" fill="url(#ctCoverRed)" stroke="#ffe7a8" stroke-width="1.5"/>
+ <path d="M-5-3L0-8 5-3 0 4Z" fill="#fff0b7"/>
+</g>
+<path d="M210 8l-9 17h18Z" fill="#fff0b7" stroke="#8d5c25" stroke-width="2"/>
+<g font-family="Arial,sans-serif" font-weight="1000" text-anchor="middle" filter="url(#ctCoverGlow)">
+ <text x="210" y="177" font-size="22" letter-spacing="4" fill="#ffe5a0" stroke="#6c3157" stroke-width="1">CRAZY TIME</text>
+</g>
+<path d="M34 166H386" stroke="#f4d17b" stroke-opacity=".35"/>
+</svg>
+<div class="ct-cover-glass"></div></div><span class="launch-bottom"><span><strong>Crazy Time</strong><small>Колесо · 4 бонусные игры · Top Slot</small></span><span class="launch-arrow">ОТКРЫТЬ <b>›</b></span></span></button>
   <button class="game-mode-card game-mode-launch coin-mode-card" id="openCoin" type="button" aria-label="Открыть игру Монетка">
    <div class="coin-cover">
     <div class="cover-kicker">WC ORIGINAL GAME</div><div class="cover-title">COIN FLIP</div><div class="cover-desc">Выбери золотую или серебряную сторону. Угадай результат и забери x2 от ставки.</div>
@@ -686,17 +735,22 @@ function ctDrawWheel(){
  const cx=220,cy=220,r=190,step=360/ctNames.length;
  const el=(tag,attrs,parent=svg)=>{const n=document.createElementNS(ns,tag);Object.entries(attrs).forEach(([k,v])=>n.setAttribute(k,v));parent.appendChild(n);return n};
  const defs=el("defs",{});
- const shade=el("radialGradient",{id:"ctSectorShade",cx:"34%",cy:"25%",r:"90%"},defs);el("stop",{offset:"0%","stop-color":"#fff","stop-opacity":".2"},shade);el("stop",{offset:"100%","stop-color":"#08040b","stop-opacity":".3"},shade);
+ const shade=el("radialGradient",{id:"ctSectorShade",cx:"30%",cy:"20%",r:"95%"},defs);el("stop",{offset:"0%","stop-color":"#fff","stop-opacity":".32"},shade);el("stop",{offset:"48%","stop-color":"#fff","stop-opacity":".04"},shade);el("stop",{offset:"100%","stop-color":"#08040b","stop-opacity":".42"},shade);
+ const metal=el("linearGradient",{id:"ctMetal",x1:"0",y1:"0",x2:"1",y2:"1"},defs);el("stop",{offset:"0%","stop-color":"#fff1b7"},metal);el("stop",{offset:".22","stop-color":"#b47a2b"},metal);el("stop",{offset:".48","stop-color":"#ffe8a0"},metal);el("stop",{offset:".72","stop-color":"#75431c"},metal);el("stop",{offset:"1","stop-color":"#f8d77d"},metal);
+ const sectorGradients={};
  const hub=el("radialGradient",{id:"ctHub",cx:"35%",cy:"25%",r:"80%"},defs);el("stop",{offset:"0%","stop-color":"#b94d48"},hub);el("stop",{offset:"60%","stop-color":"#742536"},hub);el("stop",{offset:"100%","stop-color":"#200d19"},hub);
- el("circle",{cx,cy,r:218,fill:"#21170e",stroke:"#d7b56c","stroke-width":3});
- el("circle",{cx,cy,r:211,fill:"#986b2e",stroke:"#fff0b6","stroke-width":2.5});
- el("circle",{cx,cy,r:204,fill:"#281b13",stroke:"#67451f","stroke-width":2});
- for(let j=0;j<54;j++){const a=(-90+j*step)*Math.PI/180;el("circle",{cx:220+208*Math.cos(a),cy:220+208*Math.sin(a),r:2.2,fill:"#fff0b5",stroke:"#6c471c","stroke-width":.6})}
+ el("circle",{cx,cy,r:219,fill:"#100b0a",stroke:"#51331b","stroke-width":2});
+ el("circle",{cx,cy,r:215,fill:"url(#ctMetal)",stroke:"#fff0b6","stroke-width":2.5});
+ el("circle",{cx,cy,r:208,fill:"#2a1b13",stroke:"#6b461f","stroke-width":2});
+ el("circle",{cx,cy,r:202,fill:"none",stroke:"#f8e3a0","stroke-width":1.4,"stroke-opacity":".85"});
+ for(let j=0;j<54;j++){const a=(-90+j*step)*Math.PI/180;const x=220+210*Math.cos(a),y=220+210*Math.sin(a);el("circle",{cx:x,cy:y,r:3.1,fill:j%2?"#fff0b5":"#ffca59",stroke:"#69451d","stroke-width":.8});el("circle",{cx:x-.7,cy:y-.8,r:1,fill:"#fff",opacity:".8"})}
+ for(let j=0;j<18;j++){const a=j*Math.PI/9,x=220+199*Math.cos(a),y=220+199*Math.sin(a);el("circle",{cx:x,cy:y,r:1.6,fill:"#fff7d7",opacity:".9"})}
  const palette={"1":["#f2ad16","#ffd45a"],"2":["#087bd5","#54b8ff"],"5":["#08a66a","#50e0a0"],"10":["#d62949","#ff7188"],"Coin Flip":["#00a9c7","#55e5f2"],"Cash Hunt":["#79b900","#c5f45a"],"Pachinko":["#8b35d0","#ca83ff"],"Crazy Time":["#e52c87","#ff83c2"]};
+ Object.entries(palette).forEach(([key,c],n)=>{const g=el("linearGradient",{id:"ctGrad"+n,x1:"0",y1:"0",x2:"1",y2:"1"},defs);el("stop",{offset:"0%","stop-color":c[1]},g);el("stop",{offset:"52%","stop-color":c[0]},g);el("stop",{offset:"100%","stop-color":c[0]},g);sectorGradients[key]="url(#ctGrad"+n+")"});
  ctNames.forEach((name,i)=>{
   const mid=-90+(i+.5)*step,a1=(-90+i*step)*Math.PI/180,a2=(-90+(i+1)*step)*Math.PI/180,x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1),x2=cx+r*Math.cos(a2),y2=cy+r*Math.sin(a2);
-  const colors=palette[name],path=el("path",{"class":"ct-sector","data-outcome":name,d:"M "+cx+" "+cy+" L "+x1+" "+y1+" A "+r+" "+r+" 0 0 1 "+x2+" "+y2+" Z",fill:colors[0],style:"fill:"+colors[0]+";filter:none;opacity:1",stroke:"#fff5cf","stroke-width":2}); 
-  el("path",{d:"M "+(cx+111*Math.cos(a1))+" "+(cy+111*Math.sin(a1))+" L "+x1+" "+y1,stroke:"#fff0c1","stroke-opacity":".55","stroke-width":".65"});
+  const colors=palette[name],path=el("path",{"class":"ct-sector","data-outcome":name,d:"M "+cx+" "+cy+" L "+x1+" "+y1+" A "+r+" "+r+" 0 0 1 "+x2+" "+y2+" Z",fill:sectorGradients[name],style:"fill:"+sectorGradients[name]+";filter:none;opacity:1",stroke:"#fff5cf","stroke-width":2.2}); 
+  el("path",{d:"M "+(cx+112*Math.cos(a1))+" "+(cy+112*Math.sin(a1))+" L "+x1+" "+y1,stroke:"#fff6d8","stroke-opacity":".7","stroke-width":".9"});el("path",{d:"M "+(cx+185*Math.cos(ang))+" "+(cy+185*Math.sin(ang))+" L "+(cx+196*Math.cos(ang))+" "+(cy+196*Math.sin(ang)),stroke:"#fff1bf","stroke-opacity":".75","stroke-width":".9"});
   const ang=mid*Math.PI/180;
   if(["1","2","5","10"].includes(name)){
    const tx=cx+174*Math.cos(ang),ty=cy+174*Math.sin(ang);
@@ -711,13 +765,15 @@ function ctDrawWheel(){
    el("circle",{cx:cx+145*Math.cos(ang),cy:cy+145*Math.sin(ang),r:2.7,fill:"#fff4c9",stroke:"#4b2b12","stroke-width":.7});
   }
  });
- el("circle",{cx,cy,r:126,fill:"none",stroke:"#f7d889","stroke-width":4});
- el("circle",{cx,cy,r:119,fill:"none",stroke:"#4d2e16","stroke-width":2});
- el("circle",{cx,cy,r:112,fill:"#24151c",stroke:"#d4ad5d","stroke-width":5});
- el("circle",{cx,cy,r:102,fill:"url(#ctHub)",stroke:"#fff0b7","stroke-width":2});
- el("circle",{cx,cy,r:92,fill:"none",stroke:"#f4d98b","stroke-width":1.5});
+ el("circle",{cx,cy,r:128,fill:"none",stroke:"url(#ctMetal)","stroke-width":5});
+ el("circle",{cx,cy,r:121,fill:"none",stroke:"#4d2e16","stroke-width":3});
+ el("circle",{cx,cy,r:115,fill:"#24151c",stroke:"url(#ctMetal)","stroke-width":6});
+ el("circle",{cx,cy,r:106,fill:"url(#ctHub)",stroke:"#fff0b7","stroke-width":2.5});
+ el("circle",{cx,cy,r:98,fill:"none",stroke:"#f4d98b","stroke-width":1.5,"stroke-opacity":".9"});
+ el("circle",{cx,cy,r:88,fill:"none",stroke:"#f4d98b","stroke-width":.8,"stroke-opacity":".45"});
  // Center label is rendered once by the HTML hub above; keep the SVG hub purely decorative.
- for(let j=0;j<12;j++){const a=j*Math.PI/6;el("circle",{cx:220+110*Math.cos(a),cy:220+110*Math.sin(a),r:3,fill:"#fff0b4",stroke:"#7d4b21","stroke-width":1})}
+ for(let j=0;j<24;j++){const a=j*Math.PI/12,x=220+111*Math.cos(a),y=220+111*Math.sin(a);el("circle",{cx:x,cy:y,r:4.1,fill:j%2?"#fff0b4":"#f7bd45",stroke:"#70451e","stroke-width":1.1});el("circle",{cx:x-1,cy:y-1.2,r:1.4,fill:"#fff",opacity:".9"})}
+ for(let j=0;j<8;j++){const a=j*Math.PI/4,x=220+132*Math.cos(a),y=220+132*Math.sin(a);el("circle",{cx:x,cy:y,r:2.5,fill:"url(#ctMetal)",stroke:"#fff0b4","stroke-width":.8})}
  ctWheel.innerHTML="";ctWheel.appendChild(svg)
 }
 function ctRenderSlip(){const slip=document.getElementById("ctSlip");if(!ctSelected.size){slip.innerHTML="<span>Выбери один или несколько исходов выше</span>";return}slip.innerHTML=[...ctSelected].map(x=>"<span>"+x+" · "+ctFmt(Number(document.getElementById("ctStake").value)||0)+" WC</span>").join("")}
