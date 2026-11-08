@@ -242,7 +242,6 @@ function updateTopCountdown(){
  document.getElementById("topCountdown").textContent=h+":"+m+":"+s;
 }
 updateTopCountdown();setInterval(updateTopCountdown,1000);
-\n
 function showScreen(id){document.querySelectorAll(".app-screen").forEach(s=>s.classList.remove("visible"));document.querySelector(".wallet").classList.add("hidden");document.getElementById("topScreen").classList.remove("visible");if(id==="wallet"){document.querySelector(".wallet").classList.remove("hidden")}else if(id==="top"){document.getElementById("topScreen").classList.add("visible")}else{document.getElementById(id).classList.add("visible")}}
 function activeTab(tab){document.querySelectorAll(".nav-btn").forEach(item=>{item.classList.toggle("active",item.dataset.tab===tab);if(item.dataset.tab===tab)item.setAttribute("aria-current","page");else item.removeAttribute("aria-current")})}
 document.querySelectorAll(".nav-btn").forEach(button=>button.addEventListener("click",()=>{const tab=button.dataset.tab;activeTab(tab);if(tab==="Меню")showScreen("wallet");else if(tab==="Топ")showScreen("top");else if(tab==="Еще")showScreen("moreScreen");else if(tab==="Играть")showScreen("playScreen");try{tg?.HapticFeedback?.selectionChanged()}catch(e){}}));
